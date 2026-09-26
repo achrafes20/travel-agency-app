@@ -40,21 +40,29 @@ Pour respecter strictement le cahier des charges, le projet est divisé en deux 
 
 ### Prérequis
 - [Java Development Kit (JDK) 21](https://jdk.java.net/21/)
-- [MySQL Server](https://dev.mysql.com/downloads/) en cours d'exécution sur le port 3306.
-- [Maven](https://maven.apache.org/) (souvent inclus dans les IDE modernes).
-- Une extension comme *Live Server* (VS Code) pour le frontend.
+- Un serveur MySQL/MariaDB en cours d'exécution sur le port 3306 (par ex. via [XAMPP](https://www.apachefriends.org/)).
+- Aucune installation Maven séparée n'est nécessaire : le projet embarque son propre wrapper (`mvnw` / `mvnw.cmd`).
+- Une extension comme *Live Server* (VS Code) pour le frontend, ou simplement un navigateur.
 
 ### 1. Configuration de la Base de Données
-Le backend est configuré pour créer automatiquement la base de données si elle n'existe pas. Assurez-vous que les accès root (sans mot de passe par défaut) correspondent à votre installation MySQL locale.
+Le backend est configuré pour créer automatiquement la base de données si elle n'existe pas, et pour créer toutes les tables au premier démarrage (script `backend/src/main/resources/schema.sql`, exécuté automatiquement). Assurez-vous que les accès root (sans mot de passe par défaut) correspondent à votre installation MySQL/XAMPP locale.
 Modifiez si besoin le fichier : `backend/src/main/resources/application.properties`.
 
 ### 2. Lancement du Backend (API)
-Ouvrez un terminal dans le dossier `backend` et exécutez la commande suivante pour lancer le serveur Spring Boot :
+
+**Option A — avec IntelliJ IDEA (recommandé) :**
+1. `File > Open...` et sélectionnez le dossier `backend` (IntelliJ détecte le `pom.xml` et importe le projet Maven automatiquement).
+2. Attendez la fin de l'indexation / du téléchargement des dépendances.
+3. Ouvrez `src/main/java/com/agence/voyage/TravelAgencyApplication.java` et cliquez sur le bouton ▶ (Run) à côté de la méthode `main`.
+
+**Option B — en ligne de commande :**
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
-*(L'API démarrera sur `http://localhost:8080`)*
+*(Sous Windows en PowerShell/CMD : `mvnw.cmd spring-boot:run`)*
+
+Dans les deux cas, l'API démarre sur `http://localhost:8080`.
 
 ### 3. Lancement du Frontend (Interface Client)
 Le frontend est entièrement statique. Pour l'ouvrir :

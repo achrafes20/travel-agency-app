@@ -581,6 +581,31 @@ function admin() {
     } else if (tab === "Bundles") {
       document.getElementById("admin-view").innerHTML =
         `<div class="admin-table-wrap"><div class="table-head"><h2>Idées de voyages combinés</h2></div><table><thead><tr><th>Bundle</th><th>Comprend</th><th>Prix indicatif</th></tr></thead><tbody><tr><td>Séjour ville ocre</td><td>Vol + riad + excursion</td><td>${money(4390)}</td></tr><tr><td>Escapade bleue</td><td>Riad + transfert</td><td>${money(1210)}</td></tr></tbody></table></div>`;
+    } else if (tab === "Utilisateurs") {
+      document.getElementById("admin-view").innerHTML =
+        `<div class="admin-table-wrap"><div class="table-head"><h2>Utilisateurs (base de données)</h2><span id="users-count" style="color:var(--muted)">Chargement…</span></div><table><thead><tr><th>Nom</th><th>Email</th><th>Rôle</th></tr></thead><tbody id="users-tbody"><tr><td colspan="3">Chargement des utilisateurs…</td></tr></tbody></table></div>`;
+      const roleLabel = (r) =>
+        ({ CLIENT: "Client", SUPPLIER: "Fournisseur", AGENT: "Agent", ADMIN: "Administrateur" })[r] || r;
+      fetch("http://localhost:8080/api/users")
+        .then((r) => {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        })
+        .then((users) => {
+          document.getElementById("users-count").textContent =
+            `${users.length} utilisateurs`;
+          document.getElementById("users-tbody").innerHTML = users
+            .map(
+              (u) =>
+                `<tr><td><strong>${u.fullName}</strong></td><td>${u.email}</td><td><span class="badge">${roleLabel(u.role)}</span></td></tr>`,
+            )
+            .join("");
+        })
+        .catch((err) => {
+          document.getElementById("users-count").textContent = "Erreur";
+          document.getElementById("users-tbody").innerHTML =
+            `<tr><td colspan="3">Impossible de charger les utilisateurs depuis l'API (${err.message}). Vérifiez que le backend est démarré sur le port 8080.</td></tr>`;
+        });
     } else {
       document.getElementById("admin-view").innerHTML =
         `<div class="admin-table-wrap"><div class="table-head"><h2>Voyageurs récents</h2></div><table><thead><tr><th>Client</th><th>Référence</th><th>Montant</th></tr></thead><tbody>${all.map((b) => `<tr><td>${b.client}</td><td>${b.ref}</td><td>${money(b.total)}</td></tr>`).join("")}</tbody></table></div>`;

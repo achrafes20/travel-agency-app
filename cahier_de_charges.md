@@ -192,3 +192,41 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - Modération manuelle des offres fournisseurs.
 - Déploiement en production.
 
+---
+
+## 11. Suivi d'avancement
+
+*Dernière mise à jour : 2026-09-26.*
+
+### Phase 1 — Analyse & conception
+✅ **Terminée.** Cahier des charges (ce document) et diagramme d'architecture (`architecture.md`) rédigés.
+
+### Phase 2 — Mise en place & modélisation
+✅ **Terminée.**
+- Projet Spring Boot fonctionnel, connexion MySQL (XAMPP) vérifiée (`backend/pom.xml`, `backend/src/main/resources/application.properties`).
+- Structure Frontend HTML/CSS/JS en place (`frontend/`), page d'accueil et pages catalogue/offre/panier/agent déjà présentes.
+- **Toutes les entités JPA du modèle de données (§6) sont créées**, avec un repository Spring Data pour chacune :
+  - `User` (rôles CLIENT/SUPPLIER/AGENT/ADMIN)
+  - `Offer` (classe abstraite, héritage `SINGLE_TABLE`) + sous-classes `Flight`, `Hotel`, `Car`, `TaxiTransfer`, `Excursion`
+  - `Bundle`, `Cart` / `CartItem`, `PromoCode`, `Booking`, `Payment`, `Notification`, `Destination` / `City`
+- **Script SQL** généré et versionné : `backend/src/main/resources/schema.sql` (exécuté automatiquement au démarrage via `spring.sql.init.mode=always`, idempotent grâce à `CREATE TABLE IF NOT EXISTS`).
+- Premier bout-en-bout validé : entité `User` → repository → contrôleur REST (`GET /api/users`) → CORS → `fetch()` frontend → tableau affiché dans l'onglet « Utilisateurs » de l'espace agent, avec 4 comptes de test (un par rôle) insérés via un `CommandLineRunner`.
+
+### Phase 3 — Fondations & documentation
+⚠️ **Partiellement terminée.**
+- ✅ Diagramme général de l'architecture (`architecture.md`).
+- ❌ Authentification complète (Spring Security + JWT) — **non commencée**. La dépendance Spring Security n'est pas encore ajoutée au `pom.xml`, aucun endpoint de login/register, aucune protection par rôle sur les futurs contrôleurs.
+
+### Phase 4 — Développement des modules
+❌ **Non commencée**, à l'exception d'un aperçu du module Admin (liste des utilisateurs, voir Phase 2). Restent à faire :
+- **Modules transactionnels** (Personne 1) : panier + application des codes promo, workflow réservation/paiement, notifications in-app et envoi d'emails (SMTP), dashboard client. Les entités existent, mais aucune logique métier ni endpoint n'a été écrit.
+- **Catalogue & modules staff** (Personne 2) : catalogue connecté au backend (actuellement données statiques codées en dur dans `app.js`) avec pagination réelle et carte Leaflet, CRUD offres/inventaire côté Supplier, composition de bundles côté Agent, CRUD codes promo + gestion utilisateurs/destinations côté Admin.
+
+### Phase 5 — Intégration & finalisation
+❌ **Non commencée** — bloquée tant que la Phase 4 n'est pas avancée.
+
+### Notes techniques complémentaires
+- Les mots de passe sont actuellement stockés **en clair** dans `users.password` (pas de hachage) : à corriger dès la mise en place de Spring Security en Phase 3.
+- Le dépôt Git ne contenait pas encore de `.gitignore` ; les artefacts compilés (`backend/target/`) étaient suivis par erreur — corrigé (voir `.gitignore` à la racine).
+- Un wrapper Maven (`backend/mvnw`, `mvnw.cmd`) a été ajouté pour que le projet reste exécutable sans installation Maven séparée sur une autre machine.
+
