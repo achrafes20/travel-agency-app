@@ -1,4 +1,4 @@
-package com.agence.voyage.model;
+package com.agence.voyage.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

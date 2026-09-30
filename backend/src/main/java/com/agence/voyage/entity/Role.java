@@ -1,4 +1,4 @@
-package com.agence.voyage.model;
+package com.agence.voyage.entity;
 
 public enum Role {
     CLIENT, SUPPLIER, AGENT, ADMIN

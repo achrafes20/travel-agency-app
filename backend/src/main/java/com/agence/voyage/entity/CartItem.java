@@ -1,4 +1,4 @@
-package com.agence.voyage.model;
+package com.agence.voyage.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;

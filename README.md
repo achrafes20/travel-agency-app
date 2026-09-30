@@ -45,7 +45,7 @@ Pour respecter strictement le cahier des charges, le projet est divisé en deux 
 - Une extension comme *Live Server* (VS Code) pour le frontend, ou simplement un navigateur.
 
 ### 1. Configuration de la Base de Données
-Le backend est configuré pour créer automatiquement la base de données si elle n'existe pas, et pour créer toutes les tables au premier démarrage (script `backend/src/main/resources/schema.sql`, exécuté automatiquement). Assurez-vous que les accès root (sans mot de passe par défaut) correspondent à votre installation MySQL/XAMPP locale.
+Le backend est configuré pour créer automatiquement la base de données si elle n'existe pas, et pour créer/mettre à jour toutes les tables au démarrage via Hibernate (`spring.jpa.hibernate.ddl-auto=update`), à partir des entités JPA. Assurez-vous que les accès root (sans mot de passe par défaut) correspondent à votre installation MySQL/XAMPP locale.
 Modifiez si besoin le fichier : `backend/src/main/resources/application.properties`.
 
 ### 2. Lancement du Backend (API)
@@ -78,7 +78,7 @@ Le frontend est entièrement statique. Pour l'ouvrir :
 travel-agency-app/
 │
 ├── backend/                   # Projet Java Spring Boot
-│   ├── src/main/java/         # Code source Java (Controllers, Services, Models)
+│   ├── src/main/java/         # Code source Java (controller, service, repository, entity, config)
 │   ├── src/main/resources/    # Configuration (application.properties)
 │   └── pom.xml                # Dépendances Maven
 │

@@ -1,7 +1,7 @@
 package com.agence.voyage.config;
 
-import com.agence.voyage.model.Role;
-import com.agence.voyage.model.User;
+import com.agence.voyage.entity.Role;
+import com.agence.voyage.entity.User;
 import com.agence.voyage.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

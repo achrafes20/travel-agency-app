@@ -196,7 +196,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 
 ## 11. Suivi d'avancement
 
-*Dernière mise à jour : 2026-09-26.*
+*Dernière mise à jour : 2026-09-30.*
 
 ### Phase 1 — Analyse & conception
 ✅ **Terminée.** Cahier des charges (ce document) et diagramme d'architecture (`architecture.md`) rédigés.
@@ -209,8 +209,17 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
   - `User` (rôles CLIENT/SUPPLIER/AGENT/ADMIN)
   - `Offer` (classe abstraite, héritage `SINGLE_TABLE`) + sous-classes `Flight`, `Hotel`, `Car`, `TaxiTransfer`, `Excursion`
   - `Bundle`, `Cart` / `CartItem`, `PromoCode`, `Booking`, `Payment`, `Notification`, `Destination` / `City`
-- **Script SQL** généré et versionné : `backend/src/main/resources/schema.sql` (exécuté automatiquement au démarrage via `spring.sql.init.mode=always`, idempotent grâce à `CREATE TABLE IF NOT EXISTS`).
+- **Script SQL** généré (dump du schéma via `mysqldump`) et conservé hors du dépôt Git (stocké séparément par l'équipe). La création/mise à jour des tables en local se fait uniquement via Hibernate (`spring.jpa.hibernate.ddl-auto=update`) à partir des entités JPA — pas de script `schema.sql` dans `backend/src/main/resources/`.
 - Premier bout-en-bout validé : entité `User` → repository → contrôleur REST (`GET /api/users`) → CORS → `fetch()` frontend → tableau affiché dans l'onglet « Utilisateurs » de l'espace agent, avec 4 comptes de test (un par rôle) insérés via un `CommandLineRunner`.
+- Endpoint de vérification de connexion `GET /api/status` ajouté, avec une page `frontend/index.html` minimale qui l'appelle pour afficher « Backend connecté » — utile comme démo rapide de la liaison Frontend/Backend. La page d'accueil complète (contenu original) a été déplacée vers `frontend/accueil.html`.
+
+### Séance 2 — Architecture en couches (IoC / injection de dépendances)
+⚠️ **En cours** — structure Backend terminée, première fonctionnalité métier et pages Frontend à faire.
+- ✅ Package `model` renommé en `entity` (`com.agence.voyage.entity`), enums inclus ; aucun impact sur la base (mappings inchangés).
+- ✅ Couche `service` créée : `UserService` (`@Service`) injecté par constructeur dans `UserController`, qui ne dépend plus directement de `UserRepository`. Le flux `GET /api/users` suit désormais Controller → Service → Repository (comportement inchangé, vérifié au démarrage sur MySQL).
+- ✅ `architecture.md` mis à jour : diagrammes des couches et de séquence, packages, explication IoC / beans / injection par constructeur, entités actuelles.
+- ❌ Première fonctionnalité métier (prévue : Destination / City — module Admin, Phase 4) avec service, contrôleur REST et validation.
+- ❌ Pages Frontend associées (liste, formulaire d'ajout, détail).
 
 ### Phase 3 — Fondations & documentation
 ⚠️ **Partiellement terminée.**
