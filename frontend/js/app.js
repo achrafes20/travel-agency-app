@@ -1,4 +1,6 @@
-﻿const root = "./";
+const root = "./";
+const apiBase = () => window.APP_CONFIG?.apiBase ?? "http://localhost:8080";
+document.documentElement.lang = "fr";
 const data = [
   {
     id: "chefchaouen",
@@ -111,7 +113,6 @@ const data = [
 ];
 const CUR = { MAD: 1, EUR: 0.092, USD: 0.1 };
 const curCode = () => localStorage.getItem("atlas-cur") || "MAD";
-const langCode = () => localStorage.getItem("atlas-lang") || "fr";
 const money = (n) => {
   const c = curCode();
   return (
@@ -158,19 +159,13 @@ const nav = [
   ["Taxi/Transferts", "taxi"],
   ["Excursions", "compass"],
 ];
+const navUrl = (text) =>
+  text === "Hôtels & Riads"
+    ? `${root}accueil.html`
+    : `${root}catalogue.html?type=${encodeURIComponent(text)}`;
+
 function header(active = "") {
-  return `<header><div class="topbar"><div class="container"><a class="brand" href="${root}index.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><div class="top-actions"><div class="locale" id="locale"><button type="button" class="locale-btn" aria-haspopup="true" aria-expanded="false"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span id="locale-label">${{ fr: "FR", ar: "AR", en: "EN" }[langCode()]} · ${curCode()}</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button><div class="locale-menu" role="menu"><div class="locale-title">Langue</div>${[
-    ["fr", "🇫🇷", "Français"],
-    ["ar", "🇲🇦", 'العربية <small class="rtl-tag">RTL</small>'],
-    ["en", "🇬🇧", "English"],
-  ]
-    .map(
-      ([c, f, l]) =>
-        `<button type="button" data-lang="${c}" class="${langCode() === c ? "on" : ""}">${f} ${l}</button>`,
-    )
-    .join(
-      "",
-    )}<div class="locale-title">Devise</div><div class="cur-row">${Object.keys(
+  return `<header><div class="topbar"><div class="container"><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><div class="top-actions"><div class="locale" id="locale"><button type="button" class="locale-btn" aria-haspopup="true" aria-expanded="false"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span id="locale-label">Devise · ${curCode()}</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button><div class="locale-menu" role="menu"><div class="locale-title">Devise d’affichage</div><div class="cur-row">${Object.keys(
     CUR,
   )
     .map(
@@ -179,16 +174,16 @@ function header(active = "") {
     )
     .join(
       "",
-    )}</div></div></div><a class="cart-link" href="${root}panier.html">${icon("cart")} Panier <span class="cart-count" id="cart-count">0</span></a><a class="agent-link" href="${root}agent.html">Espace agent</a></div></div></div><nav class="main-nav"><div class="container">${nav.map(([text, i]) => `<a class="${active === text ? "active" : ""}" href="${root}catalogue.html?type=${encodeURIComponent(text)}">${icon(i)}${text}</a>`).join("")}</div></nav></header>`;
+    )}</div></div></div><a class="cart-link" href="${root}panier.html">${icon("cart")} Panier <span class="cart-count" id="cart-count">0</span></a><a class="client-link" href="${root}client/index.html?page=dashboard">Mon espace</a><a class="supplier-link" href="${root}supplier/index.html">Fournisseur</a><a class="agent-link" href="${root}agent/index.html">Espace agent</a><a class="admin-link" href="${root}admin/index.html">Administration</a></div></div></div><nav class="main-nav"><div class="container">${nav.map(([text, i]) => `<a class="${active === text ? "active" : ""}" href="${navUrl(text)}">${icon(i)}${text}</a>`).join("")}</div></nav></header>`;
 }
 function footer() {
-  return `<footer><div class="container"><div class="footer-row"><div><a class="brand" href="${root}index.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><p>Le Maroc, à votre manière. Des voyages soigneusement imaginés et un accueil qui vient du cœur.</p></div><div class="foot-links"><a href="${root}catalogue.html">Découvrir les offres</a><a href="${root}panier.html">Mon panier</a><a href="${root}agent.html">Espace agent</a></div></div><div class="copyright">© 2026 Atlas Voyage · Créé avec hospitalité au Maroc</div></div></footer>`;
+  return `<footer><div class="container"><div class="footer-row"><div><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><p>Le Maroc, à votre manière. Des voyages soigneusement imaginés et un accueil qui vient du cœur.</p></div><div class="foot-links"><a href="${root}catalogue.html">Découvrir les offres</a><a href="${root}panier.html">Mon panier</a><a href="${root}client/index.html?page=dashboard">Mon espace</a><a href="${root}supplier/index.html">Espace fournisseur</a><a href="${root}agent/index.html">Espace agent</a><a href="${root}admin/index.html">Administration</a></div></div><div class="copyright">© 2026 Atlas Voyage · Créé avec hospitalité au Maroc</div></div></footer>`;
 }
 function searchBar() {
   const p = new URLSearchParams(location.search);
   let dates = JSON.parse(sessionStorage.getItem("atlas-search") || "{}");
   const dateValue = (v) => v || "";
-  return `<form class="search-bar" action="${root}catalogue.html"><div class="search-field destination">${icon("pin")}<div><label for="destination">Destination</label><select id="destination" name="destination"><option value="">Toutes les destinations</option>${["Chefchaouen", "Marrakech", "Fès", "Essaouira", "Tanger"].map((c) => `<option ${p.get("destination") === c || dates.destination === c ? "selected" : ""}>${c}</option>`).join("")}</select></div></div><div class="search-field">${icon("calendar")}<div><label for="depart">Date de départ</label><input id="depart" name="depart" type="date" value="${dateValue(p.get("depart") || dates.depart)}"></div></div><div class="search-field">${icon("calendar")}<div><label for="retour">Date de retour</label><input id="retour" name="retour" type="date" value="${dateValue(p.get("retour") || dates.retour)}"></div></div><div class="search-field">${icon("users")}<div><label for="voyageurs">Voyageurs</label><select id="voyageurs" name="voyageurs">${[1, 2, 3, 4, 5, 6].map((n) => `<option value="${n}" ${Number(p.get("voyageurs") || dates.voyageurs || 2) === n ? "selected" : ""}>${n} voyageur${n > 1 ? "s" : ""}</option>`).join("")}</select></div></div><button class="btn btn-yellow" type="submit">${icon("search")} Rechercher</button></form>`;
+  return `<form class="search-bar" action="${root}catalogue.html" method="GET"><input type="hidden" name="type" value="Hôtels & Riads"><input type="hidden" name="search" value="1"><div class="search-field ville">${icon("pin")}<div><label for="ville">Ville</label><select id="ville" name="ville"><option value="">Toutes les villes</option>${["Chefchaouen", "Marrakech", "Fès", "Essaouira", "Tanger"].map((c) => `<option ${p.get("ville") === c || dates.ville === c ? "selected" : ""}>${c}</option>`).join("")}</select></div></div><div class="search-field">${icon("calendar")}<div><label for="depart">Date de départ</label><input id="depart" name="depart" type="date" value="${dateValue(p.get("depart") || dates.depart)}"></div></div><div class="search-field">${icon("calendar")}<div><label for="retour">Date de retour</label><input id="retour" name="retour" type="date" value="${dateValue(p.get("retour") || dates.retour)}"></div></div><div class="search-field">${icon("users")}<div><label for="voyageurs">Voyageurs</label><select id="voyageurs" name="voyageurs">${[1, 2, 3, 4, 5, 6].map((n) => `<option value="${n}" ${Number(p.get("voyageurs") || dates.voyageurs || 2) === n ? "selected" : ""}>${n} voyageur${n > 1 ? "s" : ""}</option>`).join("")}</select></div></div><button class="btn btn-yellow" type="submit">${icon("search")} Rechercher</button></form>`;
 }
 function card(d) {
   return `<a class="dest-card" href="${root}offre.html?id=${d.id}"><img src="${d.img}" alt="${d.city}" loading="lazy"><div class="dest-card-body"><h3>${d.city}</h3><p>${d.district} · Une invitation au voyage</p><div class="price">À partir de <strong>${money(d.price)}</strong></div></div></a>`;
@@ -196,7 +191,7 @@ function card(d) {
 function home() {
   document.getElementById("app").innerHTML =
     header("Hôtels & Riads") +
-    `<main><section class="hero"><div class="container"><div class="eyebrow">L’ÉVASION COMMENCE ICI</div><h1>Le Maroc vous attend.<br>Vivez-le pleinement.</h1><p>Des ruelles bleues aux dunes dorées, trouvez le voyage qui vous ressemble avec Atlas Voyage.</p></div></section><div class="container search-wrap">${searchBar()}</div><div class="container"><div class="social-proof"><span class="sp-stars" style="color:#feba02">★★★★★</span> <strong>4.6/5</strong> <span style="color:#666">· 12 000 avis voyageurs</span><span class="sp-sep"></span><span class="sp-seen">Vu dans</span><span class="sp-logo">Le Matin</span><span class="sp-logo">TelQuel</span><span class="sp-logo">Hespress</span><span class="sp-logo">Qualité Tourisme</span></div><div class="quick-row">${nav.map(([t, i]) => `<a class="quick" href="${root}catalogue.html?type=${encodeURIComponent(t)}"><span class="quick-ico">${icon(i)}</span><span>${t}</span></a>`).join("")}</div></div><section class="section"><div class="container"><div class="section-head"><div><h2>Destinations populaires</h2><p>Le meilleur du Maroc, à portée de clic.</p></div><a class="text-link" href="${root}catalogue.html">Explorer toutes les offres →</a></div><div class="dest-grid">${data.slice(0, 4).map(card).join("")}</div></div></section><div class="zellige-divider" aria-hidden="true"></div><section class="trust-band"><div class="container trust-grid"><div class="trust">${icon("wallet")}<div><strong>Paiement à l’arrivée disponible</strong><span>Réservez l’esprit tranquille</span></div></div><div class="trust">${icon("shield")}<div><strong>Annulation gratuite</strong><span>Sur une sélection d’offres</span></div></div><div class="trust">${icon("headset")}<div><strong>Support client local</strong><span>Une équipe qui connaît le Maroc</span></div></div></div></section><section class="feature-banner"><div class="container"><div><h2>Votre prochain souvenir commence ici.</h2><p>Riads, excursions et découvertes : à vous de choisir.</p></div><a class="btn btn-ghost" href="${root}catalogue.html">Découvrir les offres ${icon("arrow")}</a></div></section></main>` +
+    `<main><section class="hero"><div class="container"><div class="eyebrow">L’ÉVASION COMMENCE ICI</div><h1>Le Maroc vous attend.<br>Vivez-le pleinement.</h1><p>Des ruelles bleues aux dunes dorées, trouvez le voyage qui vous ressemble avec Atlas Voyage.</p></div></section><div class="container search-wrap">${searchBar()}</div><div class="container"><div class="social-proof"><span class="sp-stars" style="color:#feba02">★★★★★</span> <strong>4.6/5</strong> <span style="color:#666">· 12 000 avis voyageurs</span><span class="sp-sep"></span><span class="sp-seen">Vu dans</span><span class="sp-logo">Le Matin</span><span class="sp-logo">TelQuel</span><span class="sp-logo">Hespress</span><span class="sp-logo">Qualité Tourisme</span></div><div class="quick-row">${nav.map(([t, i]) => `<a class="quick" href="${navUrl(t)}"><span class="quick-ico">${icon(i)}</span><span>${t}</span></a>`).join("")}</div></div><section class="section"><div class="container"><div class="section-head"><div><h2>Villes populaires</h2><p>Le meilleur du Maroc, à portée de clic.</p></div><a class="text-link" href="${root}catalogue.html">Explorer toutes les offres →</a></div><div class="dest-grid">${data.slice(0, 4).map(card).join("")}</div></div></section><div class="zellige-divider" aria-hidden="true"></div><section class="trust-band"><div class="container trust-grid"><div class="trust">${icon("wallet")}<div><strong>Paiement à l’arrivée disponible</strong><span>Réservez l’esprit tranquille</span></div></div><div class="trust">${icon("shield")}<div><strong>Annulation gratuite</strong><span>Sur une sélection d’offres</span></div></div><div class="trust">${icon("headset")}<div><strong>Support client local</strong><span>Une équipe qui connaît le Maroc</span></div></div></div></section><section class="feature-banner"><div class="container"><div><h2>Votre prochain souvenir commence ici.</h2><p>Riads, excursions et découvertes : à vous de choisir.</p></div><a class="btn btn-ghost" href="${root}catalogue.html">Découvrir les offres ${icon("arrow")}</a></div></section></main>` +
     footer();
     bindSearch();
 
@@ -272,12 +267,20 @@ function resultCard(d) {
 }
 function catalogue() {
   const p = new URLSearchParams(location.search);
-  let dest = p.get("destination") || "",
+  let dest = p.get("ville") || "",
     type = p.get("type") || "",
     page = 1;
+  const hasSearch = p.has("search") || !!dest || p.has("depart") || p.has("retour");
+  if (type === "Hôtels & Riads" && !hasSearch) {
+    window.location.replace(`${root}accueil.html`);
+    return;
+  }
+  const titleText = hasSearch
+    ? `Résultats de recherche${dest ? " à " + dest : ""}`
+    : `Explorez nos offres${dest ? " à " + dest : ""}`;
   document.getElementById("app").innerHTML =
     header(type) +
-    `<main><div class="container"><div class="page-intro"><div class="breadcrumb"><a href="${root}index.html">Accueil</a> / Résultats de recherche</div><h1>Explorez nos offres${dest ? " à " + dest : ""}</h1><p>Votre prochaine aventure au Maroc commence ici.</p></div><div class="results-layout"><aside class="filter-panel"><h3>Filtrer les résultats</h3><div class="filter-block"><h4>Prix maximum</h4><input id="price-filter" type="range" min="300" max="2000" step="50" value="2000"><div class="range-values"><span>300 MAD</span><span id="price-value">2 000 MAD</span></div></div><div class="filter-block"><h4>Type d’offre</h4>${nav.map(([n]) => `<label><input type="checkbox" name="type" value="${n}" ${type === n ? "checked" : ""}>${n}</label>`).join("")}</div><div class="filter-block"><h4>Étoiles</h4><label><input type="checkbox" name="stars" value="5"> 5 étoiles</label><label><input type="checkbox" name="stars" value="4"> 4 étoiles</label></div><div class="filter-block"><h4>Ville / quartier</h4><select id="city-filter"><option value="">Toutes les villes</option>${["Chefchaouen", "Marrakech", "Fès", "Essaouira", "Tanger"].map((c) => `<option ${dest === c ? "selected" : ""}>${c}</option>`).join("")}</select></div><button class="btn btn-light" id="clear-filters" style="width:100%">Effacer les filtres</button></aside><div><div class="result-top"><h2 id="result-count"></h2><select id="sort"><option value="relevant">Trier : Pertinence</option><option value="price">Prix croissant</option></select></div><div class="result-list" id="result-list"></div><div class="pagination" id="pagination"></div></div></div></div></main>` +
+    `<main><div class="container"><div class="page-intro"><div class="breadcrumb"><a href="${root}accueil.html">Accueil</a> / Résultats de recherche</div><h1>${titleText}</h1><p>Votre prochaine aventure au Maroc commence ici.</p></div><div class="results-layout"><aside class="filter-panel"><h3>Filtrer les résultats</h3><div class="filter-block"><h4>Prix maximum</h4><input id="price-filter" type="range" min="300" max="2000" step="50" value="2000"><div class="range-values"><span>300 MAD</span><span id="price-value">2 000 MAD</span></div></div><div class="filter-block"><h4>Type d’offre</h4>${nav.map(([n]) => `<label><input type="checkbox" name="type" value="${n}" ${type === n ? "checked" : ""}>${n}</label>`).join("")}</div><div class="filter-block"><h4>Étoiles</h4><label><input type="checkbox" name="stars" value="5"> 5 étoiles</label><label><input type="checkbox" name="stars" value="4"> 4 étoiles</label></div><div class="filter-block"><h4>Ville / quartier</h4><select id="city-filter"><option value="">Toutes les villes</option>${["Chefchaouen", "Marrakech", "Fès", "Essaouira", "Tanger"].map((c) => `<option ${dest === c ? "selected" : ""}>${c}</option>`).join("")}</select></div><button class="btn btn-light" id="clear-filters" style="width:100%">Effacer les filtres</button></aside><div><div class="result-top"><h2 id="result-count"></h2><select id="sort"><option value="relevant">Trier : Pertinence</option><option value="price">Prix croissant</option></select></div><div class="result-list" id="result-list"></div><div class="pagination" id="pagination"></div></div></div></div></main>` +
     footer();
   const filters = document.querySelector(".filter-panel");
   function render() {
@@ -393,7 +396,7 @@ function detail() {
   document.title = d.title + " | Atlas Voyage";
   document.getElementById("app").innerHTML =
     header(d.type) +
-    `<main><div class="container"><div class="page-intro"><div class="breadcrumb"><a href="${root}index.html">Accueil</a> / <a href="${root}catalogue.html">Offres</a> / ${d.city}</div><h1>${d.title}</h1><p>${icon("pin")} ${d.city}, ${d.district} · ${"★".repeat(d.stars)} · Excellent ${d.rating}/10</p></div><div class="detail-grid"><div><div class="gallery"><img src="${d.img}" alt="${d.title}"><img src="images/fes.jpg" alt="Architecture marocaine"><img src="images/chefchaouen.jpg" alt="Paysage marocain"></div><div class="detail-copy"><h2>Votre séjour, notre attention</h2><p>${d.desc} Chez Atlas Voyage, chaque étape est pensée pour vous faire découvrir l’hospitalité marocaine dans toute sa générosité. Profitez de moments authentiques, des médinas animées aux paysages qui invitent à ralentir.</p><div class="amenities"><span>✓ Accueil chaleureux</span><span>✓ Assistance locale</span><span>✓ Paiement à l’arrivée</span><span>✓ Confirmation immédiate</span></div><h2>Localisation</h2><p>${d.district}, ${d.city}, Maroc. Un point de départ idéal pour explorer les trésors de la région.</p><h2>Avis des voyageurs</h2><div class="review"><strong>« Une expérience inoubliable » &nbsp; ${d.rating}/10</strong><p>Un accueil formidable et une organisation impeccable. Nous avons adoré découvrir le Maroc à notre rythme.</p><small>— Voyageur Atlas Voyage</small></div></div></div><aside class="panel booking-box"><span class="badge">✓ Paiement à l’arrivée disponible</span><p style="margin:21px 0 4px;color:var(--muted)">À partir de / séjour</p><div class="result-price">${money(d.price)}</div><label for="start-date">Date de départ</label><input id="start-date" type="date"><label for="end-date">Date de retour</label><input id="end-date" type="date"><button class="btn btn-outline" id="add-cart">${icon("cart")} Ajouter au panier</button><button class="btn btn-yellow" id="book-now">Réserver maintenant ${icon("arrow")}</button><span class="price-note">Aucun paiement requis pour réserver</span></aside></div></div></main>` +
+    `<main><div class="container"><div class="page-intro"><div class="breadcrumb"><a href="${root}accueil.html">Accueil</a> / <a href="${root}catalogue.html">Offres</a> / ${d.city}</div><h1>${d.title}</h1><p>${icon("pin")} ${d.city}, ${d.district} · ${"★".repeat(d.stars)} · Excellent ${d.rating}/10</p></div><div class="detail-grid"><div><div class="gallery"><img src="${d.img}" alt="${d.title}"><img src="images/fes.jpg" alt="Architecture marocaine"><img src="images/chefchaouen.jpg" alt="Paysage marocain"></div><div class="detail-copy"><h2>Votre séjour, notre attention</h2><p>${d.desc} Chez Atlas Voyage, chaque étape est pensée pour vous faire découvrir l’hospitalité marocaine dans toute sa générosité. Profitez de moments authentiques, des médinas animées aux paysages qui invitent à ralentir.</p><div class="amenities"><span>✓ Accueil chaleureux</span><span>✓ Assistance locale</span><span>✓ Paiement à l’arrivée</span><span>✓ Confirmation immédiate</span></div><h2>Localisation</h2><p>${d.district}, ${d.city}, Maroc. Un point de départ idéal pour explorer les trésors de la région.</p><h2>Avis des voyageurs</h2><div class="review"><strong>« Une expérience inoubliable » &nbsp; ${d.rating}/10</strong><p>Un accueil formidable et une organisation impeccable. Nous avons adoré découvrir le Maroc à notre rythme.</p><small>— Voyageur Atlas Voyage</small></div></div></div><aside class="panel booking-box"><span class="badge">✓ Paiement à l’arrivée disponible</span><p style="margin:21px 0 4px;color:var(--muted)">À partir de / séjour</p><div class="result-price">${money(d.price)}</div><label for="start-date">Date de départ</label><input id="start-date" type="date"><label for="end-date">Date de retour</label><input id="end-date" type="date"><button class="btn btn-outline" id="add-cart">${icon("cart")} Ajouter au panier</button><button class="btn btn-yellow" id="book-now">Réserver maintenant ${icon("arrow")}</button><span class="price-note">Aucun paiement requis pour réserver</span></aside></div></div></main>` +
     footer();
   function add(go) {
     let start = document.getElementById("start-date").value,
@@ -411,7 +414,7 @@ function detail() {
 function checkout() {
   document.getElementById("app").innerHTML =
     header() +
-    `<main><div class="container"><div class="page-intro"><div class="breadcrumb"><a href="${root}index.html">Accueil</a> / Mon panier</div><h1>Votre panier</h1><p>Un dernier regard avant de prendre la route.</p></div><div id="checkout-content"></div></div></main>` +
+    `<main><div class="container"><div class="page-intro"><div class="breadcrumb"><a href="${root}accueil.html">Accueil</a> / Mon panier</div><h1>Votre panier</h1><p>Un dernier regard avant de prendre la route.</p></div><div id="checkout-content"></div></div></main>` +
     footer();
   function render() {
     let items = getCart();
@@ -485,7 +488,7 @@ function checkout() {
       localStorage.setItem("atlas-bookings", JSON.stringify(bookings));
       saveCart([]);
       document.getElementById("checkout-content").innerHTML =
-        `<div class="panel confirmation" style="margin-bottom:70px"><div style="font-size:40px;color:var(--green)">✓</div><h2>Votre réservation est confirmée !</h2><p>Merci ${booking.client}. Votre référence est <strong>${ref}</strong>.</p><p>${payment === "arrival" ? "Vous réglerez votre séjour à l’arrivée." : "Votre paiement simulé a été enregistré."} Un récapitulatif est prêt pour ${booking.email}.</p><a class="btn btn-blue" href="${root}index.html">Retour à l’accueil</a></div>`;
+        `<div class="panel confirmation" style="margin-bottom:70px"><div style="font-size:40px;color:var(--green)">✓</div><h2>Votre réservation est confirmée !</h2><p>Merci ${booking.client}. Votre référence est <strong>${ref}</strong>.</p><p>${payment === "arrival" ? "Vous réglerez votre séjour à l’arrivée." : "Votre paiement simulé a été enregistré."} Un récapitulatif est prêt pour ${booking.email}.</p><a class="btn btn-blue" href="${root}accueil.html">Retour à l’accueil</a></div>`;
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
   }
@@ -493,8 +496,9 @@ function checkout() {
 }
 function admin() {
   document.getElementById("app").innerHTML =
-    `<div class="admin-shell"><aside class="admin-sidebar"><a class="brand" href="${root}index.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><nav>${[
+    `<div class="admin-shell"><aside class="admin-sidebar"><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><nav>${[
       ["Dashboard", "chart"],
+      ["Villes", "pin"],
       ["Offres", "compass"],
       ["Réservations", "calendar"],
       ["Bundles", "cart"],
@@ -506,7 +510,7 @@ function admin() {
       )
       .join(
         "",
-      )}</nav><a class="back-link" href="${root}index.html">← Retour au site</a></aside><main class="admin-content"><div class="admin-header"><div><h1 id="admin-title">Tableau de bord</h1><p>Bienvenue dans votre espace Atlas Voyage.</p></div><div class="admin-avatar">AV</div></div><div id="admin-view"></div></main></div>`;
+      )}</nav><a class="back-link" href="${root}accueil.html">← Retour au site</a></aside><main class="admin-content"><div class="admin-header"><div><h1 id="admin-title">Tableau de bord</h1><p>Bienvenue dans votre espace Atlas Voyage.</p></div><div class="admin-avatar">AV</div></div><div id="admin-view"></div></main></div>`;
   let bookings = JSON.parse(localStorage.getItem("atlas-bookings") || "[]");
   let demo = [
     {
@@ -562,7 +566,7 @@ function admin() {
             b.classList.toggle("active", b.dataset.offerTab === filter),
           );
         document.getElementById("admin-offers").innerHTML =
-          `<div class="admin-table-wrap"><table><thead><tr><th>Offre</th><th>Destination</th><th>Type</th><th>Prix</th></tr></thead><tbody>${data
+          `<div class="admin-table-wrap"><table><thead><tr><th>Offre</th><th>Ville</th><th>Type</th><th>Prix</th></tr></thead><tbody>${data
             .filter(
               (d) =>
                 filter === "all" ||
@@ -586,7 +590,7 @@ function admin() {
         `<div class="admin-table-wrap"><div class="table-head"><h2>Utilisateurs (base de données)</h2><span id="users-count" style="color:var(--muted)">Chargement…</span></div><table><thead><tr><th>Nom</th><th>Email</th><th>Rôle</th></tr></thead><tbody id="users-tbody"><tr><td colspan="3">Chargement des utilisateurs…</td></tr></tbody></table></div>`;
       const roleLabel = (r) =>
         ({ CLIENT: "Client", SUPPLIER: "Fournisseur", AGENT: "Agent", ADMIN: "Administrateur" })[r] || r;
-      fetch("http://localhost:8080/api/users")
+      fetch(`${apiBase()}/api/users`)
         .then((r) => {
           if (!r.ok) throw new Error("HTTP " + r.status);
           return r.json();
@@ -625,17 +629,15 @@ function admin() {
     (a) =>
       (a.onclick = (e) => {
         e.preventDefault();
+        if (a.dataset.tab === "Villes") {
+          window.location.href = `${root}admin/index.html?page=cities`;
+          return;
+        }
         render(a.dataset.tab);
       }),
   );
   render("Dashboard");
 }
-function applyLocale() {
-  const l = langCode();
-  document.documentElement.lang = l;
-  document.documentElement.dir = l === "ar" ? "rtl" : "ltr";
-}
-applyLocale();
 const page = document.body.dataset.page;
 if (page === "home") home();
 if (page === "catalogue") catalogue();
@@ -653,13 +655,7 @@ document.addEventListener("click", (e) => {
     btn.setAttribute("aria-expanded", o);
     return;
   }
-  const l = e.target.closest("[data-lang]"),
-    c = e.target.closest("[data-cur]");
-  if (l) {
-    localStorage.setItem("atlas-lang", l.dataset.lang);
-    location.reload();
-    return;
-  }
+  const c = e.target.closest("[data-cur]");
   if (c) {
     localStorage.setItem("atlas-cur", c.dataset.cur);
     location.reload();

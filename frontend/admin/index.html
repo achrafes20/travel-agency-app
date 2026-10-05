@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Espace administrateur Atlas Voyage" />
+    <title>Atlas Voyage — Espace administrateur</title>
+    <link rel="icon" type="image/png" href="../images/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <link rel="stylesheet" href="../css/admin.css" />
+  </head>
+  <body class="admin-root">
+    <div id="login-screen" class="login-screen hidden">
+      <div class="login-photo">
+        <div class="login-overlay">
+          <div class="login-brand"><i data-lucide="plane"></i><span>Atlas<strong>Voyage</strong></span></div>
+          <div>
+            <p>EXPLOREZ · RÉSERVEZ · VOYAGEZ</p>
+            <h1>Le Maroc<br />vous attend.</h1>
+            <span>Une expérience authentique, pensée avec passion.</span>
+          </div>
+          <small>Photo : Alex Azabache — Unsplash</small>
+        </div>
+      </div>
+      <div class="login-panel">
+        <form id="login-form" class="login-card">
+          <div class="mobile-brand"><i data-lucide="plane"></i><span>Atlas<strong>Voyage</strong></span></div>
+          <span class="eyebrow">ESPACE ADMINISTRATEUR</span>
+          <h2>Bienvenue</h2>
+          <p>Connectez-vous pour piloter la plateforme.</p>
+          <label>Adresse email<div class="input-icon"><i data-lucide="mail"></i><input type="email" value="nadia.lahlou@atlasvoyage.ma" required /></div></label>
+          <label>Mot de passe<div class="input-icon"><i data-lucide="lock-keyhole"></i><input id="password" type="password" value="Atlas2026" required /><button type="button" id="toggle-password" aria-label="Afficher le mot de passe"><i data-lucide="eye"></i></button></div></label>
+          <div class="login-options"><label><input type="checkbox" checked /> Se souvenir de moi</label><button type="button">Mot de passe oublié ?</button></div>
+          <button class="btn btn-primary w-full" type="submit">Se connecter <i data-lucide="arrow-right"></i></button>
+          <div class="secure-note"><i data-lucide="shield-check"></i> Connexion sécurisée et chiffrée</div>
+        </form>
+      </div>
+    </div>
+
+    <div id="admin-app">
+      <header class="topbar">
+        <div id="brand-area" class="brand-area">
+          <button id="sidebar-toggle" class="icon-btn" aria-label="Replier le menu"><i data-lucide="menu"></i></button>
+          <button class="brand nav-link" data-page="dashboard">
+            <i data-lucide="plane"></i><span>Atlas<strong>Voyage</strong></span>
+          </button>
+        </div>
+        <span class="admin-caption">ESPACE ADMINISTRATEUR</span>
+        <div class="global-search">
+          <i data-lucide="search"></i>
+          <input id="global-search" placeholder="Rechercher un utilisateur, une offre, une référence..." />
+          <kbd>⌘ K</kbd>
+        </div>
+        <div class="top-actions">
+          <div class="popover-wrap">
+            <button id="notification-toggle" class="icon-btn relative" aria-label="Notifications"><i data-lucide="bell"></i><span class="notification-count">5</span></button>
+            <div id="notification-popover" class="popover notification-popover hidden">
+              <div class="popover-header"><div><strong>Notifications</strong><span>5 non lues</span></div><button id="mark-all-read">Tout marquer comme lu</button></div>
+              <div id="notification-preview"></div>
+              <button class="popover-footer nav-link" data-page="notifications">Voir toutes les notifications <i data-lucide="arrow-right"></i></button>
+            </div>
+          </div>
+          <span class="top-divider"></span>
+          <div class="popover-wrap">
+            <button id="account-toggle" class="account-trigger">
+              <span class="avatar">NL</span><span><strong>Nadia Lahlou</strong><small>Administratrice</small></span><i data-lucide="chevron-down"></i>
+            </button>
+            <div id="account-popover" class="popover account-popover hidden">
+              <button class="nav-link" data-page="profile"><i data-lucide="user"></i>Mon profil</button>
+              <button class="nav-link" data-page="profile"><i data-lucide="key-round"></i>Changer le mot de passe</button>
+              <hr />
+              <button id="logout" class="danger-text"><i data-lucide="log-out"></i>Déconnexion</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <aside id="sidebar" class="sidebar">
+        <nav id="main-nav"></nav>
+        <footer>
+          <button type="button" id="public-site-btn" class="nav-item"><i data-lucide="external-link"></i><span>Voir le site public</span></button>
+          <div class="version"><span>Atlas Voyage</span><small>Version 2.0.0</small></div>
+        </footer>
+      </aside>
+
+      <main id="main-content" class="main-content">
+        <header class="page-header">
+          <div>
+            <div class="breadcrumb">Administration <i data-lucide="chevron-right"></i> <span id="breadcrumb-page">Tableau de bord</span></div>
+            <p class="eyebrow">ESPACE ADMIN</p>
+            <h1 id="page-title">Tableau de bord</h1>
+          </div>
+          <div class="last-login"><span>Dernière connexion</span><strong>05 octobre 2026, 09:42</strong></div>
+        </header>
+        <section id="page-content"></section>
+      </main>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+    <div id="modal-root"></div>
+
+    <script src="../js/core/config.js"></script>
+    <script src="../js/core/api.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+</html>

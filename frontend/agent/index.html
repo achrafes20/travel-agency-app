@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Atlas Voyage — Espace Agent" />
+    <title>Atlas Voyage · Espace Agent</title>
+    <link rel="icon" type="image/png" href="../images/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              atlas: {
+                navy: "#0A2A6B",
+                deep: "#071C48",
+                amber: "#FFB400",
+                canvas: "#F4F5F7",
+                ink: "#0F1B3D",
+                muted: "#6B7280",
+                pale: "#E8F0FE",
+              },
+            },
+            fontFamily: {
+              sans: ["Poppins", "sans-serif"],
+              display: ["Montserrat", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="../css/agent.css" />
+  </head>
+  <body class="bg-atlas-canvas text-atlas-ink antialiased">
+    <div id="login-view" class="login-view">
+      <section class="login-visual">
+        <div class="login-overlay"></div>
+        <div class="login-brand">
+          <div class="brand-mark">✦</div>
+          <div><strong>ATLAS</strong><small>VOYAGE</small></div>
+        </div>
+        <div class="login-copy">
+          <span>VOYAGEZ AUTREMENT</span>
+          <h1>Le Maroc<br />vous attend.</h1>
+          <p>Des expériences authentiques, imaginées avec soin par nos experts locaux.</p>
+        </div>
+        <p class="photo-credit">Photo : Alex Azabache · Unsplash</p>
+      </section>
+      <section class="login-form-wrap">
+        <form id="login-form" class="login-card">
+          <span class="eyebrow">ESPACE AGENT</span>
+          <h2>Ravi de vous revoir.</h2>
+          <p>Connectez-vous pour accéder à votre espace de travail.</p>
+          <label class="form-field">
+            <span>Adresse email</span>
+            <div><span data-icon="user"></span><input type="email" value="nadia.elfassi@atlasvoyage.ma" required /></div>
+          </label>
+          <label class="form-field">
+            <span>Mot de passe</span>
+            <div><span data-icon="lock"></span><input id="login-password" type="password" value="password123" required /><button type="button" id="toggle-password" class="field-icon" aria-label="Afficher le mot de passe"><span data-icon="eye"></span></button></div>
+          </label>
+          <button type="button" class="forgot-link">Mot de passe oublié ?</button>
+          <button class="button button-primary login-button" type="submit"><span>Se connecter</span><span data-icon="arrow"></span></button>
+          <div class="secure-note"><span data-icon="lock"></span> Connexion sécurisée · Données protégées</div>
+          <button type="button" id="public-site-link" class="forgot-link" style="margin-top: 0.75rem">← Retour au site public</button>
+        </form>
+      </section>
+    </div>
+
+    <div id="agent-app" class="app-shell hidden">
+      <aside class="sidebar">
+        <button class="logo" data-page="dashboard">
+          <span class="brand-mark">✦</span>
+          <span><strong>ATLAS</strong><small>VOYAGE</small></span>
+        </button>
+        <nav id="main-nav"></nav>
+        <div class="help-card">
+          <span class="help-mark">?</span>
+          <strong>Besoin d'aide ?</strong>
+          <p>Consultez le centre d'aide ou contactez un administrateur.</p>
+          <button type="button">Centre d'aide <span data-icon="arrow"></span></button>
+        </div>
+        <button class="user-panel" data-page="profile">
+          <span class="avatar amber">NE</span>
+          <span><strong>Nadia El Fassi</strong><small>Agent · Marrakech</small></span>
+          <span data-icon="more"></span>
+        </button>
+      </aside>
+
+      <div class="workspace">
+        <header class="topbar">
+          <div class="breadcrumb"><span>Espace agent</span><span data-icon="chevron-right"></span><strong id="breadcrumb-label">Tableau de bord</strong></div>
+          <div class="top-actions">
+            <label class="quick-search"><span data-icon="search"></span><input placeholder="Rechercher une référence BK-…" /></label>
+            <button type="button" id="public-site-top" class="button button-outline button-small" style="white-space: nowrap">Site public</button>
+            <div class="notification-wrap">
+              <button id="notification-button" class="icon-button" aria-label="Notifications"><span data-icon="bell"></span><em>4</em></button>
+              <div id="notification-dropdown" class="notification-dropdown hidden"></div>
+            </div>
+            <button class="account-button" data-page="profile"><span class="avatar amber">NE</span><span><strong>Nadia E.</strong><small>Agent</small></span><span data-icon="chevron-down"></span></button>
+          </div>
+        </header>
+        <main id="page-content"></main>
+      </div>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toast-root"></div>
+    <script src="../js/core/config.js"></script>
+    <script src="../js/core/api.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+</html>

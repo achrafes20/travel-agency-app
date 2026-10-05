@@ -12,3 +12,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Config locale (secrets, SMTP, JWT)
+backend/src/main/resources/application-local.properties
+uploads/

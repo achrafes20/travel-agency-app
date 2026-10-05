@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Espace fournisseur Atlas Voyage" />
+    <title>Atlas Voyage — Espace fournisseur</title>
+    <link rel="icon" type="image/png" href="../images/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Montserrat", "sans-serif"] },
+            colors: {
+              atlas: {
+                navy: "#0A2A66",
+                dark: "#07204F",
+                royal: "#0B3A8C",
+                amber: "#FFB800",
+                page: "#F4F6F9",
+                ink: "#0F1B3D",
+                muted: "#667085",
+                border: "#E5E9F0",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="../css/supplier.css" />
+  </head>
+  <body class="min-w-[1180px] bg-atlas-page font-sans text-atlas-ink antialiased">
+    <div id="login-screen" class="hidden"></div>
+
+    <div id="app-shell" class="min-h-screen">
+      <header class="fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between bg-atlas-royal px-7 text-white">
+        <button class="brand flex items-center gap-3" data-page="dashboard" aria-label="Atlas Voyage — Accueil">
+          <span class="brand-mark"><i></i><i></i><i></i></span>
+          <span class="text-left">
+            <strong class="block text-[15px] leading-none tracking-[0.2em]">ATLAS</strong>
+            <small class="mt-1 block text-[8px] tracking-[0.42em] text-blue-100">VOYAGE</small>
+          </span>
+        </button>
+
+        <div class="flex h-full items-center gap-4">
+          <div class="relative">
+            <button id="notification-toggle" class="relative grid h-10 w-10 place-items-center rounded-lg bg-white/10 hover:bg-white/20" aria-label="Notifications">
+              <i data-lucide="bell" class="h-5 w-5"></i>
+              <span class="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full border-2 border-atlas-royal bg-atlas-amber text-[9px] font-bold text-atlas-navy">4</span>
+            </button>
+            <div id="notification-dropdown" class="dropdown-panel right-0 top-12 hidden w-[350px]">
+              <div class="flex items-center justify-between border-b border-atlas-border px-4 py-3">
+                <strong class="text-xs">Notifications</strong>
+                <button class="text-[10px] font-semibold text-atlas-royal" data-page="notifications">Tout voir</button>
+              </div>
+              <div class="p-2">
+                <button class="dropdown-notification" data-page="bookings">
+                  <span class="icon-box bg-blue-100 text-blue-600"><i data-lucide="calendar" class="h-4 w-4"></i></span>
+                  <span><b>Nouvelle réservation</b><small>Chambre Safran · 3 nuits</small><em>Il y a 12 min</em></span>
+                </button>
+                <button class="dropdown-notification" data-page="inventory">
+                  <span class="icon-box bg-amber-100 text-amber-600"><i data-lucide="triangle-alert" class="h-4 w-4"></i></span>
+                  <span><b>Stock bas</b><small>Suite Bleue · 2 restantes</small><em>Il y a 2 h</em></span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="h-7 w-px bg-white/20"></div>
+
+          <div class="relative">
+            <button id="account-toggle" class="flex items-center gap-3 rounded-lg p-1 text-left hover:bg-white/10">
+              <span class="grid h-9 w-9 place-items-center rounded-lg bg-atlas-amber text-xs font-bold text-atlas-navy">KI</span>
+              <span>
+                <strong class="block text-[11px]">Karim Idrissi</strong>
+                <small class="mt-0.5 block text-[9px] text-blue-200">Fournisseur</small>
+              </span>
+              <i data-lucide="chevron-down" class="h-4 w-4"></i>
+            </button>
+            <div id="account-dropdown" class="dropdown-panel right-0 top-12 hidden w-52 p-2">
+              <button class="dropdown-action" data-page="profile"><i data-lucide="building-2"></i>Mon profil</button>
+              <button class="dropdown-action" data-page="notifications"><i data-lucide="bell"></i>Notifications</button>
+              <hr class="my-1 border-atlas-border" />
+              <button id="logout-button" class="dropdown-action text-red-600"><i data-lucide="log-out"></i>Déconnexion</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <aside class="fixed bottom-0 left-0 top-16 z-30 flex w-[260px] flex-col bg-atlas-navy px-4 py-6 text-white">
+        <p class="px-4 pb-4 text-[9px] font-bold tracking-[0.18em] text-blue-300">ESPACE FOURNISSEUR</p>
+        <nav id="sidebar-nav" class="space-y-1">
+          <button class="nav-item active" data-page="dashboard"><i data-lucide="layout-dashboard"></i><span>Tableau de bord</span></button>
+          <button class="nav-item" data-page="offers"><i data-lucide="briefcase-business"></i><span>Mes offres</span></button>
+          <button class="nav-item" data-page="new-offer"><i data-lucide="circle-plus"></i><span>Nouvelle offre</span></button>
+          <button class="nav-item" data-page="inventory"><i data-lucide="boxes"></i><span>Inventaire & stock</span></button>
+          <button class="nav-item" data-page="bookings"><i data-lucide="calendar-days"></i><span>Réservations reçues</span></button>
+          <button class="nav-item" data-page="notifications"><i data-lucide="bell"></i><span>Notifications</span><b>4</b></button>
+          <button class="nav-item" data-page="profile"><i data-lucide="building-2"></i><span>Profil fournisseur</span></button>
+        </nav>
+
+        <div class="mt-auto rounded-xl border border-white/10 bg-white/[0.07] p-4">
+          <span class="grid h-9 w-9 place-items-center rounded-lg bg-atlas-amber text-atlas-navy"><i data-lucide="circle-help" class="h-5 w-5"></i></span>
+          <strong class="mt-3 block text-xs">Besoin d’aide ?</strong>
+          <p class="mt-1 text-[10px] leading-5 text-blue-200">Notre équipe vous accompagne dans la gestion de vos offres.</p>
+          <button type="button" id="public-site-btn" class="mt-3 flex items-center gap-1 text-[10px] font-bold text-atlas-amber">Voir le site public <i data-lucide="arrow-right" class="h-3 w-3"></i></button>
+        </div>
+        <div class="mt-4 flex items-center gap-2 px-2 text-[9px] text-blue-300"><span>Centre d’aide</span><i class="h-1 w-1 rounded-full bg-blue-300"></i><span>v2.0</span></div>
+      </aside>
+
+      <main class="ml-[260px] flex min-h-screen flex-col pt-16">
+        <div id="page-content" class="mx-auto w-full max-w-[1440px] flex-1 px-10 py-9"></div>
+        <footer class="flex h-16 items-center justify-between bg-atlas-dark px-10 text-[10px] text-blue-300">
+          <span>© 2026 Atlas Voyage. Tous droits réservés.</span>
+          <div class="flex gap-6">
+            <button type="button" id="public-site-footer" class="hover:text-white">Site public</button>
+            <span>Centre d’aide</span>
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toast-root" class="fixed bottom-6 right-6 z-[100]"></div>
+
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script src="../js/core/config.js"></script>
+    <script src="../js/core/api.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+</html>

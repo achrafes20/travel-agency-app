@@ -1,34 +1,26 @@
-package com.agence.voyage.entity;
+package com.agence.voyage.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.agence.voyage.entity.City;
 
-@Entity
-@Table(name = "cities")
-public class City {
+public class CityResponse {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true, nullable = false)
     private String name;
-
     private Double latitude;
-
     private Double longitude;
 
-    public City() {
+    public CityResponse() {
     }
 
-    public City(String name, Double latitude, Double longitude) {
+    public CityResponse(Long id, String name, Double latitude, Double longitude) {
+        this.id = id;
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public static CityResponse from(City city) {
+        return new CityResponse(city.getId(), city.getName(), city.getLatitude(), city.getLongitude());
     }
 
     public Long getId() {

@@ -66,7 +66,7 @@ La plateforme gère **4 rôles** distincts :
 
 ### 3.4 Admin
 - Gère les utilisateurs (activation, désactivation, changement de rôle).
-- Gère les destinations et villes référencées.
+- Gère les villes référencées.
 - **Gère les codes promo et réductions** (création, modification, désactivation).
 - Supervise la configuration globale de la plateforme.
 
@@ -77,7 +77,7 @@ La plateforme gère **4 rôles** distincts :
 1. **Authentification & gestion des utilisateurs** — inscription, connexion, gestion de profil, contrôle d'accès basé sur les rôles.
 2. **Catalogue d'offres** — affichage avec **pagination**, tri, et gestion des 5 types d'offres.
 3. **Bundles** — création et gestion par les agents.
-4. **Recherche & filtres** — par destination, dates, prix, type d'offre.
+4. **Recherche & filtres** — par ville, dates, prix, type d'offre.
 5. **Panier & Réductions** — ajout d'offres avant paiement et application de **codes promo**.
 6. **Réservation** — workflow complet avec gestion du cycle de vie.
 7. **Paiement** — paiement simulé (formulaire fake) et paiement à l'arrivée.
@@ -131,7 +131,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - **`PromoCode`** — entité pour les réductions (`code`, `discountType`, `value`, `expiryDate`).
 - **`Payment`** — lié à une `Booking`.
 - **`Notification`** — messages in-app.
-- **`Destination` / `City`** — référentiel géographique.
+- **`City`** — référentiel géographique (villes avec coordonnées pour la carte).
 
 ---
 
@@ -173,7 +173,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - Catalogue HTML/JS (avec **pagination**) et carte Leaflet.
 - Module Supplier (CRUD offres, inventaire).
 - Module Agent (Bundles).
-- Module Admin (Users, Destinations, **CRUD des Codes Promo**).
+- Module Admin (Users, Villes, **CRUD des Codes Promo**).
 
 ### Phase 5 — Intégration & finalisation *(les deux)*
 - Tests de flux via API Fetch/AJAX, correction de bugs, préparation de démo.
@@ -196,7 +196,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 
 ## 11. Suivi d'avancement
 
-*Dernière mise à jour : 2026-09-30.*
+*Dernière mise à jour : 2026-10-05.*
 
 ### Phase 1 — Analyse & conception
 ✅ **Terminée.** Cahier des charges (ce document) et diagramme d'architecture (`architecture.md`) rédigés.
@@ -208,18 +208,24 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - **Toutes les entités JPA du modèle de données (§6) sont créées**, avec un repository Spring Data pour chacune :
   - `User` (rôles CLIENT/SUPPLIER/AGENT/ADMIN)
   - `Offer` (classe abstraite, héritage `SINGLE_TABLE`) + sous-classes `Flight`, `Hotel`, `Car`, `TaxiTransfer`, `Excursion`
-  - `Bundle`, `Cart` / `CartItem`, `PromoCode`, `Booking`, `Payment`, `Notification`, `Destination` / `City`
+  - `Bundle`, `Cart` / `CartItem`, `PromoCode`, `Booking`, `Payment`, `Notification`, `City`
 - **Script SQL** généré (dump du schéma via `mysqldump`) et conservé hors du dépôt Git (stocké séparément par l'équipe). La création/mise à jour des tables en local se fait uniquement via Hibernate (`spring.jpa.hibernate.ddl-auto=update`) à partir des entités JPA — pas de script `schema.sql` dans `backend/src/main/resources/`.
 - Premier bout-en-bout validé : entité `User` → repository → contrôleur REST (`GET /api/users`) → CORS → `fetch()` frontend → tableau affiché dans l'onglet « Utilisateurs » de l'espace agent, avec 4 comptes de test (un par rôle) insérés via un `CommandLineRunner`.
-- Endpoint de vérification de connexion `GET /api/status` ajouté, avec une page `frontend/index.html` minimale qui l'appelle pour afficher « Backend connecté » — utile comme démo rapide de la liaison Frontend/Backend. La page d'accueil complète (contenu original) a été déplacée vers `frontend/accueil.html`.
+- Endpoint de vérification `GET /api/status`. Page d’accueil : `frontend/accueil.html` (plus de page `index.html` séparée).
 
 ### Séance 2 — Architecture en couches (IoC / injection de dépendances)
-⚠️ **En cours** — structure Backend terminée, première fonctionnalité métier et pages Frontend à faire.
-- ✅ Package `model` renommé en `entity` (`com.agence.voyage.entity`), enums inclus ; aucun impact sur la base (mappings inchangés).
-- ✅ Couche `service` créée : `UserService` (`@Service`) injecté par constructeur dans `UserController`, qui ne dépend plus directement de `UserRepository`. Le flux `GET /api/users` suit désormais Controller → Service → Repository (comportement inchangé, vérifié au démarrage sur MySQL).
-- ✅ `architecture.md` mis à jour : diagrammes des couches et de séquence, packages, explication IoC / beans / injection par constructeur, entités actuelles.
-- ❌ Première fonctionnalité métier (prévue : Destination / City — module Admin, Phase 4) avec service, contrôleur REST et validation.
-- ❌ Pages Frontend associées (liste, formulaire d'ajout, détail).
+✅ **Terminée.** Première fonctionnalité métier : **gestion des villes** (référentiel Admin).
+- ✅ Packages Backend : `controller`, `service`, `repository`, `entity`, `dto`, `exception`, `config`.
+- ✅ Flux **Controller → Service → Repository** sur `CityController` / `CityService` / `CityRepository` avec injection par constructeur (beans Spring / IoC).
+- ✅ API REST CRUD `/api/cities` + DTOs `CityRequest` / `CityResponse` + validation + gestion d'erreurs (`GlobalExceptionHandler`).
+- ✅ Test unitaire `CityServiceTest` (règle d'unicité du nom).
+- ✅ Frontend modulaire (présentation séparée du métier) :
+  - `pages/admin/villes.html` — liste ;
+  - `pages/admin/ville-form.html` — ajout / modification ;
+  - `pages/admin/ville-detail.html` — détail ;
+  - `js/core/api.js`, `js/services/city.service.js`, `js/pages/*.page.js`.
+- ✅ `architecture.md` : schéma de séquence Séance 2 et structure Frontend.
+- ✅ **Livrable B4 formalisé** : [`docs/B4-seance2-livrable.md`](docs/B4-seance2-livrable.md) (checklist, compétences IoC/couches, scénario de démonstration).
 
 ### Phase 3 — Fondations & documentation
 ⚠️ **Partiellement terminée.**
@@ -229,13 +235,13 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 ### Phase 4 — Développement des modules
 ❌ **Non commencée**, à l'exception d'un aperçu du module Admin (liste des utilisateurs, voir Phase 2). Restent à faire :
 - **Modules transactionnels** (Personne 1) : panier + application des codes promo, workflow réservation/paiement, notifications in-app et envoi d'emails (SMTP), dashboard client. Les entités existent, mais aucune logique métier ni endpoint n'a été écrit.
-- **Catalogue & modules staff** (Personne 2) : catalogue connecté au backend (actuellement données statiques codées en dur dans `app.js`) avec pagination réelle et carte Leaflet, CRUD offres/inventaire côté Supplier, composition de bundles côté Agent, CRUD codes promo + gestion utilisateurs/destinations côté Admin.
+- **Catalogue & modules staff** (Personne 2) : catalogue connecté au backend (actuellement données statiques codées en dur dans `app.js`) avec pagination réelle et carte Leaflet, CRUD offres/inventaire côté Supplier, composition de bundles côté Agent, CRUD codes promo + gestion utilisateurs côté Admin. *(Module Admin **Villes** : terminé en Séance 2.)*
 
 ### Phase 5 — Intégration & finalisation
 ❌ **Non commencée** — bloquée tant que la Phase 4 n'est pas avancée.
 
 ### Notes techniques complémentaires
-- Les mots de passe sont actuellement stockés **en clair** dans `users.password` (pas de hachage) : à corriger dès la mise en place de Spring Security en Phase 3.
+- Les **nouveaux** comptes créés par le seed utilisent **BCrypt** (`spring-security-crypto`). Si la table `users` existait déjà en clair, recréer la base ou réinitialiser les mots de passe.
 - Le dépôt Git ne contenait pas encore de `.gitignore` ; les artefacts compilés (`backend/target/`) étaient suivis par erreur — corrigé (voir `.gitignore` à la racine).
 - Un wrapper Maven (`backend/mvnw`, `mvnw.cmd`) a été ajouté pour que le projet reste exécutable sans installation Maven séparée sur une autre machine.
 

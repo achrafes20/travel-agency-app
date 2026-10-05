@@ -62,6 +62,8 @@ Le Backend Spring Boot est structuré en couches (Layered Architecture), sous le
 | `service` | Contient la logique métier (validation, règles, calculs). Seule couche qui appelle les repositories. | `@Service` |
 | `repository` | Interfaces Spring Data JPA (`JpaRepository`) pour l'accès à la base. | (détecté automatiquement) |
 | `entity` | Classes Java mappées sur les tables MySQL (et énumérations associées). | `@Entity` |
+| `dto` | Objets de transfert pour les requêtes/réponses API (sans logique métier). | — |
+| `exception` | Gestion centralisée des erreurs HTTP (`GlobalExceptionHandler`). | `@RestControllerAdvice` |
 | `config` | Configuration transverse (CORS, données de démarrage). | `@Configuration`, `@Component` |
 
 ### Flux d'une requête : Controller → Service → Repository
@@ -108,10 +110,87 @@ public class UserController {
 
 | Composant | Classes |
 |---|---|
-| Controllers | `UserController` (`GET /api/users`), `StatusController` (`GET /api/status`) |
-| Services | `UserService` |
-| Repositories | un par entité (`User`, `Offer`, `Bundle`, `Cart`, `CartItem`, `PromoCode`, `Booking`, `Payment`, `Notification`, `Destination`, `City`) |
-| Config | `CorsConfig`, `DataSeeder` (4 comptes de test) |
+| Controllers | `UserController`, `StatusController`, `CityController` |
+| Services | `UserService`, `CityService` |
+| Repositories | un par entité (`User`, `Offer`, `Bundle`, `Cart`, `CartItem`, `PromoCode`, `Booking`, `Payment`, `Notification`, `City`) |
+| DTO | `CityRequest`, `CityResponse` |
+| Config | `CorsConfig`, `DataSeeder` (comptes de test + villes de référence) |
+
+### Séance 2 — Première fonctionnalité métier : **Villes**
+
+**Objectif pédagogique :** architecture en couches, IoC, beans Spring, injection par constructeur, séparation présentation / métier.
+
+**Flux complet (exemple création d'une ville) :**
+
+```mermaid
+sequenceDiagram
+    participant P as pages/admin/ville-form.html
+    participant S as city.service.js
+    participant A as api.js
+    participant C as CityController
+    participant V as CityService
+    participant R as CityRepository
+    participant DB as MySQL
+
+    P->>S: CityService.create(payload)
+    S->>A: POST /api/cities
+    A->>C: JSON CityRequest
+    C->>V: create(request)
+    V->>V: règle unicité du nom
+    V->>R: save(city)
+    R->>DB: INSERT
+    DB-->>R: ville
+    R-->>V: City
+    V-->>C: City
+    C-->>A: CityResponse JSON
+    A-->>P: redirection détail
+```
+
+**Endpoints `/api/cities` :**
+
+| Méthode | Route | Rôle |
+|---|---|---|
+| GET | `/api/cities` | Liste |
+| GET | `/api/cities/{id}` | Détail |
+| POST | `/api/cities` | Création |
+| PUT | `/api/cities/{id}` | Modification |
+| DELETE | `/api/cities/{id}` | Suppression |
+
+**Règles métier (couche `CityService` uniquement) :**
+- Nom obligatoire et trim ;
+- Unicité du nom (insensible à la casse) ;
+- Ville introuvable → `404` ; conflit de nom → `400`.
+
+---
+
+## 2 bis. Architecture Frontend (Séance 2)
+
+Le module **Villes** illustre la séparation des responsabilités côté client :
+
+| Dossier / fichier | Rôle |
+|---|---|
+| `pages/admin/villes.html` | Page liste (HTML + chargement scripts) |
+| `pages/admin/ville-form.html` | Formulaire ajout / modification |
+| `pages/admin/ville-detail.html` | Page détail |
+| `js/core/config.js` | Configuration (URL API) |
+| `js/core/api.js` | Couche HTTP (`fetch`) — pas de logique métier |
+| `js/services/city.service.js` | Appels API du domaine « Ville » |
+| `js/pages/*.page.js` | Logique de présentation par page |
+| `js/components/admin-layout.js` | Layout admin réutilisable |
+| `css/pages/villes.css` | Styles du module Villes |
+
+Le catalogue public (`js/app.js`) reste séparé : il ne contient pas la logique CRUD des villes.
+
+**Espaces professionnels (maquettes intégrées) :**
+
+| Espace | Entrée | Scripts | API branchée |
+|---|---|---|---|
+| Administration | `admin/index.html` | `admin/js/app.js`, `js/core/api.js` | Utilisateurs, Villes (liste/suppression) |
+| Agent | `agent/index.html` | `agent/js/app.js`, `js/core/api.js` | Données démo (réservations, bundles, tickets…) |
+| Fournisseur | `supplier/index.html` | `supplier/js/app.js`, `js/core/api.js` | Villes (select du wizard « Nouvelle offre ») |
+| Client (SPA) | `client/index.html` | `client/js/app.js` | Données démo ; **accueil public** inchangé (`accueil.html`) |
+
+Navigation interne : paramètre d’URL `?page=` (ex. `client/index.html?page=reservations`, `supplier/index.html?page=offers`). Offres, inventaire et réservations fournisseur restent en **données démo** jusqu’à l’API métier.
 
 ---
 
@@ -121,7 +200,7 @@ Toutes les entités sont créées ; voir le cahier des charges (§6) pour le dé
 
 - **`User`** : `id`, `fullName`, `email` (unique), `password`, `role`. Rôles (`Role`) : `CLIENT`, `SUPPLIER`, `AGENT`, `ADMIN`.
 - **`Offer`** (classe abstraite, héritage `SINGLE_TABLE`, discriminant `offer_type`) : `title`, `description`, `basePrice`, `stock`, `allowsPayOnArrival`, `images`, `city`, `supplier`. Sous-classes : `Flight`, `Hotel`, `Car`, `TaxiTransfer`, `Excursion`.
-- **`Destination`** / **`City`** : une destination (pays) contient plusieurs villes ; une offre est rattachée à une ville.
+- **`City`** : référentiel géographique (nom, latitude, longitude) ; une offre est rattachée à une ville.
 - **`Bundle`** : offre composée de plusieurs offres, créée par un agent.
 - **`Cart`** / **`CartItem`** : panier du client et ses lignes.
 - **`PromoCode`** : code de réduction (`DiscountType`).
@@ -138,6 +217,7 @@ Le Frontend appelle l'API REST Spring Boot (port `8080`) avec `fetch()` ; le COR
 **Endpoints existants :**
 - `GET /api/status` : vérifie la connexion Frontend/Backend.
 - `GET /api/users` : liste des utilisateurs (espace agent).
+- `GET/POST/PUT/DELETE /api/cities` : gestion du référentiel villes (CRUD).
 
 **Endpoints prévus :**
 - `GET /api/offers` : offres du catalogue ; `GET /api/offers/search?city=Marrakech` : filtrage.

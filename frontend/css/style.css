@@ -1,4 +1,4 @@
-﻿@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap");
 :root {
   --navy: #003580;
   --navy-deep: #062960;
@@ -131,7 +131,9 @@ h3 {
   font-size: 11px;
   font-weight: 800;
 }
-.top-actions .agent-link {
+.top-actions .client-link,
+.top-actions .agent-link,
+.top-actions .admin-link {
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 5px;
   padding: 8px 12px;
@@ -238,7 +240,7 @@ h3 {
   border-right: 1px solid var(--line);
   color: var(--navy);
 }
-.search-field.destination {
+.search-field.ville {
   flex: 1.5;
 }
 .search-field label {

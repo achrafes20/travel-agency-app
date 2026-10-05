@@ -9,7 +9,7 @@ Ce projet s'inscrit dans le cadre du module **Frameworks Technologie Web (ENSA -
 ## ✨ Fonctionnalités Principales
 
 - **Côté Client (Frontend) :**
-  - Catalogue interactif avec filtres (Destinations, Prix, Étoiles).
+  - Catalogue interactif avec filtres (Villes, Prix, Étoiles).
   - Détail des offres avec preuves sociales et informations de localisation.
   - Panier de réservation et formulaire de validation.
   - Interface responsive et identité visuelle "Maroc" soignée (Zellige, couleurs adaptées).
@@ -67,8 +67,31 @@ Dans les deux cas, l'API démarre sur `http://localhost:8080`.
 ### 3. Lancement du Frontend (Interface Client)
 Le frontend est entièrement statique. Pour l'ouvrir :
 - Ouvrez le dossier `frontend` dans Visual Studio Code.
-- Faites un clic droit sur `index.html` et sélectionnez **"Open with Live Server"**.
-- *(Alternative)* : Ouvrez simplement le fichier `index.html` directement dans votre navigateur web.
+- Faites un clic droit sur `accueil.html` et sélectionnez **"Open with Live Server"**.
+- *(Alternative)* : Ouvrez simplement le fichier `accueil.html` directement dans votre navigateur web.
+- Vérification API : `GET http://localhost:8080/api/status` (navigateur ou curl).
+
+**Espace administrateur (maquettes intégrées) :** `frontend/admin/index.html` — **Utilisateurs** et **Villes** branchés sur l’API.
+
+**Espace fournisseur (maquettes intégrées) :** `frontend/supplier/index.html` — UI complète (offres, inventaire, réservations, wizard création) ; liste des **villes** dans « Nouvelle offre » via `/api/cities` ; reste en données démo jusqu’à l’API offres.
+
+**Espace agent (maquettes intégrées) :** `frontend/agent/index.html` — tableau de bord, réservations, bundles, paiements à l’arrivée, tickets, notifications, profil (données démo ; compte seed **Nadia El Fassi** / `password123`).
+
+**Espace client (maquettes intégrées) :** `frontend/client/index.html` — dashboard, catalogue maquette, panier, paiement, réservations, tickets, profil (`?page=…`). L’**accueil** reste `frontend/accueil.html` (logo client → accueil actuel).
+
+---
+
+## B4 — Séance 2 (livrable complet)
+
+Première fonctionnalité métier : **gestion des villes** (architecture en couches, IoC Spring, pages admin liste / formulaire / détail).
+
+| Document | Contenu |
+|---|---|
+| [`docs/B4-seance2-livrable.md`](docs/B4-seance2-livrable.md) | Checklist, compétences, arborescence Backend, scénario de démo |
+| [`architecture.md`](architecture.md) | Diagrammes Mermaid (flux HTTP + séquence CRUD ville) |
+| [`frontend/pages/admin/villes.html`](frontend/pages/admin/villes.html) | Point d’entrée Frontend Séance 2 |
+
+**Tests :** `cd backend && ./mvnw test` (dont `CityServiceTest`).
 
 ---
 
@@ -83,10 +106,11 @@ travel-agency-app/
 │   └── pom.xml                # Dépendances Maven
 │
 ├── frontend/                  # Interface Web
-│   ├── css/                   # Feuilles de style (style.css)
-│   ├── js/                    # Logique client (app.js)
+│   ├── css/                   # Feuilles de style (style.css, pages/villes.css)
+│   ├── js/                    # app.js (catalogue) + core/services/pages (Séance 2)
+│   ├── pages/admin/           # Module Villes (liste, formulaire, détail)
 │   ├── images/                # Assets visuels, zellige, favicons
-│   └── *.html                 # Pages web (index, catalogue, panier, agent...)
+│   └── *.html                 # Pages publiques (accueil, catalogue, panier, agent...)
 │
 ├── architecture.md            # Documentation de l'architecture logicielle
 ├── cahier_de_charges.md       # Spécifications du projet
