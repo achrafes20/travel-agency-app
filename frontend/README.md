@@ -49,9 +49,7 @@ Redirection : `agent.html` → `agent/index.html`. Navigation : `?page=bookings`
 | Styles | `css/admin.css` | Styles de l’admin (Montserrat, layout) |
 | Logique | `admin/js/app.js` | Navigation SPA + **API** pour Utilisateurs et Villes |
 
-## Séance 2 — Module Villes (CRUD détaillé) · **livrable B4**
-
-Documentation complète : [`../docs/B4-seance2-livrable.md`](../docs/B4-seance2-livrable.md).
+## Séance 2 — Module Villes (CRUD détaillé)
 
 | Page | Fichier | Rôle |
 |---|---|---|

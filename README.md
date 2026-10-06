@@ -1,119 +1,118 @@
 # 🌴 Atlas Voyage
 
-**Atlas Voyage** est une application web complète de réservation pour une agence de voyage marocaine premium. Elle permet aux utilisateurs de parcourir des destinations marocaines authentiques, de réserver des séjours ou excursions, et offre aux agents un tableau de bord pour gérer l'activité de l'agence.
+**Atlas Voyage** est une application web de réservation pour une agence de voyage marocaine (Frontend HTML/CSS/JS + Backend Spring Boot + MySQL).
 
 Ce projet s'inscrit dans le cadre du module **Frameworks Technologie Web (ENSA - 3ème année)**.
 
----
-
-## ✨ Fonctionnalités Principales
-
-- **Côté Client (Frontend) :**
-  - Catalogue interactif avec filtres (Villes, Prix, Étoiles).
-  - Détail des offres avec preuves sociales et informations de localisation.
-  - Panier de réservation et formulaire de validation.
-  - Interface responsive et identité visuelle "Maroc" soignée (Zellige, couleurs adaptées).
-- **Côté Serveur (Backend) :**
-  - API REST pour la gestion des offres de voyage, des réservations et des utilisateurs.
-  - Espace "Agent" (Dashboard) pour valider ou annuler des réservations.
-  - Envoi d'emails transactionnels (confirmation de réservation).
+> ### ⚠️ Périmètre à évaluer
+> **Seule la gestion des utilisateurs (CRUD complet, de l'interface à la base de données) est finalisée.**
+> Le reste de l'interface (tableau de bord, autres onglets, autres espaces) est composé de maquettes avec des données de démonstration, non reliées au backend.
+>
+> 👉 **Page à tester : [`frontend/admin/index.html?page=users`](frontend/admin/index.html)**
 
 ---
 
 ## 🛠️ Stack Technologique
 
-Pour respecter strictement le cahier des charges, le projet est divisé en deux parties indépendantes :
-
-1. **Frontend (Côté Client)**
-   - HTML5, CSS3, JavaScript (Vanilla)
-   - *Aucun framework (pas de React, pas de Tailwind, pas de Bootstrap)*
-
-2. **Backend (Côté Serveur)**
-   - Java 21
-   - Spring Boot 3.x (Web, Data JPA, Mail, Security)
-   - SGBD : MySQL
-   - Gestionnaire de dépendances : Maven
+1. **Frontend** — HTML5, CSS3, JavaScript vanilla. *Aucun framework.*
+2. **Backend** — Java 21, Spring Boot 3 (Web, Data JPA, Validation), BCrypt pour le hachage des mots de passe, Maven.
+3. **Base de données** — MySQL. Les tables sont créées / mises à jour automatiquement par Hibernate au démarrage (`spring.jpa.hibernate.ddl-auto=update`).
 
 ---
 
-## 🚀 Installation et Lancement
+## 🚀 Lancement
 
 ### Prérequis
-- [Java Development Kit (JDK) 21](https://jdk.java.net/21/)
-- Un serveur MySQL/MariaDB en cours d'exécution sur le port 3306 (par ex. via [XAMPP](https://www.apachefriends.org/)).
-- Aucune installation Maven séparée n'est nécessaire : le projet embarque son propre wrapper (`mvnw` / `mvnw.cmd`).
-- Une extension comme *Live Server* (VS Code) pour le frontend, ou simplement un navigateur.
+- JDK 21.
+- MySQL / MariaDB démarré sur le port 3306 (par ex. via [XAMPP](https://www.apachefriends.org/)), avec l'utilisateur `root` sans mot de passe (valeurs par défaut de XAMPP). Sinon, adaptez `backend/src/main/resources/application.properties`.
+- Aucune installation de Maven nécessaire : le projet embarque son wrapper (`mvnw` / `mvnw.cmd`).
+- Un petit serveur statique pour le frontend (extension *Live Server* de VS Code, ou `python -m http.server`).
 
-### 1. Configuration de la Base de Données
-Le backend est configuré pour créer automatiquement la base de données si elle n'existe pas, et pour créer/mettre à jour toutes les tables au démarrage via Hibernate (`spring.jpa.hibernate.ddl-auto=update`), à partir des entités JPA. Assurez-vous que les accès root (sans mot de passe par défaut) correspondent à votre installation MySQL/XAMPP locale.
-Modifiez si besoin le fichier : `backend/src/main/resources/application.properties`.
-
-### 2. Lancement du Backend (API)
-
-**Option A — avec IntelliJ IDEA (recommandé) :**
-1. `File > Open...` et sélectionnez le dossier `backend` (IntelliJ détecte le `pom.xml` et importe le projet Maven automatiquement).
-2. Attendez la fin de l'indexation / du téléchargement des dépendances.
-3. Ouvrez `src/main/java/com/agence/voyage/TravelAgencyApplication.java` et cliquez sur le bouton ▶ (Run) à côté de la méthode `main`.
-
-**Option B — en ligne de commande :**
+### 1. Backend (API sur `http://localhost:8080`)
 ```bash
 cd backend
-./mvnw spring-boot:run
+./mvnw spring-boot:run        # Windows PowerShell / CMD : .\mvnw.cmd spring-boot:run
 ```
-*(Sous Windows en PowerShell/CMD : `mvnw.cmd spring-boot:run`)*
+La base `travel_agency_db` est créée automatiquement au premier démarrage, ainsi que 4 utilisateurs d'exemple (un par rôle). Le backend est prêt quand la console affiche `Backend Spring Boot demarre avec succes !`.
 
-Dans les deux cas, l'API démarre sur `http://localhost:8080`.
+### 2. Frontend
+Servez le dossier **`frontend/`** (il doit être la racine du serveur) :
+- **Live Server :** ouvrez le dossier `frontend` dans VS Code, clic droit sur `accueil.html` → *Open with Live Server*.
+- **Ou en ligne de commande :**
+  ```bash
+  cd frontend
+  python -m http.server 5500
+  ```
 
-### 3. Lancement du Frontend (Interface Client)
-Le frontend est entièrement statique. Pour l'ouvrir :
-- Ouvrez le dossier `frontend` dans Visual Studio Code.
-- Faites un clic droit sur `accueil.html` et sélectionnez **"Open with Live Server"**.
-- *(Alternative)* : Ouvrez simplement le fichier `accueil.html` directement dans votre navigateur web.
-- Vérification API : `GET http://localhost:8080/api/status` (navigateur ou curl).
-
-**Espace administrateur (maquettes intégrées) :** `frontend/admin/index.html` — **Utilisateurs** et **Villes** branchés sur l’API.
-
-**Espace fournisseur (maquettes intégrées) :** `frontend/supplier/index.html` — UI complète (offres, inventaire, réservations, wizard création) ; liste des **villes** dans « Nouvelle offre » via `/api/cities` ; reste en données démo jusqu’à l’API offres.
-
-**Espace agent (maquettes intégrées) :** `frontend/agent/index.html` — tableau de bord, réservations, bundles, paiements à l’arrivée, tickets, notifications, profil (données démo ; compte seed **Nadia El Fassi** / `password123`).
-
-**Espace client (maquettes intégrées) :** `frontend/client/index.html` — dashboard, catalogue maquette, panier, paiement, réservations, tickets, profil (`?page=…`). L’**accueil** reste `frontend/accueil.html` (logo client → accueil actuel).
+Puis ouvrez **`http://localhost:5500/admin/index.html?page=users`** (adaptez le port si votre serveur en utilise un autre).
 
 ---
 
-## B4 — Séance 2 (livrable complet)
+## 👤 Gestion des utilisateurs — ce qu'il faut tester
 
-Première fonctionnalité métier : **gestion des villes** (architecture en couches, IoC Spring, pages admin liste / formulaire / détail).
+Sur la page *Utilisateurs* de l'espace administrateur :
 
-| Document | Contenu |
+| Action | Comportement |
 |---|---|
-| [`docs/B4-seance2-livrable.md`](docs/B4-seance2-livrable.md) | Checklist, compétences, arborescence Backend, scénario de démo |
-| [`architecture.md`](architecture.md) | Diagrammes Mermaid (flux HTTP + séquence CRUD ville) |
-| [`frontend/pages/admin/villes.html`](frontend/pages/admin/villes.html) | Point d’entrée Frontend Séance 2 |
+| **Lister** | Les utilisateurs sont lus depuis la base (`GET /api/users`). Recherche par nom/email, filtre par rôle, pagination. |
+| **Créer** | Bouton « Créer un compte » : nom complet, email, rôle, mot de passe (8 caractères minimum, haché en BCrypt). Un email déjà utilisé est refusé (insensible à la casse). |
+| **Modifier** | Icône crayon : modifie nom, email et rôle. Un mot de passe laissé vide reste inchangé. |
+| **Archiver** | Icône d'archive, avec confirmation dans l'application. L'utilisateur disparaît de la liste par défaut. |
+| **Voir les archivés / Restaurer** | Filtre de statut « Utilisateurs archivés » (ou « Tous les statuts »), puis icône de restauration. |
+| **Supprimer définitivement** | Réservé aux comptes archivés, avec confirmation. Refusé si le compte est lié à d'autres données. |
 
-**Tests :** `cd backend && ./mvnw test` (dont `CityServiceTest`).
+### API REST `/api/users`
+
+| Méthode | Route | Rôle |
+|---|---|---|
+| GET | `/api/users` | Liste (actifs et archivés) |
+| GET | `/api/users/{id}` | Détail |
+| POST | `/api/users` | Création |
+| PUT | `/api/users/{id}` | Modification |
+| POST | `/api/users/{id}/archive` | Archivage |
+| POST | `/api/users/{id}/restore` | Restauration |
+| DELETE | `/api/users/{id}` | Suppression définitive (comptes archivés uniquement) |
+
+Erreurs de validation / règles métier → `400`, utilisateur introuvable → `404`, avec un message en français.
+
+### Où lire le code
+
+Architecture en couches `Controller → Service → Repository → Entity` (voir [`docs/architecture.md`](docs/architecture.md)) :
+
+| Couche | Fichier |
+|---|---|
+| Controller | `backend/src/main/java/com/agence/voyage/controller/UserController.java` |
+| Service (règles métier) | `backend/src/main/java/com/agence/voyage/service/UserService.java` |
+| Repository | `backend/src/main/java/com/agence/voyage/repository/UserRepository.java` |
+| Entity | `backend/src/main/java/com/agence/voyage/entity/User.java` |
+| DTO | `backend/src/main/java/com/agence/voyage/dto/UserRequest.java`, `UserResponse.java` |
+| Gestion des erreurs | `backend/src/main/java/com/agence/voyage/exception/GlobalExceptionHandler.java` |
+| Interface | `frontend/admin/js/app.js` (fonction `usersPage` et modales utilisateur) |
+| Appels HTTP | `frontend/js/core/api.js` |
+
+### Tests
+```bash
+cd backend
+./mvnw test
+```
+`UserServiceTest` couvre l'unicité de l'email, le hachage du mot de passe, la conservation du mot de passe lors d'une modification, l'archivage / restauration et la règle de suppression.
+
+### Limites connues
+- Il n'y a **pas encore d'authentification** : l'écran de connexion est une maquette et les endpoints sont ouverts (Spring Security est prévu, voir [`docs/cahier_de_charges.md`](docs/cahier_de_charges.md)).
 
 ---
 
-## 📁 Structure du Projet
+## 📁 Structure du projet
 
 ```text
 travel-agency-app/
-│
-├── backend/                   # Projet Java Spring Boot
-│   ├── src/main/java/         # Code source Java (controller, service, repository, entity, config)
-│   ├── src/main/resources/    # Configuration (application.properties)
-│   └── pom.xml                # Dépendances Maven
-│
-├── frontend/                  # Interface Web
-│   ├── css/                   # Feuilles de style (style.css, pages/villes.css)
-│   ├── js/                    # app.js (catalogue) + core/services/pages (Séance 2)
-│   ├── pages/admin/           # Module Villes (liste, formulaire, détail)
-│   ├── images/                # Assets visuels, zellige, favicons
-│   └── *.html                 # Pages publiques (accueil, catalogue, panier, agent...)
-│
-├── architecture.md            # Documentation de l'architecture logicielle
-├── cahier_de_charges.md       # Spécifications du projet
-└── README.md                  # Ce fichier
+├── backend/                 # Spring Boot (controller, service, repository, entity, dto, exception, config)
+├── frontend/                # Interface web (HTML / CSS / JS vanilla)
+│   ├── admin/               # Espace administrateur (page Utilisateurs)
+│   ├── css/  js/            # Styles et scripts partagés (js/core/api.js : appels HTTP)
+│   └── *.html               # Autres pages (maquettes)
+├── docs/
+│   ├── architecture.md      # Architecture logicielle
+│   └── cahier_de_charges.md # Spécifications du projet
+└── README.md
 ```
-# travel-agency-app

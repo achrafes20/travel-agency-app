@@ -225,7 +225,6 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
   - `pages/admin/ville-detail.html` — détail ;
   - `js/core/api.js`, `js/services/city.service.js`, `js/pages/*.page.js`.
 - ✅ `architecture.md` : schéma de séquence Séance 2 et structure Frontend.
-- ✅ **Livrable B4 formalisé** : [`docs/B4-seance2-livrable.md`](docs/B4-seance2-livrable.md) (checklist, compétences IoC/couches, scénario de démonstration).
 
 ### Module Admin — Gestion des utilisateurs
 ✅ **Terminé** (page `admin/index.html?page=users`), branché sur l'API :
