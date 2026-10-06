@@ -113,7 +113,7 @@ public class UserController {
 | Controllers | `UserController`, `StatusController`, `CityController` |
 | Services | `UserService`, `CityService` |
 | Repositories | un par entité (`User`, `Offer`, `Bundle`, `Cart`, `CartItem`, `PromoCode`, `Booking`, `Payment`, `Notification`, `City`) |
-| DTO | `CityRequest`, `CityResponse` |
+| DTO | `CityRequest`, `CityResponse`, `UserRequest`, `UserResponse` |
 | Config | `CorsConfig`, `DataSeeder` (comptes de test + villes de référence) |
 
 ### Séance 2 — Première fonctionnalité métier : **Villes**
@@ -161,6 +161,34 @@ sequenceDiagram
 - Unicité du nom (insensible à la casse) ;
 - Ville introuvable → `404` ; conflit de nom → `400`.
 
+### Module Utilisateurs (Admin) : CRUD + archivage
+
+Même découpage Controller → Service → Repository que les villes. L'entité `User` porte un indicateur `archived` (par défaut `false`).
+
+**Endpoints `/api/users` :**
+
+| Méthode | Route | Rôle |
+|---|---|---|
+| GET | `/api/users` | Liste (actifs **et** archivés ; le filtrage est fait côté frontend) |
+| GET | `/api/users/{id}` | Détail |
+| POST | `/api/users` | Création |
+| PUT | `/api/users/{id}` | Modification |
+| POST | `/api/users/{id}/archive` | Archivage (l'utilisateur disparaît de la liste par défaut) |
+| POST | `/api/users/{id}/restore` | Restauration |
+| DELETE | `/api/users/{id}` | Suppression définitive (réservée aux comptes archivés) |
+
+**Règles métier (couche `UserService` uniquement) :**
+- Nom complet, email (format valide) et rôle obligatoires ; nom et email sont trimés.
+- Email unique, insensible à la casse (création et modification) → conflit = `400`.
+- Mot de passe obligatoire à la création (8 caractères minimum), haché en **BCrypt** ; en modification, un mot de passe vide laisse le hash inchangé.
+- Le mot de passe n'est jamais renvoyé : `UserResponse` ne contient que `id`, `fullName`, `email`, `role`, `archived`.
+- Suppression définitive refusée (`400`) si le compte n'est pas archivé, ou s'il est référencé par des offres, paniers ou réservations.
+- Utilisateur introuvable → `404`.
+
+**Flux de création :** bouton « Créer un compte » → `openModal("create-user")` → `api.post("/api/users")` → `UserController.create` (`@Valid` sur `UserRequest`) → `UserService.create` → `UserRepository.save` → `UserResponse` (201) → rechargement de la liste (`GET /api/users`).
+
+> **À prévoir avec Spring Security :** un compte archivé doit être refusé à la connexion (l'archivage ne masque aujourd'hui l'utilisateur que dans l'interface d'administration).
+
 ---
 
 ## 2 bis. Architecture Frontend (Séance 2)
@@ -185,7 +213,7 @@ Le catalogue public (`js/app.js`) reste séparé : il ne contient pas la logique
 
 | Espace | Entrée | Scripts | API branchée |
 |---|---|---|---|
-| Administration | `admin/index.html` | `admin/js/app.js`, `js/core/api.js` | Utilisateurs, Villes (liste/suppression) |
+| Administration | `admin/index.html` | `admin/js/app.js`, `js/core/api.js` | Utilisateurs (CRUD + archivage, filtres rôle/statut), Villes (liste/suppression) |
 | Agent | `agent/index.html` | `agent/js/app.js`, `js/core/api.js` | Données démo (réservations, bundles, tickets…) |
 | Fournisseur | `supplier/index.html` | `supplier/js/app.js`, `js/core/api.js` | Villes (select du wizard « Nouvelle offre ») |
 | Client (SPA) | `client/index.html` | `client/js/app.js` | Données démo ; **accueil public** inchangé (`accueil.html`) |
@@ -216,7 +244,7 @@ Le Frontend appelle l'API REST Spring Boot (port `8080`) avec `fetch()` ; le COR
 
 **Endpoints existants :**
 - `GET /api/status` : vérifie la connexion Frontend/Backend.
-- `GET /api/users` : liste des utilisateurs (espace agent).
+- `/api/users` : CRUD + archivage/restauration des utilisateurs (espace admin) ; voir « Module Utilisateurs ».
 - `GET/POST/PUT/DELETE /api/cities` : gestion du référentiel villes (CRUD).
 
 **Endpoints prévus :**

@@ -196,7 +196,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 
 ## 11. Suivi d'avancement
 
-*Dernière mise à jour : 2026-10-05.*
+*Dernière mise à jour : 2026-10-06.*
 
 ### Phase 1 — Analyse & conception
 ✅ **Terminée.** Cahier des charges (ce document) et diagramme d'architecture (`architecture.md`) rédigés.
@@ -227,15 +227,25 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - ✅ `architecture.md` : schéma de séquence Séance 2 et structure Frontend.
 - ✅ **Livrable B4 formalisé** : [`docs/B4-seance2-livrable.md`](docs/B4-seance2-livrable.md) (checklist, compétences IoC/couches, scénario de démonstration).
 
+### Module Admin — Gestion des utilisateurs
+✅ **Terminé** (page `admin/index.html?page=users`), branché sur l'API :
+- ✅ API REST `/api/users` : liste, détail, création, modification, archivage/restauration, suppression définitive (comptes archivés uniquement) — voir `architecture.md`, « Module Utilisateurs ».
+- ✅ Couche métier `UserService` : email unique (insensible à la casse), mot de passe haché en BCrypt, mot de passe jamais renvoyé (`UserResponse`), erreurs en `400`/`404` via `GlobalExceptionHandler`.
+- ✅ Entité `User` : nouvel indicateur `archived` (colonne ajoutée par Hibernate, `false` par défaut pour les comptes existants).
+- ✅ Test unitaire `UserServiceTest` (unicité de l'email, hachage, mot de passe conservé, archivage/suppression).
+- ✅ Interface : formulaire de création/modification (nom complet, email, rôle, mot de passe), boutons modifier/archiver, confirmations dans l'application (fenêtres modales, plus de `confirm()` du navigateur), filtres rôle et statut (les archivés sont masqués par défaut), recherche et pagination.
+- ⚠️ Limite connue : aucune authentification — les endpoints sont ouverts, et un compte archivé n'est pas encore refusé à la connexion (à traiter avec Spring Security, Phase 3).
+- Nettoyage de l'interface admin : badge « Données API », fausses notifications, pastille de la cloche, raccourci Ctrl+K et « Dernière connexion » retirés ; barre de défilement de la barre latérale masquée.
+
 ### Phase 3 — Fondations & documentation
 ⚠️ **Partiellement terminée.**
 - ✅ Diagramme général de l'architecture (`architecture.md`).
-- ❌ Authentification complète (Spring Security + JWT) — **non commencée**. La dépendance Spring Security n'est pas encore ajoutée au `pom.xml`, aucun endpoint de login/register, aucune protection par rôle sur les futurs contrôleurs.
+- ❌ Authentification complète (Spring Security + JWT) — **non commencée**. La dépendance Spring Security n'est pas encore ajoutée au `pom.xml`, aucun endpoint de login/register, aucune protection par rôle sur les contrôleurs (y compris `/api/users`). Le login devra refuser les comptes archivés.
 
 ### Phase 4 — Développement des modules
-❌ **Non commencée**, à l'exception d'un aperçu du module Admin (liste des utilisateurs, voir Phase 2). Restent à faire :
+⚠️ **Partiellement commencée** : les modules Admin **Villes** (Séance 2) et **Utilisateurs** (voir ci-dessus) sont terminés. Restent à faire :
 - **Modules transactionnels** (Personne 1) : panier + application des codes promo, workflow réservation/paiement, notifications in-app et envoi d'emails (SMTP), dashboard client. Les entités existent, mais aucune logique métier ni endpoint n'a été écrit.
-- **Catalogue & modules staff** (Personne 2) : catalogue connecté au backend (actuellement données statiques codées en dur dans `app.js`) avec pagination réelle et carte Leaflet, CRUD offres/inventaire côté Supplier, composition de bundles côté Agent, CRUD codes promo + gestion utilisateurs côté Admin. *(Module Admin **Villes** : terminé en Séance 2.)*
+- **Catalogue & modules staff** (Personne 2) : catalogue connecté au backend (actuellement données statiques codées en dur dans `app.js`) avec pagination réelle et carte Leaflet, CRUD offres/inventaire côté Supplier, composition de bundles côté Agent, CRUD codes promo côté Admin. *(Modules Admin **Villes** et **Utilisateurs** : terminés.)*
 
 ### Phase 5 — Intégration & finalisation
 ❌ **Non commencée** — bloquée tant que la Phase 4 n'est pas avancée.

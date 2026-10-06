@@ -29,6 +29,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private boolean archived;
+
     public User() {
     }
 
@@ -77,5 +79,13 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
     }
 }
