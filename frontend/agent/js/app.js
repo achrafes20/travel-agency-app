@@ -20,6 +20,7 @@ const iconPaths = {
   more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
   "chevron-right": '<path d="m9 18 6-6-6-6"/>',
   "chevron-down": '<path d="m6 9 6 6 6-6"/>',
+  menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
   lock: '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
 };
 
@@ -67,7 +68,7 @@ function hydrateIcons(root = document) {
 
 function renderNav() {
   document.querySelector("#main-nav").innerHTML = navItems.map(([id, label, iconName, count]) => `
-    <button class="nav-item ${currentPage === id || (currentPage === "booking" && id === "bookings") ? "active" : ""}" data-page="${id}">
+    <button class="nav-item ${currentPage === id || (currentPage === "booking" && id === "bookings") ? "active" : ""}" data-page="${id}" title="${label}">
       ${icon(iconName)}<span>${label}</span>${count ? `<em>${count}</em>` : ""}
     </button>`).join("");
 }
@@ -77,7 +78,6 @@ function dashboardPage() {
     ["clock", "12", "Réservations", "En attente de validation", "+3 aujourd'hui", ""],
     ["wallet", "5", "Paiements", "À encaisser à l'arrivée", "8 750,00 MAD", "amber"],
     ["message", "3", "Tickets ouverts", "Dont 1 non assigné", "Action requise", "violet"],
-    ["package", "8 / 3", "Bundles", "Publiés / brouillons", "1 dépublié", "green"],
     ["calendar", "6", "Aujourd'hui", "Réservations du jour", "+20 % vs hier", "sky"],
   ];
   const rows = bookingRows.slice(0, 4).map((row) => `<tr>
@@ -96,8 +96,7 @@ function dashboardPage() {
     ["AC", "Question transfert aéroport", "Adam Chami · Autre", "Ouvert", "blue", "1 h"],
   ].map((item) => `<button class="ticket-line" data-page="tickets"><span class="avatar">${item[0]}</span><span><strong>${item[1]}</strong><small>${item[2]}</small></span>${badge(item[3], item[4])}<time>${item[5]}</time>${icon("arrow")}</button>`).join("");
   return pageHead("Espace agent", "Bonjour Nadia, voici votre journée.", "Mardi 16 juin 2026 · Marrakech, 10:42", `${button("Voir les réservations", "outline", 'data-page="bookings"')}${button(`${icon("plus")} Nouveau bundle`, "primary", 'data-page="bundle-editor"')}`)
-    + `<div class="alert-banner"><span>${icon("alert")}</span><div><strong>2 bundles ont été dépubliés automatiquement</strong><p>Une ou plusieurs offres composantes ne sont plus disponibles.</p></div><button class="text-link" data-page="bundles">Consulter les bundles ${icon("arrow")}</button></div>
-    <div class="kpi-grid">${kpis.map((item) => `<section class="card kpi-card"><div class="kpi-top"><span class="kpi-icon ${item[5]}">${icon(item[0])}</span><span class="kpi-trend">${item[4]}</span></div><div class="kpi-number">${item[1]}</div><strong>${item[2]}</strong><p>${item[3]}</p></section>`).join("")}</div>
+    + `<div class="kpi-grid">${kpis.map((item) => `<section class="card kpi-card"><div class="kpi-top"><span class="kpi-icon ${item[5]}">${icon(item[0])}</span><span class="kpi-trend">${item[4]}</span></div><div class="kpi-number">${item[1]}</div><strong>${item[2]}</strong><p>${item[3]}</p></section>`).join("")}</div>
     <div class="dashboard-grid">
       <section class="card table-card"><div class="card-head"><div><h2>Réservations à valider</h2><p>Les demandes les plus récentes</p></div><button class="text-link" data-page="bookings">Tout voir ${icon("arrow")}</button></div><table><thead><tr><th>Référence</th><th>Client & contenu</th><th>Début</th><th>Total</th><th>Statut</th><th></th></tr></thead><tbody>${rows}</tbody></table></section>
       <section class="card chart-card"><div class="card-head"><div><h2>Activité</h2><p>7 derniers jours</p></div>${badge("+14,2 %", "green")}</div><div class="chart-summary">42 <small>réservations</small></div><div class="bar-chart">${[45,62,38,72,55,86,68].map((height, index) => `<div class="bar-column ${index === 5 ? "active" : ""}"><i style="height:${height}%"></i><small>${["Mer","Jeu","Ven","Sam","Dim","Lun","Mar"][index]}</small></div>`).join("")}</div></section>
@@ -150,31 +149,296 @@ function bookingPage() {
     </aside></div>`;
 }
 
+/* ---------- Bundles (branchés sur l'API /api/bundles) ---------- */
+
+const OFFER_TYPE_LABELS = { FLIGHT: "Vol", HOTEL: "Hôtel", CAR: "Voiture", TAXI_TRANSFER: "Taxi", EXCURSION: "Excursion" };
+const OFFER_TYPE_ICONS = { FLIGHT: "plane", HOTEL: "bed", CAR: "car", TAXI_TRANSFER: "car", EXCURSION: "package" };
+const MIN_BUNDLE_OFFERS = 2;
+
+const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const money = (value) => `${Number(value || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MAD`;
+
+const bundleState = { agent: null, bundles: [], editingId: null, draft: null, catalog: [], pick: new Set(), saving: false };
+
+const newBundleDraft = () => ({ title: "", description: "", discountPercentage: "0", offers: [] });
+function startNewBundle() {
+  bundleState.editingId = null;
+  bundleState.draft = newBundleDraft();
+}
+function startEditBundle(id) {
+  const bundle = bundleState.bundles.find((b) => b.id === id);
+  if (!bundle) return;
+  bundleState.editingId = id;
+  bundleState.draft = {
+    title: bundle.title,
+    description: bundle.description || "",
+    discountPercentage: String(bundle.discountPercentage ?? 0),
+    offers: bundle.offers.map((o) => ({ ...o })),
+  };
+  renderPage("bundle-editor");
+}
+
+async function ensureAgent() {
+  if (bundleState.agent) return bundleState.agent;
+  const users = await api.get("/api/users");
+  const agent = users.find((u) => u.role === "AGENT" && !u.archived);
+  if (!agent) throw new Error("Aucun compte agent actif n’a été trouvé.");
+  bundleState.agent = agent;
+  return agent;
+}
+
+const bundleImage = (bundle) => bundle.offers.find((o) => o.image)?.image || photos.blue;
+
 function bundlesPage() {
-  const bundles = [
-    ["Échappée bleue du Nord","Chefchaouen · Tanger","Publié","2 450,00 MAD","2 082,50 MAD",photos.blue,64,8],
-    ["Marrakech, riad & désert","Marrakech · Agafay","Publié","4 800,00 MAD","4 080,00 MAD",photos.riad,42,5],
-    ["Escapade impériale à Fès","Fès · Meknès","Brouillon","3 250,00 MAD","2 925,00 MAD",photos.arch,85,12],
-  ].map((item) => `<section class="card bundle-card"><div class="bundle-image"><img src="${item[5]}" alt="${item[0]}" />${badge(item[2], item[2] === "Publié" ? "green" : "gray")}<button class="bundle-menu">${icon("more")}</button></div><div class="bundle-body"><span class="location">${item[1]}</span><h2>${item[0]}</h2><div class="component-count"><span>${icon("package")}</span>3 composantes · 4 jours / 3 nuits</div><div class="price-flow"><small>Prix des offres</small><del>${item[3]}</del><em>−15 %</em><strong>${item[4]}</strong></div><div class="stock-title"><span>Stock dynamique</span><strong>${item[7]} bundles disponibles</strong></div><div class="stock-track"><i style="width:${item[6]}%"></i></div><div class="stock-note">Limité par : Riad Atlas – Chambre double</div><div class="bundle-actions">${button("Modifier", "outline", 'data-page="bundle-editor"')}${button("Aperçu", "ghost")}</div></div></section>`).join("");
   return pageHead("Catalogue", "Bundles", "Composez des expériences uniques à partir des offres disponibles.", button(`${icon("plus")} Nouveau bundle`, "primary", 'data-page="bundle-editor"'))
-    + `<div class="alert-banner danger"><span>${icon("alert")}</span><div><strong>« Week-end impérial » a été dépublié automatiquement</strong><p>L'offre « Riad Atlas » a été désactivée par le fournisseur.</p></div><button class="text-link">Voir le détail ${icon("arrow")}</button></div>
-      <section class="card bundle-toolbar"><label class="quick-search">${icon("search")}<input placeholder="Rechercher un bundle…" /></label><div class="chips">${["Tous","Publié · 8","Brouillon · 3","Archivé · 2"].map((text, i) => `<button class="chip ${i === 0 ? "active" : ""}">${text}</button>`).join("")}</div>${button(`${icon("filter")} Plus de filtres`, "outline")}</section>
-      <div class="bundle-grid">${bundles}</div>${pagination()}`;
+    + `<section class="card bundle-toolbar"><label class="quick-search">${icon("search")}<input id="bundle-search" placeholder="Rechercher un bundle…" /></label></section>
+      <div id="bundle-results"><section class="card padded-card">Chargement des bundles…</section></div>`;
+}
+
+async function loadBundlesPage() {
+  try {
+    await ensureAgent();
+    bundleState.bundles = await api.get("/api/bundles");
+    renderBundleList();
+  } catch (err) {
+    const root = document.querySelector("#bundle-results");
+    if (!root) return;
+    root.innerHTML = `<section class="card padded-card"><div class="alert-banner danger" style="margin:0"><span>${icon("alert")}</span><div><strong>Impossible de charger les bundles</strong><p>${esc(err.message)}</p></div><button class="button button-outline" data-bundle-retry>Réessayer</button></div></section>`;
+    hydrateIcons(root);
+  }
+}
+
+function renderBundleList() {
+  const root = document.querySelector("#bundle-results");
+  if (!root) return;
+  const all = bundleState.bundles;
+  const query = (document.querySelector("#bundle-search")?.value || "").trim().toLowerCase();
+  const list = all
+    .filter((b) => b.title.toLowerCase().includes(query))
+    .sort((a, b) => b.id - a.id);
+  if (!all.length) {
+    root.innerHTML = `<section class="card padded-card" style="text-align:center;padding:48px"><h2>Aucun bundle pour le moment</h2><p style="color:var(--muted);font-size:10px;margin:8px 0 16px">Assemblez plusieurs offres de fournisseurs pour créer votre premier bundle.</p>${button(`${icon("plus")} Nouveau bundle`, "primary", 'data-page="bundle-editor"')}</section>`;
+  } else if (!list.length) {
+    root.innerHTML = `<section class="card padded-card" style="text-align:center;padding:48px"><h2>Aucun bundle ne correspond</h2><p style="color:var(--muted);font-size:10px;margin-top:8px">Modifiez la recherche.</p></section>`;
+  } else {
+    root.innerHTML = `<div class="bundle-grid">${list.map(bundleCard).join("")}</div>`;
+  }
+  hydrateIcons(root);
+}
+
+function bundleCard(b) {
+  const discount = b.discountPercentage || 0;
+  return `<section class="card bundle-card"><div class="bundle-image"><img src="${esc(bundleImage(b))}" alt="${esc(b.title)}" /></div>
+    <div class="bundle-body"><span class="location">${esc(b.cities.join(" · ") || "—")}</span><h2>${esc(b.title)}</h2>
+    <div class="component-count"><span>${icon("package")}</span>${b.offers.length} composantes</div>
+    <div class="price-flow"><small>Prix des offres</small>${discount > 0 ? `<del>${money(b.sumPrice)}</del><em>−${discount} %</em>` : "<span></span><span></span>"}<strong>${money(b.finalPrice)}</strong></div>
+    <div class="stock-title"><span>Stock dynamique</span><strong>${b.stock} bundle${b.stock > 1 ? "s" : ""} disponible${b.stock > 1 ? "s" : ""}</strong></div>
+    <div class="stock-track"><i style="width:${Math.min(100, Math.max(4, b.stock * 10))}%"></i></div>
+    <div class="stock-note">Limité par : ${esc(b.limitingOfferTitle || "—")}</div>
+    <div class="bundle-actions">${button("Modifier", "outline", `data-bundle-edit="${b.id}"`)}${button("Supprimer", "ghost", `data-bundle-delete="${b.id}" style="color:var(--red)"`)}</div></div></section>`;
+}
+
+/* ---- Éditeur ---- */
+
+function bundleTotals() {
+  const d = bundleState.draft;
+  const sum = d.offers.reduce((total, o) => total + (o.basePrice || 0), 0);
+  const discount = Math.min(100, Math.max(0, Number(d.discountPercentage) || 0));
+  const limiting = d.offers.reduce((min, o) => (min === null || o.stock < min.stock ? o : min), null);
+  return { sum, discount, saved: sum * discount / 100, final: sum * (1 - discount / 100), stock: limiting ? limiting.stock : 0, limiting };
+}
+
+function bundleSaveButtons() {
+  return button("Enregistrer", "primary", "data-bundle-save");
+}
+
+function bundleComponentsHtml() {
+  const offers = bundleState.draft.offers;
+  if (!offers.length) return `<p style="color:var(--muted);font-size:9px;margin-bottom:12px">Aucune offre ajoutée pour le moment.</p>`;
+  return offers.map((o) => `<div class="component-row"><i></i><span class="offer-icon">${icon(OFFER_TYPE_ICONS[o.type] || "package")}</span><div><strong>${esc(o.title)}</strong><small>${esc(o.cityName || "—")} · Stock : ${o.stock}${o.active ? "" : " · inactive"}</small></div><span>${OFFER_TYPE_LABELS[o.type] || ""}</span><b>${money(o.basePrice)}</b><button class="remove-button" data-bundle-remove="${o.id}" aria-label="Retirer">×</button></div>`).join("");
+}
+
+function bundleRecapHtml() {
+  const d = bundleState.draft;
+  const t = bundleTotals();
+  const image = d.offers.find((o) => o.image)?.image || photos.riad;
+  return `<section class="card recap-card"><h2>Récapitulatif en temps réel</h2><img src="${esc(image)}" alt="" /><strong>${esc(d.title || "Titre du bundle")}</strong>
+    <div class="summary-row"><span>Somme des offres</span><strong>${money(t.sum)}</strong></div>
+    <div class="summary-row discount"><span>Remise (${t.discount} %)</span><strong>−${money(t.saved)}</strong></div>
+    <div class="final-price"><span>Prix final</span><strong>${money(t.final)}</strong><small>${d.offers.length} offre${d.offers.length > 1 ? "s" : ""} combinée${d.offers.length > 1 ? "s" : ""}</small></div>
+    <div class="dynamic-stock">${icon("package")}<div><span>Stock dynamique</span><strong>${t.stock} bundle${t.stock > 1 ? "s" : ""} disponible${t.stock > 1 ? "s" : ""}</strong><small>${t.limiting ? `Limité par ${esc(t.limiting.title)}` : "Ajoutez des offres"}</small></div></div>
+    <div style="display:flex;flex-direction:column;gap:8px">${bundleSaveButtons()}</div></section>`;
 }
 
 function bundleEditorPage() {
-  const components = [
-    ["bed", "Riad Atlas – Chambre double", "Atlas Hospitality", "2 nuits", "1 700,00 MAD"],
-    ["car", "Excursion Marrakech → Essaouira", "Maroc Horizons", "2 pers.", "1 250,00 MAD"],
-  ].map((item) => `<div class="component-row"><i>⠿</i><span class="offer-icon">${icon(item[0])}</span><div><strong>${item[1]}</strong><small>${item[2]} · Stock : 8</small></div><span>${item[3]}</span><b>${item[4]}</b><button class="remove-button">×</button></div>`).join("");
+  if (!bundleState.draft) startNewBundle();
+  const d = bundleState.draft;
+  const editing = bundleState.editingId !== null;
   return `<button class="back-link" data-page="bundles">← Retour aux bundles</button>`
-    + pageHead("Nouveau bundle", "Créer une expérience", "Assemblez les offres, définissez la remise et publiez.", `${button("Enregistrer le brouillon", "outline", 'data-toast="Brouillon enregistré"')}${button("Publier", "primary", 'data-modal="Publier"')}`)
+    + pageHead(editing ? "Modifier le bundle" : "Nouveau bundle", editing ? "Modifier l’expérience" : "Créer une expérience", "Assemblez les offres et définissez la remise.", bundleSaveButtons())
     + `<div class="editor-grid"><div>
-      <section class="card form-card"><span class="step">01</span><h2>Informations générales</h2><p>Présentez l'expérience aux voyageurs.</p><label class="full-field"><span>Titre du bundle</span><input value="Escapade entre médina et océan" /></label><label class="full-field"><span>Description</span><textarea>Une escapade authentique entre les ruelles de Marrakech et la douceur d'Essaouira.</textarea></label><div class="dropzone">${icon("plus")}<strong>Glissez vos images ici</strong><span>JPG, PNG ou WebP · 5 Mo maximum</span></div></section>
-      <section class="card form-card"><span class="step">02</span><h2>Composantes</h2><p>2 offres ajoutées · Réorganisez par glisser-déposer.</p>${components}${button(`${icon("plus")} Ajouter une offre`, "outline", 'data-toast="Sélecteur d’offres ouvert"')}</section>
-      <section class="card form-card"><span class="step">03</span><h2>Réduction globale</h2><p>Définissez un avantage clair pour ce package.</p><div class="chips"><button class="chip active">Pourcentage</button><button class="chip">Montant fixe</button></div><label class="full-field"><span>Valeur</span><input value="15 %" /></label><div class="alert-banner" style="margin:0;min-height:45px"><span>${icon("alert")}</span><div><strong>Un bundle est toujours payé immédiatement.</strong></div></div></section>
-    </div><aside><section class="card recap-card">${badge("Brouillon", "gray")}<h2>Récapitulatif en temps réel</h2><img src="${photos.riad}" alt="Riad marocain" /><strong>Escapade entre médina et océan</strong><div class="summary-row"><span>Somme des offres</span><strong>2 950,00 MAD</strong></div><div class="summary-row discount"><span>Remise (15 %)</span><strong>−442,50 MAD</strong></div><div class="final-price"><span>Prix final</span><strong>2 507,50 MAD</strong><small>pour 2 personnes</small></div><div class="dynamic-stock">${icon("package")}<div><span>Stock dynamique</span><strong>8 bundles disponibles</strong><small>Limité par Riad Atlas</small></div></div>${button("Publier le bundle", "primary", 'data-modal="Publier"')}</section></aside></div>`;
+      <section class="card form-card"><span class="step">01</span><h2>Informations générales</h2><p>Présentez l'expérience aux voyageurs. L’image du bundle est celle de sa première offre.</p>
+        <label class="full-field"><span>Titre du bundle</span><input data-b="title" value="${esc(d.title)}" placeholder="Escapade entre médina et océan" /></label>
+        <label class="full-field"><span>Description</span><textarea data-b="description" placeholder="Décrivez l’expérience proposée…">${esc(d.description)}</textarea></label></section>
+      <section class="card form-card"><span class="step">02</span><h2>Composantes</h2><p>Un bundle contient au moins ${MIN_BUNDLE_OFFERS} offres de fournisseurs.</p><div id="bundle-components">${bundleComponentsHtml()}</div>${button(`${icon("plus")} Ajouter une offre`, "outline", "data-bundle-pick")}</section>
+      <section class="card form-card"><span class="step">03</span><h2>Réduction globale</h2><p>Définissez un avantage clair pour ce package (en pourcentage de la somme des offres).</p>
+        <label class="full-field"><span>Remise (%)</span><input type="number" min="0" max="100" step="any" data-b="discountPercentage" value="${esc(d.discountPercentage)}" /></label>
+        <div class="alert-banner" style="margin:0;min-height:45px"><span>${icon("alert")}</span><div><strong>Un bundle est toujours payé immédiatement.</strong></div></div></section>
+    </div><aside id="bundle-recap">${bundleRecapHtml()}</aside></div>`;
 }
+
+function refreshBundleEditor(components = true) {
+  const list = document.querySelector("#bundle-components");
+  const recap = document.querySelector("#bundle-recap");
+  if (components && list) { list.innerHTML = bundleComponentsHtml(); hydrateIcons(list); }
+  if (recap) { recap.innerHTML = bundleRecapHtml(); hydrateIcons(recap); }
+}
+
+function validateBundleDraft() {
+  const d = bundleState.draft;
+  if (!d.title.trim()) return "Le titre du bundle est obligatoire.";
+  if (d.offers.length < MIN_BUNDLE_OFFERS) return `Ajoutez au moins ${MIN_BUNDLE_OFFERS} offres au bundle.`;
+  const discount = Number(d.discountPercentage);
+  if (d.discountPercentage !== "" && (Number.isNaN(discount) || discount < 0 || discount > 100)) return "La remise doit être comprise entre 0 et 100 %.";
+  return null;
+}
+
+async function saveBundle() {
+  if (bundleState.saving) return;
+  const problem = validateBundleDraft();
+  if (problem) { showToast(problem, true); return; }
+  const d = bundleState.draft;
+  bundleState.saving = true;
+  try {
+    const agent = await ensureAgent();
+    const payload = { title: d.title.trim(), description: d.description.trim() || null, discountPercentage: Number(d.discountPercentage) || 0, offerIds: d.offers.map((o) => o.id), createdById: agent.id };
+    if (bundleState.editingId !== null) await api.put(`/api/bundles/${bundleState.editingId}`, payload); else await api.post("/api/bundles", payload);
+    showToast(bundleState.editingId !== null ? "Bundle modifié" : "Bundle créé");
+    bundleState.draft = null;
+    bundleState.editingId = null;
+    renderPage("bundles");
+  } catch (err) {
+    showToast(err.message, true);
+  } finally {
+    bundleState.saving = false;
+  }
+}
+
+/* ---- Fenêtres modales ---- */
+
+function openDialog(html, width = 470) {
+  document.querySelector("#modal-root").innerHTML = `<div class="modal-backdrop" data-action="close-modal"><section class="modal" role="dialog" aria-modal="true" style="width:${width}px;max-width:94vw"><button class="modal-close" data-action="close-modal">×</button>${html}</section></div>`;
+  hydrateIcons(document.querySelector("#modal-root"));
+}
+const closeDialog = () => { document.querySelector("#modal-root").innerHTML = ""; };
+
+async function openOfferPicker() {
+  openDialog(`<h2>Ajouter des offres</h2><p>Chargement du catalogue…</p>`, 640);
+  try {
+    bundleState.catalog = (await api.get("/api/offers")).filter((o) => o.active);
+  } catch (err) {
+    closeDialog();
+    showToast(err.message, true);
+    return;
+  }
+  bundleState.pick = new Set(bundleState.draft.offers.map((o) => o.id));
+  openDialog(`<h2>Ajouter des offres</h2><p>Sélectionnez les offres actives à intégrer au bundle.</p>
+    <label class="quick-search" style="width:100%;margin-bottom:10px">${icon("search")}<input id="pick-search" placeholder="Rechercher une offre…" /></label>
+    <div id="pick-list" style="max-height:340px;overflow:auto"></div>
+    <div class="modal-actions"><span id="pick-count" style="margin-right:auto;font-size:9px;color:var(--muted);align-self:center"></span>${button("Annuler", "ghost", 'data-action="close-modal"')}${button("Ajouter la sélection", "primary", "data-bundle-pick-confirm")}</div>`, 640);
+  renderPickList();
+}
+
+function renderPickList() {
+  const list = document.querySelector("#pick-list");
+  if (!list) return;
+  const query = (document.querySelector("#pick-search")?.value || "").trim().toLowerCase();
+  const offers = bundleState.catalog.filter((o) => o.title.toLowerCase().includes(query) || (o.cityName || "").toLowerCase().includes(query));
+  list.innerHTML = offers.length
+    ? offers.map((o) => `<label class="component-row" style="grid-template-columns:20px 36px 1fr auto auto;cursor:${o.stock > 0 ? "pointer" : "not-allowed"};opacity:${o.stock > 0 ? 1 : .5}"><input type="checkbox" data-pick-offer="${o.id}" ${bundleState.pick.has(o.id) ? "checked" : ""} ${o.stock > 0 ? "" : "disabled"} /><span class="offer-icon">${icon(OFFER_TYPE_ICONS[o.type] || "package")}</span><div><strong>${esc(o.title)}</strong><small>${OFFER_TYPE_LABELS[o.type]} · ${esc(o.cityName)} · ${esc(o.supplierName)} · Stock : ${o.stock}</small></div><span></span><b>${money(o.basePrice)}</b></label>`).join("")
+    : `<p style="color:var(--muted);font-size:9px;padding:14px 0">Aucune offre active ne correspond.</p>`;
+  hydrateIcons(list);
+  const count = document.querySelector("#pick-count");
+  if (count) count.textContent = `${bundleState.pick.size} offre${bundleState.pick.size > 1 ? "s" : ""} sélectionnée${bundleState.pick.size > 1 ? "s" : ""}`;
+}
+
+function confirmOfferPicker() {
+  const d = bundleState.draft;
+  const kept = d.offers.filter((o) => bundleState.pick.has(o.id));
+  const known = new Set(kept.map((o) => o.id));
+  const added = bundleState.catalog
+    .filter((o) => bundleState.pick.has(o.id) && !known.has(o.id))
+    .map((o) => ({ id: o.id, type: o.type, title: o.title, cityName: o.cityName, basePrice: o.basePrice, stock: o.stock, active: o.active, image: o.images[0] || null }));
+  d.offers = [...kept, ...added];
+  closeDialog();
+  refreshBundleEditor();
+}
+
+function confirmDeleteBundle(bundle) {
+  openDialog(`<span class="modal-icon red">${icon("alert")}</span><h2>Supprimer ce bundle ?</h2><p>« ${esc(bundle.title)} » sera supprimé définitivement. Les offres qui le composent ne sont pas affectées.</p>
+    <div class="modal-actions">${button("Annuler", "ghost", 'data-action="close-modal"')}${button("Supprimer", "danger", `data-bundle-confirm-delete="${bundle.id}"`)}</div>`);
+}
+
+async function runBundleAction(action, successMessage) {
+  try {
+    await action();
+    closeDialog();
+    bundleState.bundles = await api.get("/api/bundles");
+    renderBundleList();
+    showToast(successMessage);
+  } catch (err) {
+    showToast(err.message, true);
+  }
+}
+
+document.addEventListener("input", (event) => {
+  const field = event.target.closest("[data-b]");
+  if (field && bundleState.draft) {
+    bundleState.draft[field.dataset.b] = field.value;
+    refreshBundleEditor(false);
+    return;
+  }
+  if (event.target.id === "bundle-search") renderBundleList();
+  if (event.target.id === "pick-search") renderPickList();
+});
+
+document.addEventListener("change", (event) => {
+  const box = event.target.closest("[data-pick-offer]");
+  if (!box) return;
+  const id = Number(box.dataset.pickOffer);
+  if (box.checked) bundleState.pick.add(id); else bundleState.pick.delete(id);
+  const count = document.querySelector("#pick-count");
+  if (count) count.textContent = `${bundleState.pick.size} offre${bundleState.pick.size > 1 ? "s" : ""} sélectionnée${bundleState.pick.size > 1 ? "s" : ""}`;
+});
+
+document.addEventListener("click", (event) => {
+  const t = event.target;
+  const find = (id) => bundleState.bundles.find((b) => b.id === Number(id));
+  if (t.closest("[data-bundle-retry]")) { loadBundlesPage(); return; }
+  const edit = t.closest("[data-bundle-edit]");
+  if (edit) { startEditBundle(Number(edit.dataset.bundleEdit)); return; }
+  const del = t.closest("[data-bundle-delete]");
+  if (del) { confirmDeleteBundle(find(del.dataset.bundleDelete)); return; }
+  const confirmDelete = t.closest("[data-bundle-confirm-delete]");
+  if (confirmDelete) {
+    const bundle = find(confirmDelete.dataset.bundleConfirmDelete);
+    api.delete(`/api/bundles/${bundle.id}`)
+      .then(() => runBundleAction(async () => {}, "Bundle supprimé"))
+      .catch((err) => {
+        openDialog(`<span class="modal-icon red">${icon("alert")}</span><h2>Suppression impossible</h2><p>${esc(err.message)}</p><div class="modal-actions">${button("Fermer", "ghost", 'data-action="close-modal"')}</div>`);
+      });
+    return;
+  }
+  const remove = t.closest("[data-bundle-remove]");
+  if (remove) {
+    bundleState.draft.offers = bundleState.draft.offers.filter((o) => o.id !== Number(remove.dataset.bundleRemove));
+    refreshBundleEditor();
+    return;
+  }
+  if (t.closest("[data-bundle-pick]")) { openOfferPicker(); return; }
+  if (t.closest("[data-bundle-pick-confirm]")) { confirmOfferPicker(); return; }
+  if (t.closest("[data-bundle-save]")) saveBundle();
+});
 
 function paymentsPage() {
   const items = [
@@ -204,7 +468,6 @@ function notificationsPage() {
   const items = [
     ["calendar","Nouvelle réservation en attente","Youssef El Amrani a réservé « Échappée bleue du Nord ».","Il y a 5 min",""],
     ["message","Nouveau ticket de support","Remboursement non reçu · Ticket #TK-0482","Il y a 18 min","amber"],
-    ["alert","Bundle dépublié automatiquement","« Week-end impérial » n'est plus disponible au catalogue.","Il y a 2 h","red"],
     ["wallet","Rappel de paiement non encaissé","Le paiement de Nadia El Idrissi est attendu demain.","Il y a 4 h","violet"],
     ["check","Réservation confirmée","La réservation BK-2026-000119 a bien été confirmée.","Hier","green"],
   ].map((item, i) => `<button class="notification-row"><span class="notification-icon ${item[4]}">${icon(item[0])}</span><div><strong>${item[1]}</strong><p>${item[2]}</p><time>${item[3]}</time></div>${i < 4 ? "<i></i>" : ""}<span class="text-link">Voir ${icon("arrow")}</span></button>`).join("");
@@ -218,6 +481,8 @@ function profilePage() {
       <div><section class="card profile-form"><h2>Informations personnelles</h2><p>Ces informations sont visibles par votre équipe.</p><div class="form-grid"><label class="full-field"><span>Prénom</span><input value="Nadia" /></label><label class="full-field"><span>Nom</span><input value="El Fassi" /></label><label class="full-field"><span>Téléphone</span><input value="+212 6 42 18 29 30" /></label><label class="full-field"><span>Email professionnel</span><input value="nadia.elfassi@atlasvoyage.ma" disabled /><small>L'adresse email n'est pas modifiable.</small></label></div>${button("Enregistrer les modifications", "primary", 'data-toast="Profil mis à jour"')}</section>
       <section class="card profile-form"><h2>Changer le mot de passe</h2><p>Utilisez au moins 8 caractères, une majuscule et un chiffre.</p><div class="form-grid"><label class="full-field span-two"><span>Mot de passe actuel</span><input type="password" placeholder="••••••••••••" /></label><label class="full-field"><span>Nouveau mot de passe</span><input type="password" placeholder="8 caractères minimum" /></label><label class="full-field"><span>Confirmer</span><input type="password" placeholder="Répétez le mot de passe" /></label></div>${button("Mettre à jour le mot de passe", "outline", 'data-toast="Mot de passe mis à jour"')}</section></div></div>`;
 }
+
+const pageHooks = { bundles: loadBundlesPage };
 
 const pageRenderers = {
   dashboard: dashboardPage,
@@ -239,17 +504,18 @@ function renderPage(page) {
   window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
   const renderer = pageRenderers[page] || dashboardPage;
   document.querySelector("#page-content").innerHTML = renderer();
-  document.querySelector("#breadcrumb-label").textContent = page === "booking" ? "Détail de la réservation" : page === "bundle-editor" ? "Nouveau bundle" : navItems.find((item) => item[0] === page)?.[1] || "Tableau de bord";
+  document.querySelector("#breadcrumb-label").textContent = page === "booking" ? "Détail de la réservation" : page === "bundle-editor" ? (bundleState.editingId !== null ? "Modifier le bundle" : "Nouveau bundle") : navItems.find((item) => item[0] === page)?.[1] || "Tableau de bord";
   renderNav();
   hydrateIcons(document.querySelector("#page-content"));
+  pageHooks[page]?.();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function showToast(message) {
+function showToast(message, error = false) {
   const root = document.querySelector("#toast-root");
-  root.innerHTML = `<div class="toast"><span>${icon("check")}</span><div><strong>Action réussie</strong><p>${message}</p></div><button data-action="close-toast">×</button></div>`;
+  root.innerHTML = `<div class="toast ${error ? "toast-error" : ""}"><span>${icon(error ? "alert" : "check")}</span><div><strong>${error ? "Action impossible" : "Action réussie"}</strong><p>${esc(message)}</p></div><button data-action="close-toast">×</button></div>`;
   window.clearTimeout(showToast.timer);
-  showToast.timer = window.setTimeout(() => { root.innerHTML = ""; }, 3200);
+  showToast.timer = window.setTimeout(() => { root.innerHTML = ""; }, error ? 5000 : 3200);
 }
 
 function showModal(kind) {
@@ -276,13 +542,13 @@ function renderNotificationDropdown() {
   document.querySelector("#notification-dropdown").innerHTML = `<div class="dropdown-title"><strong>Notifications</strong><button>Tout marquer comme lu</button></div>
     <button class="dropdown-item" data-page="booking"><span>${icon("calendar")}</span><span><strong>Nouvelle réservation</strong><p>BK-2026-000123 est en attente</p><small>Il y a 5 min</small></span><i class="unread-dot"></i></button>
     <button class="dropdown-item" data-page="tickets"><span>${icon("message")}</span><span><strong>Nouveau ticket</strong><p>Demande de Youssef El Amrani</p><small>Il y a 18 min</small></span><i class="unread-dot"></i></button>
-    <button class="dropdown-item" data-page="bundles"><span>${icon("alert")}</span><span><strong>Bundle dépublié</strong><p>Week-end impérial n'est plus publié</p><small>Il y a 2 h</small></span></button>
     <button class="dropdown-footer" data-page="notifications">Voir toutes les notifications ${icon("arrow")}</button>`;
 }
 
 document.addEventListener("click", (event) => {
   const pageButton = event.target.closest("[data-page]");
   if (pageButton) {
+    if (pageButton.dataset.page === "bundle-editor") startNewBundle();
     renderPage(pageButton.dataset.page);
     document.querySelector("#notification-dropdown").classList.add("hidden");
     return;
@@ -317,6 +583,12 @@ document.addEventListener("click", (event) => {
   }
 });
 
+document.querySelector("#sidebar-toggle").addEventListener("click", () => {
+  const collapsed = document.querySelector("#sidebar").classList.toggle("collapsed");
+  document.querySelector("#workspace").classList.toggle("expanded", collapsed);
+  document.querySelector("#sidebar-toggle").setAttribute("aria-label", collapsed ? "Déplier le menu" : "Replier le menu");
+});
+
 document.querySelector("#notification-button").addEventListener("click", () => {
   document.querySelector("#notification-dropdown").classList.toggle("hidden");
 });
@@ -337,12 +609,6 @@ document.querySelector("#login-form").addEventListener("submit", (event) => {
   event.preventDefault();
   enterAgentApp();
 });
-
-function goPublicSite() {
-  window.location.href = "../accueil.html";
-}
-document.querySelector("#public-site-link")?.addEventListener("click", goPublicSite);
-document.querySelector("#public-site-top")?.addEventListener("click", goPublicSite);
 
 renderNotificationDropdown();
 renderNav();

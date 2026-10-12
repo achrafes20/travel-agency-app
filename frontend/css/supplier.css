@@ -274,3 +274,43 @@ button { cursor: pointer; }
   #page-content { padding-left: 28px; padding-right: 28px; }
   .kpi-value { font-size: 19px; }
 }
+
+/* Boutons d'action des lignes (même style que la page Utilisateurs de l'administration) */
+.table-actions-cell { text-align: center; white-space: nowrap; width: 170px; }
+.th-center { text-align: center !important; }
+.row-actions-group { display: inline-flex; align-items: center; justify-content: center; gap: 14px; margin: 0 auto; }
+.action-btn { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #e5e9f0; background: #ffffff; color: #64748b; cursor: pointer; transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1); padding: 0; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); }
+.action-btn svg, .action-btn i { width: 15px; height: 15px; stroke-width: 2px; }
+.action-btn.action-view:hover { background: #eef4ff; border-color: #bcd4ff; color: #0b3c8f; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(11, 60, 143, 0.14); }
+.action-btn.action-edit:hover { background: #fffbeb; border-color: #fde68a; color: #d97706; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(217, 119, 6, 0.14); }
+.action-btn.action-delete:hover { background: #fef2f2; border-color: #fecaca; color: #dc2626; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(220, 38, 38, 0.14); }
+
+
+/* Tableau d'inventaire : niveau de stock + stock modifiable (enregistrement automatique) */
+.th-right { text-align: right !important; }
+.stock-level { display: flex; flex-direction: column; gap: 7px; width: 160px; }
+.level-pill { display: inline-flex; align-items: center; gap: 6px; width: fit-content; border-radius: 99px; padding: 4px 10px; font-size: 9px; font-weight: 700; }
+.level-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.level-track { height: 6px; border-radius: 6px; background: #eef1f6; overflow: hidden; }
+.level-track i { display: block; height: 100%; border-radius: 6px; transition: width .25s ease; }
+.level-ok .level-pill { color: #15803d; background: #dcfce7; } .level-ok .level-track i { background: #22c55e; }
+.level-low .level-pill { color: #b45309; background: #fef3c7; } .level-low .level-track i { background: #f59e0b; }
+.level-out .level-pill { color: #b91c1c; background: #fee2e2; } .level-out .level-track i { background: #ef4444; }
+.stock-cell { text-align: right; white-space: nowrap; width: 200px; }
+.stepper { display: inline-flex; align-items: stretch; border: 1px solid #e5e9f0; border-radius: 10px; background: #fff; overflow: hidden; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); }
+.stepper:focus-within { border-color: #0b3a8c; box-shadow: 0 0 0 3px #e8f0fe; }
+.stepper-btn { width: 38px; height: 40px; border: 0; background: #f7f9fc; color: #0b3a8c; font-size: 17px; font-weight: 700; line-height: 1; cursor: pointer; transition: background .15s, color .15s; }
+.stepper-btn:hover { background: #e8f0fe; }
+.stepper-btn:active { background: #d6e4fd; }
+.stepper-input { width: 68px; height: 40px; border: 0; border-left: 1px solid #e5e9f0; border-right: 1px solid #e5e9f0; padding: 0; text-align: center; font-size: 12px; font-weight: 700; color: #0f1b3d; outline: 0; background: #fff; -moz-appearance: textfield; }
+.stepper-input::-webkit-outer-spin-button, .stepper-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.stepper-input:focus { background: #f3f7ff; }
+
+/* Menu latéral repliable (même principe que l'espace administrateur) */
+#sidebar { transition: width .2s; }
+#sidebar.collapsed { width: 72px; padding-left: 12px; padding-right: 12px; }
+#sidebar.collapsed p, #sidebar.collapsed .nav-item span, #sidebar.collapsed .nav-item b { display: none; }
+#sidebar.collapsed .nav-item { justify-content: center; padding: 0; }
+#sidebar.collapsed .nav-item.active::before { left: -12px; }
+#main-shell { transition: margin .2s; }
+#main-shell.expanded { margin-left: 72px; }

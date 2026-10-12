@@ -1,0 +1,1276 @@
+{
+  "info": {
+    "name": "Atlas Voyage - API REST",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 - Statut",
+      "item": [
+        {
+          "name": "GET /api/status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"status = ok\", () => pm.expect(pm.response.json().status).to.eql(\"ok\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01 - Utilisateurs",
+      "item": [
+        {
+          "name": "Lister les utilisateurs (et mémoriser les comptes de test)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const users = pm.response.json();",
+                  "pm.test(\"Liste non vide, sans mot de passe\", () => { pm.expect(users).to.be.an(\"array\").that.is.not.empty; users.forEach(u => pm.expect(u).to.not.have.property(\"password\")); });",
+                  "const first = (role) => (users.find(u => u.role === role && !u.archived) || {}).id;",
+                  "[\"CLIENT\", \"SUPPLIER\", \"AGENT\", \"ADMIN\"].forEach(r => { const id = first(r); if (id) pm.collectionVariables.set(r.toLowerCase() + \"Id\", id); });",
+                  "pm.test(\"Comptes fournisseur et agent trouvés\", () => { pm.expect(pm.collectionVariables.get(\"supplierId\")).to.exist; pm.expect(pm.collectionVariables.get(\"agentId\")).to.exist; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Créer un utilisateur",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"testEmail\", \"postman.\" + Date.now() + \"@example.com\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const u = pm.response.json();",
+                  "pm.test(\"Compte créé, non archivé, sans mot de passe\", () => { pm.expect(u.id).to.be.a(\"number\"); pm.expect(u.archived).to.eql(false); pm.expect(u).to.not.have.property(\"password\"); });",
+                  "pm.collectionVariables.set(\"userId\", u.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Postman Test\",\n  \"email\": \"{{testEmail}}\",\n  \"role\": \"CLIENT\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Détail d'un utilisateur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Email attendu\", () => pm.expect(pm.response.json().email).to.eql(pm.collectionVariables.get(\"testEmail\")));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modifier un utilisateur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Nom modifié\", () => pm.expect(pm.response.json().fullName).to.eql(\"Postman Test Modifié\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Postman Test Modifié\",\n  \"email\": \"{{testEmail}}\",\n  \"role\": \"CLIENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Archiver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"archived = true\", () => pm.expect(pm.response.json().archived).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/archive",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "archive"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Supprimer définitivement (compte archivé)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - Offres",
+      "item": [
+        {
+          "name": "Créer une offre : Hôtel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const o = pm.response.json();",
+                  "pm.test(\"Type HOTEL, active par défaut, ville et fournisseur renseignés\", () => { pm.expect(o.type).to.eql(\"HOTEL\"); pm.expect(o.active).to.eql(true); pm.expect(o.cityName).to.be.a(\"string\"); pm.expect(o.supplierName).to.be.a(\"string\"); });",
+                  "pm.test(\"Champs hôtel\", () => { pm.expect(o.stars).to.eql(4); pm.expect(o.roomType).to.eql(\"Suite\"); });",
+                  "pm.collectionVariables.set(\"hotelId\", o.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"HOTEL\",\n  \"title\": \"Postman Riad\",\n  \"basePrice\": 1000, \"stock\": 8, \"cityId\": {{cityId}}, \"supplierId\": {{supplierId}},\n  \"stars\": 4, \"roomType\": \"Suite\", \"address\": \"12 rue Al Andalous\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Créer une offre : Vol",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const o = pm.response.json();",
+                  "pm.test(\"Type FLIGHT, active par défaut, ville et fournisseur renseignés\", () => { pm.expect(o.type).to.eql(\"FLIGHT\"); pm.expect(o.active).to.eql(true); pm.expect(o.cityName).to.be.a(\"string\"); pm.expect(o.supplierName).to.be.a(\"string\"); });",
+                  "pm.test(\"Champs vol\", () => { pm.expect(o.airline).to.eql(\"Royal Air Maroc\"); pm.expect(o.departureDateTime).to.include(\"2026-11-01T08:00\"); });",
+                  "pm.collectionVariables.set(\"flightId\", o.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"FLIGHT\",\n  \"title\": \"Postman Vol\",\n  \"basePrice\": 800, \"stock\": 40, \"cityId\": {{cityId}}, \"supplierId\": {{supplierId}},\n  \"airline\": \"Royal Air Maroc\", \"flightNumber\": \"AT-204\", \"departureAirport\": \"TNG\", \"arrivalAirport\": \"RAK\", \"departureDateTime\": \"2026-11-01T08:00:00\", \"arrivalDateTime\": \"2026-11-01T09:30:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Créer une offre : Voiture",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const o = pm.response.json();",
+                  "pm.test(\"Type CAR, active par défaut, ville et fournisseur renseignés\", () => { pm.expect(o.type).to.eql(\"CAR\"); pm.expect(o.active).to.eql(true); pm.expect(o.cityName).to.be.a(\"string\"); pm.expect(o.supplierName).to.be.a(\"string\"); });",
+                  "pm.test(\"Champs voiture\", () => pm.expect(o.brand).to.eql(\"Dacia\"));",
+                  "pm.collectionVariables.set(\"carId\", o.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"CAR\",\n  \"title\": \"Postman Voiture\",\n  \"basePrice\": 200, \"stock\": 10, \"cityId\": {{cityId}}, \"supplierId\": {{supplierId}},\n  \"brand\": \"Dacia\", \"model\": \"Duster\", \"transmission\": \"Manuelle\", \"seats\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Créer une offre : Taxi / transfert",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const o = pm.response.json();",
+                  "pm.test(\"Type TAXI_TRANSFER, active par défaut, ville et fournisseur renseignés\", () => { pm.expect(o.type).to.eql(\"TAXI_TRANSFER\"); pm.expect(o.active).to.eql(true); pm.expect(o.cityName).to.be.a(\"string\"); pm.expect(o.supplierName).to.be.a(\"string\"); });",
+                  "pm.test(\"Champs taxi\", () => pm.expect(o.pickupLocation).to.eql(\"Aéroport de Tanger\"));",
+                  "pm.collectionVariables.set(\"taxiId\", o.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"TAXI_TRANSFER\",\n  \"title\": \"Postman Transfert\",\n  \"basePrice\": 450, \"stock\": 4, \"cityId\": {{cityId}}, \"supplierId\": {{supplierId}},\n  \"pickupLocation\": \"Aéroport de Tanger\", \"dropoffLocation\": \"Médina de Chefchaouen\", \"vehicleType\": \"Berline\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Créer une offre : Excursion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const o = pm.response.json();",
+                  "pm.test(\"Type EXCURSION, active par défaut, ville et fournisseur renseignés\", () => { pm.expect(o.type).to.eql(\"EXCURSION\"); pm.expect(o.active).to.eql(true); pm.expect(o.cityName).to.be.a(\"string\"); pm.expect(o.supplierName).to.be.a(\"string\"); });",
+                  "pm.test(\"Champs excursion\", () => { pm.expect(o.durationHours).to.eql(6); pm.expect(o.includesGuide).to.eql(true); });",
+                  "pm.collectionVariables.set(\"excursionId\", o.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"EXCURSION\",\n  \"title\": \"Postman Excursion\",\n  \"basePrice\": 500, \"stock\": 3, \"cityId\": {{cityId}}, \"supplierId\": {{supplierId}},\n  \"durationHours\": 6, \"includesGuide\": true, \"includesTransport\": false, \"itinerary\": \"Étape 1, étape 2\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lister toutes les offres",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Contient les 5 offres créées\", () => { const ids = pm.response.json().map(o => o.id); [\"hotelId\",\"flightId\",\"carId\",\"taxiId\",\"excursionId\"].forEach(v => pm.expect(ids).to.include(Number(pm.collectionVariables.get(v)))); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filtrer par type (HOTEL)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Uniquement des hôtels\", () => { const l = pm.response.json(); pm.expect(l).to.not.be.empty; l.forEach(o => pm.expect(o.type).to.eql(\"HOTEL\")); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers?type=HOTEL",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "HOTEL"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filtrer par fournisseur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Uniquement ce fournisseur\", () => { const l = pm.response.json(); pm.expect(l).to.not.be.empty; l.forEach(o => pm.expect(String(o.supplierId)).to.eql(String(pm.collectionVariables.get(\"supplierId\")))); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers?supplierId={{supplierId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers"
+              ],
+              "query": [
+                {
+                  "key": "supplierId",
+                  "value": "{{supplierId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Détail d'une offre",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Titre attendu\", () => pm.expect(pm.response.json().title).to.eql(\"Postman Riad\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/{{hotelId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "{{hotelId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modifier une offre (prix 1300)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Prix modifié\", () => pm.expect(pm.response.json().basePrice).to.eql(1300));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/{{hotelId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "{{hotelId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"HOTEL\",\n  \"title\": \"Postman Riad\",\n  \"basePrice\": 1300, \"stock\": 8, \"cityId\": {{cityId}}, \"supplierId\": {{supplierId}},\n  \"stars\": 4, \"roomType\": \"Suite\", \"address\": \"12 rue Al Andalous\",\n  \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Supprimer l'offre : hôtel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/{{hotelId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "{{hotelId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Supprimer l'offre : vol",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/{{flightId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "{{flightId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Supprimer l'offre : voiture",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/{{carId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "{{carId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Supprimer l'offre : taxi",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/{{taxiId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "{{taxiId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Supprimer l'offre : excursion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/{{excursionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "{{excursionId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Bundles",
+      "item": [
+        {
+          "name": "Préparer : créer l'hôtel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const o = pm.response.json();",
+                  "pm.test(\"Type HOTEL, active par défaut, ville et fournisseur renseignés\", () => { pm.expect(o.type).to.eql(\"HOTEL\"); pm.expect(o.active).to.eql(true); pm.expect(o.cityName).to.be.a(\"string\"); pm.expect(o.supplierName).to.be.a(\"string\"); });",
+                  "pm.test(\"Champs hôtel\", () => { pm.expect(o.stars).to.eql(4); pm.expect(o.roomType).to.eql(\"Suite\"); });",
+                  "pm.collectionVariables.set(\"bundleHotelId\", o.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"HOTEL\",\n  \"title\": \"Bundle Riad\",\n  \"basePrice\": 1000, \"stock\": 8, \"cityId\": {{cityId}}, \"supplierId\": {{supplierId}},\n  \"stars\": 4, \"roomType\": \"Suite\", \"address\": \"12 rue Al Andalous\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Préparer : créer l'excursion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const o = pm.response.json();",
+                  "pm.test(\"Type EXCURSION, active par défaut, ville et fournisseur renseignés\", () => { pm.expect(o.type).to.eql(\"EXCURSION\"); pm.expect(o.active).to.eql(true); pm.expect(o.cityName).to.be.a(\"string\"); pm.expect(o.supplierName).to.be.a(\"string\"); });",
+                  "pm.test(\"Champs excursion\", () => { pm.expect(o.durationHours).to.eql(6); pm.expect(o.includesGuide).to.eql(true); });",
+                  "pm.collectionVariables.set(\"bundleExcursionId\", o.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"EXCURSION\",\n  \"title\": \"Bundle Excursion\",\n  \"basePrice\": 500, \"stock\": 3, \"cityId\": {{cityId}}, \"supplierId\": {{supplierId}},\n  \"durationHours\": 6, \"includesGuide\": true, \"includesTransport\": false, \"itinerary\": \"Étape 1, étape 2\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Créer un bundle",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"2 offres\", () => { pm.expect(b.offers).to.have.lengthOf(2); });",
+                  "pm.test(\"Somme 1500, prix final 1350 (remise 10 %)\", () => { pm.expect(b.sumPrice).to.eql(1500); pm.expect(b.finalPrice).to.eql(1350); });",
+                  "pm.test(\"Stock dynamique = stock le plus bas (3), limité par l'excursion\", () => { pm.expect(b.stock).to.eql(3); pm.expect(b.limitingOfferTitle).to.eql(\"Bundle Excursion\"); });",
+                  "pm.collectionVariables.set(\"bundleId\", b.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bundles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bundles"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman Bundle\",\n  \"description\": \"Bundle créé depuis Postman\",\n  \"discountPercentage\": 10,\n  \"offerIds\": [{{bundleHotelId}}, {{bundleExcursionId}}],\n  \"createdById\": {{agentId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lister les bundles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Contient le bundle créé\", () => pm.expect(pm.response.json().map(b => b.id)).to.include(Number(pm.collectionVariables.get(\"bundleId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bundles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bundles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Détail d'un bundle",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Agent créateur renseigné\", () => pm.expect(pm.response.json().createdByName).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bundles/{{bundleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bundles",
+                "{{bundleId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modifier : remise 20 %",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"2 offres, somme 1500, prix final 1200 (remise 20 %)\", () => { pm.expect(b.offers).to.have.lengthOf(2); pm.expect(b.sumPrice).to.eql(1500); pm.expect(b.finalPrice).to.eql(1200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bundles/{{bundleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bundles",
+                "{{bundleId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman Bundle (modifié)\",\n  \"description\": \"Bundle créé depuis Postman\",\n  \"discountPercentage\": 20,\n  \"offerIds\": [{{bundleHotelId}}, {{bundleExcursionId}}],\n  \"createdById\": {{agentId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Supprimer le bundle",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bundles/{{bundleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bundles",
+                "{{bundleId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Nettoyage : supprimer l'hôtel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/{{bundleHotelId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "{{bundleHotelId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Nettoyage : supprimer l'excursion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/{{bundleExcursionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "{{bundleExcursionId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "cityId",
+      "value": "1"
+    },
+    {
+      "key": "clientId",
+      "value": ""
+    },
+    {
+      "key": "supplierId",
+      "value": ""
+    },
+    {
+      "key": "agentId",
+      "value": ""
+    },
+    {
+      "key": "adminId",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "testEmail",
+      "value": ""
+    },
+    {
+      "key": "hotelId",
+      "value": ""
+    },
+    {
+      "key": "flightId",
+      "value": ""
+    },
+    {
+      "key": "carId",
+      "value": ""
+    },
+    {
+      "key": "taxiId",
+      "value": ""
+    },
+    {
+      "key": "excursionId",
+      "value": ""
+    },
+    {
+      "key": "bundleId",
+      "value": ""
+    },
+    {
+      "key": "bundleHotelId",
+      "value": ""
+    },
+    {
+      "key": "bundleExcursionId",
+      "value": ""
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Retrouve les comptes de test (client, fournisseur, agent) si les variables sont vides :",
+          "// permet de lancer un dossier seul (par exemple 02 - Offres) sans passer par le dossier 01.",
+          "const roles = [[\"CLIENT\", \"clientId\"], [\"SUPPLIER\", \"supplierId\"], [\"AGENT\", \"agentId\"], [\"ADMIN\", \"adminId\"]];",
+          "if (roles.some(([, variable]) => !pm.collectionVariables.get(variable))) {",
+          "  pm.sendRequest({ url: pm.collectionVariables.get(\"baseUrl\") + \"/api/users\", method: \"GET\" }, (error, response) => {",
+          "    if (error || response.code !== 200) return;",
+          "    const users = response.json();",
+          "    roles.forEach(([role, variable]) => {",
+          "      const user = users.find((u) => u.role === role && !u.archived);",
+          "      if (user) pm.collectionVariables.set(variable, user.id);",
+          "    });",
+          "  });",
+          "}"
+        ]
+      }
+    }
+  ]
+}

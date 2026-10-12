@@ -110,10 +110,10 @@ public class UserController {
 
 | Composant | Classes |
 |---|---|
-| Controllers | `UserController`, `StatusController`, `CityController` |
-| Services | `UserService`, `CityService` |
+| Controllers | `UserController`, `StatusController`, `CityController`, `OfferController`, `BundleController` |
+| Services | `UserService`, `CityService`, `OfferService`, `BundleService` |
 | Repositories | un par entité (`User`, `Offer`, `Bundle`, `Cart`, `CartItem`, `PromoCode`, `Booking`, `Payment`, `Notification`, `City`) |
-| DTO | `CityRequest`, `CityResponse`, `UserRequest`, `UserResponse` |
+| DTO | `CityRequest`, `CityResponse`, `UserRequest`, `UserResponse`, `OfferRequest`, `OfferResponse`, `BundleRequest`, `BundleResponse` |
 | Config | `CorsConfig`, `DataSeeder` (comptes de test + villes de référence) |
 
 ### Séance 2 — Première fonctionnalité métier : **Villes**
@@ -159,7 +159,7 @@ sequenceDiagram
 **Règles métier (couche `CityService` uniquement) :**
 - Nom obligatoire et trim ;
 - Unicité du nom (insensible à la casse) ;
-- Ville introuvable → `404` ; conflit de nom → `400`.
+- Ville introuvable → `404` ; conflit de nom → `400` ; suppression refusée (`400`) si la ville est utilisée par des offres.
 
 ### Module Utilisateurs (Admin) : CRUD + archivage
 
@@ -189,6 +189,48 @@ Même découpage Controller → Service → Repository que les villes. L'entité
 
 > **À prévoir avec Spring Security :** un compte archivé doit être refusé à la connexion (l'archivage ne masque aujourd'hui l'utilisateur que dans l'interface d'administration).
 
+### Module Offres (Fournisseur) : CRUD des 5 types
+
+Une seule ressource `/api/offers` couvre les cinq sous-classes de `Offer` (héritage `SINGLE_TABLE`). Le champ `type` (`FLIGHT`, `HOTEL`, `CAR`, `TAXI_TRANSFER`, `EXCURSION`, énumération `OfferType`) choisit la sous-classe ; `OfferRequest` / `OfferResponse` portent les champs communs et ceux de chaque sous-type (les champs non concernés valent `null`).
+
+**Endpoints `/api/offers` :**
+
+| Méthode | Route | Rôle |
+|---|---|---|
+| GET | `/api/offers` | Liste ; filtres facultatifs `?supplierId=` et `?type=` |
+| GET | `/api/offers/{id}` | Détail |
+| POST | `/api/offers` | Création (`201`) |
+| PUT | `/api/offers/{id}` | Modification (le type ne peut pas changer) |
+| DELETE | `/api/offers/{id}` | Suppression (`204`) |
+
+**Règles métier (couche `OfferService` uniquement) :**
+- Champs communs : titre, prix de base (≥ 0), stock (≥ 0), ville et fournisseur obligatoires ; 5 images (URL) au maximum ; offre active par défaut (`active`).
+- Le fournisseur doit exister, avoir le rôle `SUPPLIER` et ne pas être archivé ; la ville doit exister (`404` sinon).
+- Vol : compagnie, aéroports de départ et d'arrivée obligatoires, arrivée postérieure au départ.
+- Hôtel : 1 à 5 étoiles et type de chambre obligatoires. Voiture : marque obligatoire, places ≥ 1. Taxi : lieux de prise en charge et de dépose obligatoires. Excursion : durée ≥ 1 heure.
+- Suppression refusée (`400`) si l'offre est référencée par un panier, un bundle ou une réservation : le fournisseur la désactive à la place.
+
+### Module Bundles (Agent) : composition d'offres
+
+Un bundle regroupe au moins deux offres de fournisseurs (relation `@ManyToMany` via la table `bundle_offers`) et appartient à l'agent qui l'a créé (`@ManyToOne`).
+
+**Endpoints `/api/bundles` :**
+
+| Méthode | Route | Rôle |
+|---|---|---|
+| GET | `/api/bundles` | Liste ; filtre facultatif `?agentId=` |
+| GET | `/api/bundles/{id}` | Détail |
+| POST | `/api/bundles` | Création (`201`) |
+| PUT | `/api/bundles/{id}` | Modification (titre, description, remise, offres) |
+| DELETE | `/api/bundles/{id}` | Suppression (`204`) |
+
+**Valeurs calculées (`BundleResponse`) :** `sumPrice` (somme des prix de base), `finalPrice` (somme moins la remise en %), `stock` (stock le plus bas parmi les offres, §5.3), `limitingOfferTitle` (offre qui limite le stock) et `cities`.
+
+**Règles métier (couche `BundleService`) :**
+- Titre obligatoire ; remise comprise entre 0 et 100 % ; au moins 2 offres distinctes et existantes (`404` sinon).
+- Le créateur doit être un utilisateur de rôle `AGENT`, non archivé.
+- Une offre utilisée dans un bundle ne peut pas être supprimée (elle se désactive) ; la suppression d'un bundle ne touche pas à ses offres, et est refusée s'il figure dans un panier ou une réservation.
+
 ---
 
 ## 2 bis. Architecture Frontend (Séance 2)
@@ -214,11 +256,11 @@ Le catalogue public (`js/app.js`) reste séparé : il ne contient pas la logique
 | Espace | Entrée | Scripts | API branchée |
 |---|---|---|---|
 | Administration | `admin/index.html` | `admin/js/app.js`, `js/core/api.js` | Utilisateurs (CRUD + archivage, filtres rôle/statut), Villes (liste/suppression) |
-| Agent | `agent/index.html` | `agent/js/app.js`, `js/core/api.js` | Données démo (réservations, bundles, tickets…) |
-| Fournisseur | `supplier/index.html` | `supplier/js/app.js`, `js/core/api.js` | Villes (select du wizard « Nouvelle offre ») |
+| Agent | `agent/index.html` | `agent/js/app.js`, `js/core/api.js` | Bundles (liste avec recherche, création/modification avec sélecteur d'offres, suppression) ; réservations, paiements, tickets en données démo |
+| Fournisseur | `supplier/index.html` | `supplier/js/app.js`, `js/core/api.js` | Offres (liste avec boutons d'action, création/modification en 4 étapes pour les 5 types, activation, suppression), Inventaire (niveau de stock, stock modifiable dans le tableau avec enregistrement automatique), Villes (select du formulaire) |
 | Client (SPA) | `client/index.html` | `client/js/app.js` | Données démo ; **accueil public** inchangé (`accueil.html`) |
 
-Navigation interne : paramètre d’URL `?page=` (ex. `client/index.html?page=reservations`, `supplier/index.html?page=offers`). Offres, inventaire et réservations fournisseur restent en **données démo** jusqu’à l’API métier.
+Navigation interne : paramètre d’URL `?page=` (ex. `client/index.html?page=reservations`, `supplier/index.html?page=offers`). Le tableau de bord, les réservations et les notifications fournisseur restent en **données démo** jusqu’à l’API métier. Les menus latéraux des espaces Administration, Fournisseur, Agent et Client sont repliables (bouton ☰, barre réduite aux icônes).
 
 ---
 
@@ -242,12 +284,14 @@ Toutes les entités sont créées ; voir le cahier des charges (§6) pour le dé
 
 Le Frontend appelle l'API REST Spring Boot (port `8080`) avec `fetch()` ; le CORS est autorisé par `CorsConfig`. Le Frontend ne contient que la présentation et l'appel à l'API ; toute la logique métier reste dans les services du Backend.
 
-**Endpoints existants :**
+**Endpoints existants** (liste complète et détail des champs : [`api_endpoints.md`](api_endpoints.md)) :
 - `GET /api/status` : vérifie la connexion Frontend/Backend.
 - `/api/users` : CRUD + archivage/restauration des utilisateurs (espace admin) ; voir « Module Utilisateurs ».
 - `GET/POST/PUT/DELETE /api/cities` : gestion du référentiel villes (CRUD).
+- `GET/POST/PUT/DELETE /api/offers` : offres des fournisseurs (vol, hôtel, voiture, taxi, excursion) ; voir « Module Offres ».
+- `GET/POST/PUT/DELETE /api/bundles` : bundles composés par les agents ; voir « Module Bundles ».
 
 **Endpoints prévus :**
-- `GET /api/offers` : offres du catalogue ; `GET /api/offers/search?city=Marrakech` : filtrage.
+- `GET /api/offers/search?city=Marrakech` : filtrage du catalogue public.
 - `POST /api/bookings` : créer une réservation à partir du panier.
 - `GET /api/admin/bookings` : réservations pour l'espace agent.

@@ -1,5 +1,6 @@
 package com.agence.voyage.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
@@ -13,6 +14,7 @@ public class Excursion extends Offer {
 
     private Boolean includesTransport = false;
 
+    @Column(length = 2000)
     private String itinerary;
 
     public Integer getDurationHours() {

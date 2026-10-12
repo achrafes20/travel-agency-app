@@ -5,10 +5,17 @@
 Ce projet s'inscrit dans le cadre du module **Frameworks Technologie Web (ENSA - 3ème année)**.
 
 > ### ⚠️ Périmètre à évaluer
-> **Seule la gestion des utilisateurs (CRUD complet, de l'interface à la base de données) est finalisée.**
-> Le reste de l'interface (tableau de bord, autres onglets, autres espaces) est composé de maquettes avec des données de démonstration, non reliées au backend.
+> **Ces modules sont finalisés (CRUD complet, de l'interface à la base de données).** Lancez le backend et le serveur du frontend (voir [Lancement](#-lancement), frontend sur le port `5500`), puis ouvrez :
 >
-> 👉 **Page à tester : [`frontend/admin/index.html?page=users`](frontend/admin/index.html)**
+> | Module | Lien | Entité |
+> |---|---|---|
+> | 👤 **Utilisateurs** (administration) | [http://localhost:5500/admin/index.html?page=users](http://localhost:5500/admin/index.html?page=users) | `User` |
+> | 🏨 **Offres** (fournisseur, 5 types) | [http://localhost:5500/supplier/index.html?page=offers](http://localhost:5500/supplier/index.html?page=offers) | `Offer` (`Flight`, `Hotel`, `Car`, `TaxiTransfer`, `Excursion`) |
+> | 📦 **Stocks** (fournisseur, inventaire) | [http://localhost:5500/supplier/index.html?page=inventory](http://localhost:5500/supplier/index.html?page=inventory) | stock des `Offer` |
+> | 🎁 **Bundles** (agent) | [http://localhost:5500/agent/index.html?page=bundles](http://localhost:5500/agent/index.html?page=bundles) | `Bundle` |
+> | 🏙️ **Villes** (administration) | [http://localhost:5500/pages/admin/villes.html](http://localhost:5500/pages/admin/villes.html) | `City` |
+>
+> Le reste de l'interface (tableaux de bord, réservations, panier, paiements, tickets, notifications…) est composé de maquettes avec des données de démonstration, non reliées au backend.
 
 ---
 
@@ -44,7 +51,7 @@ Servez le dossier **`frontend/`** (il doit être la racine du serveur) :
   python -m http.server 5500
   ```
 
-Puis ouvrez **`http://localhost:5500/admin/index.html?page=users`** (adaptez le port si votre serveur en utilise un autre).
+Puis ouvrez par exemple **`http://localhost:5500/admin/index.html?page=users`** (adaptez le port si votre serveur en utilise un autre). Les liens des modules finalisés sont dans l'encadré « Périmètre à évaluer » ci-dessus. L'espace Agent s'ouvre sur un écran de connexion fictif : cliquez sur « Se connecter » (identifiants préremplis). Les menus latéraux des espaces sont repliables avec le bouton ☰.
 
 ---
 
@@ -75,6 +82,19 @@ Sur la page *Utilisateurs* de l'espace administrateur :
 
 Erreurs de validation / règles métier → `400`, utilisateur introuvable → `404`, avec un message en français.
 
+La liste complète des endpoints de l'API (utilisateurs, villes, offres, bundles) est dans [`docs/api_endpoints.md`](docs/api_endpoints.md).
+
+### Autres modules
+
+Même découpage Controller → Service → Repository. Le détail des champs, règles et codes d'erreur est dans [`docs/api_endpoints.md`](docs/api_endpoints.md).
+
+| Module | Ce qu'il faut tester |
+|---|---|
+| **Villes** (`/api/cities`) | Liste, ajout, modification, détail et suppression. Un nom de ville déjà utilisé est refusé ; une ville utilisée par des offres ne peut pas être supprimée. |
+| **Offres** (`/api/offers`) | Formulaire en 4 étapes avec les champs propres à chaque type (vol, hôtel, voiture, taxi, excursion) ; modification (le type ne change pas) ; interrupteur actif / inactif ; boutons d'action modifier / stock / supprimer sur chaque ligne ; suppression, refusée si l'offre est utilisée dans un bundle (la désactiver à la place). |
+| **Stocks** (page *Inventaire*) | Niveau de stock de chaque offre (Disponible, Stock bas, Épuisé) et stock **modifiable directement dans le tableau** (boutons − / + ou saisie) ; la modification est enregistrée automatiquement, sans bouton de confirmation. |
+| **Bundles** (`/api/bundles`) | Sélecteur d'offres (2 minimum), remise en %, récapitulatif en temps réel : somme des offres, prix final et **stock dynamique** (le plus bas des offres) ; modification et suppression. |
+
 ### Où lire le code
 
 Architecture en couches `Controller → Service → Repository → Entity` (voir [`docs/architecture.md`](docs/architecture.md)) :
@@ -95,10 +115,14 @@ Architecture en couches `Controller → Service → Repository → Entity` (voir
 cd backend
 ./mvnw test
 ```
-`UserServiceTest` couvre l'unicité de l'email, le hachage du mot de passe, la conservation du mot de passe lors d'une modification, l'archivage / restauration et la règle de suppression.
+20 tests unitaires : `UserServiceTest` (email unique, hachage du mot de passe, mot de passe conservé à la modification, archivage / restauration, règle de suppression), `CityServiceTest`, `OfferServiceTest` (5 types, validations) et `BundleServiceTest` (prix final, stock dynamique, validations).
+
+**Tests de l'API avec Postman** : importer la collection [`docs/postman/AtlasVoyage.postman_collection.json`](docs/postman/AtlasVoyage.postman_collection.json) (mode d'emploi dans [`docs/postman/README.md`](docs/postman/README.md)). Le backend et MySQL doivent être démarrés.
 
 ### Limites connues
-- Il n'y a **pas encore d'authentification** : l'écran de connexion est une maquette et les endpoints sont ouverts (Spring Security est prévu, voir [`docs/cahier_de_charges.md`](docs/cahier_de_charges.md)).
+- Il n'y a **pas encore d'authentification** : l'écran de connexion est une maquette et les endpoints sont ouverts (Spring Security est prévu, voir [`docs/cahier_de_charges.md`](docs/cahier_de_charges.md)). Les espaces Fournisseur et Agent agissent avec le premier compte actif du rôle correspondant.
+- Les images des offres sont saisies par URL (pas d'envoi de fichier).
+- Le panier, les réservations, les paiements et les codes promo ne sont pas encore implémentés : un bundle ne peut donc pas encore être réservé.
 
 ---
 
@@ -108,11 +132,16 @@ cd backend
 travel-agency-app/
 ├── backend/                 # Spring Boot (controller, service, repository, entity, dto, exception, config)
 ├── frontend/                # Interface web (HTML / CSS / JS vanilla)
-│   ├── admin/               # Espace administrateur (page Utilisateurs)
+│   ├── admin/               # Espace administrateur (Utilisateurs)
+│   ├── supplier/            # Espace fournisseur (Offres)
+│   ├── agent/               # Espace agent (Bundles)
+│   ├── pages/admin/         # Pages Villes (liste, formulaire, détail)
 │   ├── css/  js/            # Styles et scripts partagés (js/core/api.js : appels HTTP)
-│   └── *.html               # Autres pages (maquettes)
+│   └── *.html, client/      # Autres pages (maquettes)
 ├── docs/
 │   ├── architecture.md      # Architecture logicielle
+│   ├── api_endpoints.md     # Liste consolidée des endpoints REST
+│   ├── postman/             # Collection Postman de test de l'API
 │   └── cahier_de_charges.md # Spécifications du projet
 └── README.md
 ```

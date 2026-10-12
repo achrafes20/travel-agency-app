@@ -961,10 +961,6 @@ document.querySelector("#toggle-password").addEventListener("click",()=>{const i
 document.addEventListener("click",e=>{if(!e.target.closest(".popover-wrap"))closePopovers();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){closePopovers();closeModal();}});
 
-document.querySelector("#public-site-btn")?.addEventListener("click", () => {
-  window.location.href = "../accueil.html";
-});
-
 renderNav();
 renderNotificationsPreview();
 const requestedPage = new URLSearchParams(window.location.search).get("page") || "dashboard";

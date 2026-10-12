@@ -5,6 +5,7 @@ import com.agence.voyage.entity.City;
 import com.agence.voyage.exception.BusinessException;
 import com.agence.voyage.exception.ResourceNotFoundException;
 import com.agence.voyage.repository.CityRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +57,11 @@ public class CityService {
         if (!cityRepository.existsById(id)) {
             throw new ResourceNotFoundException("Ville introuvable : id=" + id);
         }
-        cityRepository.deleteById(id);
+        try {
+            cityRepository.deleteById(id);
+            cityRepository.flush();
+        } catch (DataIntegrityViolationException ex) {
+            throw new BusinessException("Impossible de supprimer cette ville : elle est utilisée par des offres");
+        }
     }
 }

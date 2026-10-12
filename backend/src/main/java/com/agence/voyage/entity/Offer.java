@@ -38,6 +38,8 @@ public abstract class Offer {
 
     private Boolean allowsPayOnArrival = false;
 
+    private Boolean active = true;
+
     @ElementCollection
     @CollectionTable(name = "offer_images", joinColumns = @JoinColumn(name = "offer_id"))
     @Column(name = "image_path")
@@ -97,6 +99,14 @@ public abstract class Offer {
 
     public void setAllowsPayOnArrival(Boolean allowsPayOnArrival) {
         this.allowsPayOnArrival = allowsPayOnArrival;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
     public List<String> getImages() {

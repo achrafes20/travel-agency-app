@@ -15,3 +15,16 @@
 .logo-static{display:flex;align-items:center;gap:10px;color:#fff;background:none;border:0;text-align:left}.logo-static strong{font-size:18px;letter-spacing:.12em;display:block}.logo-static small{display:block;font-size:8px;letter-spacing:.38em;color:#FFB400}.svg-icon{width:20px;height:20px;display:inline-block;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nav-user-menu{display:none}.nav-user-menu.open{display:block}.static-page{animation:pageIn .22s ease}@keyframes pageIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .offer-card img{width:100%;height:185px;object-fit:cover}.offer-image-static{height:185px;position:relative;overflow:hidden}.offer-image-static>span{position:absolute;left:13px;top:13px}.offer-image-static>button{position:absolute;right:13px;top:13px;border:0;background:#fff;width:30px;height:30px;border-radius:50%}.empty-state{padding:60px 20px;text-align:center}.empty-state span{width:64px;height:64px;background:#EEF3FC;color:#0B2A6B;border-radius:50%;display:grid;place-items:center;margin:0 auto 16px}.empty-state h2{color:#081B45;font-size:20px}.empty-state p{color:#64748B;font-size:11px}.field-error{font-size:8px;color:#DC2626;margin-top:5px}.promo-success{font-size:8px;color:#16A34A;margin:8px 0}.html-modal{position:fixed;inset:0;background:rgba(8,27,69,.55);z-index:80;display:grid;place-items:center;padding:24px}.html-modal>div{width:min(460px,100%);background:#fff;border-radius:14px;padding:26px;box-shadow:0 24px 60px rgba(8,27,69,.28)}.html-modal h2{font-size:18px;color:#081B45}.html-modal p{font-size:10px;color:#64748B;line-height:1.6}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:22px}
+
+/* Menu latéral repliable (même principe que l'espace administrateur) */
+.client-layout { transition: grid-template-columns .2s; }
+.client-layout.collapsed { grid-template-columns: 72px minmax(0, 1fr); }
+.side-top { padding: 0 0 14px; }
+.side-toggle { width: 42px; height: 42px; display: grid; place-items: center; border: 0; border-radius: 8px; background: none; color: #53627A; cursor: pointer; }
+.side-toggle:hover { background: #F8FAFC; color: var(--navy); }
+.side-text { font-style: normal; }
+.client-layout.collapsed .sidebar { padding: 28px 10px; }
+.client-layout.collapsed .side-top { display: flex; justify-content: center; }
+.client-layout.collapsed .side-user { justify-content: center; padding-left: 0; padding-right: 0; }
+.client-layout.collapsed .side-user > div, .client-layout.collapsed .side-label, .client-layout.collapsed .side-text, .client-layout.collapsed .sidebar > button span { display: none; }
+.client-layout.collapsed .sidebar > button { justify-content: center; padding: 12px 0; }

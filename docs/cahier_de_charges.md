@@ -196,7 +196,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 
 ## 11. Suivi d'avancement
 
-*Dernière mise à jour : 2026-10-06.*
+*Dernière mise à jour : 2026-10-12.*
 
 ### Phase 1 — Analyse & conception
 ✅ **Terminée.** Cahier des charges (ce document) et diagramme d'architecture (`architecture.md`) rédigés.
@@ -236,15 +236,47 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - ⚠️ Limite connue : aucune authentification — les endpoints sont ouverts, et un compte archivé n'est pas encore refusé à la connexion (à traiter avec Spring Security, Phase 3).
 - Nettoyage de l'interface admin : badge « Données API », fausses notifications, pastille de la cloche, raccourci Ctrl+K et « Dernière connexion » retirés ; barre de défilement de la barre latérale masquée.
 
+### Module Fournisseur — Gestion des offres
+✅ **Terminé** (page `supplier/index.html?page=offers`), branché sur l'API :
+- ✅ API REST `/api/offers` : liste (filtres fournisseur / type), détail, création, modification, suppression — voir `architecture.md`, « Module Offres ».
+- ✅ Les **5 sous-types** (`Flight`, `Hotel`, `Car`, `TaxiTransfer`, `Excursion`) sont gérés par un seul endpoint (champ `type`) ; `Offer` reçoit un indicateur `active`.
+- ✅ Couche métier `OfferService` : validation par type, fournisseur actif de rôle `SUPPLIER`, ville existante, 5 images maximum, suppression refusée si l'offre est utilisée (désactivation proposée).
+- ✅ Test unitaire `OfferServiceTest` (création des 5 types, validations, modification sans changement de type, filtre fournisseur, suppression).
+- ✅ Interface : liste (tableau / cartes, recherche, filtres type et statut, tri) avec boutons d'action par ligne (modifier, stock, supprimer), formulaire en 4 étapes avec champs propres à chaque type (création et modification), activation par interrupteur, suppression avec repli sur la désactivation.
+- ✅ Page **Inventaire** : niveau de stock (Disponible / Stock bas / Épuisé) et stock modifiable directement dans le tableau (boutons − / + ou saisie), enregistré automatiquement.
+- ⚠️ Limites connues : le fournisseur est le premier compte `SUPPLIER` actif (pas d'authentification) ; les images sont saisies par URL (pas d'upload) ; le stock réservé / disponible n'existe pas encore (réservations non implémentées).
+
+### Module Agent — Gestion des bundles
+✅ **Terminé** (page `agent/index.html?page=bundles`), branché sur l'API :
+- ✅ API REST `/api/bundles` : liste (filtre agent), détail, création, modification, suppression — voir `architecture.md`, « Module Bundles ».
+- ✅ Prix final et stock dynamique (stock le plus bas des offres, §5.3) sont calculés par l'API.
+- ✅ Couche métier `BundleService` : 2 offres minimum, remise 0–100 %, créateur de rôle `AGENT`.
+- ✅ Test unitaire `BundleServiceTest` (prix et stock dynamiques, validations, modification, filtre agent, suppression).
+- ✅ Interface : liste (recherche), éditeur en 3 sections avec sélecteur d'offres, récapitulatif en temps réel (somme, remise, prix final, stock dynamique) et suppression avec confirmation.
+- ⚠️ Limites connues : l'agent est le premier compte `AGENT` actif (pas d'authentification) ; remise en pourcentage uniquement ; pas encore de réservation de bundle (panier / réservations non implémentés) ; le tableau de bord, les réservations, paiements et tickets de l'espace agent restent en données démo.
+
+### Séance 3 & 4 — Modèle de données (JPA/Hibernate), CRUD et API REST
+⚠️ **Presque terminée** : il ne manque que le diagramme de classes.
+- ✅ **Entités JPA et mappings** : 19 classes avec `@ManyToOne`, `@OneToMany`, `@OneToOne`, `@ManyToMany` (`bundle_offers`) et héritage `SINGLE_TABLE` pour les offres — voir `architecture.md`, §3.
+- ✅ **Base MySQL fonctionnelle** : tables générées par Hibernate (`ddl-auto=update`), persistance vérifiée.
+- ✅ **CRUD complet (Repository, Service, Controller) pour 4 entités** : `User`, `City`, `Offer` (5 sous-types) et `Bundle`.
+- ✅ **Liste des endpoints** : [`api_endpoints.md`](api_endpoints.md) — 23 endpoints, champs, règles et codes de retour.
+- ✅ **Tests Postman** : `docs/postman/` — collection de 31 requêtes et 63 vérifications (utilisateurs, offres, bundles) ; chaque dossier est autonome et nettoie ses données.
+- ✅ **Interfaces CRUD** : Admin (utilisateurs, villes), Fournisseur (offres, stock), Agent (bundles).
+- ✅ **Harmonisation de l'interface** : menus latéraux repliables dans les quatre espaces ; retrait des mentions « Version 2 », des liens « Voir le site public » et des cartes « Besoin d'aide » des menus.
+- ✅ **Tests unitaires** : 20 tests (`CityServiceTest`, `UserServiceTest`, `OfferServiceTest`, `BundleServiceTest`).
+- ✅ Suppression d'une ville refusée (`400`) si des offres l'utilisent.
+- ❌ **Diagramme de classes** — à produire.
+
 ### Phase 3 — Fondations & documentation
 ⚠️ **Partiellement terminée.**
 - ✅ Diagramme général de l'architecture (`architecture.md`).
 - ❌ Authentification complète (Spring Security + JWT) — **non commencée**. La dépendance Spring Security n'est pas encore ajoutée au `pom.xml`, aucun endpoint de login/register, aucune protection par rôle sur les contrôleurs (y compris `/api/users`). Le login devra refuser les comptes archivés.
 
 ### Phase 4 — Développement des modules
-⚠️ **Partiellement commencée** : les modules Admin **Villes** (Séance 2) et **Utilisateurs** (voir ci-dessus) sont terminés. Restent à faire :
+⚠️ **Partiellement commencée** : les modules Admin **Villes** (Séance 2) et **Utilisateurs**, le module Fournisseur **Offres** et le module Agent **Bundles** (voir ci-dessus) sont terminés. Restent à faire :
 - **Modules transactionnels** (Personne 1) : panier + application des codes promo, workflow réservation/paiement, notifications in-app et envoi d'emails (SMTP), dashboard client. Les entités existent, mais aucune logique métier ni endpoint n'a été écrit.
-- **Catalogue & modules staff** (Personne 2) : catalogue connecté au backend (actuellement données statiques codées en dur dans `app.js`) avec pagination réelle et carte Leaflet, CRUD offres/inventaire côté Supplier, composition de bundles côté Agent, CRUD codes promo côté Admin. *(Modules Admin **Villes** et **Utilisateurs** : terminés.)*
+- **Catalogue & modules staff** (Personne 2) : catalogue connecté au backend (actuellement données statiques codées en dur dans `app.js`) avec pagination réelle et carte Leaflet, CRUD codes promo côté Admin. *(Modules Admin **Villes** et **Utilisateurs** : terminés.)*
 
 ### Phase 5 — Intégration & finalisation
 ❌ **Non commencée** — bloquée tant que la Phase 4 n'est pas avancée.

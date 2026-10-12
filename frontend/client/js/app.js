@@ -1,4 +1,5 @@
 const state = {
+  sidebarCollapsed: false,
   page: "dashboard",
   promo: false,
   quantity: 2,
@@ -38,6 +39,7 @@ const iconPaths = {
   arrow: '<path d="M5 12h14M14 7l5 5-5 5"/>',
   check: '<path d="m5 12 4 4L19 6"/>',
   shield: '<path d="M12 3 4 6v5c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6Z"/><path d="m8 12 3 3 5-6"/>',
+  menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
   help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.6 2.6 0 1 1 3.5 2.5c-1 .4-1 1-1 2M12 17h.01"/>',
   trash: '<path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -90,15 +92,15 @@ function header() {
 function sidebar(active) {
   const items = [["home","Vue d'ensemble","dashboard"],["calendar","Mes réservations","reservations"],["cart","Mon panier","panier"],["ticket","Mes tickets","tickets"],["bell","Notifications","dashboard"],["user","Mon profil","profil"]];
   return `<aside class="sidebar">
+    <div class="side-top"><button type="button" class="side-toggle" data-action="sidebar-toggle" aria-label="${state.sidebarCollapsed ? "Déplier le menu" : "Replier le menu"}">${icon("menu", 20)}</button></div>
     <div class="side-user"><span class="avatar big">SB</span><div><b>Sarah Benali</b><small>Membre depuis 2024</small></div></div>
     <div class="side-label">MON ESPACE</div>
-    ${items.map(([name,label,page]) => `<button class="${active === page ? "active" : ""}" data-page="${page}">${icon(name,19)}${label}${page === "panier" ? "<span>2</span>" : ""}</button>`).join("")}
-    <div class="side-help"><span>${icon("help")}</span><b>Besoin d'aide ?</b><p>Notre équipe locale vous répond 7j/7.</p><button data-page="tickets">Contacter le support</button></div>
+    ${items.map(([name,label,page]) => `<button class="${active === page ? "active" : ""}" data-page="${page}" title="${label}">${icon(name,19)}<i class="side-text">${label}</i>${page === "panier" ? "<span>2</span>" : ""}</button>`).join("")}
   </aside>`;
 }
 
 function shell(content, active = state.page) {
-  return `${header()}<div class="client-layout static-page">${sidebar(active)}<main class="client-main">${content}</main></div>`;
+  return `${header()}<div class="client-layout static-page${state.sidebarCollapsed ? " collapsed" : ""}">${sidebar(active)}<main class="client-main">${content}</main></div>`;
 }
 
 function dashboard() {
@@ -263,6 +265,11 @@ document.addEventListener("click", (event) => {
   }
   const action = target.dataset.action;
   if (!action) return;
+  if (action === "sidebar-toggle") {
+    state.sidebarCollapsed = !state.sidebarCollapsed;
+    document.querySelector(".client-layout")?.classList.toggle("collapsed", state.sidebarCollapsed);
+    target.setAttribute("aria-label", state.sidebarCollapsed ? "Déplier le menu" : "Replier le menu");
+  }
   if (action === "account") document.getElementById("account-menu")?.classList.toggle("open");
   if (action === "notifications") toast("3 notifications récentes, dont 2 non lues.");
   if (action === "increment") { state.quantity += 1; render("panier"); }
