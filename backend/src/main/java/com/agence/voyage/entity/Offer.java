@@ -45,12 +45,12 @@ public abstract class Offer {
     @Column(name = "image_path")
     private List<String> images = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "city_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "city_id", nullable = false)
     private City city;
 
-    @ManyToOne
-    @JoinColumn(name = "supplier_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "supplier_id", nullable = false)
     private User supplier;
 
     public Long getId() {

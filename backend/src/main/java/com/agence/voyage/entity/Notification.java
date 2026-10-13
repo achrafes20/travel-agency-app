@@ -19,15 +19,17 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(length = 1000)
+    @Column(length = 1000, nullable = false)
     private String message;
 
+    @Column(nullable = false)
     private Boolean isRead = false;
 
+    @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public Long getId() {

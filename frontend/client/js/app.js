@@ -52,7 +52,7 @@ function icon(name, size = 20) {
 }
 
 function logo() {
-  return `<button class="logo-static" data-page="accueil"><span class="logo-mark"><span>◇</span></span><span><strong>ATLAS</strong><small>VOYAGE</small></span></button>`;
+  return `<button class="logo-static" data-page="accueil" aria-label="Atlas Voyage — Accueil"><img src="../images/logo.png" alt="Atlas Voyage" class="app-logo"></button>`;
 }
 
 function button(label, options = {}) {

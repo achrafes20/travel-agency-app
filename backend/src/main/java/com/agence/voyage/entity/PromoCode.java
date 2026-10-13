@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import java.time.LocalDate;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "promo_codes")
@@ -19,13 +20,15 @@ public class PromoCode {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String code;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private DiscountType discountType;
 
-    private Double value;
+    @Column(name = "discount_value", nullable = false, precision = 12, scale = 2)
+    private BigDecimal value;
 
     private LocalDate expiryDate;
 
@@ -55,11 +58,11 @@ public class PromoCode {
         this.discountType = discountType;
     }
 
-    public Double getValue() {
+    public BigDecimal getValue() {
         return value;
     }
 
-    public void setValue(Double value) {
+    public void setValue(BigDecimal value) {
         this.value = value;
     }
 

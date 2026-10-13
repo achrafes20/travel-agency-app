@@ -21,8 +21,8 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "client_id", unique = true)
+    @OneToOne(optional = false)
+    @JoinColumn(name = "client_id", unique = true, nullable = false)
     private User client;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -32,6 +32,10 @@ button { cursor: pointer; }
 .login-photo { background: url("https://images.unsplash.com/photo-1570133435536-7ececf000ef6?auto=format&fit=crop&w=1600&q=88") center/cover; position: relative; }
 .login-overlay { position: absolute; inset: 0; padding: 52px 64px; color: #fff; display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(115deg, rgba(5,29,67,.92), rgba(10,42,94,.35)); }
 .login-brand,.mobile-brand { display: flex; align-items: center; gap: 9px; font-size: 22px; font-weight: 800; }
+.app-logo { display: block; width: auto; height: 46px; object-fit: contain; }
+.mobile-brand { width: fit-content; padding: 7px 12px; border-radius: 9px; background: var(--primary-900); }
+.mobile-brand .app-logo { height: 38px; }
+.brand .app-logo { height: 38px; max-width: 148px; }
 .login-brand .lucide,.mobile-brand .lucide { color: var(--accent); transform: rotate(-12deg); }
 .login-brand strong,.mobile-brand strong { color: var(--accent); }
 .login-overlay p { color: var(--accent); font-weight: 800; letter-spacing: .14em; font-size: 11px; }

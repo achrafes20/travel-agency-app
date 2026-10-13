@@ -13,7 +13,7 @@ Ce projet s'inscrit dans le cadre du module **Frameworks Technologie Web (ENSA -
 > | 🏨 **Offres** (fournisseur, 5 types) | [http://localhost:5500/supplier/index.html?page=offers](http://localhost:5500/supplier/index.html?page=offers) | `Offer` (`Flight`, `Hotel`, `Car`, `TaxiTransfer`, `Excursion`) |
 > | 📦 **Stocks** (fournisseur, inventaire) | [http://localhost:5500/supplier/index.html?page=inventory](http://localhost:5500/supplier/index.html?page=inventory) | stock des `Offer` |
 > | 🎁 **Bundles** (agent) | [http://localhost:5500/agent/index.html?page=bundles](http://localhost:5500/agent/index.html?page=bundles) | `Bundle` |
-> | 🏙️ **Villes** (administration) | [http://localhost:5500/pages/admin/villes.html](http://localhost:5500/pages/admin/villes.html) | `City` |
+> | 🏙️ **Villes** (administration) | [http://localhost:5500/admin/index.html?page=cities](http://localhost:5500/admin/index.html?page=cities) | `City` |
 >
 > Le reste de l'interface (tableaux de bord, réservations, panier, paiements, tickets, notifications…) est composé de maquettes avec des données de démonstration, non reliées au backend.
 
@@ -135,7 +135,7 @@ travel-agency-app/
 │   ├── admin/               # Espace administrateur (Utilisateurs)
 │   ├── supplier/            # Espace fournisseur (Offres)
 │   ├── agent/               # Espace agent (Bundles)
-│   ├── pages/admin/         # Pages Villes (liste, formulaire, détail)
+│   ├── pages/admin/         # Redirections des anciennes pages Villes
 │   ├── css/  js/            # Styles et scripts partagés (js/core/api.js : appels HTTP)
 │   └── *.html, client/      # Autres pages (maquettes)
 ├── docs/

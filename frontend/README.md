@@ -53,20 +53,16 @@ Redirection : `agent.html` → `agent/index.html`. Navigation : `?page=bookings`
 
 | Page | Fichier | Rôle |
 |---|---|---|
-| **Liste (entrée Séance 2)** | `pages/admin/villes.html` | Liste API, suppression, navigation |
-| Formulaire | `pages/admin/ville-form.html` | Création (`POST`) ou modification (`PUT`) |
-| Détail | `pages/admin/ville-detail.html` | Consultation (`GET /api/cities/{id}`) |
+| **Gestion des villes** | `admin/index.html?page=cities` | Liste, détail, création, modification et suppression via API |
 
-Depuis l’admin : menu **Villes** → liste API ; **Ajouter / Modifier** ouvre les pages `pages/admin/`.
+Depuis l’admin : menu **Villes** → liste API ; les actions **Ajouter**, **Détail** et **Modifier** s’ouvrent dans des modales intégrées.
 
 ### Séparation des responsabilités (Frontend)
 
 ```
-pages/admin/*.html          → structure HTML, chargement des scripts
+admin/index.html            → interface d’administration unifiée
+admin/js/app.js             → rendu, interactions et appels du domaine « Ville »
 js/core/api.js              → couche HTTP (fetch), sans règles métier
-js/services/city.service.js → appels API du domaine « Ville »
-js/pages/*.page.js            → manipulation DOM, navigation, messages UI
-js/components/admin-layout.js → layout admin partagé
 ```
 
 La **logique métier** (unicité du nom, validation, persistance) reste dans le backend : `CityController → CityService → CityRepository`.
@@ -74,7 +70,7 @@ La **logique métier** (unicité du nom, validation, persistance) reste dans le 
 ## Lancement
 
 1. Démarrer le backend (`backend/mvnw spring-boot:run`).
-2. Live Server sur `accueil.html` ou `pages/admin/villes.html` (racine = dossier `frontend/`).
+2. Live Server sur `accueil.html` ou `admin/index.html?page=cities` (racine = dossier `frontend/`).
 
 ## Configuration API
 

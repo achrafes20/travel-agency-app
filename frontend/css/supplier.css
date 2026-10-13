@@ -13,6 +13,16 @@
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 
+.app-logo {
+  display: block;
+  width: auto;
+  height: 44px;
+  max-width: 180px;
+  object-fit: contain;
+}
+
+.login-app-logo { height: 58px; max-width: 240px; }
+
 .brand-mark {
   display: flex;
   width: 34px;
