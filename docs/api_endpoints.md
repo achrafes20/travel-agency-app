@@ -2,7 +2,7 @@
 
 Ce document recense **tous les endpoints exposés par le Backend** (Spring Boot, `http://localhost:8080`). Il est à jour avec le code des contrôleurs (`backend/src/main/java/com/agence/voyage/controller/`). Pour l'architecture et les règles métier détaillées, voir [`architecture.md`](architecture.md). Une collection Postman prête à l'emploi est fournie dans [`postman/`](postman/README.md).
 
-**27 endpoints** répartis sur 6 ressources :
+**39 endpoints** répartis sur 8 ressources :
 
 | Ressource | Base | Endpoints | Contrôleur |
 |---|---|---|---|
@@ -12,6 +12,8 @@ Ce document recense **tous les endpoints exposés par le Backend** (Spring Boot,
 | Villes | `/api/cities` | 5 | `CityController` |
 | Offres | `/api/offers` | 5 | `OfferController` |
 | Bundles | `/api/bundles` | 5 | `BundleController` |
+| Panier | `/api/cart` | 7 | `CartController` |
+| Codes promo | `/api/promo-codes` | 5 | `PromoCodeController` |
 
 ## Conventions
 
@@ -71,6 +73,18 @@ Une erreur de validation de champ est préfixée par le nom du champ (`title: Le
 | 25 | POST | `/api/bundles` | Créer un bundle | `AGENT` | `201` |
 | 26 | PUT | `/api/bundles/{id}` | Modifier un bundle | `AGENT` créateur | `200` |
 | 27 | DELETE | `/api/bundles/{id}` | Supprimer un bundle | `AGENT` créateur | `204` |
+| 28 | GET | `/api/cart` | Panier du client connecté, avec totaux | `CLIENT` | `200` |
+| 29 | POST | `/api/cart/items` | Ajouter une offre ou un bundle (fusionne si déjà présent) | `CLIENT` | `200` |
+| 30 | PUT | `/api/cart/items/{itemId}` | Modifier la quantité d'une ligne | `CLIENT` | `200` |
+| 31 | DELETE | `/api/cart/items/{itemId}` | Retirer une ligne | `CLIENT` | `200` |
+| 32 | DELETE | `/api/cart` | Vider le panier (retire aussi le code promo) | `CLIENT` | `200` |
+| 33 | POST | `/api/cart/promo` | Appliquer un code promo | `CLIENT` | `200` |
+| 34 | DELETE | `/api/cart/promo` | Retirer le code promo | `CLIENT` | `200` |
+| 35 | GET | `/api/promo-codes` | Liste des codes promo | `ADMIN` | `200` |
+| 36 | GET | `/api/promo-codes/{id}` | Détail d'un code promo | `ADMIN` | `200` |
+| 37 | POST | `/api/promo-codes` | Créer un code promo | `ADMIN` | `201` |
+| 38 | PUT | `/api/promo-codes/{id}` | Modifier un code promo (y compris l'activer / désactiver) | `ADMIN` | `200` |
+| 39 | DELETE | `/api/promo-codes/{id}` | Supprimer un code promo | `ADMIN` | `204` |
 
 ---
 
@@ -106,6 +120,8 @@ Le jeton est signé en HMAC (clé `jwt.secret`, durée `jwt.expiration-ms` dans 
 | `POST` / `PUT` / `DELETE` `/api/cities/**` | `ADMIN` |
 | `POST` / `PUT` / `DELETE` `/api/offers/**` | `SUPPLIER`, et uniquement sur **ses propres offres** |
 | `POST` / `PUT` / `DELETE` `/api/bundles/**` | `AGENT`, et uniquement sur **ses propres bundles** |
+| `/api/cart/**` | `CLIENT` : le panier est toujours celui de l'utilisateur du jeton |
+| `/api/promo-codes/**` | `ADMIN` |
 
 Sans jeton valide : `401`. Avec un rôle insuffisant ou sur la ressource d'un autre utilisateur : `403`.
 
@@ -282,6 +298,75 @@ Endpoint **public** utilisé par le catalogue de l'espace client. Il ne renvoie 
 
 ---
 
+## 6. Panier — `/api/cart`
+
+*Accès : `CLIENT`. Le panier est toujours celui de l'utilisateur authentifié (créé vide au premier appel) : aucun identifiant de client n'est accepté.*
+
+Toutes les routes renvoient le **panier à jour** (`200`) ; les erreurs suivent le format habituel. Ajouter au panier **ne réserve pas le stock** : il est contrôlé à l'ajout, puis à nouveau au paiement. Les prix et stocks sont relus à chaque appel (aucun prix n'est figé dans le panier).
+
+**Réponse** (`CartResponse`) :
+
+| Champ | Description |
+|---|---|
+| `id`, `itemCount` | Panier ; nombre total d'articles (somme des quantités), pour les pastilles |
+| `items` | Lignes (voir ci-dessous) |
+| `subtotal` | Somme des totaux de lignes |
+| `promo` | Code appliqué `{ code, discountType, value }`, ou `null` |
+| `discount` | Réduction en MAD (jamais supérieure au sous-total) |
+| `total` | `subtotal` − `discount` |
+| `payOnArrivalAllowed` | `true` seulement si le panier n'est pas vide, que **toutes** les lignes sont des offres qui acceptent le paiement à l'arrivée, et qu'il n'y a **aucun bundle** (les bundles se paient toujours en ligne) |
+| `hasUnavailableItems` | Au moins une ligne n'est plus disponible dans la quantité choisie |
+| `promoWarning` | Renseigné une seule fois quand le code du panier vient d'être retiré parce qu'il est expiré ou désactivé |
+
+Ligne (`items[]`) : `id`, `kind` (`OFFER` ou `BUNDLE`), `offerId` / `bundleId`, `type` (type de l'offre, `null` pour un bundle), `title`, `cityName`, `image`, `unitPrice` (prix de base de l'offre, ou **prix final du bundle**), `quantity`, `lineTotal`, `stock`, `allowsPayOnArrival`, `available`, `unavailableReason`.
+
+**Corps de `POST /api/cart/items`** :
+
+| Champ | Type | Règle |
+|---|---|---|
+| `offerId` ou `bundleId` | integer | **Un seul des deux** ; l'offre ou le bundle doit exister (`404` sinon) |
+| `quantity` | integer | 1 à 99, défaut `1` ; s'ajoute à la quantité déjà présente pour la même offre |
+
+| Endpoint | Détail |
+|---|---|
+| `GET /api/cart` | Si le code promo du panier n'est plus valide, il est retiré et `promoWarning` l'explique. |
+| `POST /api/cart/items` | `400` si l'offre est inactive ou épuisée, ou si la quantité totale dépasse le stock (« Stock insuffisant : N disponible(s) »). Le stock d'un bundle est celui de son offre la plus limitée. |
+| `PUT /api/cart/items/{itemId}` | Corps `{ "quantity": n }` ; mêmes contrôles de stock ; `404` si la ligne n'est pas dans le panier du client. |
+| `DELETE /api/cart/items/{itemId}` | `404` si la ligne n'est pas dans le panier du client. Si le panier devient vide, le code promo est retiré. |
+| `DELETE /api/cart` | Retire toutes les lignes et le code promo. |
+| `POST /api/cart/promo` | Corps `{ "code": "..." }` (insensible à la casse). `400` si le panier est vide, ou si le code est inconnu (« Code promo invalide »), désactivé ou expiré. |
+| `DELETE /api/cart/promo` | Retire le code promo. |
+
+**Calcul de la réduction** : `PERCENTAGE` = sous-total × valeur / 100 ; `FIXED` = valeur en MAD ; dans les deux cas plafonnée au sous-total. Le code s'applique au montant total du panier.
+
+---
+
+## 7. Codes promo — `/api/promo-codes`
+
+*Accès : `ADMIN`.*
+
+**Corps de requête** (`POST` / `PUT`) :
+
+| Champ | Type | Règle |
+|---|---|---|
+| `code` | string | Obligatoire, 3 à 30 caractères (lettres, chiffres, `-`, `_`), **unique** insensible à la casse ; enregistré en **majuscules** |
+| `discountType` | string | Obligatoire : `PERCENTAGE` ou `FIXED` |
+| `value` | number | Obligatoire, > 0 ; **≤ 100** pour un pourcentage |
+| `expiryDate` | date | Facultatif (`2026-12-31`) ; vide = sans limite ; le code est valable **jusqu'à ce jour inclus** |
+| `active` | boolean | Défaut `true` |
+
+**Réponse** : `{ "id", "code", "discountType", "value", "expiryDate", "active", "expired" }` (`expired` est calculé à la date du jour).
+
+| Endpoint | Détail |
+|---|---|
+| `GET /api/promo-codes` | Les plus récents d'abord. |
+| `GET /api/promo-codes/{id}` | `404` si introuvable. |
+| `POST /api/promo-codes` | `400` si le code existe déjà, si le pourcentage dépasse 100, ou si la date d'expiration est passée. |
+| `PUT /api/promo-codes/{id}` | Mêmes règles ; un code déjà expiré reste modifiable (par exemple pour le désactiver) tant que sa date ne change pas. |
+| `DELETE /api/promo-codes/{id}` | Le code est retiré des paniers en cours. `400` s'il a été utilisé dans une réservation : le désactiver à la place. |
+
+---
+
 ## Exemples d'appels
 
 ```bash
@@ -314,5 +399,4 @@ Au démarrage, un compte existant dont le mot de passe est encore en clair (base
 
 ## Endpoints prévus (non implémentés)
 
-- Panier et codes promo, réservations (`POST /api/bookings`), paiements, notifications.
-- CRUD des codes promo (espace administrateur).
+- Réservations (`POST /api/bookings`), paiements, notifications.

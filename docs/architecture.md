@@ -111,11 +111,11 @@ public class UserController {
 
 | Composant | Classes |
 |---|---|
-| Controllers | `UserController`, `StatusController`, `CityController`, `OfferController`, `BundleController`, `AuthController` |
-| Services | `UserService`, `CityService`, `OfferService`, `BundleService`, `AuthService` |
+| Controllers | `UserController`, `StatusController`, `CityController`, `OfferController`, `BundleController`, `AuthController`, `CartController`, `PromoCodeController` |
+| Services | `UserService`, `CityService`, `OfferService`, `BundleService`, `AuthService`, `CartService`, `PromoCodeService` |
 | Security | `JwtService`, `JwtAuthenticationFilter`, `AppUserDetails`, `AppUserDetailsService` |
 | Repositories | un par entité (`User`, `Offer`, `Bundle`, `Cart`, `CartItem`, `PromoCode`, `Booking`, `Payment`, `Notification`, `City`) |
-| DTO | `CityRequest`, `CityResponse`, `UserRequest`, `UserResponse`, `OfferRequest`, `OfferResponse`, `OfferSearchResponse`, `BundleRequest`, `BundleResponse`, `LoginRequest`, `RegisterRequest`, `AuthResponse` |
+| DTO | `CityRequest`, `CityResponse`, `UserRequest`, `UserResponse`, `OfferRequest`, `OfferResponse`, `OfferSearchResponse`, `BundleRequest`, `BundleResponse`, `CartItemRequest`, `CartResponse`, `ApplyPromoRequest`, `PromoCodeRequest`, `PromoCodeResponse`, `LoginRequest`, `RegisterRequest`, `AuthResponse` |
 | Config | `SecurityConfig`, `PasswordConfig`, `DataSeeder` (comptes de test + villes de référence) |
 
 ### Séance 2 — Première fonctionnalité métier : **Villes**
@@ -235,6 +235,39 @@ Un bundle regroupe au moins deux offres de fournisseurs (relation `@ManyToMany` 
 - Le créateur est toujours l'agent authentifié (le `createdById` du corps est ignoré) ; modifier ou supprimer le bundle d'un autre agent renvoie `403`.
 - Une offre utilisée dans un bundle ne peut pas être supprimée (elle se désactive) ; la suppression d'un bundle ne touche pas à ses offres, et est refusée s'il figure dans un panier ou une réservation.
 
+### Module Panier et codes promo
+
+Le panier appartient au client authentifié (une seule ligne `carts` par client, créée au premier appel) ; il porte l'éventuel code promo appliqué (`Cart.promoCode`). Détail des routes : [`api_endpoints.md`](api_endpoints.md#6-panier--apicart).
+
+```mermaid
+sequenceDiagram
+    participant F as client/js/app.js
+    participant C as CartController
+    participant S as CartService
+    participant P as PromoCodeService
+    participant R as CartRepository
+
+    F->>C: POST /api/cart/items {offerId, quantity} + Bearer
+    C->>S: addItem(clientId du jeton, requête)
+    S->>S: fusion avec la ligne existante, contrôle actif + stock
+    S->>R: saveAndFlush(cart)
+    S-->>F: CartResponse (lignes, sous-total, réduction, total)
+    F->>C: POST /api/cart/promo {code}
+    C->>S: applyPromo(clientId, code)
+    S->>P: validate(code) : existe, actif, non expiré
+    S->>R: saveAndFlush(cart avec promoCode)
+    S-->>F: CartResponse
+```
+
+**Règles métier :**
+- **Aucun prix ni stock n'est copié dans le panier** : `CartResponse` recalcule tout à chaque lecture (prix de base d'une offre, prix final d'un bundle via `BundleResponse`), donc un changement de prix ou de stock du fournisseur se voit tout de suite. Le stock n'est **pas réservé** (cahier des charges 5.1) ; le contrôle définitif se fera au paiement.
+- Ajout : une seule cible (offre **ou** bundle) ; offre active et en stock ; la quantité totale (déjà présente + ajoutée) ne dépasse pas le stock, celui d'un bundle étant le plus bas de ses offres (5.3). Ajouter deux fois la même offre **fusionne** les lignes.
+- Paiement à l'arrivée : `payOnArrivalAllowed` est vrai seulement si toutes les lignes sont des offres qui l'acceptent ; un bundle impose le paiement en ligne (5.2, 5.3).
+- Code promo (5.4) : insensible à la casse, enregistré en majuscules ; réduction en pourcentage ou montant fixe appliquée au sous-total et plafonnée à celui-ci. Un code expiré (valable jusqu'au jour d'expiration inclus) ou désactivé est refusé à l'application ; s'il le devient **après** avoir été appliqué, il est retiré du panier à la lecture suivante avec un avertissement (`promoWarning`).
+- Une ligne qui n'est plus disponible dans la quantité choisie (offre désactivée, stock baissé) reste visible, marquée `available: false`.
+- Suppression d'un code promo : détaché des paniers en cours ; refusée s'il a servi à une réservation (le désactiver).
+- Seul le rôle `CLIENT` possède un panier (`403` pour les autres rôles) ; une ligne d'un autre client est « introuvable » (`404`).
+
 ### Authentification et sécurité (Spring Security + JWT)
 
 L'API est **sans état** : pas de session serveur, chaque requête protégée porte son jeton JWT (`Authorization: Bearer …`). Le détail des routes et des droits est dans [`api_endpoints.md`](api_endpoints.md#authentification-et-droits-daccès).
@@ -303,10 +336,10 @@ Le catalogue public (`js/app.js`) reste séparé : il ne contient pas la logique
 
 | Espace | Entrée | Scripts | API branchée |
 |---|---|---|---|
-| Administration | `admin/index.html` | `admin/js/app.js`, `js/core/api.js` | Utilisateurs (CRUD + archivage, filtres rôle/statut), Villes (liste/suppression) |
+| Administration | `admin/index.html` | `admin/js/app.js`, `js/core/api.js` | Utilisateurs (CRUD + archivage, filtres rôle/statut), Villes (liste/suppression), **Codes promo** (CRUD, activation, filtres statut/type) |
 | Agent | `agent/index.html` | `agent/js/app.js`, `js/core/api.js` | Bundles (liste avec recherche, création/modification avec sélecteur d'offres, suppression) ; réservations, paiements, tickets en données démo |
 | Fournisseur | `supplier/index.html` | `supplier/js/app.js`, `js/core/api.js` | Offres (liste avec boutons d'action, création/modification en 4 étapes pour les 5 types, activation, suppression), Inventaire (niveau de stock, stock modifiable dans le tableau avec enregistrement automatique), Villes (select du formulaire) |
-| Client (SPA) | `client/index.html` | `client/js/app.js` | Données démo (le nom affiché est celui du compte connecté) ; **accueil public** : `accueil.html` |
+| Client (SPA) | `client/index.html` | `client/js/app.js` | Catalogue, fiche d'une offre, **panier et codes promo** (`/api/cart`) ; réservations, paiement, tickets et dashboard en données démo (le nom affiché est celui du compte connecté) ; **accueil public** : `accueil.html` |
 
 **Accès aux espaces :** chaque espace appelle `Auth.requireRole("<RÔLE>")` dès le chargement de la page. Sans session, ou avec un autre rôle, le navigateur est redirigé vers `connexion.html` (avec un message si le rôle ne convient pas). La page de connexion renvoie ensuite vers l'espace du rôle (`ADMIN` → `admin/`, `SUPPLIER` → `supplier/`, `AGENT` → `agent/`, `CLIENT` → `client/`). Le bouton « Déconnexion » de chaque espace efface la session ; l'en-tête des pages publiques affiche « Se connecter », ou le lien vers l'espace du rôle et « Déconnexion ».
 
@@ -342,6 +375,7 @@ Le Frontend appelle l'API REST Spring Boot (port `8080`) avec `fetch()` ; le COR
 - `GET/POST/PUT/DELETE /api/offers` : offres des fournisseurs (vol, hôtel, voiture, taxi, excursion) ; voir « Module Offres ».
 - `GET /api/offers/search` : catalogue public (filtres, tri, pagination) pour l'espace client.
 - `GET/POST/PUT/DELETE /api/bundles` : bundles composés par les agents ; voir « Module Bundles ».
+- `/api/cart` : panier du client (lignes, code promo, totaux) ; `/api/promo-codes` : CRUD des codes promo (admin) ; voir « Module Panier et codes promo ».
 
 **Endpoints prévus :**
 - `POST /api/bookings` : créer une réservation à partir du panier.

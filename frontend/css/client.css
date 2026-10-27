@@ -81,3 +81,12 @@
 .offer-buy .btn { width: 100%; }
 .offer-buy .btn:disabled { opacity: .55; cursor: not-allowed; }
 .offer-note { font-size: 10px; color: var(--muted); text-align: center; margin: 10px 0 0; }
+
+.offer-buy .quantity { margin: 0 0 14px; }
+.link-btn { border: 0; background: none; color: var(--blue); font: inherit; font-weight: 700; padding: 0; cursor: pointer; }
+.summary .offer-note { margin: 12px 0 0; }
+.promo input:disabled { background: #F4F6FA; }
+.empty-state.card { background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+.empty-state.card .btn { margin-top: 14px; }
+.promo input { flex: 1; }
+.promo button { flex-shrink: 0; padding: 0 14px; cursor: pointer; }

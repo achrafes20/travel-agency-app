@@ -12,8 +12,6 @@ const state = {
   sidebarCollapsed: false,
   page: "dashboard",
   offerId: null,
-  promo: false,
-  quantity: 2,
   payment: "card",
   filter: "Toutes",
 };
@@ -82,7 +80,7 @@ function header() {
       ${logo()}
       <div class="header-actions">
         <span class="currency">MAD</span>
-        <button class="icon-label" data-page="panier">${icon("cart")}<span>Panier</span><i>2</i></button>
+        <button class="icon-label" data-page="panier">${icon("cart")}<span>Panier</span>${cartBadge("i")}</button>
         <button class="round-action" data-action="notifications" aria-label="Notifications">${icon("bell")}<i class="red-count">3</i></button>
         <div class="relative">
           <button class="account" data-action="account"><span class="avatar">${me.initials}</span><span><small>Bonjour,</small><b>${me.firstName}</b></span><span>⌄</span></button>
@@ -106,7 +104,7 @@ function sidebar(active) {
     <div class="side-top"><button type="button" class="side-toggle" data-action="sidebar-toggle" aria-label="${state.sidebarCollapsed ? "Déplier le menu" : "Replier le menu"}">${icon("menu", 20)}</button></div>
     <div class="side-user"><span class="avatar big">${me.initials}</span><div><b>${me.fullName}</b><small>Compte client</small></div></div>
     <div class="side-label">MON ESPACE</div>
-    ${items.map(([name,label,page]) => `<button class="${active === page ? "active" : ""}" data-page="${page}" title="${label}">${icon(name,19)}<i class="side-text">${label}</i>${page === "panier" ? "<span>2</span>" : ""}</button>`).join("")}
+    ${items.map(([name,label,page]) => `<button class="${active === page ? "active" : ""}" data-page="${page}" title="${label}">${icon(name,19)}<i class="side-text">${label}</i>${page === "panier" ? cartBadge("span") : ""}</button>`).join("")}
   </aside>`;
 }
 
@@ -128,7 +126,7 @@ function dashboard() {
       <div class="kpi"><span class="kpi-icon amber">${icon("calendar")}</span><div><small>À VENIR</small><strong>3</strong><p>réservations</p></div><span class="trend">+1 ce mois</span></div>
       <div class="kpi"><span class="kpi-icon blue">${icon("cart")}</span><div><small>TOTAL DÉPENSÉ</small><strong>8 640</strong><p>MAD cette année</p></div><div class="spark"><i></i><i></i><i></i><i></i><i></i></div></div>
       <div class="kpi status-kpi"><span class="kpi-icon green">${icon("check")}</span><div><small>RÉSERVATIONS</small><strong>8</strong><p>au total</p></div><div class="donut"><span>75%</span></div></div>
-      <div class="kpi cart-kpi"><span class="kpi-icon violet">${icon("gift")}</span><div><small>MON PANIER</small><strong>2</strong><p>articles en attente</p></div><button data-page="panier">Voir ${icon("arrow",14)}</button></div>
+      <div class="kpi cart-kpi"><span class="kpi-icon violet">${icon("gift")}</span><div><small>MON PANIER</small><strong class="js-cart-num">${cartCount()}</strong><p>article${cartCount() > 1 ? "s" : ""} en attente</p></div><button data-page="panier">Voir ${icon("arrow",14)}</button></div>
     </div>
     <div class="dash-grid">
       <section class="card upcoming"><div class="section-head"><div><span class="eyebrow">PROCHAINS DÉPARTS</span><h2>Vos prochaines réservations</h2></div><button data-page="reservations">Tout voir ${icon("arrow",16)}</button></div><div class="booking-list">${rows}</div></section>
@@ -314,7 +312,7 @@ function resetCatalogueFilters() {
 
 /* ---------- Détail d'une offre ---------- */
 
-const detailState = { offer: null, error: "" };
+const detailState = { offer: null, error: "", quantity: 1 };
 
 function offerDetail() {
   return `${header()}<main class="static-page offer-page"><div id="offer-detail"><div class="empty-state"><h2>Chargement de l'offre…</h2></div></div></main>${footer()}`;
@@ -357,14 +355,16 @@ function paintOfferDetail() {
         <div class="offer-price">À partir de <b>${money(o.basePrice)}</b><small>${type.unit}</small></div>
         <ul class="offer-badges">${available ? (o.stock <= 3 ? `<li class="warn">Plus que ${o.stock} disponible${o.stock > 1 ? "s" : ""}</li>` : '<li class="ok">Disponible</li>') : '<li class="ko">Indisponible</li>'}${o.allowsPayOnArrival ? "<li>Paiement à l'arrivée possible</li>" : "<li>Paiement en ligne</li>"}</ul>
         <p class="offer-supplier">Proposé par <b>${esc(o.supplierName)}</b></p>
-        ${button("Ajouter au panier", { iconName: "cart", disabled: true })}
-        <p class="offer-note">Le panier sera disponible prochainement.</p></aside>
+        ${available ? `<div class="quantity"><button data-action="detail-qty" data-delta="-1" aria-label="Diminuer la quantité">${icon("minus", 15)}</button><b id="detail-qty">${detailState.quantity}</b><button data-action="detail-qty" data-delta="1" aria-label="Augmenter la quantité">${icon("plus", 15)}</button><span>${type.unit.replace("/ ", "")}${detailState.quantity > 1 ? "s" : ""}</span></div>` : ""}
+        ${button("Ajouter au panier", { iconName: "cart", action: "add-to-cart", disabled: !available })}
+        <p class="offer-note" id="offer-note">${available ? "Le stock est vérifié à l'ajout puis au paiement." : "Cette offre ne peut pas être ajoutée au panier."}</p></aside>
     </div>`;
 }
 
 async function loadOfferDetail() {
   detailState.offer = null;
   detailState.error = "";
+  detailState.quantity = 1;
   try {
     detailState.offer = await api.get(`/api/offers/${state.offerId}`);
   } catch (err) {
@@ -378,18 +378,106 @@ function openOffer(id) {
   render("offre");
 }
 
-function cart() {
-  const excursionTotal = `${(250 * state.quantity).toLocaleString("fr-FR")},00 MAD`;
-  const total = state.promo ? "2 052,00" : "2 280,00";
-  return shell(`
-    <div class="page-title"><div><span class="eyebrow">VOTRE SÉLECTION</span><h1>Mon panier <small>2 articles</small></h1><p>Vérifiez les détails avant de poursuivre votre réservation.</p></div><button class="text-danger" data-action="clear-cart">${icon("trash")}Vider le panier</button></div>
-    <div class="cart-layout"><section>
-      <div class="cart-line card"><img src="${photos.riad}" alt="Riad Atlas"><div class="line-main"><div><span class="type-pill">HÔTEL</span>${status("Disponible")}</div><h3>Riad Atlas – Chambre double</h3><p>${icon("map",15)} Chefchaouen · ${icon("calendar",15)} 18/04/2026 → 20/04/2026</p><small>2 nuits · 1 chambre · 2 adultes</small><div class="line-actions"><button data-action="edit">Modifier</button><button class="text-danger" data-action="remove">Supprimer</button></div></div><div class="line-price"><small>890,00 MAD / nuit</small><b>1 780,00 MAD</b></div></div>
-      <div class="cart-line card"><img src="${photos.medersa}" alt="Excursion Akchour"><div class="line-main"><div><span class="type-pill">EXCURSION</span>${status("Disponible")}</div><h3>Excursion Chefchaouen → Akchour</h3><p>${icon("map",15)} Départ Chefchaouen · ${icon("calendar",15)} 19/04/2026 à 08:30</p><div class="quantity"><button data-action="decrement">${icon("minus",15)}</button><b>${state.quantity}</b><button data-action="increment">${icon("plus",15)}</button><span>personnes</span></div><div class="line-actions"><button data-action="edit">Modifier</button><button class="text-danger" data-action="remove">Supprimer</button></div></div><div class="line-price"><small>250,00 MAD / personne</small><b>${excursionTotal}</b></div></div>
+/* ---------- Panier (API /api/cart) ---------- */
+
+const cartState = { data: null, error: "", busy: false };
+
+const netError = (err) => (err.message === "Failed to fetch" ? "Le serveur est injoignable. Vérifiez que le backend est démarré." : err.message);
+const cartCount = () => cartState.data?.itemCount ?? 0;
+const cartBadge = (tag) => `<${tag} class="js-cart-count" style="${cartCount() ? "" : "display:none"}">${cartCount()}</${tag}>`;
+
+function paintCartBadges() {
+  const count = cartCount();
+  document.querySelectorAll(".js-cart-count").forEach((el) => {
+    el.textContent = count;
+    el.style.display = count ? "" : "none";
+  });
+  document.querySelectorAll(".js-cart-num").forEach((el) => { el.textContent = count; });
+}
+
+/** Exécute un appel qui renvoie le panier à jour ; renvoie true en cas de succès. */
+async function cartCall(request, successMessage) {
+  if (cartState.busy) return false;
+  cartState.busy = true;
+  let ok = false;
+  try {
+    cartState.data = await request();
+    cartState.error = "";
+    ok = true;
+    if (successMessage) toast(successMessage, "success");
+    if (cartState.data.promoWarning) toast(cartState.data.promoWarning, "error");
+  } catch (err) {
+    toast(netError(err), "error");
+  } finally {
+    cartState.busy = false;
+  }
+  paintCartBadges();
+  if (state.page === "panier") paintCart();
+  return ok;
+}
+
+async function loadCart() {
+  try {
+    cartState.data = await api.get("/api/cart");
+    cartState.error = "";
+    if (cartState.data.promoWarning) toast(cartState.data.promoWarning, "error");
+  } catch (err) {
+    cartState.error = netError(err);
+  }
+  paintCartBadges();
+  if (state.page === "panier") paintCart();
+}
+
+function cartLine(line) {
+  const type = line.kind === "BUNDLE" ? { tag: "BUNDLE" } : OFFER_TYPE[line.type];
+  const canIncrease = line.available && line.quantity < line.stock;
+  return `<div class="cart-line card" data-line="${line.id}">${imageTag(line.image || NO_IMAGE, line.title)}
+    <div class="line-main"><div><span class="type-pill">${type.tag}</span>${line.available ? status("Disponible") : status(line.unavailableReason, "warning")}</div>
+      <h3>${esc(line.title)}</h3>
+      <p>${icon("map", 15)} ${esc(line.cityName || "—")}${line.allowsPayOnArrival ? ' · <span class="pay-tag">Paiement à l\'arrivée</span>' : ""}</p>
+      <div class="quantity"><button data-action="cart-qty" data-id="${line.id}" data-qty="${line.quantity - 1}" ${line.quantity <= 1 ? "disabled" : ""} aria-label="Diminuer la quantité">${icon("minus", 15)}</button><b>${line.quantity}</b><button data-action="cart-qty" data-id="${line.id}" data-qty="${line.quantity + 1}" ${canIncrease ? "" : "disabled"} aria-label="Augmenter la quantité">${icon("plus", 15)}</button></div>
+      <div class="line-actions"><button class="text-danger" data-action="cart-remove" data-id="${line.id}" data-title="${esc(line.title)}">Supprimer</button></div></div>
+    <div class="line-price"><small>${money(line.unitPrice)} / unité</small><b>${money(line.lineTotal)}</b></div></div>`;
+}
+
+function cartSummary(c) {
+  const promo = c.promo;
+  return `<aside class="summary card"><h2>Récapitulatif</h2>
+    <div class="sum-row"><span>Sous-total</span><b>${money(c.subtotal)}</b></div>
+    <div class="promo"><label for="promo-input">CODE PROMO</label>
+      <div><input id="promo-input" placeholder="Votre code" value="${esc(promo ? promo.code : "")}" ${promo ? "disabled" : ""} maxlength="30">${promo ? '<button data-action="promo-remove">Retirer</button>' : '<button data-action="promo-apply">Appliquer</button>'}</div>
+      ${promo ? `<p>${icon("check", 14)} Code ${esc(promo.code)} appliqué</p>` : ""}</div>
+    ${promo ? `<div class="sum-row green"><span>Remise (${promo.discountType === "PERCENTAGE" ? `–${Number(promo.value)} %` : "montant fixe"})</span><b>–${money(c.discount)}</b></div>` : ""}
+    <hr><div class="total"><span>Total à payer<small>Taxes incluses</small></span><b>${money(c.total)}</b></div>
+    ${button("Passer au paiement", { disabled: true })}
+    <p class="offer-note">${c.hasUnavailableItems ? "Retirez ou ajustez les articles indisponibles avant de payer." : "Le paiement sera disponible prochainement."}</p>
+    <p class="secure">${icon("shield", 17)} ${c.payOnArrivalAllowed ? "Paiement à l'arrivée possible pour ce panier" : "Paiement en ligne obligatoire pour ce panier"}</p></aside>`;
+}
+
+function paintCart() {
+  const box = document.getElementById("cart-content");
+  if (!box) return;
+  const c = cartState.data;
+  if (!c) {
+    box.innerHTML = cartState.error
+      ? `<div class="empty-state"><h2>Impossible de charger le panier</h2><p>${esc(cartState.error)}</p>${button("Réessayer", { action: "reload-cart" })}</div>`
+      : '<div class="empty-state"><h2>Chargement du panier…</h2></div>';
+    return;
+  }
+  const title = `<div class="page-title"><div><span class="eyebrow">VOTRE SÉLECTION</span><h1>Mon panier <small>${c.itemCount} article${c.itemCount > 1 ? "s" : ""}</small></h1><p>Vérifiez les détails avant de poursuivre votre réservation.</p></div>${c.itemCount ? `<button class="text-danger" data-action="clear-cart">${icon("trash")}Vider le panier</button>` : ""}</div>`;
+  if (!c.items.length) {
+    box.innerHTML = `${title}<div class="empty-state card"><h2>Votre panier est vide</h2><p>Parcourez le catalogue pour trouver votre prochaine escapade.</p>${button("Découvrir les offres", { iconName: "search", page: "catalogue" })}</div>`;
+    return;
+  }
+  box.innerHTML = `${title}<div class="cart-layout"><section>
+      ${c.hasUnavailableItems ? '<div class="reassurance" style="background:#FFF4E5;color:#9A5B00;margin-bottom:14px">Certains articles ne sont plus disponibles dans la quantité choisie.</div>' : ""}
+      ${c.items.map(cartLine).join("")}
       <div class="reassurance"><span>${icon("check")}Annulation gratuite jusqu'à 48 h avant</span><span>${icon("shield")}Réservation protégée</span></div>
-    </section>
-    <aside class="summary card"><h2>Récapitulatif</h2><div class="sum-row"><span>Sous-total</span><b>2 280,00 MAD</b></div><div class="promo"><label>CODE PROMO</label><div><input id="promo-input" placeholder="Votre code" value="${state.promo ? "BIENVENUE10" : ""}"><button data-action="promo">Appliquer</button></div>${state.promo ? `<p>${icon("check",14)} Code BIENVENUE10 appliqué</p>` : ""}</div>${state.promo ? '<div class="sum-row green"><span>Remise (–10 %)</span><b>–228,00 MAD</b></div>' : ""}<hr><div class="total"><span>Total à payer<small>Taxes incluses</small></span><b>${total} <small>MAD</small></b></div>${button("Passer au paiement",{page:"checkout"})}<p class="secure">${icon("shield",17)} Paiement 100 % sécurisé</p></aside>
-    </div>`, "panier");
+    </section>${cartSummary(c)}</div>`;
+}
+
+function cart() {
+  return shell('<div id="cart-content"></div>', "panier");
 }
 
 function checkout() {
@@ -458,6 +546,8 @@ function render(page = state.page) {
   window.scrollTo({ top: 0, behavior: "smooth" });
   if (page === "catalogue") initCatalogue();
   if (page === "offre") loadOfferDetail();
+  if (page === "panier") paintCart();
+  loadCart();
 }
 
 function toast(message, type = "") {
@@ -498,13 +588,26 @@ document.addEventListener("click", (event) => {
   }
   if (action === "account") document.getElementById("account-menu")?.classList.toggle("open");
   if (action === "notifications") toast("3 notifications récentes, dont 2 non lues.");
-  if (action === "increment") { state.quantity += 1; render("panier"); }
-  if (action === "decrement") { state.quantity = Math.max(1, state.quantity - 1); render("panier"); }
-  if (action === "promo") {
-    const value = document.getElementById("promo-input")?.value.trim().toUpperCase();
-    if (value === "BIENVENUE10") { state.promo = true; render("panier"); toast("Code BIENVENUE10 appliqué.", "success"); }
-    else toast("Ce code promo est inconnu ou expiré.", "error");
+  if (action === "detail-qty") {
+    const max = detailState.offer?.stock ?? 1;
+    detailState.quantity = Math.min(Math.max(1, detailState.quantity + Number(target.dataset.delta)), max);
+    document.getElementById("detail-qty").textContent = detailState.quantity;
   }
+  if (action === "add-to-cart") {
+    const offer = detailState.offer;
+    cartCall(() => api.post("/api/cart/items", { offerId: offer.id, quantity: detailState.quantity }), `« ${offer.title} » ajouté au panier.`).then((ok) => {
+      const note = document.getElementById("offer-note");
+      if (ok && note) note.innerHTML = `${icon("check", 12)} Dans votre panier · <button class="link-btn" data-page="panier">Voir le panier</button>`;
+    });
+  }
+  if (action === "reload-cart") loadCart();
+  if (action === "cart-qty") cartCall(() => api.put(`/api/cart/items/${target.dataset.id}`, { quantity: Number(target.dataset.qty) }));
+  if (action === "promo-apply") {
+    const code = document.getElementById("promo-input")?.value.trim();
+    if (!code) toast("Saisissez un code promo.", "error");
+    else cartCall(() => api.post("/api/cart/promo", { code }), "Code promo appliqué.");
+  }
+  if (action === "promo-remove") cartCall(() => api.delete("/api/cart/promo"), "Code promo retiré.");
   if (action === "pay-card") { state.payment = "card"; render("checkout"); }
   if (action === "pay-later") { state.payment = "later"; render("checkout"); }
   if (action === "confirm-payment") {
@@ -543,9 +646,8 @@ document.addEventListener("click", (event) => {
     if (main) main.src = target.dataset.src;
     document.querySelectorAll(".offer-thumbs button").forEach((b) => b.classList.toggle("active", b === target));
   }
-  if (action === "edit") toast("Vous pouvez modifier les dates et la quantité.");
-  if (action === "remove") modal("Retirer cet article ?", "L'article sera supprimé de votre panier.", "Retirer", () => toast("Article retiré du panier.", "success"));
-  if (action === "clear-cart") modal("Vider le panier ?", "Tous les articles seront retirés de votre panier.", "Vider le panier", () => toast("Votre panier est maintenant vide.", "success"));
+  if (action === "cart-remove") modal("Retirer cet article ?", `« ${esc(target.dataset.title)} » sera supprimé de votre panier.`, "Retirer", () => cartCall(() => api.delete(`/api/cart/items/${target.dataset.id}`), "Article retiré du panier."));
+  if (action === "clear-cart") modal("Vider le panier ?", "Tous les articles seront retirés de votre panier.", "Vider le panier", () => cartCall(() => api.delete("/api/cart"), "Votre panier est maintenant vide."));
   if (action === "cancel-booking") modal("Annuler la réservation ?", "Vous serez remboursé à 100 %, soit 2 052,00 MAD.", "Confirmer l'annulation", () => toast("Réservation annulée. Le remboursement est en cours.", "success"));
   if (action === "new-ticket") toast("Le formulaire de création de ticket est prêt.");
   if (action === "open-ticket") toast("Conversation avec le support ouverte.");
@@ -559,6 +661,12 @@ document.addEventListener("change", (event) => {
   if (filter === "type") setCatalogueFilter("type", event.target.value);
   else if (filter === "pay") setCatalogueFilter("pay", event.target.checked);
   else setCatalogueFilter(filter, event.target.value);
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && event.target.id === "promo-input" && !event.target.disabled) {
+    document.querySelector('[data-action="promo-apply"]')?.click();
+  }
 });
 
 document.addEventListener("input", (event) => {

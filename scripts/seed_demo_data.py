@@ -1,5 +1,5 @@
 """
-Données de démonstration Atlas Voyage : villes, utilisateurs, offres (5 types) et bundles.
+Données de démonstration Atlas Voyage : villes, utilisateurs, offres (5 types), bundles et codes promo.
 
 Passe par l'API REST (le backend doit tourner sur :8080), donc toutes les règles métier
 s'appliquent (mots de passe hachés, propriétaire = utilisateur connecté, validations).
@@ -11,6 +11,7 @@ Le script peut être relancé : ce qui existe déjà (même email, nom ou titre)
 Mot de passe de tous les comptes créés : password123
 """
 import argparse
+import datetime
 import json
 import sys
 import urllib.error
@@ -150,6 +151,14 @@ OFFERS = {
               description="Hôtel confortable à dix minutes de la médina de Fès."),
         hotel("Kasbah Ouarzazate", "Ouarzazate", 540, 5, 3, "Chambre double", active=False,
               description="Offre désactivée (exemple de statut inactif)."),
+        hotel("Riad Dar Al Andalous", "Marrakech", 1450, 4, 5, "Suite junior",
+              description="Riad 5 étoiles avec hammam, spa et dîner marocain sur la terrasse."),
+        hotel("Palmeraie Resort", "Marrakech", 2100, 3, 5, "Suite familiale",
+              description="Resort dans la palmeraie, trois piscines et navette vers la médina. Stock bas."),
+        hotel("Maison Bleue Chefchaouen", "Chefchaouen", 450, 12, 2, "Chambre simple", pay_on_arrival=True,
+              description="Petite adresse économique dans la médina bleue."),
+        hotel("Riad Fès el-Bali", "Fès", 890, 1, 4, "Chambre double",
+              description="Riad familial à deux pas de la médersa Bou Inania. Dernière chambre."),
     ],
     # Youssef : vols et voitures
     "youssef.alami@atlasvoyage.ma": [
@@ -181,6 +190,14 @@ OFFERS = {
                   "Visite guidée des remparts, du port et des ateliers d'artisans."),
         excursion("Médina de Fès", "Fès", 250, 16, 5,
                   "Visite guidée des tanneries, des médersas et des souks."),
+        excursion("Vallée de l'Ourika", "Marrakech", 380, 18, 8,
+                  "Cascades de Setti Fatma, déjeuner dans un village berbère, retour en fin d'après-midi."),
+        excursion("Cascades d'Akchour", "Chefchaouen", 350, 10, 7,
+                  "Randonnée facile jusqu'aux cascades, pique-nique et pont de Dieu."),
+        excursion("Fès - Meknès et Volubilis", "Fès", 420, 12, 9,
+                  "Journée entre la ville impériale de Meknès et les ruines romaines de Volubilis."),
+        excursion("Coucher de soleil à Essaouira", "Essaouira", 200, 3, 3,
+                  "Promenade sur les remparts et thé face à l'océan. Stock bas.", pay_on_arrival=True),
     ],
 }
 
@@ -204,8 +221,15 @@ BUNDLES = {
     ],
     "hamza.cherkaoui@atlasvoyage.ma": [
         ("Cap sur Fès", 10, ["Hôtel Atlas Fès", "Médina de Fès"], "Hôtel à Fès et visite guidée de la médina."),
+        ("Fès authentique", 12, ["Riad Fès el-Bali", "Fès - Meknès et Volubilis"],
+         "Riad dans la médina et journée à Meknès et Volubilis (une seule chambre : stock limité)."),
+        ("Nature à Chefchaouen", 8, ["Maison Bleue Chefchaouen", "Cascades d'Akchour"],
+         "Séjour économique dans la ville bleue et randonnée aux cascades."),
     ],
 }
+BUNDLES["nadia.elfassi@atlasvoyage.ma"].append(
+    ("Luxe à Marrakech", 20, ["Riad Dar Al Andalous", "Vallée de l'Ourika", "Aéroport Marrakech - Médina"],
+     "Riad 5 étoiles, journée dans l'Ourika et transfert privé depuis l'aéroport."))
 known_bundles = {b["title"] for b in call("GET", "/api/bundles")}
 for email, bundles in BUNDLES.items():
     token = login(email)
@@ -214,5 +238,31 @@ for email, bundles in BUNDLES.items():
             call("POST", "/api/bundles", {"title": title, "description": description, "discountPercentage": discount,
                                            "offerIds": [all_offers[t]["id"] for t in offer_titles]}, token)
             print("bundle    ", title)
+
+# ------------------------------------------------------------------ codes promo
+# (l'API refuse de créer un code déjà expiré : pour tester le cas « expiré », modifier expiry_date en base)
+in_60_days = (datetime.date.today() + datetime.timedelta(days=60)).isoformat()
+PROMO_CODES = [
+    ("BIENVENUE10", "PERCENTAGE", 10, None, True),
+    ("AUTOMNE25", "PERCENTAGE", 25, in_60_days, True),
+    ("RIAD200", "FIXED", 200, in_60_days, True),
+    ("VIP50", "FIXED", 50, None, False),  # désactivé : « Code promo désactivé » côté panier
+    ("ETE2026", "PERCENTAGE", 15, in_60_days, True),  # à expirer avec scripts/demo_expire_promo.sql
+]
+known_promos = {p["code"] for p in call("GET", "/api/promo-codes", token=admin)}
+for code, discount_type, value, expiry, active in PROMO_CODES:
+    if code not in known_promos:
+        call("POST", "/api/promo-codes", {"code": code, "discountType": discount_type, "value": value,
+                                          "expiryDate": expiry, "active": active}, admin)
+        print("code promo", code)
+
+# ------------------------------------------------------------------ panier prérempli
+# Lina arrive avec un panier déjà rempli (code promo appliqué) ; Sarah, le compte de démo principal, part d'un panier vide.
+lina = login("lina.tazi@example.com")
+if not call("GET", "/api/cart", token=lina)["items"]:
+    call("POST", "/api/cart/items", {"offerId": all_offers["Riad Yasmine"]["id"], "quantity": 2}, lina)
+    call("POST", "/api/cart/items", {"offerId": all_offers["Désert d'Agafay"]["id"], "quantity": 2}, lina)
+    call("POST", "/api/cart/promo", {"code": "AUTOMNE25"}, lina)
+    print("panier     lina.tazi@example.com (2 lignes + AUTOMNE25)")
 
 print("Terminé. Comptes : mot de passe", PASSWORD)

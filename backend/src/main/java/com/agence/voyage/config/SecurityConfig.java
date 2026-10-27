@@ -39,6 +39,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/**", "/api/cities/**").hasRole("ADMIN")
                         .requestMatchers("/api/offers/**").hasRole("SUPPLIER")
                         .requestMatchers("/api/bundles/**").hasRole("AGENT")
+                        .requestMatchers("/api/cart/**").hasRole("CLIENT")
+                        .requestMatchers("/api/promo-codes/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, e) ->

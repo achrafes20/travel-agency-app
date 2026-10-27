@@ -135,6 +135,49 @@ class SecurityRulesTest {
     }
 
     @Test
+    void cart_isReservedToClients() throws Exception {
+        mvc.perform(get("/api/cart")).andExpect(status().isUnauthorized());
+        for (User other : new User[]{admin, supplier, agent}) {
+            mvc.perform(get("/api/cart").header("Authorization", bearer(other))).andExpect(status().isForbidden());
+            mvc.perform(post("/api/cart/items").header("Authorization", bearer(other))
+                            .contentType(MediaType.APPLICATION_JSON).content("{\"offerId\":1}"))
+                    .andExpect(status().isForbidden());
+        }
+        mvc.perform(get("/api/cart").header("Authorization", bearer(client)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.itemCount").value(0));
+        mvc.perform(post("/api/cart/promo").header("Authorization", bearer(client))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"code\":\"NOPE\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void promoCodes_areReservedToAdmins_andCodesAreUppercased() throws Exception {
+        mvc.perform(get("/api/promo-codes")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/promo-codes").header("Authorization", bearer(client))).andExpect(status().isForbidden());
+        mvc.perform(post("/api/promo-codes").header("Authorization", bearer(agent))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"x\",\"discountType\":\"FIXED\",\"value\":10}"))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/api/promo-codes").header("Authorization", bearer(admin))).andExpect(status().isOk());
+
+        String response = mvc.perform(post("/api/promo-codes").header("Authorization", bearer(admin))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"rules10\",\"discountType\":\"PERCENTAGE\",\"value\":10}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.code").value("RULES10"))
+                .andExpect(jsonPath("$.active").value(true))
+                .andReturn().getResponse().getContentAsString();
+        String id = response.replaceAll(".*\"id\":(\\d+).*", "$1");
+        mvc.perform(post("/api/promo-codes").header("Authorization", bearer(admin))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"RULES10\",\"discountType\":\"PERCENTAGE\",\"value\":10}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(delete("/api/promo-codes/" + id).header("Authorization", bearer(admin)))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
     void archivedAccount_tokenIsRefused() throws Exception {
         User temp = account("archived-rules@example.com", Role.CLIENT);
         String token = bearer(temp);

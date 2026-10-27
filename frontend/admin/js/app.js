@@ -25,13 +25,6 @@ const navGroups = [
   { label: "Système", items: [["settings", "settings", "Paramètres"]] },
 ];
 
-const promos = [
-  ["BIENVENUE10","Pourcentage","−10 %","500,00 MAD","01/09 → 12/10/2026","84 / 100","Bientôt expiré"],
-  ["AUTOMNE25","Pourcentage","−25 %","1 500,00 MAD","20/09 → 18/10/2026","47 / 60","Actif"],
-  ["RIAD200","Montant fixe","−200 MAD","2 000,00 MAD","01/10 → 31/10/2026","19 / 50","Actif"],
-  ["ATLASVIP","Pourcentage","−15 %","3 000,00 MAD","01/01 → 31/12/2026","100 / 100","Épuisé"],
-  ["ETE2026","Montant fixe","−150 MAD","1 000,00 MAD","01/06 → 31/08/2026","72 / 100","Expiré"],
-];
 const offers = [
   ["hotel","Riad Atlas Prestige","Hôtel & Riad","Riad Atlas Group","Marrakech","1 450,00 MAD","8","Active"],
   ["plane","Vol CMN → CDG","Vol","Atlas Sky","Casablanca","2 890,00 MAD","24","Active"],
@@ -79,7 +72,7 @@ function table(headers, rows, count) {
 function roleTone(role) { return role==="Admin"?"purple":role==="Agent"?"amber":role==="Fournisseur"?"blue":"gray"; }
 function statusTone(status) {
   if(["Actif","Active","Payé","Terminée","Résolu"].includes(status)) return "green";
-  if(["Annulée","Désactivée par l’admin"].includes(status)) return "red";
+  if(["Annulée","Désactivée par l’admin","Expiré"].includes(status)) return "red";
   if(["En attente","Bientôt expiré","Ouvert"].includes(status)) return "amber";
   if(["Confirmée","En cours"].includes(status)) return "blue";
   if(status==="Remboursé") return "purple";
@@ -209,9 +202,27 @@ async function citiesPage() {
   return `<div class="page-actions"><p>Gérez le référentiel géographique utilisé par les offres.</p>${button("Ajouter une ville", "plus", "primary", 'data-modal="city"')}</div>${filters("Rechercher une ville...", [allCountries, ["Aéroport : Tous", "Oui", "Non"]])}${table(["Ville", "Pays", "Code", "Latitude", "Longitude", "Aéroport", "Offres liées", "Active", "Actions"], rows, `${adminCities.length} villes`)}`;
 }
 
-function promosPage() {
-  const rows=promos.map(p=>`<tr data-search="${p.join(" ").toLowerCase()}"><td><span class="code">${p[0]}</span> <button class="row-action inline-flex" data-copy="${p[0]}">${icon("copy")}</button></td><td>${p[1]}</td><td><strong>${p[2]}</strong></td><td>${p[3]}</td><td>${p[4]}</td><td>${p[5]}</td><td>${badge(p[6],statusTone(p[6]))}</td><td><button class="toggle ${["Actif","Bientôt expiré"].includes(p[6])?"active":""}"><span></span></button></td><td><button class="row-action" data-modal="promo-actions">${icon("ellipsis")}</button></td></tr>`).join("");
-  return `<div class="page-actions"><p>Créez et suivez les campagnes promotionnelles Atlas Voyage.</p>${button("Nouveau code","plus","primary",'data-modal="promo"')}</div>${filters("Rechercher par code...",[["Tous les statuts","Actif","Expiré","Épuisé"],["Tous les types","Pourcentage","Montant fixe"]])}${table(["Code","Type","Valeur","Minimum","Validité","Utilisations","Statut","Actif",""],rows,"18 codes promo")}`;
+let adminPromos = [];
+
+const promoStatusLabel = (p) => (!p.active ? "Désactivé" : p.expired ? "Expiré" : "Actif");
+const promoTypeLabel = (p) => (p.discountType === "PERCENTAGE" ? "Pourcentage" : "Montant fixe");
+const promoValueLabel = (p) => (p.discountType === "PERCENTAGE" ? `−${Number(p.value)} %` : `−${Number(p.value).toLocaleString("fr-FR")} MAD`);
+const promoExpiryLabel = (p) => (p.expiryDate ? new Date(`${p.expiryDate}T00:00:00`).toLocaleDateString("fr-FR") : "Sans limite");
+
+async function promosPage() {
+  try {
+    adminPromos = await api.get("/api/promo-codes");
+  } catch (err) {
+    adminPromos = [];
+    return `${apiErrorBanner(err.message)}<div class="empty-state"><span class="round-icon">${icon("tags")}</span><h2>Codes promo indisponibles</h2><p>Impossible de charger la liste depuis l’API.</p></div>`;
+  }
+  const rows = adminPromos.map((p) => {
+    const status = promoStatusLabel(p);
+    const search = `${p.code} ${promoTypeLabel(p)} ${status}`.toLowerCase();
+    return `<tr data-search="${escapeHtml(search)}" data-promo-status="${status}" data-promo-type="${promoTypeLabel(p)}"><td><span class="code">${escapeHtml(p.code)}</span> <button class="row-action inline-flex" data-copy="${escapeHtml(p.code)}" aria-label="Copier le code">${icon("copy")}</button></td><td>${promoTypeLabel(p)}</td><td><strong>${promoValueLabel(p)}</strong></td><td>${promoExpiryLabel(p)}</td><td>${badge(status, statusTone(status))}</td><td><button type="button" class="toggle ${p.active ? "active" : ""}" data-toggle-promo="${p.id}" aria-label="Activer ou désactiver le code"><span></span></button></td><td class="table-actions-cell"><div class="row-actions-group"><button type="button" class="action-btn action-edit" data-promo-edit="${p.id}" title="Modifier" aria-label="Modifier">${icon("pencil")}</button><button type="button" class="action-btn action-delete" data-promo-delete="${p.id}" title="Supprimer" aria-label="Supprimer">${icon("trash-2")}</button></div></td></tr>`;
+  }).join("");
+  const empty = adminPromos.length ? "" : `<div class="empty-state"><span class="round-icon">${icon("tags")}</span><h2>Aucun code promo</h2><p>Créez votre premier code pour lancer une campagne.</p></div>`;
+  return `<div class="page-actions"><p>Créez et gérez les codes promo appliqués au panier des clients.</p>${button("Nouveau code", "plus", "primary", 'data-modal="create-promo"')}</div>${filters("Rechercher par code...", [["Tous les statuts", "Actif", "Expiré", "Désactivé"], ["Tous les types", "Pourcentage", "Montant fixe"]])}${adminPromos.length ? table(["Code", "Type", "Valeur", "Expiration", "Statut", "Actif", ""], rows, "") : empty}`;
 }
 function offersPage() {
   const rows=offers.map(o=>`<tr data-search="${o.join(" ").toLowerCase()}"><td><div class="identity"><span class="round-icon">${icon(o[0])}</span><strong>${o[1]}</strong></div></td><td>${badge(o[2],"blue")}</td><td>${o[3]}</td><td>${o[4]}</td><td><strong>${o[5]}</strong></td><td>${o[6]}</td><td>${badge(o[7],statusTone(o[7]))}</td><td><button class="row-action" data-modal="offer">${icon("ellipsis")}</button></td></tr>`).join("");
@@ -351,7 +362,49 @@ function bindDynamicEvents() {
     (u) => api.delete(`/api/users/${u.id}`), "Utilisateur supprimé", (n) => `Le compte de « ${n} » a été supprimé définitivement.`, "Suppression impossible");
 
   document.querySelectorAll("[data-modal]").forEach(el=>el.addEventListener("click",()=>openModal(el.dataset.modal)));
-  document.querySelectorAll(".toggle:not([data-toggle-city])").forEach(el=>el.addEventListener("click",()=>el.classList.toggle("active")));
+  document.querySelectorAll("[data-promo-edit]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const promo = adminPromos.find((x) => String(x.id) === btn.dataset.promoEdit);
+      if (promo) openModal("edit-promo", promo);
+    });
+  });
+
+  document.querySelectorAll("[data-toggle-promo]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const promo = adminPromos.find((x) => String(x.id) === btn.dataset.togglePromo);
+      if (!promo) return;
+      try {
+        await api.put(`/api/promo-codes/${promo.id}`, promoPayload(promo, { active: !promo.active }));
+        showToast(promo.active ? "Code désactivé" : "Code activé", `Le code ${escapeHtml(promo.code)} est maintenant ${promo.active ? "désactivé" : "actif"}.`);
+      } catch (e) {
+        showToast("Modification impossible", escapeHtml(e.message));
+      }
+      renderPage("promos");
+    });
+  });
+
+  document.querySelectorAll("[data-promo-delete]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const promo = adminPromos.find((x) => String(x.id) === btn.dataset.promoDelete);
+      if (!promo) return;
+      confirmModal({
+        title: "Supprimer le code promo",
+        message: `Le code ${escapeHtml(promo.code)} sera supprimé et retiré des paniers qui l’utilisent. Pour le suspendre seulement, désactivez-le.`,
+        label: "Supprimer", icon: "trash-2", danger: true,
+        onConfirm: async () => {
+          try {
+            await api.delete(`/api/promo-codes/${promo.id}`);
+            showToast("Code supprimé", `Le code ${escapeHtml(promo.code)} a été supprimé.`);
+          } catch (e) {
+            showToast("Suppression impossible", escapeHtml(e.message));
+          }
+          renderPage("promos");
+        },
+      });
+    });
+  });
+
+  document.querySelectorAll(".toggle:not([data-toggle-city]):not([data-toggle-promo])").forEach(el=>el.addEventListener("click",()=>el.classList.toggle("active")));
 
   const searchInput = document.querySelector(".table-search");
   const filterSelects = document.querySelectorAll(".filters select");
@@ -364,10 +417,13 @@ function bindDynamicEvents() {
   function updateTableDisplay() {
     const q = searchInput ? searchInput.value.toLowerCase().trim() : "";
     const isUsersPage = state.page === "users";
+    const isPromosPage = state.page === "promos";
     const role = isUsersPage && filterSelects[0] ? filterSelects[0].value : "Tous les rôles";
     const status = isUsersPage && filterSelects[1] ? filterSelects[1].value : "Tous les statuts";
-    const country = !isUsersPage && filterSelects[0] ? filterSelects[0].value : "Tous les pays";
-    const airport = !isUsersPage && filterSelects[1] ? filterSelects[1].value : "Aéroport : Tous";
+    const country = !isUsersPage && !isPromosPage && filterSelects[0] ? filterSelects[0].value : "Tous les pays";
+    const airport = !isUsersPage && !isPromosPage && filterSelects[1] ? filterSelects[1].value : "Aéroport : Tous";
+    const promoStatus = isPromosPage && filterSelects[0] ? filterSelects[0].value : "Tous les statuts";
+    const promoType = isPromosPage && filterSelects[1] ? filterSelects[1].value : "Tous les types";
 
     const allRows = Array.from(document.querySelectorAll("tbody tr"));
     if (!allRows.length) return;
@@ -389,7 +445,10 @@ function bindDynamicEvents() {
         (airport === "Oui" && rowAirport === "Oui") ||
         (airport === "Non" && (rowAirport === "Non" || rowAirport === "—"));
 
-      if (matchQ && matchRole && matchStatus && matchCountry && matchAirport) {
+      const matchPromo = (promoStatus === "Tous les statuts" || row.dataset.promoStatus === promoStatus)
+        && (promoType === "Tous les types" || row.dataset.promoType === promoType);
+
+      if (matchQ && matchRole && matchStatus && matchCountry && matchAirport && matchPromo) {
         matchedRows.push(row);
       } else {
         row.classList.add("hidden");
@@ -756,9 +815,21 @@ function userFormBody(user = null) {
   return `<div class="form-grid"><label class="field full">Nom complet<input id="user-fullname" placeholder="Prénom Nom" maxlength="120" value="${user ? escapeHtml(user.fullName) : ""}"></label><label class="field full">Email<input id="user-email" type="email" placeholder="nom@exemple.ma" maxlength="180" value="${user ? escapeHtml(user.email) : ""}"></label><label class="field">Rôle<select id="user-role">${options}</select></label><label class="field">Mot de passe<input id="user-password" type="password" autocomplete="new-password" maxlength="100" placeholder="${user ? "Inchangé" : "Mot de passe"}"><small>${passwordHint}</small></label></div>`;
 }
 
+/** Corps de requête de l'API à partir d'un code existant, avec les champs à remplacer. */
+function promoPayload(promo, overrides = {}) {
+  return { code: promo.code, discountType: promo.discountType, value: promo.value, expiryDate: promo.expiryDate, active: promo.active, ...overrides };
+}
+
+function promoFormBody(promo = null) {
+  const types = [["PERCENTAGE", "Pourcentage (%)"], ["FIXED", "Montant fixe (MAD)"]];
+  const typeOptions = types.map(([value, label]) => `<option value="${value}" ${promo?.discountType === value ? "selected" : ""}>${label}</option>`).join("");
+  return `<div class="form-grid"><label class="field full">Code promotionnel<input id="promo-code" placeholder="EX. AUTOMNE25" maxlength="30" autocomplete="off" style="text-transform:uppercase" value="${promo ? escapeHtml(promo.code) : ""}"><small>3 à 30 caractères : lettres, chiffres, tirets ou underscores.</small></label><label class="field">Type de réduction<select id="promo-type">${typeOptions}</select></label><label class="field">Valeur<input id="promo-value" type="number" min="0.01" step="0.01" placeholder="10" value="${promo ? Number(promo.value) : ""}"><small>Pourcentage (max 100) ou montant en MAD.</small></label><label class="field">Date d’expiration<input id="promo-expiry" type="date" value="${promo?.expiryDate || ""}"><small>Laissez vide pour un code sans limite. Valable jusqu’à ce jour inclus.</small></label><label class="field">Statut<select id="promo-active"><option value="true" ${!promo || promo.active ? "selected" : ""}>Actif</option><option value="false" ${promo && !promo.active ? "selected" : ""}>Désactivé</option></select></label></div>`;
+}
+
 function openModal(type, extra = null) {
   const cityObj = extra && typeof extra === "object" ? extra : (extra != null ? adminCities.find(c => String(c.id) === String(extra)) : null);
   const userObj = type.includes("user") && extra && typeof extra === "object" ? extra : null;
+  const promoObj = type === "edit-promo" && extra && typeof extra === "object" ? extra : null;
 
   const configs={
     "create-user":{title:"Créer un compte",subtitle:"Ajoutez un membre à la plateforme.",icon:"user-plus",large:true,body:userFormBody(),confirm:"Créer le compte"},
@@ -766,7 +837,8 @@ function openModal(type, extra = null) {
     "edit-city":{title:`Modifier ${cityObj ? escapeHtml(cityObj.name) : "la ville"}`,subtitle:"Recherchez la ville : le pays et le code ISO-2 se mettent à jour automatiquement via l'API.",icon:"pencil",large:true,body:`<div class="form-grid"><label class="field full" style="position:relative;"><div style="display:flex;justify-content:space-between;align-items:center;"><span>Nom de la ville</span><span style="font-size:8px;color:var(--primary-700);font-weight:600;">✨ Synchronisation via API</span></div><div class="city-input-wrap"><input id="edit-city-name" value="${cityObj ? escapeHtml(cityObj.name) : ""}" autocomplete="off" required><span id="edit-city-api-spinner" class="city-spinner hidden">${icon("loader-2")}</span></div><div id="edit-city-suggestions" class="city-suggestions hidden"></div></label><label class="field"><span>Pays (rempli automatiquement)</span><input id="edit-city-country" value="${cityObj ? escapeHtml(cityObj.country) : "Maroc"}"></label><label class="field"><span>Code pays ISO-2 (rempli automatiquement)</span><input id="edit-city-code" value="${cityObj ? escapeHtml(cityObj.code) : "MA"}" maxlength="4" style="text-transform:uppercase;"></label><label class="field"><span>Aéroport</span><select id="edit-city-airport"><option ${cityObj?.airport==='Oui'?'selected':''}>Oui</option><option ${cityObj?.airport==='Non'?'selected':''}>Non</option></select></label><label class="field"><span>Latitude</span><input id="edit-city-lat" type="number" step="any" value="${cityObj && cityObj.latitude!=='—'?cityObj.latitude:''}"></label><label class="field"><span>Longitude</span><input id="edit-city-lng" type="number" step="any" value="${cityObj && cityObj.longitude!=='—'?cityObj.longitude:''}"></label><div class="map-placeholder full" id="edit-city-geo-preview">${icon("map-pin")}<strong id="edit-city-geo-status">${cityObj?.latitude && cityObj.latitude!=='—'?`Coordonnées : ${cityObj.latitude}, ${cityObj.longitude}`:"Coordonnées géographiques automatiques"}</strong><span id="edit-city-geo-desc">${cityObj ? `${escapeHtml(cityObj.name)} · ${escapeHtml(cityObj.country)} (${escapeHtml(cityObj.code)})` : "Modifiez la ville pour recharger les informations via l'API"}</span></div></div>`,confirm:"Enregistrer",message:"La ville a été mise à jour."},
     "city-detail":{title:`Détail : ${cityObj ? escapeHtml(cityObj.name) : ""}`,subtitle:"Informations complètes du référentiel.",icon:"eye",large:true,body:`<div class="form-grid"><div class="field"><span>Nom de la ville</span><strong style="font-size:12px;color:var(--text);margin-top:4px;">${cityObj ? escapeHtml(cityObj.name) : "—"}</strong></div><div class="field"><span>Pays & Code</span><strong style="font-size:12px;color:var(--text);margin-top:4px;">${cityObj ? escapeHtml(cityObj.country) : "Maroc"} (${cityObj ? escapeHtml(cityObj.code) : "MA"})</strong></div><div class="field"><span>Latitude</span><strong style="font-size:12px;color:var(--text);margin-top:4px;">${cityObj ? escapeHtml(cityObj.latitude) : "—"}</strong></div><div class="field"><span>Longitude</span><strong style="font-size:12px;color:var(--text);margin-top:4px;">${cityObj ? escapeHtml(cityObj.longitude) : "—"}</strong></div><div class="field"><span>Aéroport desservi</span><strong style="font-size:12px;color:var(--text);margin-top:4px;">${cityObj ? escapeHtml(cityObj.airport) : "—"}</strong></div><div class="field"><span>Offres associées</span><strong style="font-size:12px;color:var(--text);margin-top:4px;">${cityObj ? cityObj.offers : 0} offres disponibles</strong></div><div class="map-placeholder full">${icon("map")}<strong>Coordonnées GPS</strong><span>${cityObj ? cityObj.latitude : ""}, ${cityObj ? cityObj.longitude : ""}</span></div></div>`,confirm:"Annuler",message:"Consultation terminée."},
     "city-actions":{title:`Actions — ${cityObj ? escapeHtml(cityObj.name) : "Ville"}`,subtitle:"Choisissez une action à effectuer.",icon:"settings",body:`<div class="grid gap-2">${button("Voir le détail","eye","secondary",`data-action-city="detail" data-id="${cityObj?.id}"`)}${button("Modifier","pencil","secondary",`data-action-city="edit" data-id="${cityObj?.id}"`)}${button("Supprimer","trash-2","danger",`data-action-city="delete" data-id="${cityObj?.id}"`)}</div>`,confirm:"Fermer",message:"Action effectuée."},
-    promo:{title:"Créer un code promo",subtitle:"Configurez une nouvelle campagne.",icon:"tags",large:true,body:`<div class="form-grid"><label class="field full">Code promotionnel<input placeholder="EX. AUTOMNE25"></label><label class="field">Type<select><option>Pourcentage</option><option>Montant fixe</option></select></label><label class="field">Valeur<input placeholder="10 %"></label><label class="field">Montant minimum<input placeholder="500,00 MAD"></label><label class="field">Date d’expiration<input type="date"></label></div>`,confirm:"Créer le code",message:"Le code promo a été créé."},
+    "create-promo":{title:"Créer un code promo",subtitle:"Le code s’applique au montant total du panier du client.",icon:"tags",large:true,body:promoFormBody(),confirm:"Créer le code"},
+    "edit-promo":{title:`Modifier ${promoObj ? escapeHtml(promoObj.code) : "le code"}`,subtitle:"Mettez à jour la réduction, l’expiration ou le statut.",icon:"pencil",large:true,body:promoFormBody(promoObj),confirm:"Enregistrer"},
     offer:{title:"Désactiver l’offre",subtitle:"Cette action a un impact immédiat.",icon:"triangle-alert",danger:true,body:`<div class="modal-warning">${icon("triangle-alert")}Le fournisseur sera notifié. Les bundles contenant cette offre seront dépubliés automatiquement.</div><label class="field">Motif obligatoire<textarea placeholder="Décrivez précisément le motif..."></textarea></label><div class="reason-pills"><button>Contenu inexact</button><button>Prix abusif</button><button>Signalement client</button><button>Autre</button></div>`,confirm:"Désactiver",message:"L’offre a été désactivée et le fournisseur notifié."},
   };
   const c=configs[type]||actionConfig;
@@ -838,6 +910,36 @@ function openModal(type, extra = null) {
       closeModal();
       showToast(type === "create-user" ? "Compte créé" : "Compte modifié", `Le compte de « ${escapeHtml(fullName)} » a été enregistré.`);
       renderPage("users");
+      return;
+    }
+
+    if (type === "create-promo" || type === "edit-promo") {
+      const code = document.querySelector("#promo-code").value.trim().toUpperCase();
+      const value = document.querySelector("#promo-value").value;
+      if (!code || !value) {
+        showToast("Champs requis", "Le code et la valeur sont obligatoires.");
+        return;
+      }
+      const payload = {
+        code,
+        discountType: document.querySelector("#promo-type").value,
+        value: Number(value),
+        expiryDate: document.querySelector("#promo-expiry").value || null,
+        active: document.querySelector("#promo-active").value === "true",
+      };
+      try {
+        if (type === "create-promo") {
+          await api.post("/api/promo-codes", payload);
+        } else {
+          await api.put(`/api/promo-codes/${promoObj.id}`, payload);
+        }
+      } catch (e) {
+        showToast("Enregistrement impossible", escapeHtml(e.message));
+        return;
+      }
+      closeModal();
+      showToast(type === "create-promo" ? "Code créé" : "Code modifié", `Le code ${escapeHtml(code)} a été enregistré.`);
+      renderPage("promos");
       return;
     }
 

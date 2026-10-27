@@ -196,7 +196,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 
 ## 11. Suivi d'avancement
 
-*Dernière mise à jour : 2026-10-27.*
+*Dernière mise à jour : 2026-10-27 (panier et codes promo).*
 
 ### Phase 1 — Analyse & conception
 ✅ **Terminée.** Cahier des charges (ce document) et diagramme d'architecture (`architecture.md`) rédigés.
@@ -259,19 +259,31 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - ✅ Interface : liste de cartes avec vraie photo, ville, prix et unité selon le type ; filtres latéraux avec compteurs réels ; pastilles de filtres actifs supprimables ; menu des catégories de l'en-tête ; états « chargement », « aucun résultat » et « erreur ».
 - ✅ **Fiche d'une offre** : galerie de photos, description, détails propres à chaque type (étoiles, vol, véhicule, durée…), fournisseur, disponibilité et paiement à l'arrivée ; rechargement direct par l'URL et message si l'offre n'existe pas.
 - ✅ Test unitaire `OfferSearchTest` (offres inactives ou épuisées masquées, filtres, tris, pagination, compteurs par type).
-- ✅ **Données de démonstration** : `scripts/seed_demo_data.py` crée villes, comptes, 18 offres (les 5 types, avec photos adaptées au type) et 4 bundles en passant par l'API ; relançable sans doublon (voir `README.md`).
-- ⚠️ Limites connues : le bouton « Ajouter au panier » est désactivé tant que le panier n'existe pas ; le catalogue **public** (`catalogue.html`, `offre.html`, `accueil.html`) reste en données statiques ; pas de carte Leaflet ; les bundles n'apparaissent pas encore dans le catalogue ; le filtrage se fait en mémoire côté serveur (suffisant pour ce volume).
+- ✅ **Données de démonstration** : `scripts/seed_demo_data.py` crée villes, comptes, 26 offres (les 5 types, avec photos adaptées au type), 7 bundles, 5 codes promo et un panier prérempli (Lina) en passant par l'API ; relançable sans doublon (voir `README.md`).
+- ⚠️ Limites connues : le catalogue **public** (`catalogue.html`, `offre.html`, `accueil.html`) reste en données statiques ; pas de carte Leaflet ; les bundles n'apparaissent pas encore dans le catalogue ; le filtrage se fait en mémoire côté serveur (suffisant pour ce volume).
+
+### Panier et codes promo
+✅ **Terminé** (client : `client/index.html?page=panier` ; admin : `admin/index.html?page=promos`), branchés sur l'API :
+- ✅ API REST `/api/cart` (7 endpoints) et `/api/promo-codes` (CRUD, 5 endpoints) — voir `api_endpoints.md` §6 et §7 et `architecture.md`, « Module Panier et codes promo ».
+- ✅ Couche métier `CartService` et `PromoCodeService` : une ligne par offre ou bundle (fusion des ajouts), contrôle « active + en stock » à l'ajout **sans réserver le stock** (§5.1), totaux recalculés à chaque lecture, `payOnArrivalAllowed` (§5.2 : tous les articles l'acceptent, jamais pour un bundle), code promo en pourcentage ou montant fixe plafonné au sous-total (§5.4), code retiré du panier avec un avertissement s'il devient expiré ou désactivé.
+- ✅ Admin : codes enregistrés en majuscules, uniques sans tenir compte de la casse, pourcentage ≤ 100, date d'expiration non passée (jour d'expiration inclus), activation / désactivation ; suppression refusée (`400`) si une réservation l'a utilisé, sinon le code est retiré des paniers.
+- ✅ Accès : `/api/cart/**` réservé au rôle `CLIENT` (le panier est celui du jeton), `/api/promo-codes/**` au rôle `ADMIN`.
+- ✅ Tests : `CartServiceTest` (16), `PromoCodeServiceTest` (7), 2 tests de droits dans `SecurityRulesTest` (total : 67 tests) ; dossier Postman « 05 - Panier et codes promo » (46 requêtes, 65 vérifications).
+- ✅ Interface client : bouton « Ajouter au panier » actif sur la fiche d'une offre (sélecteur de quantité), page panier (quantités, suppression, panier vidé, champ code promo avec les erreurs de l'API, récapitulatif), pastille du nombre d'articles dans l'en-tête, le menu latéral et le dashboard.
+- ✅ Interface admin : tableau des codes (recherche, filtres statut / type, interrupteur actif), création / modification en fenêtre modale, suppression avec confirmation. Les colonnes « Montant minimum » et « Utilisations » de la maquette ont été retirées : le cahier des charges (§5.4) ne les prévoit pas.
+- ✅ Données de démonstration : `scripts/seed_demo_data.py` crée `BIENVENUE10` (−10 %), `AUTOMNE25` (−25 %), `RIAD200` (−200 MAD), `VIP50` (désactivé) et `ETE2026` (expiré par `scripts/demo_expire_promo.sql`).
+- ⚠️ Limites connues : « Passer au paiement » est désactivé tant que les réservations n'existent pas (le stock sera revérifié à ce moment-là) ; la page `checkout` et la confirmation restent en données démo ; l'API refuse de créer un code déjà expiré (pour tester ce cas, modifier `expiry_date` en base) ; le panier **public** (`panier.html`, `offre.html`, `js/app.js`) garde son propre panier de démonstration en `localStorage`, séparé du panier de l'API ; le tableau de bord admin affiche encore des codes promo fictifs ; les bundles ne peuvent pas encore être ajoutés depuis l'interface (ils ne sont pas dans le catalogue), seulement par l'API.
 
 ### Séance 3 & 4 — Modèle de données (JPA/Hibernate), CRUD et API REST
 ✅ **Terminée.**
 - ✅ **Entités JPA et mappings** : 15 entités et 6 énumérations, avec `@ManyToOne`, `@OneToMany`, `@OneToOne`, `@ManyToMany` (`bundle_offers`) et héritage `SINGLE_TABLE` pour les offres — voir `architecture.md`, §3.
 - ✅ **Base MySQL fonctionnelle** : tables générées par Hibernate (`ddl-auto=update`), persistance vérifiée.
 - ✅ **CRUD complet (Repository, Service, Controller) pour 4 entités** : `User`, `City`, `Offer` (5 sous-types) et `Bundle`.
-- ✅ **Liste des endpoints** : [`api_endpoints.md`](api_endpoints.md) — 27 endpoints, champs, règles, droits d'accès et codes de retour.
-- ✅ **Tests Postman** : `docs/postman/` — collection de 59 requêtes et 104 vérifications (utilisateurs, offres, bundles, authentification et droits) ; chaque dossier est autonome (il se connecte lui-même avec les comptes de test) et nettoie ses données.
+- ✅ **Liste des endpoints** : [`api_endpoints.md`](api_endpoints.md) — 39 endpoints (dont panier et codes promo ajoutés ensuite), champs, règles, droits d'accès et codes de retour.
+- ✅ **Tests Postman** : `docs/postman/` — collection de 101 requêtes et 169 vérifications (utilisateurs, offres, bundles, authentification et droits, panier et codes promo) ; chaque dossier est autonome (il se connecte lui-même avec les comptes de test) et nettoie ses données.
 - ✅ **Interfaces CRUD** : Admin (utilisateurs, villes), Fournisseur (offres, stock), Agent (bundles).
 - ✅ **Harmonisation de l'interface** : menus latéraux repliables dans les quatre espaces ; retrait des mentions « Version 2 », des liens « Voir le site public » et des cartes « Besoin d'aide » des menus.
-- ✅ **Tests automatisés** : 42 tests (`CityServiceTest`, `UserServiceTest`, `OfferServiceTest`, `OfferSearchTest`, `BundleServiceTest`, `AuthServiceTest`, `SecurityRulesTest` pour les règles d'accès par route, et `SchemaCreationTest` pour la création du schéma).
+- ✅ **Tests automatisés** : 42 tests à l'époque, 67 depuis le panier (`CityServiceTest`, `UserServiceTest`, `OfferServiceTest`, `OfferSearchTest`, `BundleServiceTest`, `AuthServiceTest`, `SecurityRulesTest` pour les règles d'accès par route, et `SchemaCreationTest` pour la création du schéma).
 - ✅ Suppression d'une ville refusée (`400`) si des offres l'utilisent.
 - ✅ **Diagramme de classes** : `docs/diagrammes/diagramme-classes-complet-atlas-voyage.png`.
 
@@ -289,9 +301,9 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - ⚠️ Limites connues : pas de renouvellement ni de révocation de jeton avant expiration (déconnexion côté navigateur uniquement) ; « Mot de passe oublié » et changement de mot de passe par l'utilisateur ne sont pas implémentés ; la clé `jwt.secret` est une valeur de développement dans `application.properties`.
 
 ### Phase 4 — Développement des modules
-⚠️ **Partiellement commencée** : les modules Admin **Villes** (Séance 2) et **Utilisateurs**, le module Fournisseur **Offres**, le module Agent **Bundles** et le **catalogue de l'espace client** (voir ci-dessus) sont terminés. Restent à faire :
-- **Modules transactionnels** (Personne 1) : panier + application des codes promo, workflow réservation/paiement, notifications in-app et envoi d'emails (SMTP), dashboard client. Les entités existent, mais aucune logique métier ni endpoint n'a été écrit.
-- **Catalogue & modules staff** (Personne 2) : catalogue **public** (`accueil.html`, `catalogue.html`, `offre.html`, encore en données statiques dans `js/app.js`) à brancher sur la même API, carte Leaflet, bundles dans le catalogue, CRUD codes promo côté Admin. *(Modules Admin **Villes** et **Utilisateurs** : terminés.)*
+⚠️ **Partiellement commencée** : les modules Admin **Villes** (Séance 2), **Utilisateurs** et **Codes promo**, le module Fournisseur **Offres**, le module Agent **Bundles**, le **catalogue de l'espace client** et le **panier** (voir ci-dessus) sont terminés. Restent à faire :
+- **Modules transactionnels** (Personne 1) : workflow réservation/paiement, notifications in-app et envoi d'emails (SMTP), dashboard client. *(Panier + codes promo : terminés.)* Les entités `Booking`, `Payment` et `Notification` existent, mais aucune logique métier ni endpoint n'a été écrit.
+- **Catalogue & modules staff** (Personne 2) : catalogue **public** (`accueil.html`, `catalogue.html`, `offre.html`, encore en données statiques dans `js/app.js`) à brancher sur la même API, carte Leaflet, bundles dans le catalogue. *(Modules Admin **Villes**, **Utilisateurs** et **Codes promo** : terminés.)*
 
 ### Phase 5 — Intégration & finalisation
 ❌ **Non commencée** — bloquée tant que la Phase 4 n'est pas avancée.

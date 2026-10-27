@@ -14,8 +14,10 @@ Ce projet s'inscrit dans le cadre du module **Frameworks Technologie Web (ENSA -
 > | 📦 **Stocks** (fournisseur, inventaire) | [http://localhost:5500/supplier/index.html?page=inventory](http://localhost:5500/supplier/index.html?page=inventory) | stock des `Offer` |
 > | 🎁 **Bundles** (agent) | [http://localhost:5500/agent/index.html?page=bundles](http://localhost:5500/agent/index.html?page=bundles) | `Bundle` |
 > | 🏙️ **Villes** (administration) | [http://localhost:5500/admin/index.html?page=cities](http://localhost:5500/admin/index.html?page=cities) | `City` |
+> | 🛒 **Panier** (client) | [http://localhost:5500/client/index.html?page=panier](http://localhost:5500/client/index.html?page=panier) | `Cart`, `CartItem` |
+> | 🏷️ **Codes promo** (administration) | [http://localhost:5500/admin/index.html?page=promos](http://localhost:5500/admin/index.html?page=promos) | `PromoCode` |
 >
-> Le reste de l'interface (tableaux de bord, réservations, panier, paiements, tickets, notifications…) est composé de maquettes avec des données de démonstration, non reliées au backend.
+> Le reste de l'interface (tableaux de bord, réservations, paiements, tickets, notifications…) est composé de maquettes avec des données de démonstration, non reliées au backend.
 
 ---
 
@@ -76,13 +78,15 @@ Un rôle ne peut pas ouvrir l'espace d'un autre rôle (redirection vers la conne
 
 Une base vide ne montre rien dans les espaces : le script `scripts/seed_demo_data.py` la remplit en passant **par l'API** (donc avec les vraies règles : mots de passe hachés, propriétaire des offres, stock, prix).
 
-Il crée **3 villes**, **6 comptes** (fournisseurs, agent, clients, dont un compte archivé), **18 offres** (hôtels, vols, voitures, taxis, excursions — avec des photos adaptées à chaque type) et **4 bundles**. Les mots de passe sont `password123`.
+Il crée **3 villes**, **6 comptes** (fournisseurs, agent, clients, dont un compte archivé), **26 offres** (hôtels, vols, voitures, taxis, excursions — avec des photos adaptées à chaque type ; dont une offre désactivée, une épuisée et plusieurs à stock bas), **7 bundles**, **5 codes promo** (actifs, désactivé, expiré) et un **panier prérempli** pour `lina.tazi@example.com` (2 lignes + `AUTOMNE25`). Les mots de passe sont `password123`.
 
 ```bash
 # backend démarré (port 8080) ET frontend servi sur le port 5500 (les photos sont lues depuis ce serveur)
 python scripts/seed_demo_data.py
 # autre port pour le frontend :  python scripts/seed_demo_data.py --images http://localhost:PORT/images
 ```
+
+Pour avoir un code promo **expiré** (l'API refuse d'en créer un), lancer ensuite une fois `scripts/demo_expire_promo.sql` (`ETE2026`) : `mysql -u root travel_agency_db < scripts/demo_expire_promo.sql`.
 
 Le script est **relançable** : ce qui existe déjà n'est pas recréé. Il demande Python 3 (aucune bibliothèque à installer). Crédits des photos : [`frontend/images/offers/CREDITS.md`](frontend/images/offers/CREDITS.md).
 
@@ -123,7 +127,9 @@ Même découpage Controller → Service → Repository. Le détail des champs, r
 |---|---|
 | **Villes** (`/api/cities`) | Liste, ajout, modification, détail et suppression. Un nom de ville déjà utilisé est refusé ; une ville utilisée par des offres ne peut pas être supprimée. |
 | **Offres** (`/api/offers`) | Formulaire en 4 étapes avec les champs propres à chaque type (vol, hôtel, voiture, taxi, excursion) ; modification (le type ne change pas) ; interrupteur actif / inactif ; boutons d'action modifier / stock / supprimer sur chaque ligne ; suppression, refusée si l'offre est utilisée dans un bundle (la désactiver à la place). |
-| **Catalogue** (espace client, `client/index.html?page=catalogue`) | Offres réelles (actives et en stock) : filtres par destination, type, prix maximum et paiement à l'arrivée, tri, pagination ; clic sur une offre pour sa fiche (`?page=offre&id=…`). Le bouton « Ajouter au panier » est désactivé tant que le panier n'existe pas. |
+| **Catalogue** (espace client, `client/index.html?page=catalogue`) | Offres réelles (actives et en stock) : filtres par destination, type, prix maximum et paiement à l'arrivée, tri, pagination ; clic sur une offre pour sa fiche (`?page=offre&id=…`). Le bouton « Ajouter au panier » (avec choix de la quantité) alimente le panier du client. |
+| **Panier** (espace client, `client/index.html?page=panier`) | Connecté en client (`sarah.benali@example.com`) : ajouter une offre depuis sa fiche, changer la quantité, supprimer une ligne, vider le panier ; la pastille de l'en-tête suit le nombre d'articles. Saisir un code promo (`BIENVENUE10`, `AUTOMNE25`, `RIAD200`) : la remise et le total se mettent à jour, un code inconnu, désactivé ou expiré affiche l'erreur de l'API. Une quantité supérieure au stock est refusée. « Passer au paiement » reste désactivé (réservations non implémentées). |
+| **Codes promo** (administration, `admin/index.html?page=promos`) | Liste, recherche, filtres statut / type ; création et modification (code mis en majuscules, pourcentage de 1 à 100 ou montant fixe, date d'expiration facultative) ; interrupteur actif / désactivé ; suppression. Un code désactivé est retiré du panier des clients à leur prochaine lecture. |
 | **Stocks** (page *Inventaire*) | Niveau de stock de chaque offre (Disponible, Stock bas, Épuisé) et stock **modifiable directement dans le tableau** (boutons − / + ou saisie) ; la modification est enregistrée automatiquement, sans bouton de confirmation. |
 | **Bundles** (`/api/bundles`) | Sélecteur d'offres (2 minimum), remise en %, récapitulatif en temps réel : somme des offres, prix final et **stock dynamique** (le plus bas des offres) ; modification et suppression. |
 
@@ -147,14 +153,15 @@ Architecture en couches `Controller → Service → Repository → Entity` (voir
 cd backend
 ./mvnw test
 ```
-42 tests : `UserServiceTest` (email unique, hachage du mot de passe, mot de passe conservé à la modification, archivage / restauration, règle de suppression), `CityServiceTest`, `OfferServiceTest` (5 types, validations, propriété de l'offre), `OfferSearchTest` (recherche du catalogue : filtres, tris, pagination), `BundleServiceTest` (prix final, stock dynamique, validations, propriété du bundle), `AuthServiceTest` (connexion, inscription, jeton, compte archivé) et `SecurityRulesTest` (droits d'accès par route et par rôle).
+67 tests : `UserServiceTest` (email unique, hachage du mot de passe, mot de passe conservé à la modification, archivage / restauration, règle de suppression), `CityServiceTest`, `OfferServiceTest` (5 types, validations, propriété de l'offre), `OfferSearchTest` (recherche du catalogue : filtres, tris, pagination), `BundleServiceTest` (prix final, stock dynamique, validations, propriété du bundle), `AuthServiceTest` (connexion, inscription, jeton, compte archivé), `CartServiceTest` (fusion des lignes, stock, bundle, paiement à l'arrivée, code promo), `PromoCodeServiceTest` (unicité, bornes, expiration) et `SecurityRulesTest` (droits d'accès par route et par rôle).
 
 **Tests de l'API avec Postman** : importer la collection [`docs/postman/AtlasVoyage.postman_collection.json`](docs/postman/AtlasVoyage.postman_collection.json) (mode d'emploi dans [`docs/postman/README.md`](docs/postman/README.md)). Le backend et MySQL doivent être démarrés ; la collection se connecte elle-même avec les comptes de test.
 
 ### Limites connues
 - Le jeton JWT (24 h) n'est ni renouvelé ni révocable avant expiration (la déconnexion efface seulement la session du navigateur) ; « mot de passe oublié » n'est pas implémenté ; la clé `jwt.secret` de `application.properties` est une valeur de développement à remplacer hors de ce contexte.
 - Les images des offres sont saisies par URL (pas d'envoi de fichier).
-- Le panier, les réservations, les paiements et les codes promo ne sont pas encore implémentés : une offre ou un bundle ne peut donc pas encore être réservé.
+- Les réservations, les paiements et les notifications ne sont pas encore implémentés : le panier fonctionne, mais « Passer au paiement » est désactivé ; une offre ou un bundle ne peut donc pas encore être réservé.
+- Le panier **public** (`panier.html`, `offre.html`) garde son propre panier de démonstration (`localStorage`), distinct du panier de l'espace client branché sur l'API.
 - Seul le catalogue de l'**espace client** est branché sur l'API ; les pages publiques (`accueil.html`, `catalogue.html`, `offre.html`) restent en données statiques.
 
 ---
