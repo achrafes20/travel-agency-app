@@ -22,7 +22,7 @@ Ce projet s'inscrit dans le cadre du module **Frameworks Technologie Web (ENSA -
 ## 🛠️ Stack Technologique
 
 1. **Frontend** — HTML5, CSS3, JavaScript vanilla. *Aucun framework.*
-2. **Backend** — Java 21, Spring Boot 3 (Web, Data JPA, Validation), BCrypt pour le hachage des mots de passe, Maven.
+2. **Backend** — Java 21, Spring Boot 3 (Web, Data JPA, Validation, Security), authentification par jeton JWT, BCrypt pour le hachage des mots de passe, Maven.
 3. **Base de données** — MySQL. Les tables sont créées / mises à jour automatiquement par Hibernate au démarrage (`spring.jpa.hibernate.ddl-auto=update`).
 
 ---
@@ -40,7 +40,7 @@ Ce projet s'inscrit dans le cadre du module **Frameworks Technologie Web (ENSA -
 cd backend
 ./mvnw spring-boot:run        # Windows PowerShell / CMD : .\mvnw.cmd spring-boot:run
 ```
-La base `travel_agency_db` est créée automatiquement au premier démarrage, ainsi que 4 utilisateurs d'exemple (un par rôle). Le backend est prêt quand la console affiche `Backend Spring Boot demarre avec succes !`.
+La base `travel_agency_db` est créée automatiquement au premier démarrage, ainsi que 4 utilisateurs d'exemple (un par rôle, voir [Connexion](#-connexion-et-comptes-de-test)). Le backend est prêt quand la console affiche `Backend Spring Boot demarre avec succes !`.
 
 ### 2. Frontend
 Servez le dossier **`frontend/`** (il doit être la racine du serveur) :
@@ -51,7 +51,24 @@ Servez le dossier **`frontend/`** (il doit être la racine du serveur) :
   python -m http.server 5500
   ```
 
-Puis ouvrez par exemple **`http://localhost:5500/admin/index.html?page=users`** (adaptez le port si votre serveur en utilise un autre). Les liens des modules finalisés sont dans l'encadré « Périmètre à évaluer » ci-dessus. L'espace Agent s'ouvre sur un écran de connexion fictif : cliquez sur « Se connecter » (identifiants préremplis). Les menus latéraux des espaces sont repliables avec le bouton ☰.
+Puis ouvrez **`http://localhost:5500/connexion.html`** (adaptez le port si votre serveur en utilise un autre). Les liens des modules finalisés sont dans l'encadré « Périmètre à évaluer » ci-dessus : si vous n'êtes pas connecté, vous êtes d'abord redirigé vers l'écran de connexion. Les menus latéraux des espaces sont repliables avec le bouton ☰.
+
+---
+
+## 🔐 Connexion et comptes de test
+
+L'accès aux quatre espaces passe par **un seul écran de connexion** (`connexion.html`). Après connexion, vous êtes redirigé vers l'espace correspondant à votre rôle. Un visiteur peut aussi y **créer un compte client**.
+
+Comptes de test (mot de passe `password123`) :
+
+| Rôle | Email | Espace |
+|---|---|---|
+| Administrateur | `omar.tazi@atlasvoyage.ma` | `admin/` |
+| Fournisseur | `karim.idrissi@atlasvoyage.ma` | `supplier/` |
+| Agent | `nadia.elfassi@atlasvoyage.ma` | `agent/` |
+| Client | `sarah.benali@example.com` | `client/` |
+
+Un rôle ne peut pas ouvrir l'espace d'un autre rôle (redirection vers la connexion avec un message). Le bouton « Déconnexion » de chaque espace efface la session. Détail des droits par route dans [`docs/api_endpoints.md`](docs/api_endpoints.md#authentification-et-droits-daccès).
 
 ---
 
@@ -82,7 +99,7 @@ Sur la page *Utilisateurs* de l'espace administrateur :
 
 Erreurs de validation / règles métier → `400`, utilisateur introuvable → `404`, avec un message en français.
 
-La liste complète des endpoints de l'API (utilisateurs, villes, offres, bundles) est dans [`docs/api_endpoints.md`](docs/api_endpoints.md).
+La liste complète des endpoints de l'API (authentification, utilisateurs, villes, offres, bundles) est dans [`docs/api_endpoints.md`](docs/api_endpoints.md).
 
 ### Autres modules
 
@@ -115,12 +132,12 @@ Architecture en couches `Controller → Service → Repository → Entity` (voir
 cd backend
 ./mvnw test
 ```
-20 tests unitaires : `UserServiceTest` (email unique, hachage du mot de passe, mot de passe conservé à la modification, archivage / restauration, règle de suppression), `CityServiceTest`, `OfferServiceTest` (5 types, validations) et `BundleServiceTest` (prix final, stock dynamique, validations).
+35 tests : `UserServiceTest` (email unique, hachage du mot de passe, mot de passe conservé à la modification, archivage / restauration, règle de suppression), `CityServiceTest`, `OfferServiceTest` (5 types, validations, propriété de l'offre), `BundleServiceTest` (prix final, stock dynamique, validations, propriété du bundle), `AuthServiceTest` (connexion, inscription, jeton, compte archivé) et `SecurityRulesTest` (droits d'accès par route et par rôle).
 
-**Tests de l'API avec Postman** : importer la collection [`docs/postman/AtlasVoyage.postman_collection.json`](docs/postman/AtlasVoyage.postman_collection.json) (mode d'emploi dans [`docs/postman/README.md`](docs/postman/README.md)). Le backend et MySQL doivent être démarrés.
+**Tests de l'API avec Postman** : importer la collection [`docs/postman/AtlasVoyage.postman_collection.json`](docs/postman/AtlasVoyage.postman_collection.json) (mode d'emploi dans [`docs/postman/README.md`](docs/postman/README.md)). Le backend et MySQL doivent être démarrés ; la collection se connecte elle-même avec les comptes de test.
 
 ### Limites connues
-- Il n'y a **pas encore d'authentification** : l'écran de connexion est une maquette et les endpoints sont ouverts (Spring Security est prévu, voir [`docs/cahier_de_charges.md`](docs/cahier_de_charges.md)). Les espaces Fournisseur et Agent agissent avec le premier compte actif du rôle correspondant.
+- Le jeton JWT (24 h) n'est ni renouvelé ni révocable avant expiration (la déconnexion efface seulement la session du navigateur) ; « mot de passe oublié » n'est pas implémenté ; la clé `jwt.secret` de `application.properties` est une valeur de développement à remplacer hors de ce contexte.
 - Les images des offres sont saisies par URL (pas d'envoi de fichier).
 - Le panier, les réservations, les paiements et les codes promo ne sont pas encore implémentés : un bundle ne peut donc pas encore être réservé.
 
@@ -130,13 +147,14 @@ cd backend
 
 ```text
 travel-agency-app/
-├── backend/                 # Spring Boot (controller, service, repository, entity, dto, exception, config)
+├── backend/                 # Spring Boot (controller, service, repository, entity, dto, exception, security, config)
 ├── frontend/                # Interface web (HTML / CSS / JS vanilla)
+│   ├── connexion.html       # Écran unique de connexion / inscription client
 │   ├── admin/               # Espace administrateur (Utilisateurs)
 │   ├── supplier/            # Espace fournisseur (Offres)
 │   ├── agent/               # Espace agent (Bundles)
 │   ├── pages/admin/         # Pages Villes (liste, formulaire, détail)
-│   ├── css/  js/            # Styles et scripts partagés (js/core/api.js : appels HTTP)
+│   ├── css/  js/            # Styles et scripts partagés (js/core/api.js : appels HTTP, js/core/auth.js : session)
 │   └── *.html, client/      # Autres pages (maquettes)
 ├── docs/
 │   ├── architecture.md      # Architecture logicielle

@@ -27,33 +27,15 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 [data-icon] svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 h1, h2, h3, strong, b { font-family: "Montserrat", sans-serif; }
 
-/* Login */
-.login-view { min-height: 100vh; display: grid; grid-template-columns: 1.08fr 0.92fr; background: white; }
-.login-visual { position: relative; min-height: 100vh; overflow: hidden; color: white; background: url("https://images.unsplash.com/photo-1570133435536-7ececf000ef6?auto=format&fit=crop&w=1200&q=90") center/cover; }
-.login-overlay { position: absolute; inset: 0; background: linear-gradient(125deg, rgba(7,28,72,.91), rgba(10,42,107,.52) 64%, rgba(7,28,72,.24)); }
-.login-brand, .login-copy, .photo-credit { position: absolute; z-index: 2; }
-.login-brand { left: 58px; top: 42px; display: flex; align-items: center; gap: 12px; }
 .brand-mark { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; color: var(--navy); background: var(--amber); font-size: 21px; }
 .login-brand strong, .logo strong { display: block; letter-spacing: 2px; font-size: 17px; }
 .login-brand small, .logo small { display: block; letter-spacing: 4px; font-size: 8px; color: #cad6ef; }
-.login-copy { left: 58px; bottom: 105px; max-width: 520px; }
-.login-copy > span { color: var(--amber); font-weight: 700; letter-spacing: 2px; font-size: 11px; }
-.login-copy h1 { font-size: 58px; line-height: 1.04; letter-spacing: -2px; margin: 16px 0; }
-.login-copy p { max-width: 450px; color: #d9e2f5; line-height: 1.8; font-size: 14px; }
-.photo-credit { left: 58px; bottom: 26px; color: #bdc9df; font-size: 9px; }
-.login-form-wrap { display: grid; place-items: center; padding: 60px; }
-.login-card { width: 100%; max-width: 430px; }
 .eyebrow { color: #dd9200; font: 700 10px "Montserrat"; letter-spacing: 1.8px; text-transform: uppercase; }
-.login-card h2 { font-size: 31px; letter-spacing: -1px; margin: 10px 0 6px; }
-.login-card > p { color: var(--muted); font-size: 12px; margin: 0 0 34px; }
 .form-field { display: block; margin: 18px 0; }
 .form-field > span, .simple-field > span { display: block; font-size: 10px; font-weight: 600; margin-bottom: 7px; }
 .form-field > div { height: 46px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 9px; padding: 0 12px; color: #9ca3af; }
 .form-field input { border: 0; outline: 0; flex: 1; color: var(--ink); font-size: 11px; }
 .field-icon { border: 0; background: transparent; color: var(--muted); }
-.forgot-link { display: block; margin-left: auto; color: var(--navy); background: transparent; border: 0; font-size: 10px; font-weight: 600; }
-.login-button { width: 100%; margin-top: 24px; }
-.secure-note { display: flex; justify-content: center; align-items: center; gap: 6px; color: #9ca3af; font-size: 9px; margin-top: 20px; }
 
 /* Application shell */
 .app-shell { min-height: 100vh; }

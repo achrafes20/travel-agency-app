@@ -10,6 +10,7 @@ import com.agence.voyage.entity.OfferType;
 import com.agence.voyage.entity.Role;
 import com.agence.voyage.entity.User;
 import com.agence.voyage.exception.BusinessException;
+import com.agence.voyage.exception.ForbiddenException;
 import com.agence.voyage.exception.ResourceNotFoundException;
 import com.agence.voyage.repository.CityRepository;
 import com.agence.voyage.repository.OfferRepository;
@@ -194,5 +195,19 @@ class OfferServiceTest {
 
         assertEquals(0, offerRepository.count());
         assertThrows(ResourceNotFoundException.class, () -> offerService.delete(offer.getId()));
+    }
+
+    @Test
+    void updateAndDelete_refuseAnotherSuppliersOffer() {
+        Offer offer = offerService.create(hotel());
+        User other = userRepository.save(new User("Autre", "autre@example.com", "hash", Role.SUPPLIER));
+
+        assertThrows(ForbiddenException.class, () -> offerService.update(offer.getId(), hotel(), other.getId()));
+        assertThrows(ForbiddenException.class, () -> offerService.delete(offer.getId(), other.getId()));
+        assertEquals(1, offerRepository.count());
+
+        offerService.update(offer.getId(), hotel(), supplier.getId());
+        offerService.delete(offer.getId(), supplier.getId());
+        assertEquals(0, offerRepository.count());
     }
 }

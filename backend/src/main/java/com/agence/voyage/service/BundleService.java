@@ -6,6 +6,7 @@ import com.agence.voyage.entity.Offer;
 import com.agence.voyage.entity.Role;
 import com.agence.voyage.entity.User;
 import com.agence.voyage.exception.BusinessException;
+import com.agence.voyage.exception.ForbiddenException;
 import com.agence.voyage.exception.ResourceNotFoundException;
 import com.agence.voyage.repository.BundleRepository;
 import com.agence.voyage.repository.OfferRepository;
@@ -54,6 +55,25 @@ public class BundleService {
         Bundle bundle = findById(id);
         apply(bundle, request);
         return bundleRepository.save(bundle);
+    }
+
+    /** Modification par un agent : refusée (403) si le bundle a été créé par un autre agent. */
+    @Transactional
+    public Bundle update(Long id, BundleRequest request, Long actingUserId) {
+        assertOwner(findById(id), actingUserId);
+        return update(id, request);
+    }
+
+    @Transactional
+    public void delete(Long id, Long actingUserId) {
+        assertOwner(findById(id), actingUserId);
+        delete(id);
+    }
+
+    private static void assertOwner(Bundle bundle, Long userId) {
+        if (bundle.getCreatedBy() == null || !bundle.getCreatedBy().getId().equals(userId)) {
+            throw new ForbiddenException("Ce bundle a été créé par un autre agent");
+        }
     }
 
     @Transactional

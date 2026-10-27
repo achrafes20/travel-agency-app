@@ -6,6 +6,7 @@ const iconPaths = {
   message: '<path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/><path d="M8 9h8M8 13h5"/>',
   bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/>',
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   arrow: '<path d="m9 18 6-6-6-6"/>',
@@ -179,12 +180,8 @@ function startEditBundle(id) {
 }
 
 async function ensureAgent() {
-  if (bundleState.agent) return bundleState.agent;
-  const users = await api.get("/api/users");
-  const agent = users.find((u) => u.role === "AGENT" && !u.archived);
-  if (!agent) throw new Error("Aucun compte agent actif n’a été trouvé.");
-  bundleState.agent = agent;
-  return agent;
+  if (!bundleState.agent) bundleState.agent = Auth.getUser();
+  return bundleState.agent;
 }
 
 const bundleImage = (bundle) => bundle.offers.find((o) => o.image)?.image || photos.blue;
@@ -593,23 +590,20 @@ document.querySelector("#notification-button").addEventListener("click", () => {
   document.querySelector("#notification-dropdown").classList.toggle("hidden");
 });
 
-document.querySelector("#toggle-password").addEventListener("click", () => {
-  const password = document.querySelector("#login-password");
-  password.type = password.type === "password" ? "text" : "password";
-});
+document.querySelector("#logout-button").addEventListener("click", () => Auth.logout());
 
-function enterAgentApp() {
-  document.querySelector("#login-view").classList.add("hidden");
-  document.querySelector("#agent-app").classList.remove("hidden");
-  const requested = new URLSearchParams(window.location.search).get("page") || "dashboard";
-  renderPage(requested in pageRenderers ? requested : "dashboard");
+const currentUser = Auth.getUser();
+if (currentUser) {
+  const initials = currentUser.fullName.split(/\s+/).filter(Boolean).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  document.querySelector("#user-initials").textContent = initials;
+  document.querySelector("#user-name").textContent = currentUser.fullName;
+  document.querySelector("#account-initials").textContent = initials;
+  document.querySelector("#account-name").textContent = currentUser.fullName;
 }
-
-document.querySelector("#login-form").addEventListener("submit", (event) => {
-  event.preventDefault();
-  enterAgentApp();
-});
 
 renderNotificationDropdown();
 renderNav();
 hydrateIcons();
+
+const requestedPage = new URLSearchParams(window.location.search).get("page") || "dashboard";
+renderPage(requestedPage in pageRenderers ? requestedPage : "dashboard");

@@ -221,14 +221,15 @@ function offerCard(o) {
 }
 
 async function ensureSupplier() {
-  if (state.supplier) return state.supplier;
-  const users = await api.get("/api/users");
-  const supplier = users.find(u => u.role === "SUPPLIER" && !u.archived);
-  if (!supplier) throw new Error("Aucun compte fournisseur actif n’a été trouvé.");
-  state.supplier = supplier;
+  if (!state.supplier) state.supplier = Auth.getUser();
+  return state.supplier;
+}
+
+function showSupplierIdentity() {
+  const supplier = Auth.getUser();
+  if (!supplier) return;
   $("#supplier-name").textContent = supplier.fullName;
   $("#supplier-initials").textContent = supplier.fullName.split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
-  return supplier;
 }
 
 async function loadOffers() {
@@ -549,18 +550,6 @@ function renderProfile() {
     </div>`;
 }
 
-function renderLogin() {
-  $("#app-shell").classList.add("hidden");
-  const login = $("#login-screen");
-  login.classList.remove("hidden");
-  login.innerHTML = `<div class="login-layout">
-    <section class="login-photo"><img src="${images.riad}" alt="Cour intérieure d’un riad marocain"><div class="absolute inset-x-14 bottom-16 z-10 text-white"><div class="mb-8 flex items-center gap-3"><span class="brand-mark"><i></i><i></i><i></i></span><strong class="text-xl tracking-[0.15em]">ATLAS VOYAGE</strong></div><span class="eyebrow">L’ART DE VOYAGER AU MAROC</span><h1 class="mt-4 max-w-xl text-4xl font-bold leading-tight">Le Maroc vous attend.<br>Vivez-le pleinement.</h1><p class="mt-5 max-w-lg text-sm leading-6 text-blue-100">Gérez vos offres et accueillez des voyageurs venus du monde entier.</p></div></section>
-    <section class="grid place-items-center bg-atlas-page p-16"><div class="w-full max-w-md"><span class="text-[10px] font-bold tracking-[0.18em] text-amber-600">ESPACE PROFESSIONNEL</span><h2 class="mt-3 text-3xl font-bold">Espace fournisseur</h2><p class="mt-2 text-xs text-atlas-muted">Connectez-vous pour gérer vos offres et réservations.</p><form id="login-form" class="mt-8 space-y-4">${field("Adresse email","fournisseur@atlasvoyage.ma","email")}${field("Mot de passe","••••••••","password")}<div class="flex justify-end"><button type="button" class="text-[9px] font-semibold text-atlas-royal">Mot de passe oublié ?</button></div><button class="btn btn-primary w-full" type="submit">Se connecter</button></form><p class="mt-7 text-center text-[9px] text-atlas-muted">Accès réservé aux partenaires Atlas Voyage</p></div></section>
-  </div>`;
-  $("#login-form").addEventListener("submit", e => { e.preventDefault(); login.classList.add("hidden"); $("#app-shell").classList.remove("hidden"); navigate("dashboard"); });
-  lucide.createIcons();
-}
-
 function pagination() { return `<div class="pagination"><span>Affichage de 1 à 5 sur 41 éléments</span><div><button>‹</button><button class="active">1</button><button>2</button><button>3</button><button>…</button><button>9</button><button>›</button></div></div>`; }
 function emptyState(iconName,title,text,action,id) { return `<div class="card py-20 text-center"><span class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-blue-50 text-atlas-royal">${icon(iconName)}</span><h2 class="mt-5 text-lg font-bold">${title}</h2><p class="mt-2 text-[10px] text-atlas-muted">${text}</p><div class="mt-5">${button(action,"","primary",`id="${id}"`)}</div></div>`; }function openBookingDrawer(reference) {
   $("#modal-root").innerHTML = `<div class="drawer-backdrop" data-close-modal><aside class="drawer" onclick="event.stopPropagation()">
@@ -792,7 +781,8 @@ document.addEventListener("click", async event => {
 
 $("#notification-toggle").addEventListener("click", event => { event.stopPropagation(); $("#notification-dropdown").classList.toggle("hidden"); $("#account-dropdown").classList.add("hidden"); });
 $("#account-toggle").addEventListener("click", event => { event.stopPropagation(); $("#account-dropdown").classList.toggle("hidden"); $("#notification-dropdown").classList.add("hidden"); });
-$("#logout-button").addEventListener("click", renderLogin);
+$("#logout-button").addEventListener("click", () => Auth.logout());
+showSupplierIdentity();
 document.addEventListener("click", event => {
   if (!event.target.closest("#notification-dropdown") && !event.target.closest("#notification-toggle")) $("#notification-dropdown").classList.add("hidden");
   if (!event.target.closest("#account-dropdown") && !event.target.closest("#account-toggle")) $("#account-dropdown").classList.add("hidden");

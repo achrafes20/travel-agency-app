@@ -1,5 +1,6 @@
 package com.agence.voyage.service;
 
+import com.agence.voyage.config.PasswordConfig;
 import com.agence.voyage.dto.UserRequest;
 import com.agence.voyage.entity.Role;
 import com.agence.voyage.entity.User;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(UserService.class)
+@Import({UserService.class, PasswordConfig.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
 class UserServiceTest {

@@ -11,35 +11,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
     <link rel="stylesheet" href="../css/admin.css" />
+    <script src="../js/core/auth.js"></script>
+    <script>Auth.requireRole("ADMIN");</script>
   </head>
   <body class="admin-root">
-    <div id="login-screen" class="login-screen hidden">
-      <div class="login-photo">
-        <div class="login-overlay">
-          <div class="login-brand"><i data-lucide="plane"></i><span>Atlas<strong>Voyage</strong></span></div>
-          <div>
-            <p>EXPLOREZ · RÉSERVEZ · VOYAGEZ</p>
-            <h1>Le Maroc<br />vous attend.</h1>
-            <span>Une expérience authentique, pensée avec passion.</span>
-          </div>
-          <small>Photo : Alex Azabache — Unsplash</small>
-        </div>
-      </div>
-      <div class="login-panel">
-        <form id="login-form" class="login-card">
-          <div class="mobile-brand"><i data-lucide="plane"></i><span>Atlas<strong>Voyage</strong></span></div>
-          <span class="eyebrow">ESPACE ADMINISTRATEUR</span>
-          <h2>Bienvenue</h2>
-          <p>Connectez-vous pour piloter la plateforme.</p>
-          <label>Adresse email<div class="input-icon"><i data-lucide="mail"></i><input type="email" placeholder="admin@atlasvoyage.ma" /></div></label>
-          <label>Mot de passe<div class="input-icon"><i data-lucide="lock-keyhole"></i><input id="password" type="password" placeholder="••••••••" /><button type="button" id="toggle-password" aria-label="Afficher le mot de passe"><i data-lucide="eye"></i></button></div></label>
-          <div class="login-options"><label><input type="checkbox" checked /> Se souvenir de moi</label><button type="button">Mot de passe oublié ?</button></div>
-          <button class="btn btn-primary w-full" type="submit">Se connecter <i data-lucide="arrow-right"></i></button>
-          <div class="secure-note"><i data-lucide="shield-check"></i> Connexion sécurisée et chiffrée</div>
-        </form>
-      </div>
-    </div>
-
     <div id="admin-app">
       <header class="topbar">
         <div id="brand-area" class="brand-area">

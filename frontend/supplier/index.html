@@ -31,11 +31,11 @@
         },
       };
     </script>
-    <link rel="stylesheet" href="../css/supplier.css?v=5" />
+    <link rel="stylesheet" href="../css/supplier.css?v=6" />
+    <script src="../js/core/auth.js"></script>
+    <script>Auth.requireRole("SUPPLIER");</script>
   </head>
   <body class="min-w-[1180px] bg-atlas-page font-sans text-atlas-ink antialiased">
-    <div id="login-screen" class="hidden"></div>
-
     <div id="app-shell" class="min-h-screen">
       <header class="fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between bg-atlas-royal px-7 text-white">
         <div class="flex items-center gap-3">
@@ -118,6 +118,6 @@
     <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
     <script src="../js/core/config.js"></script>
     <script src="../js/core/api.js"></script>
-    <script src="./js/app.js?v=5"></script>
+    <script src="./js/app.js?v=6"></script>
   </body>
 </html>

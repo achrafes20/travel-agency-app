@@ -12,6 +12,7 @@ import com.agence.voyage.entity.Role;
 import com.agence.voyage.entity.TaxiTransfer;
 import com.agence.voyage.entity.User;
 import com.agence.voyage.exception.BusinessException;
+import com.agence.voyage.exception.ForbiddenException;
 import com.agence.voyage.exception.ResourceNotFoundException;
 import com.agence.voyage.repository.CityRepository;
 import com.agence.voyage.repository.OfferRepository;
@@ -68,6 +69,25 @@ public class OfferService {
         }
         apply(offer, request);
         return offerRepository.save(offer);
+    }
+
+    /** Modification par un fournisseur : refusée (403) si l'offre appartient à un autre fournisseur. */
+    @Transactional
+    public Offer update(Long id, OfferRequest request, Long actingUserId) {
+        assertOwner(findById(id), actingUserId);
+        return update(id, request);
+    }
+
+    @Transactional
+    public void delete(Long id, Long actingUserId) {
+        assertOwner(findById(id), actingUserId);
+        delete(id);
+    }
+
+    private static void assertOwner(Offer offer, Long userId) {
+        if (offer.getSupplier() == null || !offer.getSupplier().getId().equals(userId)) {
+            throw new ForbiddenException("Cette offre appartient à un autre fournisseur");
+        }
     }
 
     @Transactional

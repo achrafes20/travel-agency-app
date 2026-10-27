@@ -10,6 +10,7 @@ import com.agence.voyage.entity.OfferType;
 import com.agence.voyage.entity.Role;
 import com.agence.voyage.entity.User;
 import com.agence.voyage.exception.BusinessException;
+import com.agence.voyage.exception.ForbiddenException;
 import com.agence.voyage.exception.ResourceNotFoundException;
 import com.agence.voyage.repository.BundleRepository;
 import com.agence.voyage.repository.CityRepository;
@@ -147,5 +148,19 @@ class BundleServiceTest {
         assertEquals(1, bundleRepository.count());
         assertEquals(2, offerService.findAll(null, null).size());
         assertThrows(ResourceNotFoundException.class, () -> bundleService.delete(mine.getId()));
+    }
+
+    @Test
+    void updateAndDelete_refuseAnotherAgentsBundle() {
+        Bundle bundle = bundleService.create(request(hotel.getId(), excursion.getId()));
+        User other = userRepository.save(new User("Autre", "autre.agent@example.com", "hash", Role.AGENT));
+
+        assertThrows(ForbiddenException.class,
+                () -> bundleService.update(bundle.getId(), request(hotel.getId(), excursion.getId()), other.getId()));
+        assertThrows(ForbiddenException.class, () -> bundleService.delete(bundle.getId(), other.getId()));
+        assertEquals(1, bundleRepository.count());
+
+        bundleService.delete(bundle.getId(), agent.getId());
+        assertEquals(0, bundleRepository.count());
     }
 }

@@ -44,8 +44,8 @@ Le projet suit une architecture découplée (Frontend autonome communiquant avec
 - **Dépendances principales** :
   - *Spring Web* (Création des API REST).
   - *Spring Data JPA* (ORM pour interagir avec la base de données).
-  - *Spring Boot Starter Mail* (Pour l'envoi d'emails de confirmation).
-  - *Spring Security* (À venir pour sécuriser l'espace agent — pas encore ajouté au `pom.xml`).
+  - *Spring Security* + *jjwt* (authentification par jeton JWT, contrôle d'accès par rôle, hachage BCrypt) ; voir « Authentification et sécurité ».
+  - *Spring Boot Starter Mail* (envoi d'emails de confirmation) : **prévu, pas encore ajouté** au `pom.xml`.
 
 **Base de données :**
 - **SGBD** : MySQL (XAMPP en local). Les tables sont générées par Hibernate (`spring.jpa.hibernate.ddl-auto=update`).
@@ -63,8 +63,9 @@ Le Backend Spring Boot est structuré en couches (Layered Architecture), sous le
 | `repository` | Interfaces Spring Data JPA (`JpaRepository`) pour l'accès à la base. | (détecté automatiquement) |
 | `entity` | Classes Java mappées sur les tables MySQL (et énumérations associées). | `@Entity` |
 | `dto` | Objets de transfert pour les requêtes/réponses API (sans logique métier). | — |
-| `exception` | Gestion centralisée des erreurs HTTP (`GlobalExceptionHandler`). | `@RestControllerAdvice` |
-| `config` | Configuration transverse (CORS, données de démarrage). | `@Configuration`, `@Component` |
+| `exception` | Gestion centralisée des erreurs HTTP (`GlobalExceptionHandler` : `400`, `401`, `403`, `404`). | `@RestControllerAdvice` |
+| `security` | Jeton JWT (`JwtService`), filtre d'authentification (`JwtAuthenticationFilter`), adaptation de `User` pour Spring Security (`AppUserDetails`, `AppUserDetailsService`). | `@Service`, `@Component` |
+| `config` | Configuration transverse (`SecurityConfig` : règles d'accès et CORS, `PasswordConfig` : encodeur BCrypt, `DataSeeder` : données de démarrage). | `@Configuration`, `@Component` |
 
 ### Flux d'une requête : Controller → Service → Repository
 
@@ -110,11 +111,12 @@ public class UserController {
 
 | Composant | Classes |
 |---|---|
-| Controllers | `UserController`, `StatusController`, `CityController`, `OfferController`, `BundleController` |
-| Services | `UserService`, `CityService`, `OfferService`, `BundleService` |
+| Controllers | `UserController`, `StatusController`, `CityController`, `OfferController`, `BundleController`, `AuthController` |
+| Services | `UserService`, `CityService`, `OfferService`, `BundleService`, `AuthService` |
+| Security | `JwtService`, `JwtAuthenticationFilter`, `AppUserDetails`, `AppUserDetailsService` |
 | Repositories | un par entité (`User`, `Offer`, `Bundle`, `Cart`, `CartItem`, `PromoCode`, `Booking`, `Payment`, `Notification`, `City`) |
-| DTO | `CityRequest`, `CityResponse`, `UserRequest`, `UserResponse`, `OfferRequest`, `OfferResponse`, `BundleRequest`, `BundleResponse` |
-| Config | `CorsConfig`, `DataSeeder` (comptes de test + villes de référence) |
+| DTO | `CityRequest`, `CityResponse`, `UserRequest`, `UserResponse`, `OfferRequest`, `OfferResponse`, `BundleRequest`, `BundleResponse`, `LoginRequest`, `RegisterRequest`, `AuthResponse` |
+| Config | `SecurityConfig`, `PasswordConfig`, `DataSeeder` (comptes de test + villes de référence) |
 
 ### Séance 2 — Première fonctionnalité métier : **Villes**
 
@@ -187,7 +189,7 @@ Même découpage Controller → Service → Repository que les villes. L'entité
 
 **Flux de création :** bouton « Créer un compte » → `openModal("create-user")` → `api.post("/api/users")` → `UserController.create` (`@Valid` sur `UserRequest`) → `UserService.create` → `UserRepository.save` → `UserResponse` (201) → rechargement de la liste (`GET /api/users`).
 
-> **À prévoir avec Spring Security :** un compte archivé doit être refusé à la connexion (l'archivage ne masque aujourd'hui l'utilisateur que dans l'interface d'administration).
+> Un compte archivé est refusé à la connexion et son jeton est rejeté à chaque requête (voir « Authentification et sécurité »).
 
 ### Module Offres (Fournisseur) : CRUD des 5 types
 
@@ -209,6 +211,7 @@ Une seule ressource `/api/offers` couvre les cinq sous-classes de `Offer` (héri
 - Vol : compagnie, aéroports de départ et d'arrivée obligatoires, arrivée postérieure au départ.
 - Hôtel : 1 à 5 étoiles et type de chambre obligatoires. Voiture : marque obligatoire, places ≥ 1. Taxi : lieux de prise en charge et de dépose obligatoires. Excursion : durée ≥ 1 heure.
 - Suppression refusée (`400`) si l'offre est référencée par un panier, un bundle ou une réservation : le fournisseur la désactive à la place.
+- Propriété : le fournisseur d'une offre est toujours l'utilisateur authentifié (le `supplierId` du corps est ignoré) ; modifier ou supprimer l'offre d'un autre fournisseur renvoie `403`.
 
 ### Module Bundles (Agent) : composition d'offres
 
@@ -228,8 +231,55 @@ Un bundle regroupe au moins deux offres de fournisseurs (relation `@ManyToMany` 
 
 **Règles métier (couche `BundleService`) :**
 - Titre obligatoire ; remise comprise entre 0 et 100 % ; au moins 2 offres distinctes et existantes (`404` sinon).
-- Le créateur doit être un utilisateur de rôle `AGENT`, non archivé.
+- Le créateur est toujours l'agent authentifié (le `createdById` du corps est ignoré) ; modifier ou supprimer le bundle d'un autre agent renvoie `403`.
 - Une offre utilisée dans un bundle ne peut pas être supprimée (elle se désactive) ; la suppression d'un bundle ne touche pas à ses offres, et est refusée s'il figure dans un panier ou une réservation.
+
+### Authentification et sécurité (Spring Security + JWT)
+
+L'API est **sans état** : pas de session serveur, chaque requête protégée porte son jeton JWT (`Authorization: Bearer …`). Le détail des routes et des droits est dans [`api_endpoints.md`](api_endpoints.md#authentification-et-droits-daccès).
+
+```mermaid
+sequenceDiagram
+    participant F as connexion.html / auth.js
+    participant A as AuthController
+    participant S as AuthService
+    participant R as UserRepository
+    participant J as JwtService
+    participant X as JwtAuthenticationFilter
+    participant C as OfferController
+
+    F->>A: POST /api/auth/login {email, password}
+    A->>S: login(request)
+    S->>R: findByEmailIgnoreCase(email)
+    S->>S: BCrypt matches + compte non archivé
+    S->>J: generateToken(user)
+    J-->>F: {token, user}
+    Note over F: jeton stocké (localStorage / sessionStorage)
+
+    F->>X: POST /api/offers + Authorization: Bearer jeton
+    X->>J: validation (signature, expiration)
+    X->>R: rechargement de l'utilisateur (archivé = refusé)
+    X->>C: requête authentifiée (rôle SUPPLIER requis)
+    C->>C: supplierId = utilisateur connecté
+    C-->>F: 201 OfferResponse
+```
+
+**Composants** (package `security` et `config`) :
+
+| Classe | Rôle |
+|---|---|
+| `SecurityConfig` | Sessions `STATELESS`, CSRF désactivé (pas de cookie), CORS, règles d'accès par route et par rôle, réponses `401` / `403` en JSON |
+| `JwtService` | Génère et valide le jeton (HMAC, expiration 24 h, claims `userId` et `role`) |
+| `JwtAuthenticationFilter` | Lit l'en-tête `Bearer`, valide le jeton et **recharge l'utilisateur en base** à chaque requête |
+| `AppUserDetails` / `AppUserDetailsService` | Adaptent l'entité `User` ; un compte archivé est « désactivé » |
+| `PasswordConfig` | Bean `PasswordEncoder` (BCrypt) partagé par `UserService`, `AuthService` et `DataSeeder` |
+
+**Règles clés :**
+- Inscription publique : le rôle est **toujours `CLIENT`** (un `role` envoyé est ignoré) ; les autres rôles sont créés par un administrateur.
+- Mêmes message et code (`401`) pour un email inconnu et un mauvais mot de passe : pas de fuite d'information sur l'existence d'un compte.
+- Le rôle ne suffit pas : fournisseur et créateur d'un bundle sont pris **dans le jeton**, et les contrôleurs d'offres et de bundles vérifient la propriété (`403` sinon, via `ForbiddenException`).
+- Le catalogue (`GET` offres, villes, bundles) reste public pour la page d'accueil, le catalogue et la carte.
+- La clé `jwt.secret` est dans `application.properties` (valeur de développement local, à remplacer hors de cet environnement).
 
 ---
 
@@ -243,7 +293,9 @@ Le module **Villes** illustre la séparation des responsabilités côté client 
 | `pages/admin/ville-form.html` | Formulaire ajout / modification |
 | `pages/admin/ville-detail.html` | Page détail |
 | `js/core/config.js` | Configuration (URL API) |
-| `js/core/api.js` | Couche HTTP (`fetch`) — pas de logique métier |
+| `js/core/api.js` | Couche HTTP (`fetch`) — ajoute le jeton JWT ; un `401` ramène à la connexion |
+| `js/core/auth.js` | Session : jeton, utilisateur connecté, `login` / `register` / `logout`, garde par rôle `requireRole()` |
+| `connexion.html`, `css/connexion.css`, `js/pages/connexion.page.js` | **Écran unique** de connexion et d'inscription ; redirige vers l'espace correspondant au rôle |
 | `js/services/city.service.js` | Appels API du domaine « Ville » |
 | `js/pages/*.page.js` | Logique de présentation par page |
 | `js/components/admin-layout.js` | Layout admin réutilisable |
@@ -258,7 +310,9 @@ Le catalogue public (`js/app.js`) reste séparé : il ne contient pas la logique
 | Administration | `admin/index.html` | `admin/js/app.js`, `js/core/api.js` | Utilisateurs (CRUD + archivage, filtres rôle/statut), Villes (liste/suppression) |
 | Agent | `agent/index.html` | `agent/js/app.js`, `js/core/api.js` | Bundles (liste avec recherche, création/modification avec sélecteur d'offres, suppression) ; réservations, paiements, tickets en données démo |
 | Fournisseur | `supplier/index.html` | `supplier/js/app.js`, `js/core/api.js` | Offres (liste avec boutons d'action, création/modification en 4 étapes pour les 5 types, activation, suppression), Inventaire (niveau de stock, stock modifiable dans le tableau avec enregistrement automatique), Villes (select du formulaire) |
-| Client (SPA) | `client/index.html` | `client/js/app.js` | Données démo ; **accueil public** inchangé (`accueil.html`) |
+| Client (SPA) | `client/index.html` | `client/js/app.js` | Données démo (le nom affiché est celui du compte connecté) ; **accueil public** : `accueil.html` |
+
+**Accès aux espaces :** chaque espace appelle `Auth.requireRole("<RÔLE>")` dès le chargement de la page. Sans session, ou avec un autre rôle, le navigateur est redirigé vers `connexion.html` (avec un message si le rôle ne convient pas). La page de connexion renvoie ensuite vers l'espace du rôle (`ADMIN` → `admin/`, `SUPPLIER` → `supplier/`, `AGENT` → `agent/`, `CLIENT` → `client/`). Le bouton « Déconnexion » de chaque espace efface la session ; l'en-tête des pages publiques affiche « Se connecter », ou le lien vers l'espace du rôle et « Déconnexion ».
 
 Navigation interne : paramètre d’URL `?page=` (ex. `client/index.html?page=reservations`, `supplier/index.html?page=offers`). Le tableau de bord, les réservations et les notifications fournisseur restent en **données démo** jusqu’à l’API métier. Les menus latéraux des espaces Administration, Fournisseur, Agent et Client sont repliables (bouton ☰, barre réduite aux icônes).
 
@@ -282,10 +336,11 @@ Toutes les entités sont créées ; voir le cahier des charges (§6) pour le dé
 
 ## 4. Communication Frontend <-> Backend
 
-Le Frontend appelle l'API REST Spring Boot (port `8080`) avec `fetch()` ; le CORS est autorisé par `CorsConfig`. Le Frontend ne contient que la présentation et l'appel à l'API ; toute la logique métier reste dans les services du Backend.
+Le Frontend appelle l'API REST Spring Boot (port `8080`) avec `fetch()` ; le CORS est configuré dans `SecurityConfig`, et les requêtes protégées portent le jeton JWT. Le Frontend ne contient que la présentation et l'appel à l'API ; toute la logique métier reste dans les services du Backend.
 
 **Endpoints existants** (liste complète et détail des champs : [`api_endpoints.md`](api_endpoints.md)) :
 - `GET /api/status` : vérifie la connexion Frontend/Backend.
+- `/api/auth` : `register`, `login`, `me` ; voir « Authentification et sécurité ».
 - `/api/users` : CRUD + archivage/restauration des utilisateurs (espace admin) ; voir « Module Utilisateurs ».
 - `GET/POST/PUT/DELETE /api/cities` : gestion du référentiel villes (CRUD).
 - `GET/POST/PUT/DELETE /api/offers` : offres des fournisseurs (vol, hôtel, voiture, taxi, excursion) ; voir « Module Offres ».

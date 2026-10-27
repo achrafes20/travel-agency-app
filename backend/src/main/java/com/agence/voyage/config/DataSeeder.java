@@ -6,7 +6,7 @@ import com.agence.voyage.entity.User;
 import com.agence.voyage.repository.CityRepository;
 import com.agence.voyage.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,11 +14,12 @@ public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final CityRepository cityRepository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
-    public DataSeeder(UserRepository userRepository, CityRepository cityRepository) {
+    public DataSeeder(UserRepository userRepository, CityRepository cityRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.cityRepository = cityRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -29,6 +30,7 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedUsers() {
         if (userRepository.count() > 0) {
+            hashLegacyPasswords();
             return;
         }
 
@@ -37,6 +39,17 @@ public class DataSeeder implements CommandLineRunner {
         userRepository.save(new User("Karim Idrissi", "karim.idrissi@atlasvoyage.ma", encoded, Role.SUPPLIER));
         userRepository.save(new User("Nadia El Fassi", "nadia.elfassi@atlasvoyage.ma", encoded, Role.AGENT));
         userRepository.save(new User("Omar Tazi", "omar.tazi@atlasvoyage.ma", encoded, Role.ADMIN));
+    }
+
+    /** Les comptes créés avant l'introduction de BCrypt ont un mot de passe en clair : on le hache pour permettre la connexion. */
+    private void hashLegacyPasswords() {
+        for (User user : userRepository.findAll()) {
+            String password = user.getPassword();
+            if (password != null && !password.startsWith("$2")) {
+                user.setPassword(passwordEncoder.encode(password));
+                userRepository.save(user);
+            }
+        }
     }
 
     private void seedCities() {

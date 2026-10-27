@@ -38,7 +38,7 @@ public class OfferRequest {
     @NotNull(message = "La ville est obligatoire")
     private Long cityId;
 
-    @NotNull(message = "Le fournisseur est obligatoire")
+    // Ignoré par l'API : le fournisseur est l'utilisateur authentifié (renseigné par OfferController).
     private Long supplierId;
 
     private String airline;

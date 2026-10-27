@@ -24,7 +24,7 @@ public class BundleRequest {
     @NotNull(message = "Les offres du bundle sont obligatoires")
     private List<Long> offerIds;
 
-    @NotNull(message = "L'agent est obligatoire")
+    // Ignoré par l'API : le créateur est l'agent authentifié (renseigné par BundleController).
     private Long createdById;
 
     public String getTitle() {

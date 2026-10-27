@@ -11,12 +11,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../css/client.css?v=2" />
+    <script src="../js/core/auth.js"></script>
+    <script>Auth.requireRole("CLIENT");</script>
   </head>
   <body>
     <div id="app"></div>
     <div id="toast" class="static-toast" role="status" aria-live="polite"></div>
     <script src="../js/core/config.js"></script>
     <script src="../js/core/api.js"></script>
-    <script src="./js/app.js?v=2"></script>
+    <script src="./js/app.js?v=3"></script>
   </body>
 </html>

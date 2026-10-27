@@ -1,3 +1,13 @@
+const me = (() => {
+  const user = Auth.getUser() || { fullName: "Client" };
+  const words = user.fullName.split(/\s+/).filter(Boolean);
+  return {
+    fullName: user.fullName,
+    firstName: words[0] || "",
+    initials: words.map((w) => w[0]).join("").slice(0, 2).toUpperCase(),
+  };
+})();
+
 const state = {
   sidebarCollapsed: false,
   page: "dashboard",
@@ -74,7 +84,7 @@ function header() {
         <button class="icon-label" data-page="panier">${icon("cart")}<span>Panier</span><i>2</i></button>
         <button class="round-action" data-action="notifications" aria-label="Notifications">${icon("bell")}<i class="red-count">3</i></button>
         <div class="relative">
-          <button class="account" data-action="account"><span class="avatar">SB</span><span><small>Bonjour,</small><b>Sarah</b></span><span>⌄</span></button>
+          <button class="account" data-action="account"><span class="avatar">${me.initials}</span><span><small>Bonjour,</small><b>${me.firstName}</b></span><span>⌄</span></button>
           <div id="account-menu" class="dropdown account-menu nav-user-menu">
             <button data-page="dashboard">${icon("home",18)} Mon dashboard</button>
             <button data-page="reservations">${icon("calendar",18)} Mes réservations</button>
@@ -93,7 +103,7 @@ function sidebar(active) {
   const items = [["home","Vue d'ensemble","dashboard"],["calendar","Mes réservations","reservations"],["cart","Mon panier","panier"],["ticket","Mes tickets","tickets"],["bell","Notifications","dashboard"],["user","Mon profil","profil"]];
   return `<aside class="sidebar">
     <div class="side-top"><button type="button" class="side-toggle" data-action="sidebar-toggle" aria-label="${state.sidebarCollapsed ? "Déplier le menu" : "Replier le menu"}">${icon("menu", 20)}</button></div>
-    <div class="side-user"><span class="avatar big">SB</span><div><b>Sarah Benali</b><small>Membre depuis 2024</small></div></div>
+    <div class="side-user"><span class="avatar big">${me.initials}</span><div><b>${me.fullName}</b><small>Compte client</small></div></div>
     <div class="side-label">MON ESPACE</div>
     ${items.map(([name,label,page]) => `<button class="${active === page ? "active" : ""}" data-page="${page}" title="${label}">${icon(name,19)}<i class="side-text">${label}</i>${page === "panier" ? "<span>2</span>" : ""}</button>`).join("")}
   </aside>`;
@@ -112,7 +122,7 @@ function dashboard() {
       <div class="booking-end">${status(item.status,item.type)}<button data-page="reservation">Détails ${icon("arrow",14)}</button></div>
     </div>`).join("");
   return shell(`
-    <div class="welcome"><div><span class="eyebrow">VOTRE ESPACE PERSONNEL</span><h1>Bonjour Sarah, prêt à repartir ?</h1><p>Retrouvez vos prochains voyages et gérez toutes vos réservations.</p></div>${button("Explorer les offres",{iconName:"search",page:"catalogue"})}</div>
+    <div class="welcome"><div><span class="eyebrow">VOTRE ESPACE PERSONNEL</span><h1>Bonjour ${me.firstName}, prêt à repartir ?</h1><p>Retrouvez vos prochains voyages et gérez toutes vos réservations.</p></div>${button("Explorer les offres",{iconName:"search",page:"catalogue"})}</div>
     <div class="kpis">
       <div class="kpi"><span class="kpi-icon amber">${icon("calendar")}</span><div><small>À VENIR</small><strong>3</strong><p>réservations</p></div><span class="trend">+1 ce mois</span></div>
       <div class="kpi"><span class="kpi-icon blue">${icon("cart")}</span><div><small>TOTAL DÉPENSÉ</small><strong>8 640</strong><p>MAD cette année</p></div><div class="spark"><i></i><i></i><i></i><i></i><i></i></div></div>
@@ -302,7 +312,7 @@ document.addEventListener("click", (event) => {
   if (action === "new-ticket") toast("Le formulaire de création de ticket est prêt.");
   if (action === "open-ticket") toast("Conversation avec le support ouverte.");
   if (action === "photo") toast("Sélectionnez une photo JPG ou PNG de moins de 2 Mo.");
-  if (action === "logout") toast("Déconnexion simulée.");
+  if (action === "logout") Auth.logout();
 });
 
 document.addEventListener("input", (event) => {

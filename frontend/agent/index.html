@@ -33,44 +33,12 @@
         },
       };
     </script>
-    <link rel="stylesheet" href="../css/agent.css?v=2" />
+    <link rel="stylesheet" href="../css/agent.css?v=3" />
+    <script src="../js/core/auth.js"></script>
+    <script>Auth.requireRole("AGENT");</script>
   </head>
   <body class="bg-atlas-canvas text-atlas-ink antialiased">
-    <div id="login-view" class="login-view">
-      <section class="login-visual">
-        <div class="login-overlay"></div>
-        <div class="login-brand">
-          <div class="brand-mark">✦</div>
-          <div><strong>ATLAS</strong><small>VOYAGE</small></div>
-        </div>
-        <div class="login-copy">
-          <span>VOYAGEZ AUTREMENT</span>
-          <h1>Le Maroc<br />vous attend.</h1>
-          <p>Des expériences authentiques, imaginées avec soin par nos experts locaux.</p>
-        </div>
-        <p class="photo-credit">Photo : Alex Azabache · Unsplash</p>
-      </section>
-      <section class="login-form-wrap">
-        <form id="login-form" class="login-card">
-          <span class="eyebrow">ESPACE AGENT</span>
-          <h2>Ravi de vous revoir.</h2>
-          <p>Connectez-vous pour accéder à votre espace de travail.</p>
-          <label class="form-field">
-            <span>Adresse email</span>
-            <div><span data-icon="user"></span><input type="email" value="nadia.elfassi@atlasvoyage.ma" required /></div>
-          </label>
-          <label class="form-field">
-            <span>Mot de passe</span>
-            <div><span data-icon="lock"></span><input id="login-password" type="password" value="password123" required /><button type="button" id="toggle-password" class="field-icon" aria-label="Afficher le mot de passe"><span data-icon="eye"></span></button></div>
-          </label>
-          <button type="button" class="forgot-link">Mot de passe oublié ?</button>
-          <button class="button button-primary login-button" type="submit"><span>Se connecter</span><span data-icon="arrow"></span></button>
-          <div class="secure-note"><span data-icon="lock"></span> Connexion sécurisée · Données protégées</div>
-        </form>
-      </section>
-    </div>
-
-    <div id="agent-app" class="app-shell hidden">
+    <div id="agent-app" class="app-shell">
       <aside id="sidebar" class="sidebar">
         <button class="logo" data-page="dashboard">
           <span class="brand-mark">✦</span>
@@ -78,8 +46,8 @@
         </button>
         <nav id="main-nav"></nav>
         <button class="user-panel" data-page="profile">
-          <span class="avatar amber">NE</span>
-          <span><strong>Nadia El Fassi</strong><small>Agent · Marrakech</small></span>
+          <span class="avatar amber" id="user-initials">NE</span>
+          <span><strong id="user-name">Nadia El Fassi</strong><small>Agent</small></span>
           <span data-icon="more"></span>
         </button>
       </aside>
@@ -96,7 +64,8 @@
               <button id="notification-button" class="icon-button" aria-label="Notifications"><span data-icon="bell"></span><em>4</em></button>
               <div id="notification-dropdown" class="notification-dropdown hidden"></div>
             </div>
-            <button class="account-button" data-page="profile"><span class="avatar amber">NE</span><span><strong>Nadia E.</strong><small>Agent</small></span><span data-icon="chevron-down"></span></button>
+            <button class="account-button" data-page="profile"><span class="avatar amber" id="account-initials">NE</span><span><strong id="account-name">Nadia E.</strong><small>Agent</small></span><span data-icon="chevron-down"></span></button>
+            <button id="logout-button" class="icon-button" aria-label="Déconnexion" title="Déconnexion"><span data-icon="logout"></span></button>
           </div>
         </header>
         <main id="page-content"></main>
@@ -107,6 +76,6 @@
     <div id="toast-root"></div>
     <script src="../js/core/config.js"></script>
     <script src="../js/core/api.js"></script>
-    <script src="./js/app.js?v=2"></script>
+    <script src="./js/app.js?v=3"></script>
   </body>
 </html>

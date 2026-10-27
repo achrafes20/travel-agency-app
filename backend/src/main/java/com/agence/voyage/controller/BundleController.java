@@ -2,9 +2,11 @@ package com.agence.voyage.controller;
 
 import com.agence.voyage.dto.BundleRequest;
 import com.agence.voyage.dto.BundleResponse;
+import com.agence.voyage.security.AppUserDetails;
 import com.agence.voyage.service.BundleService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,18 +42,23 @@ public class BundleController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BundleResponse create(@Valid @RequestBody BundleRequest request) {
+    public BundleResponse create(@Valid @RequestBody BundleRequest request,
+                                 @AuthenticationPrincipal AppUserDetails principal) {
+        // le créateur est toujours l'agent connecté, jamais l'identifiant envoyé dans le corps
+        request.setCreatedById(principal.getId());
         return BundleResponse.from(bundleService.create(request));
     }
 
     @PutMapping("/{id}")
-    public BundleResponse update(@PathVariable Long id, @Valid @RequestBody BundleRequest request) {
-        return BundleResponse.from(bundleService.update(id, request));
+    public BundleResponse update(@PathVariable Long id, @Valid @RequestBody BundleRequest request,
+                                 @AuthenticationPrincipal AppUserDetails principal) {
+        request.setCreatedById(principal.getId());
+        return BundleResponse.from(bundleService.update(id, request, principal.getId()));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        bundleService.delete(id);
+    public void delete(@PathVariable Long id, @AuthenticationPrincipal AppUserDetails principal) {
+        bundleService.delete(id, principal.getId());
     }
 }

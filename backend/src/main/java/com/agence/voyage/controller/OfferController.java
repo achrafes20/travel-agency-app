@@ -3,9 +3,11 @@ package com.agence.voyage.controller;
 import com.agence.voyage.dto.OfferRequest;
 import com.agence.voyage.dto.OfferResponse;
 import com.agence.voyage.entity.OfferType;
+import com.agence.voyage.security.AppUserDetails;
 import com.agence.voyage.service.OfferService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,18 +44,23 @@ public class OfferController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public OfferResponse create(@Valid @RequestBody OfferRequest request) {
+    public OfferResponse create(@Valid @RequestBody OfferRequest request,
+                                @AuthenticationPrincipal AppUserDetails principal) {
+        // le fournisseur est toujours l'utilisateur connecté, jamais l'identifiant envoyé dans le corps
+        request.setSupplierId(principal.getId());
         return OfferResponse.from(offerService.create(request));
     }
 
     @PutMapping("/{id}")
-    public OfferResponse update(@PathVariable Long id, @Valid @RequestBody OfferRequest request) {
-        return OfferResponse.from(offerService.update(id, request));
+    public OfferResponse update(@PathVariable Long id, @Valid @RequestBody OfferRequest request,
+                                @AuthenticationPrincipal AppUserDetails principal) {
+        request.setSupplierId(principal.getId());
+        return OfferResponse.from(offerService.update(id, request, principal.getId()));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        offerService.delete(id);
+    public void delete(@PathVariable Long id, @AuthenticationPrincipal AppUserDetails principal) {
+        offerService.delete(id, principal.getId());
     }
 }

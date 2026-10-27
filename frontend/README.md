@@ -7,6 +7,7 @@ Interface **HTML / CSS / JavaScript vanilla** (sans framework), conforme au cahi
 | Page | Fichier | Rôle |
 |---|---|---|
 | **Accueil** | `accueil.html` | Page d’entrée actuelle (conservée telle quelle) |
+| **Connexion** | `connexion.html` | **Écran unique** de connexion et de création de compte client |
 | Catalogue | `catalogue.html` | Liste d’offres (UI existante) |
 | Détail offre | `offre.html` | Fiche produit |
 | Panier | `panier.html` | Checkout existant |
@@ -19,7 +20,7 @@ Interface **HTML / CSS / JavaScript vanilla** (sans framework), conforme au cahi
 | Styles | `css/client.css` |
 | Logique | `client/js/app.js` |
 
-Redirection : `espace-client.html` → `client/index.html?page=dashboard`. Le logo renvoie vers `accueil.html`. Exemples : `?page=catalogue`, `?page=panier`, `?page=reservations`. Persona démo alignée sur le seed : **Sarah Benali**.
+Redirection : `espace-client.html` → `client/index.html?page=dashboard`. Le logo renvoie vers `accueil.html`. Exemples : `?page=catalogue`, `?page=panier`, `?page=reservations`. Réservé au rôle `CLIENT` (compte de test : **Sarah Benali**) ; le nom affiché est celui du compte connecté.
 
 ## Espace fournisseur (maquettes `atlas-voyage-supplier`)
 
@@ -29,7 +30,7 @@ Redirection : `espace-client.html` → `client/index.html?page=dashboard`. Le lo
 | Styles | `css/supplier.css` |
 | Logique | `supplier/js/app.js` |
 
-Redirection : `fournisseur.html` → `supplier/index.html`.
+Redirection : `fournisseur.html` → `supplier/index.html`. Réservé au rôle `SUPPLIER` ; les offres affichées et créées sont celles du fournisseur connecté.
 
 ## Espace agent (maquettes `atlas-voyage-agent`)
 
@@ -39,7 +40,7 @@ Redirection : `fournisseur.html` → `supplier/index.html`.
 | Styles | `css/agent.css` |
 | Logique | `agent/js/app.js` |
 
-Redirection : `agent.html` → `agent/index.html`. Navigation : `?page=bookings`, `?page=bundles`, etc. Connexion démo alignée sur le seed backend (`nadia.elfassi@atlasvoyage.ma`).
+Redirection : `agent.html` → `agent/index.html`. Navigation : `?page=bookings`, `?page=bundles`, etc. Réservé au rôle `AGENT` (compte de test `nadia.elfassi@atlasvoyage.ma`) ; les bundles sont créés au nom de l'agent connecté.
 
 ## Espace admin (maquettes `atlas-voyage-admin`)
 
@@ -48,6 +49,18 @@ Redirection : `agent.html` → `agent/index.html`. Navigation : `?page=bookings`
 | **Shell admin** | `admin/index.html` | Dashboard, navigation, modules (UI maquette) |
 | Styles | `css/admin.css` | Styles de l’admin (Montserrat, layout) |
 | Logique | `admin/js/app.js` | Navigation SPA + **API** pour Utilisateurs et Villes |
+
+Réservé au rôle `ADMIN` (comme les pages `pages/admin/`).
+
+## Authentification (JWT)
+
+| Fichier | Rôle |
+|---|---|
+| `connexion.html`, `css/connexion.css`, `js/pages/connexion.page.js` | Écran unique : onglets « Connexion » et « Créer un compte » ; redirige vers l’espace du rôle |
+| `js/core/auth.js` | `Auth` : jeton et utilisateur (`localStorage`, ou `sessionStorage` si « Se souvenir de moi » est décoché), `login`, `register`, `logout`, garde `requireRole()` |
+| `js/core/api.js` | Ajoute `Authorization: Bearer <jeton>` ; sur un `401`, efface la session et revient à la connexion |
+
+Chaque espace charge `js/core/auth.js` dans `<head>` puis appelle `Auth.requireRole("<RÔLE>")` : sans session, ou avec un autre rôle, la page redirige vers `connexion.html`. L’en-tête des pages publiques affiche « Se connecter », ou le lien vers l’espace du rôle et « Déconnexion ». Les droits sont toujours **contrôlés par le Backend** : le Frontend ne fait que rediriger.
 
 ## Séance 2 — Module Villes (CRUD détaillé)
 
@@ -74,7 +87,7 @@ La **logique métier** (unicité du nom, validation, persistance) reste dans le 
 ## Lancement
 
 1. Démarrer le backend (`backend/mvnw spring-boot:run`).
-2. Live Server sur `accueil.html` ou `pages/admin/villes.html` (racine = dossier `frontend/`).
+2. Live Server sur `accueil.html` ou `connexion.html` (racine = dossier `frontend/`), puis se connecter avec un compte de test (mot de passe `password123`, voir le `README.md` racine).
 
 ## Configuration API
 

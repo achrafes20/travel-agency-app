@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Connexion à votre espace Atlas Voyage" />
+    <title>Connexion — Atlas Voyage</title>
+    <link rel="icon" type="image/png" href="images/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <link rel="stylesheet" href="css/connexion.css" />
+  </head>
+  <body>
+    <main class="login-screen">
+      <section class="login-photo">
+        <div class="login-overlay">
+          <a class="login-brand" href="accueil.html"><i data-lucide="plane"></i><span>Atlas<strong>Voyage</strong></span></a>
+          <div>
+            <p>EXPLOREZ · RÉSERVEZ · VOYAGEZ</p>
+            <h1>Le Maroc<br />vous attend.</h1>
+            <span>Une expérience authentique, pensée avec passion.</span>
+          </div>
+          <small>Photo : Alex Azabache — Unsplash</small>
+        </div>
+      </section>
+
+      <section class="login-panel">
+        <div class="login-card">
+          <a class="mobile-brand" href="accueil.html"><i data-lucide="plane"></i><span>Atlas<strong>Voyage</strong></span></a>
+
+          <div class="tabs" role="tablist">
+            <button type="button" role="tab" id="tab-login" class="tab active" aria-selected="true">Connexion</button>
+            <button type="button" role="tab" id="tab-register" class="tab" aria-selected="false">Créer un compte</button>
+          </div>
+
+          <div id="notice" class="notice hidden" role="alert"></div>
+
+          <form id="login-form" novalidate>
+            <span class="eyebrow">VOTRE ESPACE ATLAS VOYAGE</span>
+            <h2>Bienvenue</h2>
+            <p class="lead">Connectez-vous pour accéder à votre espace.</p>
+            <label>Adresse email
+              <div class="input-icon"><i data-lucide="mail"></i><input id="login-email" type="email" autocomplete="username" placeholder="vous@exemple.com" required /></div>
+            </label>
+            <label>Mot de passe
+              <div class="input-icon"><i data-lucide="lock-keyhole"></i><input id="login-password" type="password" autocomplete="current-password" placeholder="••••••••" required /><button type="button" class="toggle-password" aria-label="Afficher le mot de passe"><i data-lucide="eye"></i></button></div>
+            </label>
+            <div class="login-options"><label><input id="login-remember" type="checkbox" checked /> Se souvenir de moi</label></div>
+            <button class="btn btn-primary" type="submit">Se connecter <i data-lucide="arrow-right"></i></button>
+          </form>
+
+          <form id="register-form" class="hidden" novalidate>
+            <span class="eyebrow">NOUVEAU CLIENT</span>
+            <h2>Créer un compte</h2>
+            <p class="lead">Rejoignez Atlas Voyage pour réserver vos séjours.</p>
+            <label>Nom complet
+              <div class="input-icon"><i data-lucide="user"></i><input id="register-name" type="text" autocomplete="name" placeholder="Sarah Benali" required /></div>
+            </label>
+            <label>Adresse email
+              <div class="input-icon"><i data-lucide="mail"></i><input id="register-email" type="email" autocomplete="username" placeholder="vous@exemple.com" required /></div>
+            </label>
+            <label>Mot de passe
+              <div class="input-icon"><i data-lucide="lock-keyhole"></i><input id="register-password" type="password" autocomplete="new-password" placeholder="8 caractères minimum" required /><button type="button" class="toggle-password" aria-label="Afficher le mot de passe"><i data-lucide="eye"></i></button></div>
+            </label>
+            <button class="btn btn-primary" type="submit">Créer mon compte <i data-lucide="arrow-right"></i></button>
+          </form>
+
+          <div class="secure-note"><i data-lucide="shield-check"></i> Connexion sécurisée et chiffrée</div>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/core/config.js"></script>
+    <script src="js/core/api.js"></script>
+    <script src="js/core/auth.js"></script>
+    <script src="js/pages/connexion.page.js"></script>
+  </body>
+</html>

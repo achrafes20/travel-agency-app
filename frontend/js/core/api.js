@@ -7,9 +7,11 @@ const api = {
   },
 
   async request(path, options = {}) {
+    const token = typeof Auth !== "undefined" ? Auth.getToken() : null;
     const headers = {
       Accept: "application/json",
       ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     };
 
@@ -17,6 +19,11 @@ const api = {
       ...options,
       headers,
     });
+
+    if (response.status === 401 && token) {
+      // jeton expiré ou compte désactivé : retour à l'écran de connexion
+      Auth.logout();
+    }
 
     if (!response.ok) {
       let message = `Erreur HTTP ${response.status}`;

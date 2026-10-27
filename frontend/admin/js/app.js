@@ -955,12 +955,15 @@ document.querySelector("#sidebar-toggle").addEventListener("click",()=>{
 });
 document.querySelector("#notification-toggle").addEventListener("click",e=>{e.stopPropagation();document.querySelector("#account-popover").classList.add("hidden");document.querySelector("#notification-popover").classList.toggle("hidden");});
 document.querySelector("#account-toggle").addEventListener("click",e=>{e.stopPropagation();document.querySelector("#notification-popover").classList.add("hidden");document.querySelector("#account-popover").classList.toggle("hidden");});
-document.querySelector("#logout").addEventListener("click",()=>{closePopovers();document.querySelector("#admin-app").classList.add("hidden");document.querySelector("#login-screen").classList.remove("hidden");lucide.createIcons();});
-document.querySelector("#login-form").addEventListener("submit",e=>{e.preventDefault();document.querySelector("#login-screen").classList.add("hidden");document.querySelector("#admin-app").classList.remove("hidden");showToast("Connexion réussie","Bienvenue dans votre espace administrateur.");});
-document.querySelector("#toggle-password").addEventListener("click",()=>{const input=document.querySelector("#password");input.type=input.type==="password"?"text":"password";});
+document.querySelector("#logout").addEventListener("click",()=>Auth.logout());
 document.addEventListener("click",e=>{if(!e.target.closest(".popover-wrap"))closePopovers();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){closePopovers();closeModal();}});
 
+const currentUser = Auth.getUser();
+if (currentUser) {
+  document.querySelector("#account-toggle .avatar").textContent = initialsFromName(currentUser.fullName);
+  document.querySelector("#account-toggle strong").textContent = currentUser.fullName;
+}
 renderNav();
 renderNotificationsPreview();
 const requestedPage = new URLSearchParams(window.location.search).get("page") || "dashboard";

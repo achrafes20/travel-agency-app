@@ -196,7 +196,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 
 ## 11. Suivi d'avancement
 
-*Dernière mise à jour : 2026-10-12.*
+*Dernière mise à jour : 2026-10-26.*
 
 ### Phase 1 — Analyse & conception
 ✅ **Terminée.** Cahier des charges (ce document) et diagramme d'architecture (`architecture.md`) rédigés.
@@ -233,7 +233,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - ✅ Entité `User` : nouvel indicateur `archived` (colonne ajoutée par Hibernate, `false` par défaut pour les comptes existants).
 - ✅ Test unitaire `UserServiceTest` (unicité de l'email, hachage, mot de passe conservé, archivage/suppression).
 - ✅ Interface : formulaire de création/modification (nom complet, email, rôle, mot de passe), boutons modifier/archiver, confirmations dans l'application (fenêtres modales, plus de `confirm()` du navigateur), filtres rôle et statut (les archivés sont masqués par défaut), recherche et pagination.
-- ⚠️ Limite connue : aucune authentification — les endpoints sont ouverts, et un compte archivé n'est pas encore refusé à la connexion (à traiter avec Spring Security, Phase 3).
+- ✅ Accès réservé au rôle `ADMIN` (Spring Security + JWT) ; un compte archivé est refusé à la connexion et son jeton est rejeté.
 - Nettoyage de l'interface admin : badge « Données API », fausses notifications, pastille de la cloche, raccourci Ctrl+K et « Dernière connexion » retirés ; barre de défilement de la barre latérale masquée.
 
 ### Module Fournisseur — Gestion des offres
@@ -244,7 +244,8 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - ✅ Test unitaire `OfferServiceTest` (création des 5 types, validations, modification sans changement de type, filtre fournisseur, suppression).
 - ✅ Interface : liste (tableau / cartes, recherche, filtres type et statut, tri) avec boutons d'action par ligne (modifier, stock, supprimer), formulaire en 4 étapes avec champs propres à chaque type (création et modification), activation par interrupteur, suppression avec repli sur la désactivation.
 - ✅ Page **Inventaire** : niveau de stock (Disponible / Stock bas / Épuisé) et stock modifiable directement dans le tableau (boutons − / + ou saisie), enregistré automatiquement.
-- ⚠️ Limites connues : le fournisseur est le premier compte `SUPPLIER` actif (pas d'authentification) ; les images sont saisies par URL (pas d'upload) ; le stock réservé / disponible n'existe pas encore (réservations non implémentées).
+- ✅ Le fournisseur est l'utilisateur connecté (jeton JWT) : il ne peut modifier, supprimer ni rattacher d'offre qu'à son propre compte (`403` sinon).
+- ⚠️ Limites connues : les images sont saisies par URL (pas d'upload) ; le stock réservé / disponible n'existe pas encore (réservations non implémentées).
 
 ### Module Agent — Gestion des bundles
 ✅ **Terminé** (page `agent/index.html?page=bundles`), branché sur l'API :
@@ -253,25 +254,34 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - ✅ Couche métier `BundleService` : 2 offres minimum, remise 0–100 %, créateur de rôle `AGENT`.
 - ✅ Test unitaire `BundleServiceTest` (prix et stock dynamiques, validations, modification, filtre agent, suppression).
 - ✅ Interface : liste (recherche), éditeur en 3 sections avec sélecteur d'offres, récapitulatif en temps réel (somme, remise, prix final, stock dynamique) et suppression avec confirmation.
-- ⚠️ Limites connues : l'agent est le premier compte `AGENT` actif (pas d'authentification) ; remise en pourcentage uniquement ; pas encore de réservation de bundle (panier / réservations non implémentés) ; le tableau de bord, les réservations, paiements et tickets de l'espace agent restent en données démo.
+- ✅ L'agent est l'utilisateur connecté (jeton JWT) : il ne peut modifier ni supprimer que ses propres bundles (`403` sinon).
+- ⚠️ Limites connues : remise en pourcentage uniquement ; pas encore de réservation de bundle (panier / réservations non implémentés) ; le tableau de bord, les réservations, paiements et tickets de l'espace agent restent en données démo.
 
 ### Séance 3 & 4 — Modèle de données (JPA/Hibernate), CRUD et API REST
 ⚠️ **Presque terminée** : il ne manque que le diagramme de classes.
-- ✅ **Entités JPA et mappings** : 19 classes avec `@ManyToOne`, `@OneToMany`, `@OneToOne`, `@ManyToMany` (`bundle_offers`) et héritage `SINGLE_TABLE` pour les offres — voir `architecture.md`, §3.
+- ✅ **Entités JPA et mappings** : 15 entités et 6 énumérations, avec `@ManyToOne`, `@OneToMany`, `@OneToOne`, `@ManyToMany` (`bundle_offers`) et héritage `SINGLE_TABLE` pour les offres — voir `architecture.md`, §3.
 - ✅ **Base MySQL fonctionnelle** : tables générées par Hibernate (`ddl-auto=update`), persistance vérifiée.
 - ✅ **CRUD complet (Repository, Service, Controller) pour 4 entités** : `User`, `City`, `Offer` (5 sous-types) et `Bundle`.
-- ✅ **Liste des endpoints** : [`api_endpoints.md`](api_endpoints.md) — 23 endpoints, champs, règles et codes de retour.
-- ✅ **Tests Postman** : `docs/postman/` — collection de 31 requêtes et 63 vérifications (utilisateurs, offres, bundles) ; chaque dossier est autonome et nettoie ses données.
+- ✅ **Liste des endpoints** : [`api_endpoints.md`](api_endpoints.md) — 26 endpoints, champs, règles, droits d'accès et codes de retour.
+- ✅ **Tests Postman** : `docs/postman/` — collection de 59 requêtes et 104 vérifications (utilisateurs, offres, bundles, authentification et droits) ; chaque dossier est autonome (il se connecte lui-même avec les comptes de test) et nettoie ses données.
 - ✅ **Interfaces CRUD** : Admin (utilisateurs, villes), Fournisseur (offres, stock), Agent (bundles).
 - ✅ **Harmonisation de l'interface** : menus latéraux repliables dans les quatre espaces ; retrait des mentions « Version 2 », des liens « Voir le site public » et des cartes « Besoin d'aide » des menus.
-- ✅ **Tests unitaires** : 20 tests (`CityServiceTest`, `UserServiceTest`, `OfferServiceTest`, `BundleServiceTest`).
+- ✅ **Tests automatisés** : 35 tests (`CityServiceTest`, `UserServiceTest`, `OfferServiceTest`, `BundleServiceTest`, `AuthServiceTest`, et `SecurityRulesTest` pour les règles d'accès par route).
 - ✅ Suppression d'une ville refusée (`400`) si des offres l'utilisent.
 - ❌ **Diagramme de classes** — à produire.
 
 ### Phase 3 — Fondations & documentation
-⚠️ **Partiellement terminée.**
+✅ **Terminée.**
 - ✅ Diagramme général de l'architecture (`architecture.md`).
-- ❌ Authentification complète (Spring Security + JWT) — **non commencée**. La dépendance Spring Security n'est pas encore ajoutée au `pom.xml`, aucun endpoint de login/register, aucune protection par rôle sur les contrôleurs (y compris `/api/users`). Le login devra refuser les comptes archivés.
+- ✅ **Authentification complète (Spring Security + JWT)**, sans session serveur :
+  - API `/api/auth` : `register` (inscription publique, rôle toujours `CLIENT`), `login` (jeton JWT valable 24 h) et `me` ; mot de passe haché en BCrypt, même message d'erreur pour un email inconnu et un mauvais mot de passe.
+  - Compte archivé refusé à la connexion ; son jeton est aussi rejeté immédiatement (l'utilisateur est rechargé en base à chaque requête).
+  - **Contrôle d'accès par rôle** (`SecurityConfig`) : `/api/users` et écriture sur `/api/cities` = `ADMIN` ; écriture sur `/api/offers` = `SUPPLIER` ; écriture sur `/api/bundles` = `AGENT` ; lecture du catalogue (offres, villes, bundles) publique. `401` sans jeton valide, `403` si le rôle ne convient pas.
+  - **Propriété des ressources** : le fournisseur d'une offre et le créateur d'un bundle sont pris dans le jeton ; modifier ou supprimer la ressource d'un autre utilisateur renvoie `403`.
+  - Tests : `AuthServiceTest` (connexion, inscription, jeton falsifié, compte archivé), `SecurityRulesTest` (règles par route avec MockMvc), tests de propriété dans `OfferServiceTest` / `BundleServiceTest`, et dossier Postman « 04 - Authentification et droits ».
+  - **Frontend** : écran unique `connexion.html` (connexion + création de compte client) qui remplace les anciens écrans de connexion fictifs ; `js/core/auth.js` (session, garde par rôle) ; chaque espace (admin, fournisseur, agent, client) redirige vers la connexion sans session ou avec un autre rôle, et propose une déconnexion ; l'en-tête public affiche « Se connecter » ou l'espace du rôle.
+  - Les espaces Fournisseur et Agent n'utilisent plus « le premier compte actif du rôle » : ils agissent avec le compte connecté.
+- ⚠️ Limites connues : pas de renouvellement ni de révocation de jeton avant expiration (déconnexion côté navigateur uniquement) ; « Mot de passe oublié » et changement de mot de passe par l'utilisateur ne sont pas implémentés ; la clé `jwt.secret` est une valeur de développement dans `application.properties`.
 
 ### Phase 4 — Développement des modules
 ⚠️ **Partiellement commencée** : les modules Admin **Villes** (Séance 2) et **Utilisateurs**, le module Fournisseur **Offres** et le module Agent **Bundles** (voir ci-dessus) sont terminés. Restent à faire :
@@ -282,7 +292,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 ❌ **Non commencée** — bloquée tant que la Phase 4 n'est pas avancée.
 
 ### Notes techniques complémentaires
-- Les **nouveaux** comptes créés par le seed utilisent **BCrypt** (`spring-security-crypto`). Si la table `users` existait déjà en clair, recréer la base ou réinitialiser les mots de passe.
+- Les **nouveaux** comptes créés par le seed utilisent **BCrypt** (`spring-security-crypto`). Un compte dont le mot de passe est encore en clair (table `users` créée avant BCrypt) est haché automatiquement au démarrage du Backend (`DataSeeder`), ce qui permet de se connecter avec les comptes de test existants.
 - Le dépôt Git ne contenait pas encore de `.gitignore` ; les artefacts compilés (`backend/target/`) étaient suivis par erreur — corrigé (voir `.gitignore` à la racine).
 - Un wrapper Maven (`backend/mvnw`, `mvnw.cmd`) a été ajouté pour que le projet reste exécutable sans installation Maven séparée sur une autre machine.
 

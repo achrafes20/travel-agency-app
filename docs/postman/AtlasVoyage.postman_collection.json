@@ -72,6 +72,16 @@
                 "api",
                 "users"
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -127,6 +137,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -157,6 +177,16 @@
                 "api",
                 "users",
                 "{{userId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -203,6 +233,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -235,6 +275,16 @@
                 "{{userId}}",
                 "archive"
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -264,6 +314,16 @@
                 "api",
                 "users",
                 "{{userId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -317,6 +377,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -364,6 +434,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -411,6 +491,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -458,6 +548,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -505,6 +605,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -534,6 +644,16 @@
               "path": [
                 "api",
                 "offers"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -569,6 +689,16 @@
                 {
                   "key": "type",
                   "value": "HOTEL"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
                 }
               ]
             }
@@ -607,6 +737,16 @@
                   "value": "{{supplierId}}"
                 }
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -637,6 +777,16 @@
                 "api",
                 "offers",
                 "{{hotelId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -683,6 +833,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -712,6 +872,16 @@
                 "api",
                 "offers",
                 "{{hotelId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -743,6 +913,16 @@
                 "offers",
                 "{{flightId}}"
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -772,6 +952,16 @@
                 "api",
                 "offers",
                 "{{carId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -803,6 +993,16 @@
                 "offers",
                 "{{taxiId}}"
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -832,6 +1032,16 @@
                 "api",
                 "offers",
                 "{{excursionId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -885,6 +1095,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -932,6 +1152,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -980,6 +1210,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -1009,6 +1249,16 @@
               "path": [
                 "api",
                 "bundles"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -1040,6 +1290,16 @@
                 "api",
                 "bundles",
                 "{{bundleId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -1087,6 +1347,16 @@
                   "language": "json"
                 }
               }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -1116,6 +1386,16 @@
                 "api",
                 "bundles",
                 "{{bundleId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -1147,6 +1427,16 @@
                 "offers",
                 "{{bundleHotelId}}"
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -1177,9 +1467,1217 @@
                 "offers",
                 "{{bundleExcursionId}}"
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 - Authentification et droits",
+      "item": [
+        {
+          "name": "Connexion : client",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sarah.benali@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"jeton JWT renvoyé\", () => pm.expect(body.token).to.be.a(\"string\").and.not.empty);",
+                  "pm.test(\"rôle CLIENT, mot de passe jamais renvoyé\", () => { pm.expect(body.user.role).to.eql(\"CLIENT\"); pm.expect(body.user).to.not.have.property(\"password\"); });",
+                  "pm.collectionVariables.set(\"clientToken\", body.token);",
+                  "pm.collectionVariables.set(\"clientId\", body.user.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Connexion : mauvais mot de passe",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sarah.benali@example.com\",\n  \"password\": \"incorrect\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"message explicite\", () => pm.expect(pm.response.json().message).to.eql(\"Email ou mot de passe incorrect\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Connexion : email inconnu (même message)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"inconnu@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"même message que pour un mauvais mot de passe\", () => pm.expect(pm.response.json().message).to.eql(\"Email ou mot de passe incorrect\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Connexion : champs manquants",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inscription : le rôle est forcé à CLIENT",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Postman Inscrit\",\n  \"email\": \"postman.inscrit@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"ADMIN\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"registeredId\", \"\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"compte CLIENT malgré role=ADMIN envoyé\", () => pm.expect(body.user.role).to.eql(\"CLIENT\"));",
+                  "pm.test(\"jeton renvoyé\", () => pm.expect(body.token).to.be.a(\"string\").and.not.empty);",
+                  "pm.collectionVariables.set(\"registeredId\", body.user.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inscription : email déjà utilisé",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Doublon\",\n  \"email\": \"POSTMAN.inscrit@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inscription : mot de passe trop court",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Court\",\n  \"email\": \"court@example.com\",\n  \"password\": \"abc\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/auth/me avec jeton",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"renvoie le fournisseur connecté\", () => { const u = pm.response.json(); pm.expect(u.role).to.eql(\"SUPPLIER\"); pm.expect(u.id).to.eql(Number(pm.collectionVariables.get(\"supplierId\"))); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/auth/me sans jeton",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Lecture publique : offres et villes sans jeton",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.sendRequest(pm.collectionVariables.get(\"baseUrl\") + \"/api/cities\", (e, r) => pm.test(\"villes publiques (200)\", () => pm.expect(r.code).to.eql(200)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/users sans jeton",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"message JSON\", () => pm.expect(pm.response.json().message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/users avec un jeton invalide",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer jeton.invalide.xxx"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/users en tant que client",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/users en tant que fournisseur",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/cities en tant qu'agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cities"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Interdite\"\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/offers en tant qu'agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"HOTEL\",\n  \"title\": \"Riad test auth\",\n  \"basePrice\": 450,\n  \"stock\": 3,\n  \"cityId\": \"{{cityId}}\",\n  \"stars\": 4,\n  \"roomType\": \"Suite\"\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/bundles en tant que fournisseur",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bundles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bundles"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"x\",\n  \"offerIds\": [\n    1,\n    2\n  ]\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Créer une offre : le fournisseur est l'utilisateur connecté",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"HOTEL\",\n  \"title\": \"Riad test auth\",\n  \"basePrice\": 450,\n  \"stock\": 3,\n  \"cityId\": \"{{cityId}}\",\n  \"stars\": 4,\n  \"roomType\": \"Suite\",\n  \"supplierId\": 1\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const offer = pm.response.json();",
+                  "pm.test(\"supplierId du corps ignoré : propriétaire = utilisateur connecté\", () => pm.expect(offer.supplierId).to.eql(Number(pm.collectionVariables.get(\"supplierId\"))));",
+                  "pm.collectionVariables.set(\"ownOfferId\", offer.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Préparer : créer un second fournisseur (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Autre Fournisseur\",\n  \"email\": \"autre.fournisseur.postman@example.com\",\n  \"role\": \"SUPPLIER\",\n  \"password\": \"password123\"\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"otherSupplierId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Préparer : connexion du second fournisseur",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"autre.fournisseur.postman@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set(\"otherSupplierToken\", pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT d'une offre d'un autre fournisseur",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/{{ownOfferId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "{{ownOfferId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"HOTEL\",\n  \"title\": \"Riad test auth\",\n  \"basePrice\": 450,\n  \"stock\": 3,\n  \"cityId\": \"{{cityId}}\",\n  \"stars\": 4,\n  \"roomType\": \"Suite\"\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{otherSupplierToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"message de propriété\", () => pm.expect(pm.response.json().message).to.include(\"autre fournisseur\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE d'une offre d'un autre fournisseur",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/{{ownOfferId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "{{ownOfferId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{otherSupplierToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Compte archivé : le jeton existant est refusé",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{otherSupplierId}}/archive",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{otherSupplierId}}",
+                "archive"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.sendRequest({ url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/me\", header: { Authorization: \"Bearer \" + pm.collectionVariables.get(\"otherSupplierToken\") } },",
+                  "  (e, r) => pm.test(\"jeton d'un compte archivé refusé (401)\", () => pm.expect(r.code).to.eql(401)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Compte archivé : connexion refusée",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"autre.fournisseur.postman@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"message compte désactivé\", () => pm.expect(pm.response.json().message).to.include(\"désactivé\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Nettoyage : supprimer l'offre",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/{{ownOfferId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "{{ownOfferId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Nettoyage : supprimer le second fournisseur",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{otherSupplierId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{otherSupplierId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Nettoyage : archiver le compte inscrit",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{registeredId}}/archive",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{registeredId}}",
+                "archive"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Nettoyage : supprimer le compte inscrit",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{registeredId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{registeredId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
         }
       ]
     }
@@ -1248,6 +2746,42 @@
     {
       "key": "bundleExcursionId",
       "value": ""
+    },
+    {
+      "key": "clientToken",
+      "value": ""
+    },
+    {
+      "key": "supplierToken",
+      "value": ""
+    },
+    {
+      "key": "agentToken",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "otherSupplierId",
+      "value": ""
+    },
+    {
+      "key": "otherSupplierToken",
+      "value": ""
+    },
+    {
+      "key": "registeredId",
+      "value": ""
+    },
+    {
+      "key": "ownOfferId",
+      "value": ""
+    },
+    {
+      "key": "archivedId",
+      "value": ""
     }
   ],
   "event": [
@@ -1256,19 +2790,27 @@
       "script": {
         "type": "text/javascript",
         "exec": [
-          "// Retrouve les comptes de test (client, fournisseur, agent) si les variables sont vides :",
-          "// permet de lancer un dossier seul (par exemple 02 - Offres) sans passer par le dossier 01.",
-          "const roles = [[\"CLIENT\", \"clientId\"], [\"SUPPLIER\", \"supplierId\"], [\"AGENT\", \"agentId\"], [\"ADMIN\", \"adminId\"]];",
-          "if (roles.some(([, variable]) => !pm.collectionVariables.get(variable))) {",
-          "  pm.sendRequest({ url: pm.collectionVariables.get(\"baseUrl\") + \"/api/users\", method: \"GET\" }, (error, response) => {",
+          "// Connecte les comptes de test (client, fournisseur, agent, admin) si leurs jetons manquent :",
+          "// permet de lancer un dossier seul sans passer par les autres. Mot de passe de test : password123.",
+          "const accounts = [",
+          "  [\"CLIENT\", \"clientId\", \"clientToken\", \"sarah.benali@example.com\"],",
+          "  [\"SUPPLIER\", \"supplierId\", \"supplierToken\", \"karim.idrissi@atlasvoyage.ma\"],",
+          "  [\"AGENT\", \"agentId\", \"agentToken\", \"nadia.elfassi@atlasvoyage.ma\"],",
+          "  [\"ADMIN\", \"adminId\", \"adminToken\", \"omar.tazi@atlasvoyage.ma\"],",
+          "];",
+          "const vars = pm.collectionVariables;",
+          "accounts.filter(([, idVar, tokenVar]) => !vars.get(tokenVar) || !vars.get(idVar)).forEach(([, idVar, tokenVar, email]) => {",
+          "  pm.sendRequest({",
+          "    url: vars.get(\"baseUrl\") + \"/api/auth/login\", method: \"POST\",",
+          "    header: { \"Content-Type\": \"application/json\" },",
+          "    body: { mode: \"raw\", raw: JSON.stringify({ email, password: \"password123\" }) },",
+          "  }, (error, response) => {",
           "    if (error || response.code !== 200) return;",
-          "    const users = response.json();",
-          "    roles.forEach(([role, variable]) => {",
-          "      const user = users.find((u) => u.role === role && !u.archived);",
-          "      if (user) pm.collectionVariables.set(variable, user.id);",
-          "    });",
+          "    const session = response.json();",
+          "    vars.set(tokenVar, session.token);",
+          "    vars.set(idVar, session.user.id);",
           "  });",
-          "}"
+          "});"
         ]
       }
     }

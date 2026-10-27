@@ -164,6 +164,19 @@ const navUrl = (text) =>
     ? `${root}accueil.html`
     : `${root}catalogue.html?type=${encodeURIComponent(text)}`;
 
+const ROLE_LABELS = { CLIENT: "Mon espace", SUPPLIER: "Espace fournisseur", AGENT: "Espace agent", ADMIN: "Administration" };
+const loggedUser = () => (typeof Auth !== "undefined" && Auth.isLoggedIn() ? Auth.getUser() : null);
+
+function accountLinks() {
+  const user = loggedUser();
+  if (!user) return `<a class="client-link" href="${root}connexion.html">Se connecter</a>`;
+  return `<a class="client-link" href="${Auth.homeUrl(user.role)}">${ROLE_LABELS[user.role]}</a><a href="#" id="logout-link">Déconnexion</a>`;
+}
+function footerAccountLink() {
+  const user = loggedUser();
+  return user ? `<a href="${Auth.homeUrl(user.role)}">${ROLE_LABELS[user.role]}</a>` : `<a href="${root}connexion.html">Se connecter</a>`;
+}
+
 function header(active = "") {
   return `<header><div class="topbar"><div class="container"><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><div class="top-actions"><div class="locale" id="locale"><button type="button" class="locale-btn" aria-haspopup="true" aria-expanded="false"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span id="locale-label">Devise · ${curCode()}</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button><div class="locale-menu" role="menu"><div class="locale-title">Devise d’affichage</div><div class="cur-row">${Object.keys(
     CUR,
@@ -174,10 +187,10 @@ function header(active = "") {
     )
     .join(
       "",
-    )}</div></div></div><a class="cart-link" href="${root}panier.html">${icon("cart")} Panier <span class="cart-count" id="cart-count">0</span></a><a class="client-link" href="${root}client/index.html?page=dashboard">Mon espace</a><a class="supplier-link" href="${root}supplier/index.html">Fournisseur</a><a class="agent-link" href="${root}agent/index.html">Espace agent</a><a class="admin-link" href="${root}admin/index.html">Administration</a></div></div></div><nav class="main-nav"><div class="container">${nav.map(([text, i]) => `<a class="${active === text ? "active" : ""}" href="${navUrl(text)}">${icon(i)}${text}</a>`).join("")}</div></nav></header>`;
+    )}</div></div></div><a class="cart-link" href="${root}panier.html">${icon("cart")} Panier <span class="cart-count" id="cart-count">0</span></a>${accountLinks()}</div></div></div><nav class="main-nav"><div class="container">${nav.map(([text, i]) => `<a class="${active === text ? "active" : ""}" href="${navUrl(text)}">${icon(i)}${text}</a>`).join("")}</div></nav></header>`;
 }
 function footer() {
-  return `<footer><div class="container"><div class="footer-row"><div><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><p>Le Maroc, à votre manière. Des voyages soigneusement imaginés et un accueil qui vient du cœur.</p></div><div class="foot-links"><a href="${root}catalogue.html">Découvrir les offres</a><a href="${root}panier.html">Mon panier</a><a href="${root}client/index.html?page=dashboard">Mon espace</a><a href="${root}supplier/index.html">Espace fournisseur</a><a href="${root}agent/index.html">Espace agent</a><a href="${root}admin/index.html">Administration</a></div></div><div class="copyright">© 2026 Atlas Voyage · Créé avec hospitalité au Maroc</div></div></footer>`;
+  return `<footer><div class="container"><div class="footer-row"><div><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><p>Le Maroc, à votre manière. Des voyages soigneusement imaginés et un accueil qui vient du cœur.</p></div><div class="foot-links"><a href="${root}catalogue.html">Découvrir les offres</a><a href="${root}panier.html">Mon panier</a>${footerAccountLink()}</div></div><div class="copyright">© 2026 Atlas Voyage · Créé avec hospitalité au Maroc</div></div></footer>`;
 }
 function searchBar() {
   const p = new URLSearchParams(location.search);
@@ -668,8 +681,9 @@ document.addEventListener("keydown", (e) => {
     document.getElementById("locale")?.classList.remove("open");
 });
 
-
-
-
-
-
+document.addEventListener("click", (event) => {
+  if (event.target.closest("#logout-link")) {
+    event.preventDefault();
+    Auth.logout();
+  }
+});
