@@ -2,7 +2,7 @@
 
 Ce document recense **tous les endpoints exposés par le Backend** (Spring Boot, `http://localhost:8080`). Il est à jour avec le code des contrôleurs (`backend/src/main/java/com/agence/voyage/controller/`). Pour l'architecture et les règles métier détaillées, voir [`architecture.md`](architecture.md). Une collection Postman prête à l'emploi est fournie dans [`postman/`](postman/README.md).
 
-**26 endpoints** répartis sur 6 ressources :
+**27 endpoints** répartis sur 6 ressources :
 
 | Ressource | Base | Endpoints | Contrôleur |
 |---|---|---|---|
@@ -61,15 +61,16 @@ Une erreur de validation de champ est préfixée par le nom du champ (`title: Le
 | 15 | PUT | `/api/cities/{id}` | Modifier une ville | `ADMIN` | `200` |
 | 16 | DELETE | `/api/cities/{id}` | Supprimer une ville | `ADMIN` | `204` |
 | 17 | GET | `/api/offers` | Liste des offres (filtres `supplierId`, `type`) | public | `200` |
-| 18 | GET | `/api/offers/{id}` | Détail d'une offre | public | `200` |
-| 19 | POST | `/api/offers` | Créer une offre (5 types possibles) | `SUPPLIER` | `201` |
-| 20 | PUT | `/api/offers/{id}` | Modifier une offre (le type ne change pas) | `SUPPLIER` propriétaire | `200` |
-| 21 | DELETE | `/api/offers/{id}` | Supprimer une offre | `SUPPLIER` propriétaire | `204` |
-| 22 | GET | `/api/bundles` | Liste des bundles (filtre `agentId`) | public | `200` |
-| 23 | GET | `/api/bundles/{id}` | Détail d'un bundle | public | `200` |
-| 24 | POST | `/api/bundles` | Créer un bundle | `AGENT` | `201` |
-| 25 | PUT | `/api/bundles/{id}` | Modifier un bundle | `AGENT` créateur | `200` |
-| 26 | DELETE | `/api/bundles/{id}` | Supprimer un bundle | `AGENT` créateur | `204` |
+| 18 | GET | `/api/offers/search` | Catalogue public : filtres, tri et pagination | public | `200` |
+| 19 | GET | `/api/offers/{id}` | Détail d'une offre | public | `200` |
+| 20 | POST | `/api/offers` | Créer une offre (5 types possibles) | `SUPPLIER` | `201` |
+| 21 | PUT | `/api/offers/{id}` | Modifier une offre (le type ne change pas) | `SUPPLIER` propriétaire | `200` |
+| 22 | DELETE | `/api/offers/{id}` | Supprimer une offre | `SUPPLIER` propriétaire | `204` |
+| 23 | GET | `/api/bundles` | Liste des bundles (filtre `agentId`) | public | `200` |
+| 24 | GET | `/api/bundles/{id}` | Détail d'un bundle | public | `200` |
+| 25 | POST | `/api/bundles` | Créer un bundle | `AGENT` | `201` |
+| 26 | PUT | `/api/bundles/{id}` | Modifier un bundle | `AGENT` créateur | `200` |
+| 27 | DELETE | `/api/bundles/{id}` | Supprimer un bundle | `AGENT` créateur | `204` |
 
 ---
 
@@ -186,6 +187,28 @@ Une seule ressource couvre les **5 types d'offres** ; le champ `type` choisit la
 | `supplierId` | `?supplierId=2` | Offres d'un fournisseur |
 | `type` | `?type=HOTEL` | Offres d'un type : `FLIGHT`, `HOTEL`, `CAR`, `TAXI_TRANSFER`, `EXCURSION` |
 
+### Recherche du catalogue — `GET /api/offers/search`
+
+Endpoint **public** utilisé par le catalogue de l'espace client. Il ne renvoie que les offres **actives et en stock** (stock > 0), page par page.
+
+| Paramètre | Exemple | Effet |
+|---|---|---|
+| `cityId` | `?cityId=2` | Offres d'une ville |
+| `types` | `?types=HOTEL,EXCURSION` | Un ou plusieurs types (séparés par des virgules) ; une valeur inconnue renvoie `400` |
+| `maxPrice` | `?maxPrice=800` | Prix de base maximum |
+| `payOnArrival` | `?payOnArrival=true` | Uniquement les offres qui acceptent le paiement à l'arrivée |
+| `sort` | `?sort=price_asc` | `price_asc`, `price_desc` ou, par défaut, les plus récentes |
+| `page`, `size` | `?page=1&size=9` | Page (à partir de 0, défaut 0) et taille (défaut 9, maximum 50) |
+
+**Réponse** :
+
+| Champ | Description |
+|---|---|
+| `content` | Offres de la page (même format que `GET /api/offers`) |
+| `totalElements`, `totalPages`, `page`, `size` | Pagination |
+| `typeCounts` | Nombre d'offres par type selon les autres filtres (ville, prix, paiement) **sans** le filtre de type : sert aux compteurs des cases à cocher |
+| `maxPrice` | Prix le plus élevé du catalogue disponible : borne du curseur de prix |
+
 **Champs communs** (`POST` / `PUT`) :
 
 | Champ | Type | Règle |
@@ -291,6 +314,5 @@ Au démarrage, un compte existant dont le mot de passe est encore en clair (base
 
 ## Endpoints prévus (non implémentés)
 
-- `GET /api/offers/search?city=…` : filtrage du catalogue public.
 - Panier et codes promo, réservations (`POST /api/bookings`), paiements, notifications.
 - CRUD des codes promo (espace administrateur).

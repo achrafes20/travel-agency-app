@@ -196,7 +196,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 
 ## 11. Suivi d'avancement
 
-*Dernière mise à jour : 2026-10-26.*
+*Dernière mise à jour : 2026-10-27.*
 
 ### Phase 1 — Analyse & conception
 ✅ **Terminée.** Cahier des charges (ce document) et diagramme d'architecture (`architecture.md`) rédigés.
@@ -253,18 +253,27 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - ✅ L'agent est l'utilisateur connecté (jeton JWT) : il ne peut modifier ni supprimer que ses propres bundles (`403` sinon).
 - ⚠️ Limites connues : remise en pourcentage uniquement ; pas encore de réservation de bundle (panier / réservations non implémentés) ; le tableau de bord, les réservations, paiements et tickets de l'espace agent restent en données démo.
 
+### Catalogue de l'espace client
+✅ **Terminé** (`client/index.html?page=catalogue`, fiche : `?page=offre&id=…`), branché sur l'API :
+- ✅ `GET /api/offers/search` (public) : offres **actives et en stock** uniquement, filtres (ville, types, prix maximum, paiement à l'arrivée), tri (récentes, prix croissant / décroissant) et **pagination réelle** (9 par page) ; compteurs par type et borne du curseur de prix renvoyés par l'API — voir `api_endpoints.md`.
+- ✅ Interface : liste de cartes avec vraie photo, ville, prix et unité selon le type ; filtres latéraux avec compteurs réels ; pastilles de filtres actifs supprimables ; menu des catégories de l'en-tête ; états « chargement », « aucun résultat » et « erreur ».
+- ✅ **Fiche d'une offre** : galerie de photos, description, détails propres à chaque type (étoiles, vol, véhicule, durée…), fournisseur, disponibilité et paiement à l'arrivée ; rechargement direct par l'URL et message si l'offre n'existe pas.
+- ✅ Test unitaire `OfferSearchTest` (offres inactives ou épuisées masquées, filtres, tris, pagination, compteurs par type).
+- ✅ **Données de démonstration** : `scripts/seed_demo_data.py` crée villes, comptes, 18 offres (les 5 types, avec photos adaptées au type) et 4 bundles en passant par l'API ; relançable sans doublon (voir `README.md`).
+- ⚠️ Limites connues : le bouton « Ajouter au panier » est désactivé tant que le panier n'existe pas ; le catalogue **public** (`catalogue.html`, `offre.html`, `accueil.html`) reste en données statiques ; pas de carte Leaflet ; les bundles n'apparaissent pas encore dans le catalogue ; le filtrage se fait en mémoire côté serveur (suffisant pour ce volume).
+
 ### Séance 3 & 4 — Modèle de données (JPA/Hibernate), CRUD et API REST
-⚠️ **Presque terminée** : il ne manque que le diagramme de classes.
+✅ **Terminée.**
 - ✅ **Entités JPA et mappings** : 15 entités et 6 énumérations, avec `@ManyToOne`, `@OneToMany`, `@OneToOne`, `@ManyToMany` (`bundle_offers`) et héritage `SINGLE_TABLE` pour les offres — voir `architecture.md`, §3.
 - ✅ **Base MySQL fonctionnelle** : tables générées par Hibernate (`ddl-auto=update`), persistance vérifiée.
 - ✅ **CRUD complet (Repository, Service, Controller) pour 4 entités** : `User`, `City`, `Offer` (5 sous-types) et `Bundle`.
-- ✅ **Liste des endpoints** : [`api_endpoints.md`](api_endpoints.md) — 26 endpoints, champs, règles, droits d'accès et codes de retour.
+- ✅ **Liste des endpoints** : [`api_endpoints.md`](api_endpoints.md) — 27 endpoints, champs, règles, droits d'accès et codes de retour.
 - ✅ **Tests Postman** : `docs/postman/` — collection de 59 requêtes et 104 vérifications (utilisateurs, offres, bundles, authentification et droits) ; chaque dossier est autonome (il se connecte lui-même avec les comptes de test) et nettoie ses données.
 - ✅ **Interfaces CRUD** : Admin (utilisateurs, villes), Fournisseur (offres, stock), Agent (bundles).
 - ✅ **Harmonisation de l'interface** : menus latéraux repliables dans les quatre espaces ; retrait des mentions « Version 2 », des liens « Voir le site public » et des cartes « Besoin d'aide » des menus.
-- ✅ **Tests automatisés** : 35 tests (`CityServiceTest`, `UserServiceTest`, `OfferServiceTest`, `BundleServiceTest`, `AuthServiceTest`, et `SecurityRulesTest` pour les règles d'accès par route).
+- ✅ **Tests automatisés** : 42 tests (`CityServiceTest`, `UserServiceTest`, `OfferServiceTest`, `OfferSearchTest`, `BundleServiceTest`, `AuthServiceTest`, `SecurityRulesTest` pour les règles d'accès par route, et `SchemaCreationTest` pour la création du schéma).
 - ✅ Suppression d'une ville refusée (`400`) si des offres l'utilisent.
-- ❌ **Diagramme de classes** — à produire.
+- ✅ **Diagramme de classes** : `docs/diagrammes/diagramme-classes-complet-atlas-voyage.png`.
 
 ### Phase 3 — Fondations & documentation
 ✅ **Terminée.**
@@ -280,9 +289,9 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - ⚠️ Limites connues : pas de renouvellement ni de révocation de jeton avant expiration (déconnexion côté navigateur uniquement) ; « Mot de passe oublié » et changement de mot de passe par l'utilisateur ne sont pas implémentés ; la clé `jwt.secret` est une valeur de développement dans `application.properties`.
 
 ### Phase 4 — Développement des modules
-⚠️ **Partiellement commencée** : les modules Admin **Villes** (Séance 2) et **Utilisateurs**, le module Fournisseur **Offres** et le module Agent **Bundles** (voir ci-dessus) sont terminés. Restent à faire :
+⚠️ **Partiellement commencée** : les modules Admin **Villes** (Séance 2) et **Utilisateurs**, le module Fournisseur **Offres**, le module Agent **Bundles** et le **catalogue de l'espace client** (voir ci-dessus) sont terminés. Restent à faire :
 - **Modules transactionnels** (Personne 1) : panier + application des codes promo, workflow réservation/paiement, notifications in-app et envoi d'emails (SMTP), dashboard client. Les entités existent, mais aucune logique métier ni endpoint n'a été écrit.
-- **Catalogue & modules staff** (Personne 2) : catalogue connecté au backend (actuellement données statiques codées en dur dans `app.js`) avec pagination réelle et carte Leaflet, CRUD codes promo côté Admin. *(Modules Admin **Villes** et **Utilisateurs** : terminés.)*
+- **Catalogue & modules staff** (Personne 2) : catalogue **public** (`accueil.html`, `catalogue.html`, `offre.html`, encore en données statiques dans `js/app.js`) à brancher sur la même API, carte Leaflet, bundles dans le catalogue, CRUD codes promo côté Admin. *(Modules Admin **Villes** et **Utilisateurs** : terminés.)*
 
 ### Phase 5 — Intégration & finalisation
 ❌ **Non commencée** — bloquée tant que la Phase 4 n'est pas avancée.
@@ -290,5 +299,6 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 ### Notes techniques complémentaires
 - Les **nouveaux** comptes créés par le seed utilisent **BCrypt** (`spring-security-crypto`). Un compte dont le mot de passe est encore en clair (table `users` créée avant BCrypt) est haché automatiquement au démarrage du Backend (`DataSeeder`), ce qui permet de se connecter avec les comptes de test existants.
 - Le dépôt Git ne contenait pas encore de `.gitignore` ; les artefacts compilés (`backend/target/`) étaient suivis par erreur — corrigé (voir `.gitignore` à la racine).
+- Les photos des offres de démonstration (`frontend/images/offers/`) viennent de Wikimedia Commons (licences CC BY / CC BY-SA) : crédits dans `frontend/images/offers/CREDITS.md`.
 - Un wrapper Maven (`backend/mvnw`, `mvnw.cmd`) a été ajouté pour que le projet reste exécutable sans installation Maven séparée sur une autre machine.
 

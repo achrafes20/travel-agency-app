@@ -2,6 +2,7 @@ package com.agence.voyage.controller;
 
 import com.agence.voyage.dto.OfferRequest;
 import com.agence.voyage.dto.OfferResponse;
+import com.agence.voyage.dto.OfferSearchResponse;
 import com.agence.voyage.entity.OfferType;
 import com.agence.voyage.security.AppUserDetails;
 import com.agence.voyage.service.OfferService;
@@ -35,6 +36,17 @@ public class OfferController {
     public List<OfferResponse> list(@RequestParam(required = false) Long supplierId,
                                     @RequestParam(required = false) OfferType type) {
         return offerService.findAll(supplierId, type).stream().map(OfferResponse::from).toList();
+    }
+
+    @GetMapping("/search")
+    public OfferSearchResponse search(@RequestParam(required = false) Long cityId,
+                                      @RequestParam(required = false) List<OfferType> types,
+                                      @RequestParam(required = false) Double maxPrice,
+                                      @RequestParam(required = false) Boolean payOnArrival,
+                                      @RequestParam(required = false) String sort,
+                                      @RequestParam(defaultValue = "0") int page,
+                                      @RequestParam(defaultValue = "9") int size) {
+        return offerService.search(cityId, types, maxPrice, payOnArrival, sort, page, size);
     }
 
     @GetMapping("/{id}")

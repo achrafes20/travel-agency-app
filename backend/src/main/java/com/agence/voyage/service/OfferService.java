@@ -1,6 +1,8 @@
 package com.agence.voyage.service;
 
 import com.agence.voyage.dto.OfferRequest;
+import com.agence.voyage.dto.OfferResponse;
+import com.agence.voyage.dto.OfferSearchResponse;
 import com.agence.voyage.entity.Car;
 import com.agence.voyage.entity.City;
 import com.agence.voyage.entity.Excursion;
@@ -22,12 +24,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class OfferService {
 
     private static final int MAX_IMAGES = 5;
+    private static final int MAX_PAGE_SIZE = 50;
 
     private final OfferRepository offerRepository;
     private final CityRepository cityRepository;
@@ -47,6 +53,50 @@ public class OfferService {
             return offers;
         }
         return offers.stream().filter(o -> typeOf(o) == type).toList();
+    }
+
+    /**
+     * Catalogue public : seules les offres actives et en stock sont proposées.
+     * Le filtre de type n'entre pas dans {@code typeCounts}, pour que chaque case à cocher affiche son propre total.
+     */
+    public OfferSearchResponse search(Long cityId, List<OfferType> types, Double maxPrice, Boolean payOnArrival,
+                                      String sort, int page, int size) {
+        int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+        int safePage = Math.max(page, 0);
+
+        List<Offer> available = offerRepository.findAll().stream()
+                .filter(o -> Boolean.TRUE.equals(o.getActive()))
+                .filter(o -> o.getStock() != null && o.getStock() > 0)
+                .toList();
+        double catalogueMax = available.stream().mapToDouble(Offer::getBasePrice).max().orElse(0);
+
+        List<Offer> matching = available.stream()
+                .filter(o -> cityId == null || o.getCity().getId().equals(cityId))
+                .filter(o -> maxPrice == null || o.getBasePrice() <= maxPrice)
+                .filter(o -> !Boolean.TRUE.equals(payOnArrival) || Boolean.TRUE.equals(o.getAllowsPayOnArrival()))
+                .toList();
+
+        Map<OfferType, Long> typeCounts = new EnumMap<>(OfferType.class);
+        for (OfferType type : OfferType.values()) {
+            typeCounts.put(type, 0L);
+        }
+        matching.forEach(o -> typeCounts.merge(typeOf(o), 1L, Long::sum));
+
+        Comparator<Offer> order = switch (sort == null ? "" : sort) {
+            case "price_asc" -> Comparator.comparing(Offer::getBasePrice);
+            case "price_desc" -> Comparator.comparing(Offer::getBasePrice).reversed();
+            default -> Comparator.comparing(Offer::getId).reversed();
+        };
+        List<Offer> filtered = matching.stream()
+                .filter(o -> types == null || types.isEmpty() || types.contains(typeOf(o)))
+                .sorted(order)
+                .toList();
+
+        int totalPages = (int) Math.ceil(filtered.size() / (double) safeSize);
+        int from = Math.min(safePage * safeSize, filtered.size());
+        int to = Math.min(from + safeSize, filtered.size());
+        List<OfferResponse> content = filtered.subList(from, to).stream().map(OfferResponse::from).toList();
+        return new OfferSearchResponse(content, filtered.size(), totalPages, safePage, safeSize, typeCounts, catalogueMax);
     }
 
     public Offer findById(Long id) {

@@ -11,6 +11,7 @@ const me = (() => {
 const state = {
   sidebarCollapsed: false,
   page: "dashboard",
+  offerId: null,
   promo: false,
   quantity: 2,
   payment: "card",
@@ -75,7 +76,7 @@ function status(label, type = "success") {
 }
 
 function header() {
-  const categories = [["plane","Vols"],["bed","Hôtels & Riads"],["car","Location de voiture"],["taxi","Taxi / Transferts"],["compass","Excursions"],["gift","Bundles"],["map","Carte"]];
+  const categories = [["plane","Vols","FLIGHT"],["bed","Hôtels & Riads","HOTEL"],["car","Location de voiture","CAR"],["taxi","Taxi / Transferts","TAXI_TRANSFER"],["compass","Excursions","EXCURSION"]];
   return `<header>
     <div class="topbar"><div class="header-inner">
       ${logo()}
@@ -95,7 +96,7 @@ function header() {
         </div>
       </div>
     </div></div>
-    <nav class="catnav"><div class="header-inner">${categories.map(([name,label]) => `<button data-page="catalogue">${icon(name,18)}${label}</button>`).join("")}</div></nav>
+    <nav class="catnav"><div class="header-inner">${categories.map(([name,label,type]) => `<button data-action="category" data-type="${type}">${icon(name,18)}${label}</button>`).join("")}</div></nav>
   </header>`;
 }
 
@@ -146,28 +147,235 @@ function dashboard() {
     </section>`);
 }
 
+/* ---------- Catalogue : offres réelles (API /api/offers/search) ---------- */
+
+const OFFER_TYPES = [
+  ["HOTEL", "Hôtels & Riads", "HÔTEL", "/ nuit"],
+  ["EXCURSION", "Excursions", "EXCURSION", "/ personne"],
+  ["CAR", "Location de voiture", "VOITURE", "/ jour"],
+  ["FLIGHT", "Vols", "VOL", "/ passager"],
+  ["TAXI_TRANSFER", "Taxi / Transferts", "TAXI", "/ trajet"],
+];
+const OFFER_TYPE = Object.fromEntries(OFFER_TYPES.map(([key, label, tag, unit]) => [key, { label, tag, unit }]));
+const PAGE_SIZE = 9;
+const SORTS = [["recent", "Plus récentes"], ["price_asc", "Prix croissant"], ["price_desc", "Prix décroissant"]];
+
+const catalog = {
+  cities: [],
+  cityId: "",
+  types: [],
+  maxPrice: null,
+  payOnArrival: false,
+  sort: "recent",
+  page: 0,
+  data: null,
+  error: "",
+  requestId: 0,
+};
+
+const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const money = (value) => `${Number(value).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MAD`;
+const NO_IMAGE = "../images/zellige-vector.jpg"; // repli neutre : jamais une photo qui prétend montrer autre chose
+const offerImage = (offer) => (offer.images && offer.images[0]) || NO_IMAGE;
+const imageTag = (src, alt, extra = "") => `<img src="${esc(src)}" alt="${esc(alt)}" ${extra} onerror="this.onerror=null;this.src='${NO_IMAGE}'">`;
+const priceCap = () => Math.max(100, Math.ceil((catalog.data?.maxPrice || 0) / 100) * 100);
+
 function catalogue() {
-  const offers = [
-    [photos.riad,"HÔTEL","Riad Atlas – Chambre double","Chefchaouen","4,9","890,00 MAD","/ nuit"],
-    [photos.medersa,"EXCURSION","Chefchaouen → Akchour","Chefchaouen","4,8","250,00 MAD","/ personne"],
-    [photos.patio,"VOITURE","Dacia Logan – Agadir","Agadir","4,7","320,00 MAD","/ jour"],
-    [photos.pool,"BUNDLE –15 %","Week-end Nord","Tanger & Chefchaouen","4,9","1 890,00 MAD","/ séjour"],
-  ];
   return `${header()}<main class="catalogue static-page">
-    <div class="catalogue-head"><span class="eyebrow">OFFRES SÉLECTIONNÉES</span><h1>Explorez le Maroc à votre rythme</h1><p>Des séjours, activités et services sélectionnés par notre équipe locale.</p>
-      <div class="compact-search"><span>${icon("map")}<small>DESTINATION</small><b>Tout le Maroc</b></span><span>${icon("calendar")}<small>DATES</small><b>18/04/2026 – 20/04/2026</b></span><span>${icon("user")}<small>VOYAGEURS</small><b>2 adultes</b></span>${button("Rechercher",{iconName:"search",action:"search"})}</div>
+    <div class="catalogue-head"><span class="eyebrow">OFFRES SÉLECTIONNÉES</span><h1>Explorez le Maroc à votre rythme</h1><p>Des séjours, activités et services proposés par nos partenaires locaux.</p>
+      <div class="compact-search simple"><span>${icon("map")}<small>DESTINATION</small><select id="cat-city" data-filter="city" aria-label="Destination"></select></span>${button("Rechercher", { iconName: "search", action: "search" })}</div>
     </div>
     <div class="catalogue-body">
-      <aside class="filters"><div><h3>Filtrer les offres</h3><button data-action="reset-filters">Réinitialiser</button></div><label>TYPE D'OFFRE</label>
-        ${["Hôtels & Riads","Excursions","Location de voiture","Vols","Taxi / Transferts"].map((label,index) => `<label class="checkline"><input type="checkbox" ${index < 2 ? "checked" : ""}><span>${label}</span><small>${[24,18,12,8,6][index]}</small></label>`).join("")}
-        <hr><label>PRIX PAR PERSONNE</label><div class="price-range"><span>0 MAD</span><span>3 500 MAD</span></div><input type="range" min="0" max="3500" value="2300"><hr><label>OPTIONS</label><label class="checkline"><input type="checkbox"><span>Paiement à l'arrivée</span></label><label class="checkline"><input type="checkbox"><span>Annulation gratuite</span></label>
-      </aside>
-      <section class="results"><div class="results-head"><div><b>42 offres trouvées</b><div class="chips"><span>Hôtels & Riads ×</span><span>Excursions ×</span></div></div><select><option>Recommandés</option><option>Prix croissant</option><option>Plus récents</option></select></div>
-        <div class="offer-grid">${offers.map(([image,type,title,place,rating,price,unit]) => `<article class="offer-card"><div class="offer-image-static"><img src="${image}" alt="${title}"><span>${type}</span><button data-action="favorite">♡</button></div><div class="offer-content"><small>${icon("map",14)}${place}</small><h3>${title}</h3><div class="rating"><b>★ ${rating}</b><span>(128 avis)</span></div><hr><div><span>À partir de <b>${price}</b><small>${unit}</small></span><button data-page="panier">${icon("arrow")}</button></div></div></article>`).join("")}</div>
-        <div class="pagination"><button>‹</button><button class="active">1</button><button>2</button><button>3</button><span>…</span><button>8</button><button>›</button></div>
-      </section>
+      <aside class="filters" id="cat-filters"></aside>
+      <section class="results" id="cat-results"><div class="empty-state"><h2>Chargement des offres…</h2></div></section>
     </div>
   </main>${footer()}`;
+}
+
+function paintCityOptions() {
+  const select = document.getElementById("cat-city");
+  if (!select) return;
+  select.innerHTML = `<option value="">Tout le Maroc</option>${catalog.cities.map((c) => `<option value="${c.id}" ${String(c.id) === String(catalog.cityId) ? "selected" : ""}>${esc(c.name)}</option>`).join("")}`;
+}
+
+function paintCatalogueFilters() {
+  const aside = document.getElementById("cat-filters");
+  if (!aside) return;
+  const counts = catalog.data?.typeCounts || {};
+  const cap = priceCap();
+  const value = Math.min(catalog.maxPrice ?? cap, cap);
+  aside.innerHTML = `<div><h3>Filtrer les offres</h3><button data-action="reset-filters">Réinitialiser</button></div>
+    <label>TYPE D'OFFRE</label>
+    ${OFFER_TYPES.map(([key, label]) => `<label class="checkline"><input type="checkbox" data-filter="type" value="${key}" ${catalog.types.includes(key) ? "checked" : ""}><span>${label}</span><small>${counts[key] ?? 0}</small></label>`).join("")}
+    <hr><label>PRIX MAXIMUM</label>
+    <div class="price-range"><span>0 MAD</span><b id="cat-price-label">${value.toLocaleString("fr-FR")} MAD</b></div>
+    <input type="range" id="cat-price" data-filter="price" min="0" max="${cap}" step="50" value="${value}">
+    <hr><label>OPTIONS</label>
+    <label class="checkline"><input type="checkbox" data-filter="pay" ${catalog.payOnArrival ? "checked" : ""}><span>Paiement à l'arrivée</span></label>`;
+}
+
+function activeChips() {
+  const chips = [];
+  if (catalog.cityId) chips.push(["city", esc(catalog.cities.find((c) => String(c.id) === String(catalog.cityId))?.name || "Ville")]);
+  catalog.types.forEach((t) => chips.push([`type:${t}`, OFFER_TYPE[t].label]));
+  if (catalog.maxPrice !== null) chips.push(["price", `Jusqu'à ${catalog.maxPrice.toLocaleString("fr-FR")} MAD`]);
+  if (catalog.payOnArrival) chips.push(["pay", "Paiement à l'arrivée"]);
+  return chips.map(([key, label]) => `<button data-action="chip-remove" data-key="${key}">${label} ×</button>`).join("");
+}
+
+function paginationHtml(data) {
+  if (data.totalPages <= 1) return "";
+  const last = data.totalPages - 1;
+  const pages = [...new Set([0, data.page - 1, data.page, data.page + 1, last])].filter((p) => p >= 0 && p <= last).sort((a, b) => a - b);
+  const items = [];
+  pages.forEach((p, i) => {
+    if (i > 0 && p - pages[i - 1] > 1) items.push("<span>…</span>");
+    items.push(`<button data-action="cat-page" data-index="${p}" class="${p === data.page ? "active" : ""}" aria-label="Page ${p + 1}">${p + 1}</button>`);
+  });
+  return `<div class="pagination"><button data-action="cat-page" data-index="${data.page - 1}" ${data.page === 0 ? "disabled" : ""} aria-label="Page précédente">‹</button>${items.join("")}<button data-action="cat-page" data-index="${data.page + 1}" ${data.page === last ? "disabled" : ""} aria-label="Page suivante">›</button></div>`;
+}
+
+function offerCard(offer) {
+  const type = OFFER_TYPE[offer.type];
+  const low = offer.stock <= 3 ? `<em class="low-stock">Plus que ${offer.stock}</em>` : "";
+  return `<article class="offer-card" data-offer="${offer.id}"><div class="offer-image-static">${imageTag(offerImage(offer), offer.title)}<span>${type.tag}</span></div>
+    <div class="offer-content"><small>${icon("map", 14)}${esc(offer.cityName)}</small><h3>${esc(offer.title)}</h3><div class="rating">${low}${offer.allowsPayOnArrival ? '<span class="pay-tag">Paiement à l\'arrivée</span>' : ""}</div><hr>
+      <div><span>À partir de <b>${money(offer.basePrice)}</b><small>${type.unit}</small></span><button data-action="open-offer" data-id="${offer.id}" aria-label="Voir ${esc(offer.title)}">${icon("arrow")}</button></div></div></article>`;
+}
+
+function paintCatalogueResults() {
+  const box = document.getElementById("cat-results");
+  if (!box) return;
+  if (catalog.error) {
+    box.innerHTML = `<div class="empty-state"><h2>Impossible de charger les offres</h2><p>${esc(catalog.error)}</p>${button("Réessayer", { action: "search" })}</div>`;
+    return;
+  }
+  const data = catalog.data;
+  if (!data) return;
+  const total = data.totalElements;
+  box.innerHTML = `<div class="results-head"><div><b>${total} offre${total > 1 ? "s" : ""} trouvée${total > 1 ? "s" : ""}</b><div class="chips">${activeChips()}</div></div>
+      <select data-filter="sort" aria-label="Trier">${SORTS.map(([key, label]) => `<option value="${key}" ${catalog.sort === key ? "selected" : ""}>${label}</option>`).join("")}</select></div>
+    ${total === 0
+      ? `<div class="empty-state"><h2>Aucune offre ne correspond</h2><p>Essayez une autre destination ou élargissez vos filtres.</p>${button("Réinitialiser les filtres", { variant: "outline", action: "reset-filters" })}</div>`
+      : `<div class="offer-grid">${data.content.map(offerCard).join("")}</div>${paginationHtml(data)}`}`;
+}
+
+async function loadCatalogue() {
+  const request = ++catalog.requestId;
+  const query = new URLSearchParams({ page: catalog.page, size: PAGE_SIZE, sort: catalog.sort });
+  if (catalog.cityId) query.set("cityId", catalog.cityId);
+  if (catalog.types.length) query.set("types", catalog.types.join(","));
+  if (catalog.maxPrice !== null) query.set("maxPrice", catalog.maxPrice);
+  if (catalog.payOnArrival) query.set("payOnArrival", "true");
+  try {
+    const data = await api.get(`/api/offers/search?${query}`);
+    if (request !== catalog.requestId) return;
+    catalog.data = data;
+    catalog.error = "";
+  } catch (err) {
+    if (request !== catalog.requestId) return;
+    catalog.error = err.message === "Failed to fetch" ? "Le serveur est injoignable. Vérifiez que le backend est démarré." : err.message;
+  }
+  paintCatalogueFilters();
+  paintCatalogueResults();
+}
+
+async function initCatalogue() {
+  paintCityOptions();
+  paintCatalogueFilters();
+  if (!catalog.cities.length) {
+    try {
+      catalog.cities = await api.get("/api/cities");
+      paintCityOptions();
+    } catch {
+      /* la liste des villes est facultative : le catalogue reste utilisable */
+    }
+  }
+  await loadCatalogue();
+}
+
+function setCatalogueFilter(key, value) {
+  catalog.page = 0;
+  if (key === "city") catalog.cityId = value;
+  if (key === "sort") catalog.sort = value;
+  if (key === "pay") catalog.payOnArrival = value;
+  if (key === "price") catalog.maxPrice = Number(value) >= priceCap() ? null : Number(value);
+  if (key === "type") {
+    catalog.types = catalog.types.includes(value) ? catalog.types.filter((t) => t !== value) : [...catalog.types, value];
+  }
+  loadCatalogue();
+}
+
+function resetCatalogueFilters() {
+  Object.assign(catalog, { cityId: "", types: [], maxPrice: null, payOnArrival: false, sort: "recent", page: 0 });
+  paintCityOptions();
+  loadCatalogue();
+}
+
+/* ---------- Détail d'une offre ---------- */
+
+const detailState = { offer: null, error: "" };
+
+function offerDetail() {
+  return `${header()}<main class="static-page offer-page"><div id="offer-detail"><div class="empty-state"><h2>Chargement de l'offre…</h2></div></div></main>${footer()}`;
+}
+
+const dateTime = (iso) => (iso ? new Date(iso).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" }) : "—");
+const yesNo = (value) => (value ? "Oui" : "Non");
+
+function offerFacts(o) {
+  const rows = {
+    HOTEL: [["Classement", "★".repeat(o.stars || 0) || "—"], ["Type de chambre", o.roomType], ["Adresse", o.address]],
+    FLIGHT: [["Compagnie", o.airline], ["N° de vol", o.flightNumber], ["Trajet", `${o.departureAirport || "—"} → ${o.arrivalAirport || "—"}`], ["Départ", dateTime(o.departureDateTime)], ["Arrivée", dateTime(o.arrivalDateTime)]],
+    CAR: [["Marque", [o.brand, o.model].filter(Boolean).join(" ")], ["Boîte de vitesses", o.transmission], ["Places", o.seats]],
+    TAXI_TRANSFER: [["Prise en charge", o.pickupLocation], ["Dépose", o.dropoffLocation], ["Véhicule", o.vehicleType]],
+    EXCURSION: [["Durée", o.durationHours ? `${o.durationHours} h` : "—"], ["Guide inclus", yesNo(o.includesGuide)], ["Transport inclus", yesNo(o.includesTransport)], ["Itinéraire", o.itinerary]],
+  }[o.type] || [];
+  return rows.filter(([, value]) => value !== null && value !== undefined && value !== "").map(([label, value]) => `<div><dt>${label}</dt><dd>${esc(value)}</dd></div>`).join("");
+}
+
+function paintOfferDetail() {
+  const box = document.getElementById("offer-detail");
+  if (!box) return;
+  if (detailState.error) {
+    box.innerHTML = `<div class="empty-state"><h2>Offre introuvable</h2><p>${esc(detailState.error)}</p>${button("Retour au catalogue", { variant: "outline", page: "catalogue" })}</div>`;
+    return;
+  }
+  const o = detailState.offer;
+  if (!o) return;
+  const images = o.images?.length ? o.images : [NO_IMAGE];
+  const type = OFFER_TYPE[o.type];
+  const available = o.active && o.stock > 0;
+  box.innerHTML = `<button class="back" data-page="catalogue">‹ Retour au catalogue</button>
+    <div class="offer-layout">
+      <section class="offer-gallery"><div class="offer-main-image">${imageTag(images[0], o.title, 'id="gallery-main"')}<span>${type.tag}</span></div>
+        ${images.length > 1 ? `<div class="offer-thumbs">${images.map((src, i) => `<button data-action="gallery" data-src="${esc(src)}" class="${i === 0 ? "active" : ""}" aria-label="Photo ${i + 1}">${imageTag(src, "")}</button>`).join("")}</div>` : ""}
+        ${o.description ? `<h2>Description</h2><p class="offer-description">${esc(o.description)}</p>` : ""}
+        <h2>Détails</h2><dl class="offer-facts">${offerFacts(o)}</dl>
+      </section>
+      <aside class="offer-buy card"><small>${icon("map", 14)}${esc(o.cityName)}</small><h1>${esc(o.title)}</h1>
+        <div class="offer-price">À partir de <b>${money(o.basePrice)}</b><small>${type.unit}</small></div>
+        <ul class="offer-badges">${available ? (o.stock <= 3 ? `<li class="warn">Plus que ${o.stock} disponible${o.stock > 1 ? "s" : ""}</li>` : '<li class="ok">Disponible</li>') : '<li class="ko">Indisponible</li>'}${o.allowsPayOnArrival ? "<li>Paiement à l'arrivée possible</li>" : "<li>Paiement en ligne</li>"}</ul>
+        <p class="offer-supplier">Proposé par <b>${esc(o.supplierName)}</b></p>
+        ${button("Ajouter au panier", { iconName: "cart", disabled: true })}
+        <p class="offer-note">Le panier sera disponible prochainement.</p></aside>
+    </div>`;
+}
+
+async function loadOfferDetail() {
+  detailState.offer = null;
+  detailState.error = "";
+  try {
+    detailState.offer = await api.get(`/api/offers/${state.offerId}`);
+  } catch (err) {
+    detailState.error = err.message === "Failed to fetch" ? "Le serveur est injoignable." : err.message;
+  }
+  paintOfferDetail();
+}
+
+function openOffer(id) {
+  state.offerId = id;
+  render("offre");
 }
 
 function cart() {
@@ -226,7 +434,7 @@ function footer() {
   return `<footer><div>${logo()}<p>Le Maroc, à votre manière.</p></div><div><b>EXPLORER</b><button data-page="catalogue">Découvrir les offres</button><button data-page="panier">Mon panier</button><button data-page="reservations">Mes réservations</button></div><div><b>ATLAS VOYAGE</b><button>À propos</button><button>Centre d'aide</button><button>Conditions générales</button></div><hr><small>© 2026 Atlas Voyage · Créé avec hospitalité au Maroc</small></footer>`;
 }
 
-const views = { dashboard, catalogue, panier: cart, checkout, confirmation, reservations, reservation, tickets, profil: profile };
+const views = { dashboard, catalogue, offre: offerDetail, panier: cart, checkout, confirmation, reservations, reservation, tickets, profil: profile };
 
 /** L’accueil public reste sur accueil.html (hors SPA client). */
 const externalPages = { accueil: "../accueil.html" };
@@ -244,9 +452,12 @@ function render(page = state.page) {
   state.page = page;
   const params = new URLSearchParams(window.location.search);
   params.set("page", page);
+  if (page === "offre" && state.offerId) params.set("id", state.offerId); else params.delete("id");
   window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
   document.getElementById("app").innerHTML = (views[page] || dashboard)();
   window.scrollTo({ top: 0, behavior: "smooth" });
+  if (page === "catalogue") initCatalogue();
+  if (page === "offre") loadOfferDetail();
 }
 
 function toast(message, type = "") {
@@ -267,6 +478,11 @@ function modal(title, message, confirmLabel, callback) {
 }
 
 document.addEventListener("click", (event) => {
+  const card = event.target.closest("[data-offer]");
+  if (card && !event.target.closest("button")) {
+    openOffer(card.dataset.offer);
+    return;
+  }
   const target = event.target.closest("button");
   if (!target) return;
   if (target.dataset.page) {
@@ -303,8 +519,30 @@ document.addEventListener("click", (event) => {
   if (action === "print") window.print();
   if (action === "save-profile") toast("Vos informations ont été enregistrées.", "success");
   if (action === "favorite") { target.textContent = target.textContent === "♥" ? "♡" : "♥"; toast("Liste de favoris mise à jour."); }
-  if (action === "reset-filters") { render("catalogue"); toast("Filtres réinitialisés."); }
-  if (action === "search") toast("42 offres correspondent à votre recherche.");
+  if (action === "reset-filters") resetCatalogueFilters();
+  if (action === "search") { catalog.page = 0; loadCatalogue(); }
+  if (action === "open-offer") openOffer(target.dataset.id);
+  if (action === "cat-page") {
+    catalog.page = Number(target.dataset.index);
+    loadCatalogue().then(() => document.querySelector(".catalogue-body")?.scrollIntoView({ behavior: "smooth" }));
+  }
+  if (action === "category") {
+    catalog.types = [target.dataset.type];
+    catalog.page = 0;
+    render("catalogue");
+  }
+  if (action === "chip-remove") {
+    const key = target.dataset.key;
+    if (key === "city") { catalog.cityId = ""; paintCityOptions(); setCatalogueFilter("city", ""); }
+    else if (key === "price") setCatalogueFilter("price", priceCap());
+    else if (key === "pay") setCatalogueFilter("pay", false);
+    else setCatalogueFilter("type", key.split(":")[1]);
+  }
+  if (action === "gallery") {
+    const main = document.getElementById("gallery-main");
+    if (main) main.src = target.dataset.src;
+    document.querySelectorAll(".offer-thumbs button").forEach((b) => b.classList.toggle("active", b === target));
+  }
   if (action === "edit") toast("Vous pouvez modifier les dates et la quantité.");
   if (action === "remove") modal("Retirer cet article ?", "L'article sera supprimé de votre panier.", "Retirer", () => toast("Article retiré du panier.", "success"));
   if (action === "clear-cart") modal("Vider le panier ?", "Tous les articles seront retirés de votre panier.", "Vider le panier", () => toast("Votre panier est maintenant vide.", "success"));
@@ -315,7 +553,18 @@ document.addEventListener("click", (event) => {
   if (action === "logout") Auth.logout();
 });
 
+document.addEventListener("change", (event) => {
+  const filter = event.target.dataset?.filter;
+  if (!filter) return;
+  if (filter === "type") setCatalogueFilter("type", event.target.value);
+  else if (filter === "pay") setCatalogueFilter("pay", event.target.checked);
+  else setCatalogueFilter(filter, event.target.value);
+});
+
 document.addEventListener("input", (event) => {
+  if (event.target.id === "cat-price") {
+    document.getElementById("cat-price-label").textContent = `${Number(event.target.value).toLocaleString("fr-FR")} MAD`;
+  }
   if (event.target.id === "card-number") {
     let value = event.target.value.replace(/\D/g, "").slice(0, 16);
     event.target.value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
@@ -324,5 +573,6 @@ document.addEventListener("input", (event) => {
   }
 });
 
+state.offerId = new URLSearchParams(window.location.search).get("id");
 const initialPage = new URLSearchParams(window.location.search).get("page") || "dashboard";
 navigatePage(initialPage in views || initialPage in externalPages ? initialPage : "dashboard");

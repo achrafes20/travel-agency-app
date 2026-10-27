@@ -72,6 +72,20 @@ Un rôle ne peut pas ouvrir l'espace d'un autre rôle (redirection vers la conne
 
 ---
 
+## 🧪 Données de démonstration
+
+Une base vide ne montre rien dans les espaces : le script `scripts/seed_demo_data.py` la remplit en passant **par l'API** (donc avec les vraies règles : mots de passe hachés, propriétaire des offres, stock, prix).
+
+Il crée **3 villes**, **6 comptes** (fournisseurs, agent, clients, dont un compte archivé), **18 offres** (hôtels, vols, voitures, taxis, excursions — avec des photos adaptées à chaque type) et **4 bundles**. Les mots de passe sont `password123`.
+
+```bash
+# backend démarré (port 8080) ET frontend servi sur le port 5500 (les photos sont lues depuis ce serveur)
+python scripts/seed_demo_data.py
+# autre port pour le frontend :  python scripts/seed_demo_data.py --images http://localhost:PORT/images
+```
+
+Le script est **relançable** : ce qui existe déjà n'est pas recréé. Il demande Python 3 (aucune bibliothèque à installer). Crédits des photos : [`frontend/images/offers/CREDITS.md`](frontend/images/offers/CREDITS.md).
+
 ## 👤 Gestion des utilisateurs — ce qu'il faut tester
 
 Sur la page *Utilisateurs* de l'espace administrateur :
@@ -109,6 +123,7 @@ Même découpage Controller → Service → Repository. Le détail des champs, r
 |---|---|
 | **Villes** (`/api/cities`) | Liste, ajout, modification, détail et suppression. Un nom de ville déjà utilisé est refusé ; une ville utilisée par des offres ne peut pas être supprimée. |
 | **Offres** (`/api/offers`) | Formulaire en 4 étapes avec les champs propres à chaque type (vol, hôtel, voiture, taxi, excursion) ; modification (le type ne change pas) ; interrupteur actif / inactif ; boutons d'action modifier / stock / supprimer sur chaque ligne ; suppression, refusée si l'offre est utilisée dans un bundle (la désactiver à la place). |
+| **Catalogue** (espace client, `client/index.html?page=catalogue`) | Offres réelles (actives et en stock) : filtres par destination, type, prix maximum et paiement à l'arrivée, tri, pagination ; clic sur une offre pour sa fiche (`?page=offre&id=…`). Le bouton « Ajouter au panier » est désactivé tant que le panier n'existe pas. |
 | **Stocks** (page *Inventaire*) | Niveau de stock de chaque offre (Disponible, Stock bas, Épuisé) et stock **modifiable directement dans le tableau** (boutons − / + ou saisie) ; la modification est enregistrée automatiquement, sans bouton de confirmation. |
 | **Bundles** (`/api/bundles`) | Sélecteur d'offres (2 minimum), remise en %, récapitulatif en temps réel : somme des offres, prix final et **stock dynamique** (le plus bas des offres) ; modification et suppression. |
 
@@ -132,14 +147,15 @@ Architecture en couches `Controller → Service → Repository → Entity` (voir
 cd backend
 ./mvnw test
 ```
-35 tests : `UserServiceTest` (email unique, hachage du mot de passe, mot de passe conservé à la modification, archivage / restauration, règle de suppression), `CityServiceTest`, `OfferServiceTest` (5 types, validations, propriété de l'offre), `BundleServiceTest` (prix final, stock dynamique, validations, propriété du bundle), `AuthServiceTest` (connexion, inscription, jeton, compte archivé) et `SecurityRulesTest` (droits d'accès par route et par rôle).
+42 tests : `UserServiceTest` (email unique, hachage du mot de passe, mot de passe conservé à la modification, archivage / restauration, règle de suppression), `CityServiceTest`, `OfferServiceTest` (5 types, validations, propriété de l'offre), `OfferSearchTest` (recherche du catalogue : filtres, tris, pagination), `BundleServiceTest` (prix final, stock dynamique, validations, propriété du bundle), `AuthServiceTest` (connexion, inscription, jeton, compte archivé) et `SecurityRulesTest` (droits d'accès par route et par rôle).
 
 **Tests de l'API avec Postman** : importer la collection [`docs/postman/AtlasVoyage.postman_collection.json`](docs/postman/AtlasVoyage.postman_collection.json) (mode d'emploi dans [`docs/postman/README.md`](docs/postman/README.md)). Le backend et MySQL doivent être démarrés ; la collection se connecte elle-même avec les comptes de test.
 
 ### Limites connues
 - Le jeton JWT (24 h) n'est ni renouvelé ni révocable avant expiration (la déconnexion efface seulement la session du navigateur) ; « mot de passe oublié » n'est pas implémenté ; la clé `jwt.secret` de `application.properties` est une valeur de développement à remplacer hors de ce contexte.
 - Les images des offres sont saisies par URL (pas d'envoi de fichier).
-- Le panier, les réservations, les paiements et les codes promo ne sont pas encore implémentés : un bundle ne peut donc pas encore être réservé.
+- Le panier, les réservations, les paiements et les codes promo ne sont pas encore implémentés : une offre ou un bundle ne peut donc pas encore être réservé.
+- Seul le catalogue de l'**espace client** est branché sur l'API ; les pages publiques (`accueil.html`, `catalogue.html`, `offre.html`) restent en données statiques.
 
 ---
 

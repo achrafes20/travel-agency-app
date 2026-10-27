@@ -20,7 +20,7 @@ Interface **HTML / CSS / JavaScript vanilla** (sans framework), conforme au cahi
 | Styles | `css/client.css` |
 | Logique | `client/js/app.js` |
 
-Redirection : `espace-client.html` → `client/index.html?page=dashboard`. Le logo renvoie vers `accueil.html`. Exemples : `?page=catalogue`, `?page=panier`, `?page=reservations`. Réservé au rôle `CLIENT` (compte de test : **Sarah Benali**) ; le nom affiché est celui du compte connecté.
+Redirection : `espace-client.html` → `client/index.html?page=dashboard`. Le logo renvoie vers `accueil.html`. Exemples : `?page=catalogue`, `?page=panier`, `?page=reservations`. Réservé au rôle `CLIENT` (compte de test : **Sarah Benali**) ; le nom affiché est celui du compte connecté. Le **catalogue** (`?page=catalogue`) et la **fiche offre** (`?page=offre&id=…`) sont branchés sur l'API (`/api/offers/search`, `/api/offers/{id}`, `/api/cities`) : filtres, tri, pagination réelle. Le panier, les réservations et le reste de l'espace restent en données démo.
 
 ## Espace fournisseur (maquettes `atlas-voyage-supplier`)
 

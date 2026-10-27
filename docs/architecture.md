@@ -115,7 +115,7 @@ public class UserController {
 | Services | `UserService`, `CityService`, `OfferService`, `BundleService`, `AuthService` |
 | Security | `JwtService`, `JwtAuthenticationFilter`, `AppUserDetails`, `AppUserDetailsService` |
 | Repositories | un par entité (`User`, `Offer`, `Bundle`, `Cart`, `CartItem`, `PromoCode`, `Booking`, `Payment`, `Notification`, `City`) |
-| DTO | `CityRequest`, `CityResponse`, `UserRequest`, `UserResponse`, `OfferRequest`, `OfferResponse`, `BundleRequest`, `BundleResponse`, `LoginRequest`, `RegisterRequest`, `AuthResponse` |
+| DTO | `CityRequest`, `CityResponse`, `UserRequest`, `UserResponse`, `OfferRequest`, `OfferResponse`, `OfferSearchResponse`, `BundleRequest`, `BundleResponse`, `LoginRequest`, `RegisterRequest`, `AuthResponse` |
 | Config | `SecurityConfig`, `PasswordConfig`, `DataSeeder` (comptes de test + villes de référence) |
 
 ### Séance 2 — Première fonctionnalité métier : **Villes**
@@ -200,6 +200,7 @@ Une seule ressource `/api/offers` couvre les cinq sous-classes de `Offer` (héri
 | Méthode | Route | Rôle |
 |---|---|---|
 | GET | `/api/offers` | Liste ; filtres facultatifs `?supplierId=` et `?type=` |
+| GET | `/api/offers/search` | Catalogue public : offres actives et en stock, filtres (ville, types, prix, paiement à l'arrivée), tri et pagination |
 | GET | `/api/offers/{id}` | Détail |
 | POST | `/api/offers` | Création (`201`) |
 | PUT | `/api/offers/{id}` | Modification (le type ne peut pas changer) |
@@ -339,9 +340,9 @@ Le Frontend appelle l'API REST Spring Boot (port `8080`) avec `fetch()` ; le COR
 - `/api/users` : CRUD + archivage/restauration des utilisateurs (espace admin) ; voir « Module Utilisateurs ».
 - `GET/POST/PUT/DELETE /api/cities` : gestion du référentiel villes (CRUD).
 - `GET/POST/PUT/DELETE /api/offers` : offres des fournisseurs (vol, hôtel, voiture, taxi, excursion) ; voir « Module Offres ».
+- `GET /api/offers/search` : catalogue public (filtres, tri, pagination) pour l'espace client.
 - `GET/POST/PUT/DELETE /api/bundles` : bundles composés par les agents ; voir « Module Bundles ».
 
 **Endpoints prévus :**
-- `GET /api/offers/search?city=Marrakech` : filtrage du catalogue public.
 - `POST /api/bookings` : créer une réservation à partir du panier.
 - `GET /api/admin/bookings` : réservations pour l'espace agent.
