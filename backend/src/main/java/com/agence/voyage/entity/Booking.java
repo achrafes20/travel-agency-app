@@ -9,19 +9,22 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import org.hibernate.annotations.Check;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bookings")
+@Check(constraints = "(offer_id is not null and bundle_id is null) or (offer_id is null and bundle_id is not null)")
 public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "client_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "client_id", nullable = false)
     private User client;
 
     @ManyToOne
@@ -32,20 +35,25 @@ public class Booking {
     @JoinColumn(name = "bundle_id")
     private Bundle bundle;
 
+    @Column(nullable = false)
     private Integer quantity;
 
+    @Column(nullable = false)
     private Double totalPrice;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private BookingStatus status = BookingStatus.PENDING;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private PaymentMethod paymentMethod;
 
     @ManyToOne
     @JoinColumn(name = "promo_code_id")
     private PromoCode promoCode;
 
+    @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public Long getId() {

@@ -219,11 +219,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - ✅ Flux **Controller → Service → Repository** sur `CityController` / `CityService` / `CityRepository` avec injection par constructeur (beans Spring / IoC).
 - ✅ API REST CRUD `/api/cities` + DTOs `CityRequest` / `CityResponse` + validation + gestion d'erreurs (`GlobalExceptionHandler`).
 - ✅ Test unitaire `CityServiceTest` (règle d'unicité du nom).
-- ✅ Frontend modulaire (présentation séparée du métier) :
-  - `pages/admin/villes.html` — liste ;
-  - `pages/admin/ville-form.html` — ajout / modification ;
-  - `pages/admin/ville-detail.html` — détail ;
-  - `js/core/api.js`, `js/services/city.service.js`, `js/pages/*.page.js`.
+- ✅ Interface unifiée `admin/index.html?page=cities` : liste et modales d’ajout, modification et détail, connectées à l’API via `js/core/api.js`.
 - ✅ `architecture.md` : schéma de séquence Séance 2 et structure Frontend.
 
 ### Module Admin — Gestion des utilisateurs

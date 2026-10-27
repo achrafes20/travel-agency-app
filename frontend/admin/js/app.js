@@ -25,10 +25,6 @@ const navGroups = [
   { label: "Système", items: [["settings", "settings", "Paramètres"]] },
 ];
 
-const CITY_LIST_URL = "../pages/admin/villes.html";
-const CITY_FORM_URL = "../pages/admin/ville-form.html";
-const CITY_DETAIL_URL = "../pages/admin/ville-detail.html";
-
 const promos = [
   ["BIENVENUE10","Pourcentage","−10 %","500,00 MAD","01/09 → 12/10/2026","84 / 100","Bientôt expiré"],
   ["AUTOMNE25","Pourcentage","−25 %","1 500,00 MAD","20/09 → 18/10/2026","47 / 60","Actif"],

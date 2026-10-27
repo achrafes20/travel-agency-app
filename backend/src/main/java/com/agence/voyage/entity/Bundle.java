@@ -10,6 +10,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,11 +39,14 @@ public class Bundle {
     @JoinTable(
             name = "bundle_offers",
             joinColumns = @JoinColumn(name = "bundle_id"),
-            inverseJoinColumns = @JoinColumn(name = "offer_id"))
+            inverseJoinColumns = @JoinColumn(name = "offer_id"),
+            uniqueConstraints = @UniqueConstraint(
+                    name = "uk_bundle_offer",
+                    columnNames = {"bundle_id", "offer_id"}))
     private List<Offer> offers = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "created_by_agent_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "created_by_agent_id", nullable = false)
     private User createdBy;
 
     public Long getId() {

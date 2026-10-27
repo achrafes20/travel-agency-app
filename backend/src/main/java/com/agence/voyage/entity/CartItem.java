@@ -8,17 +8,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import org.hibernate.annotations.Check;
 
 @Entity
 @Table(name = "cart_items")
+@Check(constraints = "(offer_id is not null and bundle_id is null) or (offer_id is null and bundle_id is not null)")
 public class CartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "cart_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "cart_id", nullable = false)
     @JsonIgnore
     private Cart cart;
 
@@ -30,6 +33,7 @@ public class CartItem {
     @JoinColumn(name = "bundle_id")
     private Bundle bundle;
 
+    @Column(nullable = false)
     private Integer quantity;
 
     public Long getId() {

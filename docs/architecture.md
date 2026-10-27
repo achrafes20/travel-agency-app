@@ -126,8 +126,8 @@ public class UserController {
 
 ```mermaid
 sequenceDiagram
-    participant P as pages/admin/ville-form.html
-    participant S as city.service.js
+    participant P as admin/index.html?page=cities
+    participant S as admin/js/app.js
     participant A as api.js
     participant C as CityController
     participant V as CityService
@@ -289,17 +289,12 @@ Le module **Villes** illustre la séparation des responsabilités côté client 
 
 | Dossier / fichier | Rôle |
 |---|---|
-| `pages/admin/villes.html` | Page liste (HTML + chargement scripts) |
-| `pages/admin/ville-form.html` | Formulaire ajout / modification |
-| `pages/admin/ville-detail.html` | Page détail |
+| `admin/index.html?page=cities` | Interface unifiée : liste et modales ajout / modification / détail |
 | `js/core/config.js` | Configuration (URL API) |
 | `js/core/api.js` | Couche HTTP (`fetch`) — ajoute le jeton JWT ; un `401` ramène à la connexion |
 | `js/core/auth.js` | Session : jeton, utilisateur connecté, `login` / `register` / `logout`, garde par rôle `requireRole()` |
 | `connexion.html`, `css/connexion.css`, `js/pages/connexion.page.js` | **Écran unique** de connexion et d'inscription ; redirige vers l'espace correspondant au rôle |
-| `js/services/city.service.js` | Appels API du domaine « Ville » |
-| `js/pages/*.page.js` | Logique de présentation par page |
-| `js/components/admin-layout.js` | Layout admin réutilisable |
-| `css/pages/villes.css` | Styles du module Villes |
+| `admin/js/app.js` | Présentation et interactions du domaine « Ville » |
 
 Le catalogue public (`js/app.js`) reste séparé : il ne contient pas la logique CRUD des villes.
 

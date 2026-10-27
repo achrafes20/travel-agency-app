@@ -3,21 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Formulaire ville | Administration Atlas Voyage</title>
-    <link rel="icon" type="image/png" href="../../images/favicon.png" />
-    <link rel="stylesheet" href="../../css/style.css" />
-    <link rel="stylesheet" href="../../css/pages/villes.css" />
+    <meta http-equiv="refresh" content="0; url=../../admin/index.html?page=cities" />
+    <title>Redirection vers la gestion des villes</title>
   </head>
   <body>
-    <div id="app"></div>
-    <script src="../../js/core/config.js"></script>
-    <script src="../../js/core/auth.js"></script>
-    <script>Auth.requireRole("ADMIN");</script>
-    <script src="../../js/core/api.js"></script>
-    <script src="../../js/utils/dom.js"></script>
-    <script src="../../js/utils/toast.js"></script>
-    <script src="../../js/services/city.service.js"></script>
-    <script src="../../js/components/admin-layout.js"></script>
-    <script src="../../js/pages/ville-form.page.js"></script>
+    <p>Le formulaire est maintenant intégré à <a href="../../admin/index.html?page=cities">la gestion des villes</a>.</p>
+    <script>window.location.replace("../../admin/index.html?page=cities");</script>
   </body>
 </html>
