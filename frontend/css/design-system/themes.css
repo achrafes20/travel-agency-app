@@ -1,0 +1,111 @@
+/* ==============================================================================
+   ATLAS VOYAGE — THÈMES CLAIR ET SOMBRE (themes.css)
+   ============================================================================== */
+
+/* --- THÈME CLAIR (DÉFAUT) --- */
+:root,
+:root[data-theme="light"] {
+  --av-color-bg: var(--av-sand-50);
+  --av-color-surface: #ffffff;
+  --av-color-surface-raised: #ffffff;
+  --av-color-surface-alt: #f8fafc;
+  --av-color-surface-subtle: #f1f5f9;
+
+  --av-color-text: #0f172a;
+  --av-color-text-muted: #475569;
+  --av-color-text-subtle: #475569;
+  --av-color-text-inverse: #ffffff;
+
+  --av-color-border: #cbd5e1;
+  --av-color-border-subtle: #e2e8f0;
+  --av-color-border-focus: #0284c7;
+
+  --av-color-brand: var(--av-brand-700);
+  --av-color-brand-hover: var(--av-brand-800);
+  --av-color-brand-subtle: var(--av-brand-50);
+  --av-color-brand-contrast: #ffffff;
+
+  --av-color-accent: var(--av-amber-700);
+  --av-color-accent-subtle: var(--av-amber-50);
+  --av-color-terracotta: var(--av-terracotta-700);
+  --av-color-mint: var(--av-mint-700);
+
+  /* États */
+  --av-color-success-bg: #ecfdf5;
+  --av-color-success-text: #065f46;
+  --av-color-success-border: #a7f3d0;
+
+  --av-color-warning-bg: #fffbeb;
+  --av-color-warning-text: #92400e;
+  --av-color-warning-border: #fde68a;
+
+  --av-color-danger-bg: #fff1f2;
+  --av-color-danger-text: #9f1239;
+  --av-color-danger-border: #fecdd3;
+
+  --av-color-info-bg: #f0f9ff;
+  --av-color-info-text: #075985;
+  --av-color-info-border: #bae6fd;
+
+  --av-color-focus: #0284c7;
+  --av-focus-ring: 0 0 0 3px rgba(2, 132, 199, 0.35);
+
+  --av-card-shadow: var(--av-shadow-sm);
+  --av-card-shadow-hover: var(--av-shadow-md);
+  --av-modal-shadow: var(--av-shadow-xl);
+}
+
+/* --- THÈME SOMBRE (DARK MODE) --- */
+:root[data-theme="dark"],
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --av-color-bg: #0b1120;
+    --av-color-surface: #111a2e;
+    --av-color-surface-raised: #18233c;
+    --av-color-surface-alt: #162036;
+    --av-color-surface-subtle: #1e293b;
+
+    --av-color-text: #f8fafc;
+    --av-color-text-muted: #cbd5e1;
+    --av-color-text-subtle: #94a3b8;
+    --av-color-text-inverse: #0b1120;
+
+    --av-color-border: #334155;
+    --av-color-border-subtle: #1e293b;
+    --av-color-border-focus: #38bdf8;
+
+    --av-color-brand: #38bdf8;
+    --av-color-brand-hover: #7dd3fc;
+    --av-color-brand-subtle: rgba(56, 189, 248, 0.12);
+    --av-color-brand-contrast: #031738;
+
+    --av-color-accent: #fbbf24;
+    --av-color-accent-subtle: rgba(251, 191, 36, 0.12);
+    --av-color-terracotta: #fb923c;
+    --av-color-mint: #34d399;
+
+    /* États */
+    --av-color-success-bg: rgba(16, 185, 129, 0.15);
+    --av-color-success-text: #6ee7b7;
+    --av-color-success-border: rgba(16, 185, 129, 0.35);
+
+    --av-color-warning-bg: rgba(245, 158, 11, 0.15);
+    --av-color-warning-text: #fcd34d;
+    --av-color-warning-border: rgba(245, 158, 11, 0.35);
+
+    --av-color-danger-bg: rgba(239, 68, 68, 0.15);
+    --av-color-danger-text: #fca5a5;
+    --av-color-danger-border: rgba(239, 68, 68, 0.35);
+
+    --av-color-info-bg: rgba(14, 165, 233, 0.15);
+    --av-color-info-text: #7dd3fc;
+    --av-color-info-border: rgba(14, 165, 233, 0.35);
+
+    --av-color-focus: #38bdf8;
+    --av-focus-ring: 0 0 0 3px rgba(56, 189, 248, 0.45);
+
+    --av-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --av-card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.45);
+    --av-modal-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "title": "Travel Agent Portal",
+  "tabs": {
+    "dashboard": "Dashboard",
+    "bundles": "Packages & Bundles",
+    "bookings": "Booking Management",
+    "clients": "Travellers"
+  },
+  "bundles": {
+    "title": "Combined Packages",
+    "new": "Create a Package",
+    "discount": "Applied discount"
+  }
+}
+

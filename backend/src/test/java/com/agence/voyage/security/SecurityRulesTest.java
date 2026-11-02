@@ -80,6 +80,18 @@ class SecurityRulesTest {
         mvc.perform(get("/api/offers")).andExpect(status().isOk());
         mvc.perform(get("/api/cities")).andExpect(status().isOk());
         mvc.perform(get("/api/bundles")).andExpect(status().isOk());
+
+        // Une liste vide ne déclenche aucun chargement lazy : persister une offre protège
+        // explicitement les routes publiques contre une LazyInitializationException.
+        String response = mvc.perform(post("/api/offers").header("Authorization", bearer(supplier))
+                        .contentType(MediaType.APPLICATION_JSON).content(hotelJson()))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String id = response.replaceAll(".*\"id\":(\\d+).*", "$1");
+
+        mvc.perform(get("/api/offers/search")).andExpect(status().isOk());
+        mvc.perform(get("/api/offers")).andExpect(status().isOk());
+        mvc.perform(get("/api/offers/" + id)).andExpect(status().isOk());
     }
 
     @Test

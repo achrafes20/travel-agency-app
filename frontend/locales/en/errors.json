@@ -1,0 +1,21 @@
+{
+  "general": "An unexpected error occurred. Please try again later.",
+  "network": "Unable to connect to the Atlas Voyage server. Please check your internet connection.",
+  "unauthorized": "You must be signed in to access this resource.",
+  "forbidden": "You do not have the necessary permissions to perform this action.",
+  "notFound": "The requested resource could not be found.",
+  "rateLimited": "Too many requests. Please wait {seconds} seconds before trying again.",
+  "badRequest": "Invalid request or missing data.",
+  "serverError": "Internal Atlas Voyage server error.",
+  "http404": {
+    "title": "Page not found",
+    "desc": "The page you are looking for seems to have wandered off in the alleys of the medina.",
+    "button": "Return to Home"
+  },
+  "http500": {
+    "title": "Oops! Something went wrong",
+    "desc": "Our technical team has been notified and is working to restore service promptly.",
+    "button": "Check Availability"
+  }
+}
+

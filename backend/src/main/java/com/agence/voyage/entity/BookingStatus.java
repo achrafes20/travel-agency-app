@@ -1,5 +1,5 @@
 package com.agence.voyage.entity;
 
 public enum BookingStatus {
-    PENDING, CONFIRMED, COMPLETED, CANCELLED
+    PENDING, CONFIRMED, COMPLETED, CANCELLED, EXPIRED
 }

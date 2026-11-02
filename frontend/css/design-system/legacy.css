@@ -1,0 +1,30 @@
+/* ==============================================================================
+   ATLAS VOYAGE — COUCHE DE COMPATIBILITÉ LEGACY (legacy.css)
+   ============================================================================== */
+
+/* Mappage des anciennes variables vers le design system av-* */
+:root {
+  --navy: var(--av-brand-700);
+  --navy-deep: var(--av-brand-800);
+  --yellow: var(--av-amber-600);
+  --paper: var(--av-color-bg);
+  --white: var(--av-color-surface);
+  --ink: var(--av-color-text);
+  --muted: var(--av-color-text-muted);
+  --line: var(--av-color-border-subtle);
+  --green: var(--av-color-mint);
+}
+
+/* Fallbacks des composants legacy */
+.primary-btn {
+  background-color: var(--av-color-brand) !important;
+  color: var(--av-color-brand-contrast) !important;
+}
+
+.static-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+}
+

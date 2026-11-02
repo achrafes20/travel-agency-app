@@ -1,0 +1,34 @@
+{
+  "title": "Travel Offers Catalogue",
+  "filters": {
+    "title": "Filter offers",
+    "type": "Experience type",
+    "stars": "Star rating",
+    "starsLabel": "{count} stars",
+    "city": "City / Region",
+    "allCities": "All cities",
+    "priceMax": "Maximum budget: {price}",
+    "apply": "Apply filters",
+    "reset": "Clear filters"
+  },
+  "sort": {
+    "label": "Sort by:",
+    "relevant": "Relevance",
+    "priceAsc": "Lowest price",
+    "priceDesc": "Highest price",
+    "ratingDesc": "Top rated"
+  },
+  "results": {
+    "found": "{count} offer(s) available",
+    "empty": "No offers match your search criteria.",
+    "emptySuggestion": "Try broadening your filters or selecting another Moroccan city."
+  },
+  "card": {
+    "startingFrom": "From",
+    "perNight": "/ night",
+    "viewOffer": "View offer",
+    "payOnArrival": "Pay on arrival",
+    "reviewsCount": "({count} reviews)"
+  }
+}
+

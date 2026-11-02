@@ -1,0 +1,17 @@
+# CODEOWNERS — Atlas Voyage
+# Responsables par domaine de code
+
+# Règles générales pour l'ensemble du dépôt
+* @lead-maintainer
+
+# Backend Spring Boot & Sécurité
+/backend/ @backend-lead @security-officer
+
+# Frontend Vanilla JS, Design System & i18n
+/frontend/ @frontend-lead @accessibility-lead
+
+# Référentiel documentaire Docs-as-Code
+/docs/ @tech-writer @backend-lead
+
+# Scripts & Automatisation
+/scripts/ @devops-lead

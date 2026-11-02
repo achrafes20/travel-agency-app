@@ -19,13 +19,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Objects;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Panier du client connecté. Ajouter au panier ne réserve pas le stock (cahier des charges 5.1) :
- * le stock est contrôlé à l'ajout puis à nouveau au paiement.
+ * Ajouter au panier ne consomme aucune capacité. Booking recharge ce panier,
+ * verrouille les périodes et réserve atomiquement leurs unités.
  */
 @Service
 public class CartService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CartService.class);
 
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
@@ -59,6 +65,7 @@ public class CartService {
                 .filter(i -> request.getOfferId() != null
                         ? i.getOffer() != null && i.getOffer().getId().equals(request.getOfferId())
                         : i.getBundle() != null && i.getBundle().getId().equals(request.getBundleId()))
+                .filter(i -> Objects.equals(i.getTravelCriteria(), request.getTravelCriteria()))
                 .findFirst().orElse(null);
         if (item == null) {
             item = new CartItem();
@@ -74,8 +81,12 @@ public class CartService {
             cart.getItems().add(item);
         }
         int wanted = item.getQuantity() + quantity;
+        if (request.getTravelCriteria() != null) item.setTravelCriteria(request.getTravelCriteria());
         assertAvailable(item, wanted);
         item.setQuantity(wanted);
+        if (request.getTravelCriteria() != null) {
+            item.setTravelCriteria(request.getTravelCriteria());
+        }
         return save(cart);
     }
 
@@ -113,7 +124,7 @@ public class CartService {
     public CartResponse applyPromo(Long clientId, String code) {
         Cart cart = findOrCreate(clientId);
         if (cart.getItems().isEmpty()) {
-            throw new BusinessException("Votre panier est vide : ajoutez une offre avant d'appliquer un code promo");
+            throw new BusinessException(com.agence.voyage.exception.ErrorCode.CART_EMPTY, "Votre panier est vide : ajoutez une offre avant d'appliquer un code promo");
         }
         PromoCode promo = promoCodeService.validate(code);
         cart.setPromoCode(promo);
@@ -128,7 +139,7 @@ public class CartService {
     }
 
     private Cart findOrCreate(Long clientId) {
-        Optional<Cart> existing = cartRepository.findByClientId(clientId);
+        Optional<Cart> existing = cartRepository.lockByClientId(clientId);
         if (existing.isPresent()) {
             return existing.get();
         }
@@ -150,6 +161,7 @@ public class CartService {
     }
 
     private CartResponse save(Cart cart) {
+        log.debug("save_cart cartId={} itemCount={}", cart.getId(), cart.getItems().size());
         return view(cartRepository.saveAndFlush(cart));
     }
 
@@ -169,28 +181,46 @@ public class CartService {
         return CartResponse.from(cart, warning);
     }
 
-    /** Contrôle l'offre (ou chaque offre du bundle) : active, et en stock pour la quantité voulue. */
+    /** Contrôle l'offre (ou chaque offre du bundle) pour les dates demandées. */
     private static void assertAvailable(CartItem item, int wanted) {
-        boolean active;
-        int stock;
+        LocalDateTime[] period = requestedPeriod(item.getTravelCriteria());
         if (item.getOffer() != null) {
             Offer offer = item.getOffer();
-            active = Boolean.TRUE.equals(offer.getActive());
-            stock = offer.getStock() == null ? 0 : offer.getStock();
+            if (!OfferService.isAvailable(offer, period[0], period[1], wanted)) {
+                if (offer.getAvailabilities() == null || offer.getAvailabilities().isEmpty()) {
+                    int legacyCapacity = offer.getStock() == null ? 0 : offer.getStock();
+                    if (!Boolean.TRUE.equals(offer.getActive())) throw new BusinessException(com.agence.voyage.exception.ErrorCode.OFFER_INACTIVE, "Cette offre n'est plus disponible");
+                    if (legacyCapacity <= 0) throw new BusinessException(com.agence.voyage.exception.ErrorCode.CAPACITY_EXCEEDED, "Cette offre est épuisée");
+                    throw new BusinessException(com.agence.voyage.exception.ErrorCode.CAPACITY_EXCEEDED, "Stock insuffisant : " + legacyCapacity + " disponible(s)");
+                }
+                throw new BusinessException(com.agence.voyage.exception.ErrorCode.OFFER_NOT_AVAILABLE, "Cette offre n'est pas disponible pour la période et le nombre de voyageurs demandés");
+            }
         } else {
             Bundle bundle = item.getBundle();
-            active = bundle.getOffers().stream().allMatch(o -> Boolean.TRUE.equals(o.getActive()));
-            // stock dynamique d'un bundle : le plus bas parmi ses offres (cahier des charges 5.3)
-            stock = bundle.getOffers().stream().mapToInt(o -> o.getStock() == null ? 0 : o.getStock()).min().orElse(0);
+            if (bundle.getOffers().stream().anyMatch(o -> !OfferService.isAvailable(o, period[0], period[1], wanted))) {
+                throw new BusinessException(com.agence.voyage.exception.ErrorCode.OFFER_NOT_AVAILABLE, "Une offre de ce bundle n'est pas disponible pour la période demandée");
+            }
         }
-        if (!active) {
-            throw new BusinessException("Cette offre n'est plus disponible");
+    }
+
+    public static LocalDateTime[] requestedPeriod(String json) {
+        if (json == null || json.isBlank()) return new LocalDateTime[]{null, null};
+        LocalDateTime start = extractDate(json, "startDate", "start", "hotelArrival", "flightDepart", "departDate", "pickupDate", "dateFrom", "taxiDeparture", "excursionDate");
+        LocalDateTime end = extractDate(json, "endDate", "end", "hotelDeparture", "flightReturn", "returnDate", "dateTo", "taxiReturn");
+        if (start != null && end == null) end = start;
+        return new LocalDateTime[]{start, end};
+    }
+
+    private static LocalDateTime extractDate(String json, String... keys) {
+        for (String key : keys) {
+            Matcher matcher = Pattern.compile("\\\"" + key + "\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"").matcher(json);
+            if (matcher.find()) {
+                String value = matcher.group(1);
+                try { return LocalDateTime.parse(value); } catch (Exception ignored) {
+                    try { return LocalDate.parse(value).atStartOfDay(); } catch (Exception ignoredAgain) { /* autre clé */ }
+                }
+            }
         }
-        if (stock <= 0) {
-            throw new BusinessException("Cette offre est épuisée");
-        }
-        if (wanted > stock) {
-            throw new BusinessException("Stock insuffisant : " + stock + " disponible(s)");
-        }
+        return null;
     }
 }

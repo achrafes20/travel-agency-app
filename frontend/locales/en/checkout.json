@@ -1,0 +1,36 @@
+{
+  "title": "Complete your booking",
+  "stepper": {
+    "step1": "1. Cart",
+    "step2": "2. Contact Info",
+    "step3": "3. Options",
+    "step4": "4. Payment"
+  },
+  "contactInfo": {
+    "title": "Your personal details",
+    "fullName": "Full name",
+    "email": "Email address",
+    "phone": "Phone number",
+    "specialRequests": "Special requests (optional)"
+  },
+  "payment": {
+    "title": "Payment method",
+    "payOnArrival": "Cash payment on arrival",
+    "payOnArrivalDesc": "Pay directly in Moroccan Dirhams upon check-in with the service provider.",
+    "card": "Debit/Credit Card (Secure Sandbox)",
+    "cardDesc": "Secure test simulation. No actual banking charge will occur.",
+    "cardNumber": "Card number",
+    "cardExpiry": "Expiry date (MM/YY)",
+    "cardCvc": "CVC",
+    "payButton": "Confirm & pay {amount}",
+    "currencyAlert": "Final billing is strictly processed in Moroccan Dirhams (MAD)."
+  },
+  "confirmation": {
+    "successTitle": "Booking successfully confirmed!",
+    "successMessage": "Your booking reference is: <strong>{reference}</strong>",
+    "voucherEmail": "A summary confirmation email containing your voucher has been sent.",
+    "viewBooking": "View my booking",
+    "backHome": "Back to Home"
+  }
+}
+

@@ -30,10 +30,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
-@Import(OfferService.class)
+@Import({OfferService.class,com.agence.voyage.service.AssetAttachmentService.class,com.agence.voyage.profile.AssetTestConfiguration.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
 class OfferServiceTest {
@@ -89,6 +91,11 @@ class OfferServiceTest {
         OfferRequest car = base(OfferType.CAR);
         car.setBrand("Dacia");
         car.setSeats(5);
+        car.setPickupLocation("Aéroport Marrakech");
+        car.setAllowsDifferentDropoff(true);
+        car.setDropoffLocation("Gare Marrakech");
+        car.setMinimumDriverAge(21);
+        car.setMaximumDriverAge(75);
 
         OfferRequest taxi = base(OfferType.TAXI_TRANSFER);
         taxi.setPickupLocation("Aéroport");
@@ -114,6 +121,28 @@ class OfferServiceTest {
 
         assertEquals("Offre test", offer.getTitle());
         assertEquals(true, offer.getActive());
+    }
+
+    @Test
+    void create_createsAndReusesCitySelectedFromGeocoding() {
+        OfferRequest first = hotel();
+        first.setCityId(null);
+        first.setCityName("Tokyo");
+        first.setCityLatitude(35.6895);
+        first.setCityLongitude(139.6917);
+
+        OfferRequest second = hotel();
+        second.setCityId(null);
+        second.setCityName("tokyo");
+        second.setCityLatitude(35.6895);
+        second.setCityLongitude(139.6917);
+
+        Offer created = offerService.create(first);
+        Offer reused = offerService.create(second);
+
+        assertEquals("Tokyo", created.getCity().getName());
+        assertEquals(created.getCity().getId(), reused.getCity().getId());
+        assertEquals(2, cityRepository.count());
     }
 
     @Test
@@ -209,5 +238,51 @@ class OfferServiceTest {
         offerService.update(offer.getId(), hotel(), supplier.getId());
         offerService.delete(offer.getId(), supplier.getId());
         assertEquals(0, offerRepository.count());
+    }
+
+    @Test
+    void moderate_requiresAdminAndReasonAndKeepsAdminDisabledOfferInactive() {
+        Offer offer = offerService.create(hotel());
+        User admin = userRepository.save(new User("Admin", "admin-offers@example.com", "hash", Role.ADMIN));
+        User client = userRepository.save(new User("Client", "client-offers@example.com", "hash", Role.CLIENT));
+
+        assertThrows(ForbiddenException.class, () -> offerService.moderate(offer.getId(), false, "Motif", client.getId()));
+        assertThrows(BusinessException.class, () -> offerService.moderate(offer.getId(), false, " ", admin.getId()));
+
+        Offer disabled = offerService.moderate(offer.getId(), false, "Contenu inexact", admin.getId());
+        assertFalse(disabled.getActive());
+        assertEquals("Contenu inexact", disabled.getModerationReason());
+        assertEquals(admin.getId(), disabled.getModeratedBy().getId());
+        assertNotNull(disabled.getModeratedAt());
+
+        OfferRequest supplierChanges = hotel();
+        supplierChanges.setTitle("Informations corrigées");
+        supplierChanges.setActive(true);
+        Offer updated = offerService.update(offer.getId(), supplierChanges, supplier.getId());
+        assertFalse(updated.getActive());
+
+        assertEquals(true, offerService.moderate(offer.getId(), true, "Corrections validées", admin.getId()).getActive());
+    }
+
+    @Test
+    void availability_filtersRequestedPeriodAndRejectsOverlaps() {
+        OfferRequest request = hotel();
+        OfferRequest.AvailabilityInput first = new OfferRequest.AvailabilityInput();
+        first.setStartAt(LocalDateTime.of(2026, 11, 1, 0, 0));
+        first.setEndAt(LocalDateTime.of(2026, 11, 10, 23, 59));
+        first.setCapacity(2);
+        request.setAvailabilities(List.of(first));
+        Offer offer = offerService.create(request);
+
+        assertEquals(true, OfferService.isAvailable(offer, LocalDateTime.of(2026, 11, 2, 0, 0), LocalDateTime.of(2026, 11, 8, 0, 0), 2));
+        assertEquals(false, OfferService.isAvailable(offer, LocalDateTime.of(2026, 11, 2, 0, 0), LocalDateTime.of(2026, 11, 11, 0, 0), 1));
+        assertEquals(false, OfferService.isAvailable(offer, LocalDateTime.of(2026, 11, 2, 0, 0), LocalDateTime.of(2026, 11, 8, 0, 0), 3));
+
+        OfferRequest.AvailabilityInput overlapping = new OfferRequest.AvailabilityInput();
+        overlapping.setStartAt(LocalDateTime.of(2026, 11, 5, 0, 0));
+        overlapping.setEndAt(LocalDateTime.of(2026, 11, 12, 0, 0));
+        overlapping.setCapacity(1);
+        request.setAvailabilities(List.of(first, overlapping));
+        assertThrows(BusinessException.class, () -> offerService.update(offer.getId(), request));
     }
 }

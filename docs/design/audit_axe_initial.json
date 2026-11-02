@@ -1,0 +1,243 @@
+{
+  "accueil": {
+    "url": "http://127.0.0.1:5500/frontend/accueil.html",
+    "passes": 18,
+    "violationsCount": 1,
+    "critical": 0,
+    "serious": 1,
+    "moderate": 0,
+    "minor": 0,
+    "details": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodesCount": 5,
+        "nodes": [
+          {
+            "target": [
+              ".section-head > div > p"
+            ],
+            "html": "<p>Explorez nos offres par service.</p>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.36 (foreground color: #64748b, background color: #f5f5f5, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".offer-category:nth-child(1) > .offer-category-head > div > span:nth-child(2) > p"
+            ],
+            "html": "<p>Séjours soigneusement sélectionnés</p>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.36 (foreground color: #64748b, background color: #f5f5f5, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".offer-category:nth-child(2) > .offer-category-head > div > span:nth-child(2) > p"
+            ],
+            "html": "<p>Rejoignez votre prochaine destination</p>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.36 (foreground color: #64748b, background color: #f5f5f5, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  "catalogue": {
+    "url": "http://127.0.0.1:5500/frontend/catalogue.html?type=H%C3%B4tels%20%26%20Riads",
+    "passes": 21,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "offre": {
+    "url": "http://127.0.0.1:5500/frontend/offre.html?id=chefchaouen",
+    "passes": 17,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "panier": {
+    "url": "http://127.0.0.1:5500/frontend/panier.html",
+    "passes": 17,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "connexion": {
+    "url": "http://127.0.0.1:5500/frontend/connexion.html",
+    "passes": 24,
+    "violationsCount": 1,
+    "critical": 0,
+    "serious": 1,
+    "moderate": 0,
+    "minor": 0,
+    "details": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodesCount": 2,
+        "nodes": [
+          {
+            "target": [
+              "#login-form > .eyebrow"
+            ],
+            "html": "<span class=\"eyebrow\">VOTRE ESPACE ATLAS VOYAGE</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.46 (foreground color: #f28c00, background color: #ffffff, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".secure-note"
+            ],
+            "html": "<div class=\"secure-note\">",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.98 (foreground color: #8c96a8, background color: #ffffff, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  "admin": {
+    "url": "http://127.0.0.1:5500/frontend/admin/index.html",
+    "passes": 24,
+    "violationsCount": 1,
+    "critical": 0,
+    "serious": 1,
+    "moderate": 0,
+    "minor": 0,
+    "details": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodesCount": 2,
+        "nodes": [
+          {
+            "target": [
+              "#login-form > .eyebrow"
+            ],
+            "html": "<span class=\"eyebrow\">VOTRE ESPACE ATLAS VOYAGE</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.46 (foreground color: #f28c00, background color: #ffffff, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".secure-note"
+            ],
+            "html": "<div class=\"secure-note\">",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.98 (foreground color: #8c96a8, background color: #ffffff, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  "client": {
+    "url": "http://127.0.0.1:5500/frontend/client/index.html",
+    "passes": 24,
+    "violationsCount": 1,
+    "critical": 0,
+    "serious": 1,
+    "moderate": 0,
+    "minor": 0,
+    "details": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodesCount": 2,
+        "nodes": [
+          {
+            "target": [
+              "#login-form > .eyebrow"
+            ],
+            "html": "<span class=\"eyebrow\">VOTRE ESPACE ATLAS VOYAGE</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.46 (foreground color: #f28c00, background color: #ffffff, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".secure-note"
+            ],
+            "html": "<div class=\"secure-note\">",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.98 (foreground color: #8c96a8, background color: #ffffff, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  "supplier": {
+    "url": "http://127.0.0.1:5500/frontend/supplier/index.html",
+    "passes": 24,
+    "violationsCount": 1,
+    "critical": 0,
+    "serious": 1,
+    "moderate": 0,
+    "minor": 0,
+    "details": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodesCount": 2,
+        "nodes": [
+          {
+            "target": [
+              "#login-form > .eyebrow"
+            ],
+            "html": "<span class=\"eyebrow\">VOTRE ESPACE ATLAS VOYAGE</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.46 (foreground color: #f28c00, background color: #ffffff, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".secure-note"
+            ],
+            "html": "<div class=\"secure-note\">",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.98 (foreground color: #8c96a8, background color: #ffffff, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  "agent": {
+    "url": "http://127.0.0.1:5500/frontend/agent/index.html",
+    "passes": 24,
+    "violationsCount": 1,
+    "critical": 0,
+    "serious": 1,
+    "moderate": 0,
+    "minor": 0,
+    "details": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodesCount": 2,
+        "nodes": [
+          {
+            "target": [
+              "#login-form > .eyebrow"
+            ],
+            "html": "<span class=\"eyebrow\">VOTRE ESPACE ATLAS VOYAGE</span>",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.46 (foreground color: #f28c00, background color: #ffffff, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".secure-note"
+            ],
+            "html": "<div class=\"secure-note\">",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.98 (foreground color: #8c96a8, background color: #ffffff, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  }
+}

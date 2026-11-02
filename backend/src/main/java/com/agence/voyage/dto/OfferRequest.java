@@ -5,10 +5,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 public class OfferRequest {
 
     @NotNull(message = "Le type d'offre est obligatoire")
@@ -25,9 +28,23 @@ public class OfferRequest {
     @PositiveOrZero(message = "Le prix de base doit être positif")
     private Double basePrice;
 
-    @NotNull(message = "Le stock est obligatoire")
     @PositiveOrZero(message = "Le stock doit être positif")
     private Integer stock;
+
+    @Valid
+    private List<AvailabilityInput> availabilities;
+
+    public static class AvailabilityInput {
+        @NotNull private LocalDateTime startAt;
+        @NotNull private LocalDateTime endAt;
+        @NotNull @jakarta.validation.constraints.PositiveOrZero private Integer capacity;
+        public LocalDateTime getStartAt() { return startAt; }
+        public void setStartAt(LocalDateTime startAt) { this.startAt = startAt; }
+        public LocalDateTime getEndAt() { return endAt; }
+        public void setEndAt(LocalDateTime endAt) { this.endAt = endAt; }
+        public Integer getCapacity() { return capacity; }
+        public void setCapacity(Integer capacity) { this.capacity = capacity; }
+    }
 
     private Boolean allowsPayOnArrival;
 
@@ -35,8 +52,21 @@ public class OfferRequest {
 
     private List<String> images;
 
-    @NotNull(message = "La ville est obligatoire")
     private Long cityId;
+
+    @Size(max = 120, message = "Le nom de la ville ne doit pas dépasser 120 caractères")
+    private String cityName;
+
+    private Double cityLatitude;
+
+    private Double cityLongitude;
+
+    @Size(max = 100, message = "Le nom du pays ne doit pas dépasser 100 caractères")
+    private String cityCountry;
+
+    private String cityCountryCode;
+
+    private Boolean cityHasAirport;
 
     // Ignoré par l'API : le fournisseur est l'utilisateur authentifié (renseigné par OfferController).
     private Long supplierId;
@@ -52,6 +82,10 @@ public class OfferRequest {
     private LocalDateTime departureDateTime;
 
     private LocalDateTime arrivalDateTime;
+    private Boolean roundTrip;
+    private LocalDateTime returnDepartureDateTime;
+    private LocalDateTime returnArrivalDateTime;
+    private String cabinClass;
 
     private Integer stars;
 
@@ -67,9 +101,17 @@ public class OfferRequest {
 
     private Integer seats;
 
+    private Boolean allowsDifferentDropoff;
+
+    private Integer minimumDriverAge;
+
+    private Integer maximumDriverAge;
+
     private String pickupLocation;
 
     private String dropoffLocation;
+
+    private List<String> dropoffLocations;
 
     private String vehicleType;
 
@@ -122,6 +164,9 @@ public class OfferRequest {
         this.stock = stock;
     }
 
+    public List<AvailabilityInput> getAvailabilities() { return availabilities; }
+    public void setAvailabilities(List<AvailabilityInput> availabilities) { this.availabilities = availabilities; }
+
     public Boolean getAllowsPayOnArrival() {
         return allowsPayOnArrival;
     }
@@ -152,6 +197,54 @@ public class OfferRequest {
 
     public void setCityId(Long cityId) {
         this.cityId = cityId;
+    }
+
+    public String getCityName() {
+        return cityName;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    public Double getCityLatitude() {
+        return cityLatitude;
+    }
+
+    public void setCityLatitude(Double cityLatitude) {
+        this.cityLatitude = cityLatitude;
+    }
+
+    public Double getCityLongitude() {
+        return cityLongitude;
+    }
+
+    public void setCityLongitude(Double cityLongitude) {
+        this.cityLongitude = cityLongitude;
+    }
+
+    public String getCityCountry() {
+        return cityCountry;
+    }
+
+    public void setCityCountry(String cityCountry) {
+        this.cityCountry = cityCountry;
+    }
+
+    public String getCityCountryCode() {
+        return cityCountryCode;
+    }
+
+    public void setCityCountryCode(String cityCountryCode) {
+        this.cityCountryCode = cityCountryCode;
+    }
+
+    public Boolean getCityHasAirport() {
+        return cityHasAirport;
+    }
+
+    public void setCityHasAirport(Boolean cityHasAirport) {
+        this.cityHasAirport = cityHasAirport;
     }
 
     public Long getSupplierId() {
@@ -209,6 +302,14 @@ public class OfferRequest {
     public void setArrivalDateTime(LocalDateTime arrivalDateTime) {
         this.arrivalDateTime = arrivalDateTime;
     }
+    public Boolean getRoundTrip() { return roundTrip; }
+    public void setRoundTrip(Boolean roundTrip) { this.roundTrip = roundTrip; }
+    public LocalDateTime getReturnDepartureDateTime() { return returnDepartureDateTime; }
+    public void setReturnDepartureDateTime(LocalDateTime value) { this.returnDepartureDateTime = value; }
+    public LocalDateTime getReturnArrivalDateTime() { return returnArrivalDateTime; }
+    public void setReturnArrivalDateTime(LocalDateTime value) { this.returnArrivalDateTime = value; }
+    public String getCabinClass() { return cabinClass; }
+    public void setCabinClass(String cabinClass) { this.cabinClass = cabinClass; }
 
     public Integer getStars() {
         return stars;
@@ -266,6 +367,13 @@ public class OfferRequest {
         this.seats = seats;
     }
 
+    public Boolean getAllowsDifferentDropoff() { return allowsDifferentDropoff; }
+    public void setAllowsDifferentDropoff(Boolean allowsDifferentDropoff) { this.allowsDifferentDropoff = allowsDifferentDropoff; }
+    public Integer getMinimumDriverAge() { return minimumDriverAge; }
+    public void setMinimumDriverAge(Integer minimumDriverAge) { this.minimumDriverAge = minimumDriverAge; }
+    public Integer getMaximumDriverAge() { return maximumDriverAge; }
+    public void setMaximumDriverAge(Integer maximumDriverAge) { this.maximumDriverAge = maximumDriverAge; }
+
     public String getPickupLocation() {
         return pickupLocation;
     }
@@ -281,6 +389,9 @@ public class OfferRequest {
     public void setDropoffLocation(String dropoffLocation) {
         this.dropoffLocation = dropoffLocation;
     }
+
+    public List<String> getDropoffLocations() { return dropoffLocations; }
+    public void setDropoffLocations(List<String> dropoffLocations) { this.dropoffLocations = dropoffLocations; }
 
     public String getVehicleType() {
         return vehicleType;

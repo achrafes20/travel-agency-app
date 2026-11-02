@@ -1,0 +1,3383 @@
+openapi: 3.0.3
+info:
+  title: Atlas Voyage API REST
+  version: 3.0.0
+  description: API officielle de réservation touristique au Maroc (Hôtels & Riads, Vols, Voitures, Transferts, Excursions). Toutes les transactions et calculs de prix réels sont strictement exécutés en Dirhams Marocains (MAD TTC). Les devises étrangères (EUR, USD, GBP) sont fournies à titre strictement indicatif.
+  contact:
+    name: Support Technique Atlas Voyage
+    url: "https://example.ma"
+    email: tech@atlasvoyage.ma
+  license:
+    name: Propriétaire Atlas Voyage S.A.R.L. - Tous droits réservés (À confirmer)
+    url: "https://example.ma/legal"
+servers:
+  - 
+      url: "http://localhost:8080"
+    description: Serveur de Développement Local
+  - 
+      url: "https://api.example.ma"
+    description: Serveur de Préproduction / Staging
+  - 
+      url: "https://api.atlasvoyage.ma"
+    description: Serveur de Production
+tags:
+  - 
+      name: Authentification
+    description: Gestion des sessions, connexions et jetons de rafraîchissement
+  - 
+      name: Sécurité du Compte
+    description: "Changement de mot de passe, vérification d'email et réinitialisation"
+  - 
+      name: Profils
+    description: Gestion des profils clients et fiches fournisseurs
+  - 
+      name: Utilisateurs & RGPD
+    description: "Administration des comptes, archivage, export RGPD et droit à l'oubli"
+  - 
+      name: Villes & Géocodage
+    description: Villes touristiques marocaines et coordonnées géographiques
+  - 
+      name: Offres Touristiques
+    description: Hébergements, vols, voitures, transferts et excursions
+  - 
+      name: Bundles & Forfaits
+    description: Packs promotionnels et forfaits combinés par les agents
+  - 
+      name: Panier
+    description: "Gestion du panier d'achats, articles et validation des dates"
+  - 
+      name: Codes Promo
+    description: Gestion des réductions promotionnelles
+  - 
+      name: Réservations
+    description: "Conversion du panier en réservation, annulation et bons d'échange (vouchers)"
+  - 
+      name: Paiements & Caisse
+    description: Règlements sandbox en ligne, encaissement espèces et remboursements
+  - 
+      name: Webhook Paiements
+    description: Notification asynchrone des passerelles de paiement bancaire
+  - 
+      name: Notifications
+    description: Centre de notifications in-app et préférences de réception
+  - 
+      name: Favoris
+    description: Gestion des listes de souhaits des voyageurs clients
+  - 
+      name: Tickets de Support
+    description: "Assistance client, suivi des réclamations et messagerie d'assistance"
+  - 
+      name: Avis & Notations
+    description: "Retours d'expérience certifiés après séjour, modération et réponses"
+  - 
+      name: Contact Public
+    description: Formulaire de contact avec protection anti-spam par pot de miel
+  - 
+      name: Paramètres Système
+    description: Configuration globale de la plateforme et mode maintenance
+  - 
+      name: Statistiques & KPIs
+    description: Indicateurs de performance des 4 tableaux de bord et exports CSV
+  - 
+      name: Devises & Taux
+    description: Taux de change indicatifs (EUR, USD, GBP) par rapport au MAD
+  - 
+      name: Fichiers & Images
+    description: "Téléversement et distribution d'images et pièces jointes"
+  - 
+      name: Santé & Supervision
+    description: "Sondes de disponibilité et métriques d'exploitation"
+  - 
+      name: "Journal d'Audit"
+    description: "Traçabilité immuable des actions sensibles et export d'audit"
+paths:
+  /api/auth/change-password:
+    post:
+      tags:
+        - Sécurité du Compte
+      summary: Changer mon mot de passe et révoquer les anciennes sessions
+      description: Endpoint contrôlé par `AccountSecurityController.change()`.
+      operationId: AccountSecurityController_change_post__api_auth_change_password
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/auth/forgot-password:
+    post:
+      tags:
+        - Sécurité du Compte
+      summary: Demander un lien de réinitialisation
+      description: Endpoint contrôlé par `AccountSecurityController.()`.
+      operationId: AccountSecurityController__post__api_auth_forgot_password
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/auth/reset-password:
+    post:
+      tags:
+        - Sécurité du Compte
+      summary: Réinitialiser le mot de passe avec un lien à usage unique
+      description: Endpoint contrôlé par `AccountSecurityController.()`.
+      operationId: AccountSecurityController__post__api_auth_reset_password
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/auth/verify-email:
+    post:
+      tags:
+        - Sécurité du Compte
+      summary: Vérifier l
+      description: Endpoint contrôlé par `AccountSecurityController.()`.
+      operationId: AccountSecurityController__post__api_auth_verify_email
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/auth/resend-verification:
+    post:
+      tags:
+        - Sécurité du Compte
+      summary: Renvoyer le lien de vérification
+      description: Endpoint contrôlé par `AccountSecurityController.()`.
+      operationId: AccountSecurityController__post__api_auth_resend_verification
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/audit:
+    get:
+      tags:
+        - Journal d'Audit
+      summary: Lister les entrǸes du journal d
+      description: Endpoint contrôlé par `AuditController.list()`.
+      operationId: AuditController_list_get__api_audit
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/audit/{id}:
+    get:
+      tags:
+        - Journal d'Audit
+      summary: Obtenir le dǸtail complet d
+      description: Endpoint contrôlé par `AuditController.getById()`.
+      operationId: AuditController_getById_get__api_audit__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/audit/export:
+    get:
+      tags:
+        - Journal d'Audit
+      summary: Exporter les logs d
+      description: Endpoint contrôlé par `AuditController.exportCsv()`.
+      operationId: AuditController_exportCsv_get__api_audit_export
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/auth/register:
+    post:
+      tags:
+        - Authentification
+      summary: register sur AuthController
+      description: Endpoint contrôlé par `AuthController.register()`.
+      operationId: AuthController_register_post__api_auth_register
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/auth/login:
+    post:
+      tags:
+        - Authentification
+      summary: login sur AuthController
+      description: Endpoint contrôlé par `AuthController.login()`.
+      operationId: AuthController_login_post__api_auth_login
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/auth/refresh:
+    post:
+      tags:
+        - Authentification
+      summary: refresh sur AuthController
+      description: Endpoint contrôlé par `AuthController.refresh()`.
+      operationId: AuthController_refresh_post__api_auth_refresh
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/auth/logout:
+    post:
+      tags:
+        - Authentification
+      summary: logout sur AuthController
+      description: Endpoint contrôlé par `AuthController.logout()`.
+      operationId: AuthController_logout_post__api_auth_logout
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/auth/logout-all:
+    post:
+      tags:
+        - Authentification
+      summary: logoutAll sur AuthController
+      description: Endpoint contrôlé par `AuthController.logoutAll()`.
+      operationId: AuthController_logoutAll_post__api_auth_logout_all
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/auth/me:
+    get:
+      tags:
+        - Authentification
+      summary: me sur AuthController
+      description: Endpoint contrôlé par `AuthController.me()`.
+      operationId: AuthController_me_get__api_auth_me
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/bookings:
+    post:
+      tags:
+        - Réservations
+      summary: Réserver le panier
+      description: Endpoint contrôlé par `BookingController.create()`.
+      operationId: BookingController_create_post__api_bookings
+      security:
+        - 
+        - 
+      responses:
+        201:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    get:
+      tags:
+        - Réservations
+      summary: Lister les réservations
+      description: Endpoint contrôlé par `BookingController.list()`.
+      operationId: BookingController_list_get__api_bookings
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/bookings/supplier:
+    get:
+      tags:
+        - Réservations
+      summary: Lister les réservations
+      description: Endpoint contrôlé par `BookingController.list()`.
+      operationId: BookingController_list_get__api_bookings_supplier
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/bookings/admin:
+    get:
+      tags:
+        - Réservations
+      summary: Lister les réservations
+      description: Endpoint contrôlé par `BookingController.list()`.
+      operationId: BookingController_list_get__api_bookings_admin
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/bookings/{id}:
+    get:
+      tags:
+        - Réservations
+      summary: Consulter une réservation
+      description: Endpoint contrôlé par `BookingController.get()`.
+      operationId: BookingController_get_get__api_bookings__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/bookings/{id}/cancel:
+    post:
+      tags:
+        - Réservations
+      summary: Annuler et restituer la capacité
+      description: Endpoint contrôlé par `BookingController.cancel()`.
+      operationId: BookingController_cancel_post__api_bookings__id__cancel
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/bookings/{id}/confirm:
+    post:
+      tags:
+        - Réservations
+      summary: Confirmer manuellement
+      description: Endpoint contrôlé par `BookingController.confirm()`.
+      operationId: BookingController_confirm_post__api_bookings__id__confirm
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/bookings/{id}/voucher:
+    get:
+      tags:
+        - Réservations
+      summary: Télécharger le voucher PDF avec QR signé
+      description: Endpoint contrôlé par `BookingController.voucher()`.
+      operationId: BookingController_voucher_get__api_bookings__id__voucher
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/bundles:
+    get:
+      tags:
+        - Bundles & Forfaits
+      summary: list sur BundleController
+      description: Endpoint contrôlé par `BundleController.list()`.
+      operationId: BundleController_list_get__api_bundles
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    post:
+      tags:
+        - Bundles & Forfaits
+      summary: create sur BundleController
+      description: Endpoint contrôlé par `BundleController.create()`.
+      operationId: BundleController_create_post__api_bundles
+      security:
+        - 
+        - 
+      responses:
+        201:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/bundles/{id}:
+    get:
+      tags:
+        - Bundles & Forfaits
+      summary: get sur BundleController
+      description: Endpoint contrôlé par `BundleController.get()`.
+      operationId: BundleController_get_get__api_bundles__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    put:
+      tags:
+        - Bundles & Forfaits
+      summary: update sur BundleController
+      description: Endpoint contrôlé par `BundleController.update()`.
+      operationId: BundleController_update_put__api_bundles__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    delete:
+      tags:
+        - Bundles & Forfaits
+      summary: delete sur BundleController
+      description: Endpoint contrôlé par `BundleController.delete()`.
+      operationId: BundleController_delete_delete__api_bundles__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/cart:
+    get:
+      tags:
+        - Panier
+      summary: get sur CartController
+      description: Endpoint contrôlé par `CartController.get()`.
+      operationId: CartController_get_get__api_cart
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    delete:
+      tags:
+        - Panier
+      summary: clear sur CartController
+      description: Endpoint contrôlé par `CartController.clear()`.
+      operationId: CartController_clear_delete__api_cart
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/cart/items:
+    post:
+      tags:
+        - Panier
+      summary: addItem sur CartController
+      description: Endpoint contrôlé par `CartController.addItem()`.
+      operationId: CartController_addItem_post__api_cart_items
+      security:
+        - 
+        - 
+      responses:
+        201:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/cart/items/{itemId}:
+    put:
+      tags:
+        - Panier
+      summary: updateItem sur CartController
+      description: Endpoint contrôlé par `CartController.updateItem()`.
+      operationId: CartController_updateItem_put__api_cart_items__itemId_
+      parameters:
+        - 
+            name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant itemId
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    delete:
+      tags:
+        - Panier
+      summary: removeItem sur CartController
+      description: Endpoint contrôlé par `CartController.removeItem()`.
+      operationId: CartController_removeItem_delete__api_cart_items__itemId_
+      parameters:
+        - 
+            name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant itemId
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/cart/promo:
+    post:
+      tags:
+        - Panier
+      summary: applyPromo sur CartController
+      description: Endpoint contrôlé par `CartController.applyPromo()`.
+      operationId: CartController_applyPromo_post__api_cart_promo
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    delete:
+      tags:
+        - Panier
+      summary: removePromo sur CartController
+      description: Endpoint contrôlé par `CartController.removePromo()`.
+      operationId: CartController_removePromo_delete__api_cart_promo
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/cities:
+    get:
+      tags:
+        - Villes & Géocodage
+      summary: Lister les ressources
+      description: Endpoint contrôlé par `CityController.list()`.
+      operationId: CityController_list_get__api_cities
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    post:
+      tags:
+        - Villes & Géocodage
+      summary: Créer la ressource
+      description: Endpoint contrôlé par `CityController.create()`.
+      operationId: CityController_create_post__api_cities
+      security:
+        - 
+        - 
+      responses:
+        201:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/cities/{id}:
+    get:
+      tags:
+        - Villes & Géocodage
+      summary: Consulter la ressource
+      description: Endpoint contrôlé par `CityController.get()`.
+      operationId: CityController_get_get__api_cities__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    put:
+      tags:
+        - Villes & Géocodage
+      summary: Modifier la ressource
+      description: Endpoint contrôlé par `CityController.update()`.
+      operationId: CityController_update_put__api_cities__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    delete:
+      tags:
+        - Villes & Géocodage
+      summary: Supprimer la ressource
+      description: Endpoint contrôlé par `CityController.delete()`.
+      operationId: CityController_delete_delete__api_cities__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/contact:
+    post:
+      tags:
+        - Contact Public
+      summary: submitContact sur ContactController
+      description: Endpoint contrôlé par `ContactController.submitContact()`.
+      operationId: ContactController_submitContact_post__api_contact
+      responses:
+        201:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/currencies/rates:
+    get:
+      tags:
+        - Devises & Taux
+      summary: Obtenir les taux de change indicatifs par rapport au MAD
+      description: Endpoint contrôlé par `CurrencyController.getRates()`.
+      operationId: CurrencyController_getRates_get__api_currencies_rates
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/favorites:
+    get:
+      tags:
+        - Favoris
+      summary: Lister les offres favorites du client connectǸ (paginǸe)
+      description: Endpoint contrôlé par `FavoriteController.list()`.
+      operationId: FavoriteController_list_get__api_favorites
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/favorites/ids:
+    get:
+      tags:
+        - Favoris
+      summary: Obtenir la liste des IDs des offres favorites du client connectǸ
+      description: Endpoint contrôlé par `FavoriteController.listIds()`.
+      operationId: FavoriteController_listIds_get__api_favorites_ids
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/favorites/{offerId}:
+    post:
+      tags:
+        - Favoris
+      summary: Ajouter une offre aux favoris
+      description: Endpoint contrôlé par `FavoriteController.add()`.
+      operationId: FavoriteController_add_post__api_favorites__offerId_
+      parameters:
+        - 
+            name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant offerId
+      security:
+        - 
+        - 
+      responses:
+        201:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    delete:
+      tags:
+        - Favoris
+      summary: Retirer une offre des favoris
+      description: Endpoint contrôlé par `FavoriteController.remove()`.
+      operationId: FavoriteController_remove_delete__api_favorites__offerId_
+      parameters:
+        - 
+            name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant offerId
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/files/images:
+    post:
+      tags:
+        - Fichiers & Images
+      summary: Téléverser une image
+      description: Endpoint contrôlé par `FileController.upload()`.
+      operationId: FileController_upload_post__api_files_images
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/files/{name}:
+    get:
+      tags:
+        - Fichiers & Images
+      summary: Lire une image ou sa miniature
+      description: Endpoint contrôlé par `FileController.read()`.
+      operationId: FileController_read_get__api_files__name_
+      parameters:
+        - 
+            name: name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identifiant name
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    delete:
+      tags:
+        - Fichiers & Images
+      summary: Supprimer une image temporaire
+      description: Endpoint contrôlé par `FileController.delete()`.
+      operationId: FileController_delete_delete__api_files__name_
+      parameters:
+        - 
+            name: name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identifiant name
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/notifications:
+    get:
+      tags:
+        - Notifications
+      summary: Mes notifications paginées
+      description: Endpoint contrôlé par `NotificationController.list()`.
+      operationId: NotificationController_list_get__api_notifications
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/notifications/unread-count:
+    get:
+      tags:
+        - Notifications
+      summary: Nombre de notifications non lues
+      description: Endpoint contrôlé par `NotificationController.count()`.
+      operationId: NotificationController_count_get__api_notifications_unread_count
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/notifications/{id}/read:
+    post:
+      tags:
+        - Notifications
+      summary: Marquer une notification comme lue
+      description: Endpoint contrôlé par `NotificationController.read()`.
+      operationId: NotificationController_read_post__api_notifications__id__read
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/notifications/read-all:
+    post:
+      tags:
+        - Notifications
+      summary: Marquer toutes mes notifications comme lues
+      description: Endpoint contrôlé par `NotificationController.all()`.
+      operationId: NotificationController_all_post__api_notifications_read_all
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/notifications/{id}:
+    delete:
+      tags:
+        - Notifications
+      summary: Supprimer ma notification
+      description: Endpoint contrôlé par `NotificationController.delete()`.
+      operationId: NotificationController_delete_delete__api_notifications__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/notifications/preferences:
+    get:
+      tags:
+        - Notifications
+      summary: Mes préférences de notifications
+      description: Endpoint contrôlé par `NotificationController.preferences()`.
+      operationId: NotificationController_preferences_get__api_notifications_preferences
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    put:
+      tags:
+        - Notifications
+      summary: Enregistrer mes préférences
+      description: Endpoint contrôlé par `NotificationController.update()`.
+      operationId: NotificationController_update_put__api_notifications_preferences
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/offers:
+    get:
+      tags:
+        - Offres Touristiques
+      summary: list sur OfferController
+      description: Endpoint contrôlé par `OfferController.list()`.
+      operationId: OfferController_list_get__api_offers
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    post:
+      tags:
+        - Offres Touristiques
+      summary: create sur OfferController
+      description: Endpoint contrôlé par `OfferController.create()`.
+      operationId: OfferController_create_post__api_offers
+      security:
+        - 
+        - 
+      responses:
+        201:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/offers/search:
+    get:
+      tags:
+        - Offres Touristiques
+      summary: search sur OfferController
+      description: Endpoint contrôlé par `OfferController.search()`.
+      operationId: OfferController_search_get__api_offers_search
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/offers/{id}:
+    get:
+      tags:
+        - Offres Touristiques
+      summary: get sur OfferController
+      description: Endpoint contrôlé par `OfferController.get()`.
+      operationId: OfferController_get_get__api_offers__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    put:
+      tags:
+        - Offres Touristiques
+      summary: update sur OfferController
+      description: Endpoint contrôlé par `OfferController.update()`.
+      operationId: OfferController_update_put__api_offers__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    delete:
+      tags:
+        - Offres Touristiques
+      summary: delete sur OfferController
+      description: Endpoint contrôlé par `OfferController.delete()`.
+      operationId: OfferController_delete_delete__api_offers__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/offers/{id}/translations:
+    get:
+      tags:
+        - Offres Touristiques
+      summary: getTranslations sur OfferController
+      description: Endpoint contrôlé par `OfferController.getTranslations()`.
+      operationId: OfferController_getTranslations_get__api_offers__id__translations
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/offers/{id}/translations/{locale}:
+    put:
+      tags:
+        - Offres Touristiques
+      summary: saveTranslation sur OfferController
+      description: Endpoint contrôlé par `OfferController.saveTranslation()`.
+      operationId: OfferController_saveTranslation_put__api_offers__id__translations__locale_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+        - 
+            name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identifiant locale
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    delete:
+      tags:
+        - Offres Touristiques
+      summary: deleteTranslation sur OfferController
+      description: Endpoint contrôlé par `OfferController.deleteTranslation()`.
+      operationId: OfferController_deleteTranslation_delete__api_offers__id__translations__locale_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+        - 
+            name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identifiant locale
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/offers/{id}/moderation:
+    post:
+      tags:
+        - Offres Touristiques
+      summary: moderate sur OfferController
+      description: Endpoint contrôlé par `OfferController.moderate()`.
+      operationId: OfferController_moderate_post__api_offers__id__moderation
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/payments:
+    post:
+      tags:
+        - Paiements & Caisse
+      summary: Initier un paiement idempotent
+      description: Endpoint contrôlé par `PaymentController.create()`.
+      operationId: PaymentController_create_post__api_payments
+      security:
+        - 
+        - 
+      responses:
+        201:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    get:
+      tags:
+        - Paiements & Caisse
+      summary: Paiements d
+      description: Endpoint contrôlé par `PaymentController.booking()`.
+      operationId: PaymentController_booking_get__api_payments
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/payments/{id}:
+    get:
+      tags:
+        - Paiements & Caisse
+      summary: Détail d
+      description: Endpoint contrôlé par `PaymentController.get()`.
+      operationId: PaymentController_get_get__api_payments__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/payments/{id}/events:
+    get:
+      tags:
+        - Paiements & Caisse
+      summary: Historique immuable du paiement
+      description: Endpoint contrôlé par `PaymentController.events()`.
+      operationId: PaymentController_events_get__api_payments__id__events
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/payments/{id}/refund:
+    post:
+      tags:
+        - Paiements & Caisse
+      summary: Rembourser totalement ou partiellement
+      description: Endpoint contrôlé par `PaymentController.refund()`.
+      operationId: PaymentController_refund_post__api_payments__id__refund
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/payments/{id}/collect-cash:
+    post:
+      tags:
+        - Paiements & Caisse
+      summary: Enregistrer un encaissement espèces
+      description: Endpoint contrôlé par `PaymentController.collect()`.
+      operationId: PaymentController_collect_post__api_payments__id__collect_cash
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/payments/mine:
+    get:
+      tags:
+        - Paiements & Caisse
+      summary: Liste paginée des paiements
+      description: Endpoint contrôlé par `PaymentController.list()`.
+      operationId: PaymentController_list_get__api_payments_mine
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/payments/admin:
+    get:
+      tags:
+        - Paiements & Caisse
+      summary: Liste paginée des paiements
+      description: Endpoint contrôlé par `PaymentController.list()`.
+      operationId: PaymentController_list_get__api_payments_admin
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/payments/cash-pending:
+    get:
+      tags:
+        - Paiements & Caisse
+      summary: Liste paginée des paiements
+      description: Endpoint contrôlé par `PaymentController.list()`.
+      operationId: PaymentController_list_get__api_payments_cash_pending
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/payments/cash-history:
+    get:
+      tags:
+        - Paiements & Caisse
+      summary: Liste paginée des paiements
+      description: Endpoint contrôlé par `PaymentController.list()`.
+      operationId: PaymentController_list_get__api_payments_cash_history
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/payments/webhook:
+    post:
+      tags:
+        - Webhook Paiements
+      summary: Recevoir un événement sandbox signé
+      description: Endpoint contrôlé par `PaymentWebhookController.()`.
+      operationId: PaymentWebhookController__post__api_payments_webhook
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/auth/profile-options:
+    get:
+      tags:
+        - Profils
+      summary: Lire les pays ISO et limites d
+      description: Endpoint contrôlé par `ProfileController.options()`.
+      operationId: ProfileController_options_get__api_auth_profile_options
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/auth/profile:
+    put:
+      tags:
+        - Profils
+      summary: Mettre à jour mon profil
+      description: Endpoint contrôlé par `ProfileController.update()`.
+      operationId: ProfileController_update_put__api_auth_profile
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/suppliers/me/profile:
+    get:
+      tags:
+        - Profils
+      summary: Lire mon profil fournisseur
+      description: Endpoint contrôlé par `ProfileController.supplier()`.
+      operationId: ProfileController_supplier_get__api_suppliers_me_profile
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    put:
+      tags:
+        - Profils
+      summary: Modifier mon profil fournisseur
+      description: Endpoint contrôlé par `ProfileController.supplierUpdate()`.
+      operationId: ProfileController_supplierUpdate_put__api_suppliers_me_profile
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/suppliers/{id}/profile:
+    get:
+      tags:
+        - Profils
+      summary: Lire un fournisseur
+      description: Endpoint contrôlé par `ProfileController.supplierAdmin()`.
+      operationId: ProfileController_supplierAdmin_get__api_suppliers__id__profile
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/promo-codes:
+    get:
+      tags:
+        - Codes Promo
+      summary: list sur PromoCodeController
+      description: Endpoint contrôlé par `PromoCodeController.list()`.
+      operationId: PromoCodeController_list_get__api_promo_codes
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    post:
+      tags:
+        - Codes Promo
+      summary: create sur PromoCodeController
+      description: Endpoint contrôlé par `PromoCodeController.create()`.
+      operationId: PromoCodeController_create_post__api_promo_codes
+      security:
+        - 
+        - 
+      responses:
+        201:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/promo-codes/{id}:
+    get:
+      tags:
+        - Codes Promo
+      summary: get sur PromoCodeController
+      description: Endpoint contrôlé par `PromoCodeController.get()`.
+      operationId: PromoCodeController_get_get__api_promo_codes__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    put:
+      tags:
+        - Codes Promo
+      summary: update sur PromoCodeController
+      description: Endpoint contrôlé par `PromoCodeController.update()`.
+      operationId: PromoCodeController_update_put__api_promo_codes__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    delete:
+      tags:
+        - Codes Promo
+      summary: delete sur PromoCodeController
+      description: Endpoint contrôlé par `PromoCodeController.delete()`.
+      operationId: PromoCodeController_delete_delete__api_promo_codes__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/offers/{offerId}/reviews:
+    get:
+      tags:
+        - Avis & Notations
+      summary: Lister les avis publics approuvés d
+      description: Endpoint contrôlé par `ReviewController.getReviewsForOffer()`.
+      operationId: ReviewController_getReviewsForOffer_get__api_offers__offerId__reviews
+      parameters:
+        - 
+            name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant offerId
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    post:
+      tags:
+        - Avis & Notations
+      summary: Déposer un avis certifié sur une offre (nécessite une réservation terminée)
+      description: Endpoint contrôlé par `ReviewController.createReview()`.
+      operationId: ReviewController_createReview_post__api_offers__offerId__reviews
+      parameters:
+        - 
+            name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant offerId
+      security:
+        - 
+        - 
+      responses:
+        201:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/offers/{offerId}/reviews/summary:
+    get:
+      tags:
+        - Avis & Notations
+      summary: Obtenir la note moyenne et la distribution des avis d
+      description: Endpoint contrôlé par `ReviewController.getReviewSummary()`.
+      operationId: ReviewController_getReviewSummary_get__api_offers__offerId__reviews_summary
+      parameters:
+        - 
+            name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant offerId
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/reviews/{reviewId}:
+    put:
+      tags:
+        - Avis & Notations
+      summary: Modifier son propre avis (dans les 48h suivant la publication)
+      description: Endpoint contrôlé par `ReviewController.updateReview()`.
+      operationId: ReviewController_updateReview_put__api_reviews__reviewId_
+      parameters:
+        - 
+            name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant reviewId
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    delete:
+      tags:
+        - Avis & Notations
+      summary: Supprimer un avis (l
+      description: Endpoint contrôlé par `ReviewController.deleteReview()`.
+      operationId: ReviewController_deleteReview_delete__api_reviews__reviewId_
+      parameters:
+        - 
+            name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant reviewId
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/reviews/{reviewId}/reply:
+    post:
+      tags:
+        - Avis & Notations
+      summary: Répondre à un avis (le fournisseur de l
+      description: Endpoint contrôlé par `ReviewController.replyToReview()`.
+      operationId: ReviewController_replyToReview_post__api_reviews__reviewId__reply
+      parameters:
+        - 
+            name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant reviewId
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/reviews/{reviewId}/report:
+    post:
+      tags:
+        - Avis & Notations
+      summary: Signaler un avis inapproprié ou abusif
+      description: Endpoint contrôlé par `ReviewController.reportReview()`.
+      operationId: ReviewController_reportReview_post__api_reviews__reviewId__report
+      parameters:
+        - 
+            name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant reviewId
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/reviews/moderation:
+    get:
+      tags:
+        - Avis & Notations
+      summary: Lister les avis pour la file de modération administrateur
+      description: Endpoint contrôlé par `ReviewController.getReviewsForModeration()`.
+      operationId: ReviewController_getReviewsForModeration_get__api_reviews_moderation
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/reviews/{reviewId}/moderate:
+    post:
+      tags:
+        - Avis & Notations
+      summary: Modérer un avis (approuver ou rejeter)
+      description: Endpoint contrôlé par `ReviewController.moderateReview()`.
+      operationId: ReviewController_moderateReview_post__api_reviews__reviewId__moderate
+      parameters:
+        - 
+            name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant reviewId
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/settings:
+    get:
+      tags:
+        - Paramètres Système
+      summary: Obtenir la liste complte des paramtres systme (ADMIN)
+      description: Endpoint contrôlé par `SettingController.getAll()`.
+      operationId: SettingController_getAll_get__api_settings
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    put:
+      tags:
+        - Paramètres Système
+      summary: Mise jour groupe et atomique des paramtres (ADMIN)
+      description: Endpoint contrôlé par `SettingController.updateAll()`.
+      operationId: SettingController_updateAll_put__api_settings
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/settings/{key}:
+    put:
+      tags:
+        - Paramètres Système
+      summary: Mise à jour unitaire d
+      description: Endpoint contrôlé par `SettingController.update()`.
+      operationId: SettingController_update_put__api_settings__key_
+      parameters:
+        - 
+            name: key
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identifiant key
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/settings/public:
+    get:
+      tags:
+        - Paramètres Système
+      summary: Obtenir les paramtres publics non sensibles
+      description: Endpoint contrôlé par `SettingController.getPublicSettings()`.
+      operationId: SettingController_getPublicSettings_get__api_settings_public
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/stats/admin:
+    get:
+      tags:
+        - Statistiques & KPIs
+      summary: Dashboard administrateur
+      description: Endpoint contrôlé par `StatsController.admin()`.
+      operationId: StatsController_admin_get__api_stats_admin
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/stats/supplier:
+    get:
+      tags:
+        - Statistiques & KPIs
+      summary: Dashboard de mon fournisseur
+      description: Endpoint contrôlé par `StatsController.supplier()`.
+      operationId: StatsController_supplier_get__api_stats_supplier
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/stats/agent:
+    get:
+      tags:
+        - Statistiques & KPIs
+      summary: Dashboard opérationnel
+      description: Endpoint contrôlé par `StatsController.agent()`.
+      operationId: StatsController_agent_get__api_stats_agent
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/stats/client:
+    get:
+      tags:
+        - Statistiques & KPIs
+      summary: Mes voyages et mon activité
+      description: Endpoint contrôlé par `StatsController.client()`.
+      operationId: StatsController_client_get__api_stats_client
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/stats/admin/export/bookings.csv:
+    get:
+      tags:
+        - Statistiques & KPIs
+      summary: Exporter les réservations CSV
+      description: Endpoint contrôlé par `StatsController.bookings()`.
+      operationId: StatsController_bookings_get__api_stats_admin_export_bookings_csv
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/stats/admin/export/revenue.csv:
+    get:
+      tags:
+        - Statistiques & KPIs
+      summary: Exporter le chiffre d
+      description: Endpoint contrôlé par `StatsController.revenue()`.
+      operationId: StatsController_revenue_get__api_stats_admin_export_revenue_csv
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/status:
+    get:
+      tags:
+        - Santé & Supervision
+      summary: status sur StatusController
+      description: Endpoint contrôlé par `StatusController.status()`.
+      operationId: StatusController_status_get__api_status
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/tickets:
+    post:
+      tags:
+        - Tickets de Support
+      summary: Créer un nouveau ticket de support
+      description: Endpoint contrôlé par `TicketController.create()`.
+      operationId: TicketController_create_post__api_tickets
+      security:
+        - 
+        - 
+      responses:
+        201:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    get:
+      tags:
+        - Tickets de Support
+      summary: Lister les tickets de support avec pagination et filtres
+      description: Endpoint contrôlé par `TicketController.list()`.
+      operationId: TicketController_list_get__api_tickets
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/tickets/stats:
+    get:
+      tags:
+        - Tickets de Support
+      summary: Compteurs statistiques par statut et priorité (agents et admins)
+      description: Endpoint contrôlé par `TicketController.getStats()`.
+      operationId: TicketController_getStats_get__api_tickets_stats
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/tickets/{id}:
+    get:
+      tags:
+        - Tickets de Support
+      summary: Consulter le détail d
+      description: Endpoint contrôlé par `TicketController.get()`.
+      operationId: TicketController_get_get__api_tickets__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    delete:
+      tags:
+        - Tickets de Support
+      summary: Supprimer un ticket définitivement (administrateurs uniquement)
+      description: Endpoint contrôlé par `TicketController.delete()`.
+      operationId: TicketController_delete_delete__api_tickets__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/tickets/{id}/messages:
+    post:
+      tags:
+        - Tickets de Support
+      summary: Ajouter un message au fil de discussion
+      description: Endpoint contrôlé par `TicketController.addMessage()`.
+      operationId: TicketController_addMessage_post__api_tickets__id__messages
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        201:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/tickets/{id}/status:
+    patch:
+      tags:
+        - Tickets de Support
+      summary: Modifier le statut d
+      description: Endpoint contrôlé par `TicketController.updateStatus()`.
+      operationId: TicketController_updateStatus_patch__api_tickets__id__status
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/tickets/{id}/assignee:
+    patch:
+      tags:
+        - Tickets de Support
+      summary: Assigner un agent ou administrateur au ticket
+      description: Endpoint contrôlé par `TicketController.updateAssignee()`.
+      operationId: TicketController_updateAssignee_patch__api_tickets__id__assignee
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/tickets/{id}/priority:
+    patch:
+      tags:
+        - Tickets de Support
+      summary: Modifier la priorité d
+      description: Endpoint contrôlé par `TicketController.updatePriority()`.
+      operationId: TicketController_updatePriority_patch__api_tickets__id__priority
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/users/me/export:
+    get:
+      tags:
+        - Utilisateurs & RGPD
+      summary: exportMe sur UserController
+      description: Endpoint contrôlé par `UserController.exportMe()`.
+      operationId: UserController_exportMe_get__api_users_me_export
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/users/me:
+    delete:
+      tags:
+        - Utilisateurs & RGPD
+      summary: deleteMe sur UserController
+      description: Endpoint contrôlé par `UserController.deleteMe()`.
+      operationId: UserController_deleteMe_delete__api_users_me
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/users:
+    get:
+      tags:
+        - Utilisateurs & RGPD
+      summary: list sur UserController
+      description: Endpoint contrôlé par `UserController.list()`.
+      operationId: UserController_list_get__api_users
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    post:
+      tags:
+        - Utilisateurs & RGPD
+      summary: create sur UserController
+      description: Endpoint contrôlé par `UserController.create()`.
+      operationId: UserController_create_post__api_users
+      security:
+        - 
+        - 
+      responses:
+        201:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/users/{id}:
+    get:
+      tags:
+        - Utilisateurs & RGPD
+      summary: get sur UserController
+      description: Endpoint contrôlé par `UserController.get()`.
+      operationId: UserController_get_get__api_users__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    put:
+      tags:
+        - Utilisateurs & RGPD
+      summary: update sur UserController
+      description: Endpoint contrôlé par `UserController.update()`.
+      operationId: UserController_update_put__api_users__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+    delete:
+      tags:
+        - Utilisateurs & RGPD
+      summary: delete sur UserController
+      description: Endpoint contrôlé par `UserController.delete()`.
+      operationId: UserController_delete_delete__api_users__id_
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        204:
+          description: Opération réalisée avec succès
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/users/me/preferences:
+    put:
+      tags:
+        - Utilisateurs & RGPD
+      summary: updatePreferences sur UserController
+      description: Endpoint contrôlé par `UserController.updatePreferences()`.
+      operationId: UserController_updatePreferences_put__api_users_me_preferences
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/users/{id}/archive:
+    post:
+      tags:
+        - Utilisateurs & RGPD
+      summary: archive sur UserController
+      description: Endpoint contrôlé par `UserController.archive()`.
+      operationId: UserController_archive_post__api_users__id__archive
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/users/{id}/restore:
+    post:
+      tags:
+        - Utilisateurs & RGPD
+      summary: restore sur UserController
+      description: Endpoint contrôlé par `UserController.restore()`.
+      operationId: UserController_restore_post__api_users__id__restore
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+  /api/users/{id}/unlock:
+    post:
+      tags:
+        - Utilisateurs & RGPD
+      summary: unlock sur UserController
+      description: Endpoint contrôlé par `UserController.unlock()`.
+      operationId: UserController_unlock_post__api_users__id__unlock
+      parameters:
+        - 
+            name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Identifiant id
+      security:
+        - 
+        - 
+      responses:
+        200:
+          description: Opération réalisée avec succès
+        400:
+          description: Requête invalide ou corps non conforme
+        401:
+          description: Non authentifié - Jeton absent ou expiré
+        403:
+          description: Accès refusé - Privilèges insuffisants pour cette ressource
+        404:
+          description: Ressource introuvable
+        422:
+          description: Erreur métier ou validation de règle échouée
+        429:
+          description: Limite de débit dépassée (Rate limit) - Consulter Retry-After
+        500:
+          description: Erreur interne du serveur Atlas Voyage
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Jeton JWT transmis via en-tête Authorization: Bearer <token>"
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: atlas_access_token
+      description: Cookie de session sécurisé HttpOnly émis lors de la connexion

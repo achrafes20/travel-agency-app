@@ -1,0 +1,240 @@
+erDiagram
+    User {
+        Long id
+        String fullName
+        String email
+        String password
+        Role role
+        OfferType supplierCategory
+        boolean archived
+        String phone
+    }
+    Offer {
+        Long id
+        String title
+        String description
+        Double basePrice
+        Integer stock
+        Boolean allowsPayOnArrival
+        Boolean active
+        Double averageRating
+    }
+    Hotel {
+        Integer stars
+        String roomType
+        String address
+    }
+    Flight {
+        String airline
+        String flightNumber
+        String departureAirport
+        String arrivalAirport
+        LocalDateTime departureDateTime
+        LocalDateTime arrivalDateTime
+        Boolean roundTrip
+        LocalDateTime returnDepartureDateTime
+    }
+    Car {
+        String brand
+        String model
+        String transmission
+        Integer seats
+        String pickupLocation
+        String__ dropoffLocations
+        Boolean allowsDifferentDropoff
+        Integer minimumDriverAge
+    }
+    TaxiTransfer {
+        String pickupLocation
+        String dropoffLocation
+        String vehicleType
+    }
+    Excursion {
+        Integer durationHours
+        Boolean includesGuide
+        Boolean includesTransport
+        String itinerary
+    }
+    OfferAvailability {
+        Long id
+        LocalDateTime startAt
+        LocalDateTime endAt
+        Integer capacity
+    }
+    OfferTranslation {
+        Long id
+        Offer offer
+        String locale
+        String title
+        String description
+        String itinerary
+        String status
+        LocalDateTime updatedAt
+    }
+    City {
+        Long id
+        String name
+        String normalizedName
+        Double latitude
+        Double longitude
+        String country
+        String countryCode
+        Boolean hasAirport
+    }
+    CityTranslation {
+        Long id
+        City city
+        String locale
+        String name
+    }
+    Cart {
+        Long id
+        User client
+        CartItem__ items
+        PromoCode promoCode
+    }
+    CartItem {
+        Long id
+        Cart cart
+        Offer offer
+        Bundle bundle
+        Integer quantity
+        String travelCriteria
+    }
+    PromoCode {
+        Long id
+        String code
+        DiscountType discountType
+        BigDecimal value
+        LocalDate expiryDate
+        Boolean active
+    }
+    Bundle {
+        Long id
+        String title
+        String description
+        Double discountPercentage
+        Offer__ offers
+        User createdBy
+    }
+    Booking {
+        Long id
+        String reference
+        User client
+        BookingStatus status
+        PaymentStatus paymentStatus
+        PaymentMethod paymentMethod
+        BigDecimal subtotal
+        BigDecimal discount
+    }
+    BookingItem {
+        Long id
+        Booking booking
+        Offer offer
+        Bundle bundle
+        BookingItem parentItem
+        User supplier
+        String titleSnapshot
+        Integer quantity
+    }
+    BookingItemAllocation {
+        Long id
+        BookingItem bookingItem
+        OfferAvailability availability
+        Integer quantity
+        boolean restored
+    }
+    Payment {
+        Long id
+        Booking booking
+        User client
+        PaymentMethod method
+        PaymentStatus status
+        BigDecimal amount
+        BigDecimal refundedAmount
+        BigDecimal reservedRefundAmount
+    }
+    PaymentEvent {
+        Long id
+        Payment payment
+        PaymentStatus fromStatus
+        PaymentStatus toStatus
+        String eventType
+        User actor
+        String actorRole
+        String details
+    }
+    Notification {
+        Long id
+        User user
+        NotificationType type
+        String title
+        String link
+        LocalDateTime readAt
+        String referenceType
+        Long referenceId
+    }
+    NotificationPreference {
+        Long userId
+        boolean emailEnabled
+        boolean inAppEnabled
+        boolean bookingEmail
+        boolean paymentEmail
+        boolean offerEmail
+        boolean supportEmail
+    }
+    Favorite {
+        Long id
+        User client
+        Offer offer
+        LocalDateTime createdAt
+    }
+    Review {
+        Long id
+        Offer offer
+        User client
+        Booking booking
+        Integer rating
+        String title
+        String comment
+        ReviewStatus status
+    }
+    Ticket {
+        Long id
+        String reference
+        String subject
+        TicketCategory category
+        TicketPriority priority
+        TicketStatus status
+        User requester
+        User assignee
+    }
+    TicketMessage {
+        Long id
+        Ticket ticket
+        User author
+        String content
+        boolean internalNote
+        LocalDateTime createdAt
+        TicketAttachment__ attachments
+    }
+    AuditLog {
+        Long id
+        Long actorId
+        String actorEmail
+        String actorRole
+        String action
+        String resourceType
+        Long resourceId
+        String description
+    }
+    Setting {
+        Long id
+        String settingKey
+        String settingValue
+        SettingType valueType
+        String description
+        Double minValue
+        Double maxValue
+        LocalDateTime updatedAt
+    }

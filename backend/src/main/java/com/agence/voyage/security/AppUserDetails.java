@@ -17,6 +17,8 @@ public class AppUserDetails implements UserDetails {
     private final String password;
     private final Role role;
     private final boolean archived;
+    private final long tokenVersion;
+    public long getTokenVersion(){return tokenVersion;}
 
     public AppUserDetails(User user) {
         this.id = user.getId();
@@ -24,6 +26,7 @@ public class AppUserDetails implements UserDetails {
         this.password = user.getPassword();
         this.role = user.getRole();
         this.archived = user.isArchived();
+        this.tokenVersion=user.getTokenVersion();
     }
 
     public Long getId() {
@@ -32,6 +35,10 @@ public class AppUserDetails implements UserDetails {
 
     public Role getRole() {
         return role;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     @Override

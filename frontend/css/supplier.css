@@ -209,6 +209,11 @@ button { cursor: pointer; }
 .search-field input { width: 100%; border: 0; outline: 0; color: var(--ink); font-size: 10px; }
 .control { height: 39px; min-width: 130px; border: 1px solid var(--border); border-radius: 8px; background: #fff; padding: 0 11px; color: #596579; font-size: 9px; outline: 0; }
 .control:focus { border-color: var(--royal); box-shadow: 0 0 0 3px #e8f0fe; }
+.inventory-filters { padding: 14px; display: grid; grid-template-columns: minmax(240px,1.5fr) repeat(5,minmax(125px,1fr)) auto; gap: 9px; align-items: center; }
+.inventory-filters .search-field { min-width: 0; }.inventory-filters .control { width: 100%; min-width: 0; }
+.inventory-summary { margin: -4px 2px 10px; display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 8px; }.inventory-summary span { color: var(--ink); font-weight: 700; }
+@media (max-width: 1200px) { .inventory-filters { grid-template-columns: repeat(3,1fr); }.inventory-filters .search-field { grid-column: span 2; } }
+@media (max-width: 700px) { .inventory-filters { grid-template-columns: 1fr; }.inventory-filters .search-field { grid-column: auto; }.inventory-summary { align-items: flex-start; flex-direction: column; gap: 4px; } }
 
 .offer-cell { display: flex; align-items: center; gap: 10px; }
 .offer-cell img { width: 46px; height: 40px; border-radius: 7px; object-fit: cover; }
@@ -226,7 +231,7 @@ button { cursor: pointer; }
 .pagination button { min-width: 29px; height: 29px; border: 1px solid var(--border); border-radius: 6px; background: #fff; }
 .pagination button.active { border-color: var(--royal); background: var(--royal); color: #fff; }
 
-.stepper { display: flex; padding: 18px 24px; }
+.offer-progress { display: flex; width: 100%; min-height: 86px; padding: 20px 30px; }
 .step { display: flex; flex: 1; align-items: center; }
 .step-number { display: grid; width: 31px; height: 31px; place-items: center; border-radius: 50%; background: #edf0f5; color: #8993a3; font-size: 10px; font-weight: 700; }
 .step.active .step-number { background: var(--royal); color: #fff; box-shadow: 0 0 0 4px #e8f0fe; }
@@ -314,8 +319,8 @@ button { cursor: pointer; }
 /* Menu latéral repliable (même principe que l'espace administrateur) */
 #sidebar { transition: width .2s; }
 #sidebar.collapsed { width: 72px; padding-left: 12px; padding-right: 12px; }
-#sidebar.collapsed p, #sidebar.collapsed .nav-item span, #sidebar.collapsed .nav-item b { display: none; }
+#sidebar.collapsed p, #sidebar.collapsed .nav-item span, #sidebar.collapsed .nav-item b, #sidebar.collapsed .help-card { display: none; }
 #sidebar.collapsed .nav-item { justify-content: center; padding: 0; }
 #sidebar.collapsed .nav-item.active::before { left: -12px; }
 #main-shell { transition: margin .2s; }
-#main-shell.expanded { margin-left: 72px; }
+#main-shell.expanded { margin-left: 72px !important; }

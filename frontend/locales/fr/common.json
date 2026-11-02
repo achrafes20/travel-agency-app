@@ -1,0 +1,75 @@
+{
+  "actions": {
+    "search": "Rechercher",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "continue": "Continuer",
+    "view": "Voir",
+    "viewAll": "Tout voir",
+    "clearFilters": "Effacer les filtres",
+    "retry": "Réessayer",
+    "download": "Télécharger",
+    "print": "Imprimer"
+  },
+  "language": {
+    "select": "Sélectionner la langue (actuelle : {current})",
+    "fr": "Français",
+    "en": "English",
+    "ar": "العربية"
+  },
+  "currency": {
+    "select": "Devise d'affichage ({current})",
+    "disclaimer": "Montant indicatif. Le paiement final sera obligatoirement prélevé en Dirhams Marocains (MAD).",
+    "updatedAt": "Taux mis à jour le {date}",
+    "rate": "1 MAD = {rate} {currency}"
+  },
+  "plurals": {
+    "travelers": {
+      "one": "{count} voyageur",
+      "other": "{count} voyageurs"
+    },
+    "nights": {
+      "one": "{count} nuit",
+      "other": "{count} nuits"
+    },
+    "reviews": {
+      "zero": "Aucun avis",
+      "one": "{count} avis",
+      "other": "{count} avis"
+    },
+    "offers": {
+      "zero": "Aucune offre",
+      "one": "{count} offre trouvée",
+      "other": "{count} offres trouvées"
+    }
+  },
+  "states": {
+    "loading": "Chargement en cours...",
+    "saving": "Enregistrement...",
+    "empty": "Aucun élément à afficher",
+    "success": "Opération réussie",
+    "error": "Une erreur est survenue"
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page {page} sur {total}"
+  },
+  "footer": {
+    "slogan": "Votre partenaire de confiance pour découvrir l'authenticité et la beauté du Maroc.",
+    "links": {
+      "about": "À propos",
+      "contact": "Contact",
+      "faq": "FAQ",
+      "cgu": "Conditions d'utilisation",
+      "privacy": "Confidentialité & RGPD"
+    },
+    "copyright": "© {year} Atlas Voyage SARL. Tous droits réservés."
+  }
+}
+

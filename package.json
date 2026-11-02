@@ -1,0 +1,18 @@
+{
+  "name": "travel-agency-app",
+  "version": "1.17.0-rc1",
+  "private": true,
+  "description": "Atlas Voyage — Plateforme de Voyage et Tourisme au Maroc",
+  "scripts": {
+    "docs:gen": "node scripts/docs/generate_all.mjs",
+    "docs:check": "node scripts/docs/check_all.mjs",
+    "docs:screenshots": "node scripts/docs/capture_manual_screenshots.mjs",
+    "i18n:check": "node scripts/i18n/check.mjs",
+    "recette:all": "node scripts/recette/run_all.mjs",
+    "serve": "node scripts/serve_frontend.mjs"
+  },
+  "devDependencies": {
+    "axe-core": "^4.14.0",
+    "puppeteer-core": "^25.16.0"
+  }
+}

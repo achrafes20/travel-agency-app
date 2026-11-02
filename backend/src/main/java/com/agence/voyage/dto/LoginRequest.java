@@ -10,6 +10,15 @@ public class LoginRequest {
     @NotBlank(message = "Le mot de passe est obligatoire")
     private String password;
 
+    private Boolean rememberMe = true;
+
+    public LoginRequest() {}
+
+    public LoginRequest(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -24,5 +33,13 @@ public class LoginRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Boolean getRememberMe() {
+        return rememberMe != null ? rememberMe : true;
+    }
+
+    public void setRememberMe(Boolean rememberMe) {
+        this.rememberMe = rememberMe;
     }
 }

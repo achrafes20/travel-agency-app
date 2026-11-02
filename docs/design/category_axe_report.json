@@ -1,0 +1,62 @@
+{
+  "catalogue_hotel": {
+    "passes": 26,
+    "violationsCount": 0,
+    "criticalOrSerious": 0,
+    "violations": []
+  },
+  "catalogue_flight": {
+    "passes": 26,
+    "violationsCount": 0,
+    "criticalOrSerious": 0,
+    "violations": []
+  },
+  "catalogue_car": {
+    "passes": 27,
+    "violationsCount": 0,
+    "criticalOrSerious": 0,
+    "violations": []
+  },
+  "catalogue_transfer": {
+    "passes": 26,
+    "violationsCount": 0,
+    "criticalOrSerious": 0,
+    "violations": []
+  },
+  "catalogue_excursion": {
+    "passes": 26,
+    "violationsCount": 0,
+    "criticalOrSerious": 0,
+    "violations": []
+  },
+  "detail_hotel": {
+    "passes": 25,
+    "violationsCount": 0,
+    "criticalOrSerious": 0,
+    "violations": []
+  },
+  "detail_flight": {
+    "passes": 23,
+    "violationsCount": 0,
+    "criticalOrSerious": 0,
+    "violations": []
+  },
+  "detail_car": {
+    "passes": 23,
+    "violationsCount": 0,
+    "criticalOrSerious": 0,
+    "violations": []
+  },
+  "detail_transfer": {
+    "passes": 23,
+    "violationsCount": 0,
+    "criticalOrSerious": 0,
+    "violations": []
+  },
+  "detail_excursion": {
+    "passes": 23,
+    "violationsCount": 0,
+    "criticalOrSerious": 0,
+    "violations": []
+  }
+}

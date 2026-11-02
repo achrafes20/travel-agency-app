@@ -1,0 +1,36 @@
+{
+  "title": "Finaliser votre réservation",
+  "stepper": {
+    "step1": "1. Panier",
+    "step2": "2. Coordonnées",
+    "step3": "3. Options",
+    "step4": "4. Paiement"
+  },
+  "contactInfo": {
+    "title": "Vos coordonnées personnelles",
+    "fullName": "Nom complet",
+    "email": "Adresse email",
+    "phone": "Numéro de téléphone",
+    "specialRequests": "Demandes particulières (facultatif)"
+  },
+  "payment": {
+    "title": "Mode de règlement",
+    "payOnArrival": "Paiement en espèces à l'arrivée",
+    "payOnArrivalDesc": "Réglez directement auprès du prestataire en Dirhams Marocains lors de votre enregistrement.",
+    "card": "Carte bancaire (Sandbox sécurisée)",
+    "cardDesc": "Transaction de test sécurisée. Aucun débit bancaire réel.",
+    "cardNumber": "Numéro de carte",
+    "cardExpiry": "Date d'expiration (MM/AA)",
+    "cardCvc": "CVC",
+    "payButton": "Confirmer et payer {amount}",
+    "currencyAlert": "Facturation finale obligatoirement effectuée en Dirhams Marocains (MAD)."
+  },
+  "confirmation": {
+    "successTitle": "Réservation confirmée avec succès !",
+    "successMessage": "Votre référence de dossier est : <strong>{reference}</strong>",
+    "voucherEmail": "Un e-mail récapitulatif avec votre bon d'échange (voucher) vous a été transmis.",
+    "viewBooking": "Accéder à ma réservation",
+    "backHome": "Retour à l'accueil"
+  }
+}
+

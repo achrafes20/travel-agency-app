@@ -1,0 +1,34 @@
+{
+  "title": "Catalogue des offres de voyage",
+  "filters": {
+    "title": "Filtrer les offres",
+    "type": "Type de séjour",
+    "stars": "Nombre d'étoiles",
+    "starsLabel": "{count} étoiles",
+    "city": "Ville / Région",
+    "allCities": "Toutes les villes",
+    "priceMax": "Budget maximum : {price}",
+    "apply": "Appliquer les filtres",
+    "reset": "Effacer les filtres"
+  },
+  "sort": {
+    "label": "Trier par :",
+    "relevant": "Pertinence",
+    "priceAsc": "Prix croissant",
+    "priceDesc": "Prix décroissant",
+    "ratingDesc": "Mieux notés"
+  },
+  "results": {
+    "found": "{count} offre(s) disponible(s)",
+    "empty": "Aucune offre ne correspond à vos critères de recherche.",
+    "emptySuggestion": "Essayez d'élargir vos filtres ou de choisir une autre ville."
+  },
+  "card": {
+    "startingFrom": "À partir de",
+    "perNight": "/ nuit",
+    "viewOffer": "Découvrir l'offre",
+    "payOnArrival": "Paiement à l'arrivée",
+    "reviewsCount": "({count} avis)"
+  }
+}
+

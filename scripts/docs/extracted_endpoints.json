@@ -1,0 +1,1136 @@
+[
+  {
+    "controller": "AccountSecurityController",
+    "verb": "POST",
+    "path": "/api/auth/change-password",
+    "methodName": "change",
+    "returnType": "AuthResponse",
+    "summary": "Changer mon mot de passe et révoquer les anciennes sessions",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@Valid @RequestBody AccountRequests.ChangePassword r"
+  },
+  {
+    "controller": "AccountSecurityController",
+    "verb": "POST",
+    "path": "/api/auth/forgot-password",
+    "methodName": "",
+    "returnType": "",
+    "summary": "Demander un lien de réinitialisation",
+    "params": ""
+  },
+  {
+    "controller": "AccountSecurityController",
+    "verb": "POST",
+    "path": "/api/auth/reset-password",
+    "methodName": "",
+    "returnType": "",
+    "summary": "Réinitialiser le mot de passe avec un lien à usage unique",
+    "params": ""
+  },
+  {
+    "controller": "AccountSecurityController",
+    "verb": "POST",
+    "path": "/api/auth/verify-email",
+    "methodName": "",
+    "returnType": "",
+    "summary": "Vérifier l",
+    "params": ""
+  },
+  {
+    "controller": "AccountSecurityController",
+    "verb": "POST",
+    "path": "/api/auth/resend-verification",
+    "methodName": "",
+    "returnType": "",
+    "summary": "Renvoyer le lien de vérification",
+    "params": ""
+  },
+  {
+    "controller": "AuditController",
+    "verb": "GET",
+    "path": "/api/audit",
+    "methodName": "list",
+    "returnType": "PageResponse<AuditLogResponse>",
+    "summary": "Lister les entrǸes du journal d",
+    "params": "@RequestParam(required = false"
+  },
+  {
+    "controller": "AuditController",
+    "verb": "GET",
+    "path": "/api/audit/{id}",
+    "methodName": "getById",
+    "returnType": "AuditLogResponse",
+    "summary": "Obtenir le dǸtail complet d",
+    "params": "@PathVariable Long id"
+  },
+  {
+    "controller": "AuditController",
+    "verb": "GET",
+    "path": "/api/audit/export",
+    "methodName": "exportCsv",
+    "returnType": "void",
+    "summary": "Exporter les logs d",
+    "params": "@RequestParam(required = false"
+  },
+  {
+    "controller": "AuthController",
+    "verb": "POST",
+    "path": "/api/auth/register",
+    "methodName": "register",
+    "returnType": "AuthResponse",
+    "summary": "",
+    "params": "@Valid @RequestBody RegisterRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse"
+  },
+  {
+    "controller": "AuthController",
+    "verb": "POST",
+    "path": "/api/auth/login",
+    "methodName": "login",
+    "returnType": "AuthResponse",
+    "summary": "",
+    "params": "@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse"
+  },
+  {
+    "controller": "AuthController",
+    "verb": "POST",
+    "path": "/api/auth/refresh",
+    "methodName": "refresh",
+    "returnType": "AuthResponse",
+    "summary": "",
+    "params": "HttpServletRequest httpRequest, HttpServletResponse httpResponse"
+  },
+  {
+    "controller": "AuthController",
+    "verb": "POST",
+    "path": "/api/auth/logout",
+    "methodName": "logout",
+    "returnType": "void",
+    "summary": "",
+    "params": "HttpServletRequest httpRequest, HttpServletResponse httpResponse"
+  },
+  {
+    "controller": "AuthController",
+    "verb": "POST",
+    "path": "/api/auth/logout-all",
+    "methodName": "logoutAll",
+    "returnType": "void",
+    "summary": "",
+    "params": "@AuthenticationPrincipal AppUserDetails principal, HttpServletResponse httpResponse"
+  },
+  {
+    "controller": "AuthController",
+    "verb": "GET",
+    "path": "/api/auth/me",
+    "methodName": "me",
+    "returnType": "UserResponse",
+    "summary": "",
+    "params": "@AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "BookingController",
+    "verb": "POST",
+    "path": "/api/bookings",
+    "methodName": "create",
+    "returnType": "BookingResponse",
+    "summary": "Réserver le panier",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@Valid @RequestBody CreateBookingRequest r"
+  },
+  {
+    "controller": "BookingController",
+    "verb": "GET",
+    "path": "/api/bookings",
+    "methodName": "list",
+    "returnType": "PageResponse<BookingSummaryResponse>",
+    "summary": "Lister les réservations",
+    "params": "@AuthenticationPrincipal AppUserDetails u, jakarta.servlet.http.HttpServletRequest request,@RequestParam(required=false"
+  },
+  {
+    "controller": "BookingController",
+    "verb": "GET",
+    "path": "/api/bookings/supplier",
+    "methodName": "list",
+    "returnType": "PageResponse<BookingSummaryResponse>",
+    "summary": "Lister les réservations",
+    "params": "@AuthenticationPrincipal AppUserDetails u, jakarta.servlet.http.HttpServletRequest request,@RequestParam(required=false"
+  },
+  {
+    "controller": "BookingController",
+    "verb": "GET",
+    "path": "/api/bookings/admin",
+    "methodName": "list",
+    "returnType": "PageResponse<BookingSummaryResponse>",
+    "summary": "Lister les réservations",
+    "params": "@AuthenticationPrincipal AppUserDetails u, jakarta.servlet.http.HttpServletRequest request,@RequestParam(required=false"
+  },
+  {
+    "controller": "BookingController",
+    "verb": "GET",
+    "path": "/api/bookings/{id}",
+    "methodName": "get",
+    "returnType": "BookingResponse",
+    "summary": "Consulter une réservation",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@PathVariable Long id"
+  },
+  {
+    "controller": "BookingController",
+    "verb": "POST",
+    "path": "/api/bookings/{id}/cancel",
+    "methodName": "cancel",
+    "returnType": "BookingResponse",
+    "summary": "Annuler et restituer la capacité",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@PathVariable Long id,@Valid @RequestBody(required=false"
+  },
+  {
+    "controller": "BookingController",
+    "verb": "POST",
+    "path": "/api/bookings/{id}/confirm",
+    "methodName": "confirm",
+    "returnType": "BookingResponse",
+    "summary": "Confirmer manuellement",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@PathVariable Long id"
+  },
+  {
+    "controller": "BookingController",
+    "verb": "GET",
+    "path": "/api/bookings/{id}/voucher",
+    "methodName": "voucher",
+    "returnType": "ResponseEntity<byte[]>",
+    "summary": "Télécharger le voucher PDF avec QR signé",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@PathVariable Long id"
+  },
+  {
+    "controller": "BundleController",
+    "verb": "GET",
+    "path": "/api/bundles",
+    "methodName": "list",
+    "returnType": "Object",
+    "summary": "",
+    "params": "@RequestParam(required = false"
+  },
+  {
+    "controller": "BundleController",
+    "verb": "GET",
+    "path": "/api/bundles/{id}",
+    "methodName": "get",
+    "returnType": "BundleResponse",
+    "summary": "",
+    "params": "@PathVariable Long id"
+  },
+  {
+    "controller": "BundleController",
+    "verb": "POST",
+    "path": "/api/bundles",
+    "methodName": "create",
+    "returnType": "BundleResponse",
+    "summary": "",
+    "params": "@Valid @RequestBody BundleRequest request, @AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "BundleController",
+    "verb": "PUT",
+    "path": "/api/bundles/{id}",
+    "methodName": "update",
+    "returnType": "BundleResponse",
+    "summary": "",
+    "params": "@PathVariable Long id, @Valid @RequestBody BundleRequest request, @AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "BundleController",
+    "verb": "DELETE",
+    "path": "/api/bundles/{id}",
+    "methodName": "delete",
+    "returnType": "void",
+    "summary": "",
+    "params": "@PathVariable Long id, @AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "CartController",
+    "verb": "GET",
+    "path": "/api/cart",
+    "methodName": "get",
+    "returnType": "CartResponse",
+    "summary": "",
+    "params": "@AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "CartController",
+    "verb": "POST",
+    "path": "/api/cart/items",
+    "methodName": "addItem",
+    "returnType": "CartResponse",
+    "summary": "",
+    "params": "@Valid @RequestBody CartItemRequest request, @AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "CartController",
+    "verb": "PUT",
+    "path": "/api/cart/items/{itemId}",
+    "methodName": "updateItem",
+    "returnType": "CartResponse",
+    "summary": "",
+    "params": "@PathVariable Long itemId, @Valid @RequestBody CartItemRequest request, @AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "CartController",
+    "verb": "DELETE",
+    "path": "/api/cart/items/{itemId}",
+    "methodName": "removeItem",
+    "returnType": "CartResponse",
+    "summary": "",
+    "params": "@PathVariable Long itemId, @AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "CartController",
+    "verb": "DELETE",
+    "path": "/api/cart",
+    "methodName": "clear",
+    "returnType": "CartResponse",
+    "summary": "",
+    "params": "@AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "CartController",
+    "verb": "POST",
+    "path": "/api/cart/promo",
+    "methodName": "applyPromo",
+    "returnType": "CartResponse",
+    "summary": "",
+    "params": "@Valid @RequestBody ApplyPromoRequest request, @AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "CartController",
+    "verb": "DELETE",
+    "path": "/api/cart/promo",
+    "methodName": "removePromo",
+    "returnType": "CartResponse",
+    "summary": "",
+    "params": "@AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "CityController",
+    "verb": "GET",
+    "path": "/api/cities",
+    "methodName": "list",
+    "returnType": "Object",
+    "summary": "Lister les ressources",
+    "params": "@RequestParam(required = false"
+  },
+  {
+    "controller": "CityController",
+    "verb": "GET",
+    "path": "/api/cities/{id}",
+    "methodName": "get",
+    "returnType": "CityResponse",
+    "summary": "Consulter la ressource",
+    "params": "@PathVariable Long id"
+  },
+  {
+    "controller": "CityController",
+    "verb": "POST",
+    "path": "/api/cities",
+    "methodName": "create",
+    "returnType": "CityResponse",
+    "summary": "Créer la ressource",
+    "params": "@Valid @RequestBody CityRequest request"
+  },
+  {
+    "controller": "CityController",
+    "verb": "PUT",
+    "path": "/api/cities/{id}",
+    "methodName": "update",
+    "returnType": "CityResponse",
+    "summary": "Modifier la ressource",
+    "params": "@PathVariable Long id, @Valid @RequestBody CityRequest request"
+  },
+  {
+    "controller": "CityController",
+    "verb": "DELETE",
+    "path": "/api/cities/{id}",
+    "methodName": "delete",
+    "returnType": "void",
+    "summary": "Supprimer la ressource",
+    "params": "@PathVariable Long id"
+  },
+  {
+    "controller": "ContactController",
+    "verb": "POST",
+    "path": "/api/contact",
+    "methodName": "submitContact",
+    "returnType": "ResponseEntity<Map<String, Object>>",
+    "summary": "",
+    "params": "@Valid @RequestBody ContactRequest request, HttpServletRequest httpRequest"
+  },
+  {
+    "controller": "CurrencyController",
+    "verb": "GET",
+    "path": "/api/currencies/rates",
+    "methodName": "getRates",
+    "returnType": "ResponseEntity<Map<String, Object>>",
+    "summary": "Obtenir les taux de change indicatifs par rapport au MAD",
+    "params": ""
+  },
+  {
+    "controller": "FavoriteController",
+    "verb": "GET",
+    "path": "/api/favorites",
+    "methodName": "list",
+    "returnType": "PageResponse<FavoriteResponse>",
+    "summary": "Lister les offres favorites du client connectǸ (paginǸe)",
+    "params": "@AuthenticationPrincipal AppUserDetails user, @RequestParam(defaultValue = \"0\""
+  },
+  {
+    "controller": "FavoriteController",
+    "verb": "GET",
+    "path": "/api/favorites/ids",
+    "methodName": "listIds",
+    "returnType": "FavoriteIdsResponse",
+    "summary": "Obtenir la liste des IDs des offres favorites du client connectǸ",
+    "params": "@AuthenticationPrincipal AppUserDetails user"
+  },
+  {
+    "controller": "FavoriteController",
+    "verb": "POST",
+    "path": "/api/favorites/{offerId}",
+    "methodName": "add",
+    "returnType": "FavoriteResponse",
+    "summary": "Ajouter une offre aux favoris",
+    "params": "@AuthenticationPrincipal AppUserDetails user, @PathVariable Long offerId"
+  },
+  {
+    "controller": "FavoriteController",
+    "verb": "DELETE",
+    "path": "/api/favorites/{offerId}",
+    "methodName": "remove",
+    "returnType": "void",
+    "summary": "Retirer une offre des favoris",
+    "params": "@AuthenticationPrincipal AppUserDetails user, @PathVariable Long offerId"
+  },
+  {
+    "controller": "FileController",
+    "verb": "POST",
+    "path": "/api/files/images",
+    "methodName": "upload",
+    "returnType": "FileResponse",
+    "summary": "Téléverser une image",
+    "params": "@AuthenticationPrincipal AppUserDetails user,@RequestParam FilePurpose purpose,@RequestParam MultipartFile file,jakarta.servlet.http.HttpServletRequest request"
+  },
+  {
+    "controller": "FileController",
+    "verb": "GET",
+    "path": "/api/files/{name}",
+    "methodName": "read",
+    "returnType": "ResponseEntity<Resource>",
+    "summary": "Lire une image ou sa miniature",
+    "params": "@PathVariable(\"name\""
+  },
+  {
+    "controller": "FileController",
+    "verb": "DELETE",
+    "path": "/api/files/{name}",
+    "methodName": "delete",
+    "returnType": "void",
+    "summary": "Supprimer une image temporaire",
+    "params": "@AuthenticationPrincipal AppUserDetails user,@PathVariable(\"name\""
+  },
+  {
+    "controller": "NotificationController",
+    "verb": "GET",
+    "path": "/api/notifications",
+    "methodName": "list",
+    "returnType": "PageResponse<NotificationResponse>",
+    "summary": "Mes notifications paginées",
+    "params": "@AuthenticationPrincipal AppUserDetails u, @RequestParam(required=false"
+  },
+  {
+    "controller": "NotificationController",
+    "verb": "GET",
+    "path": "/api/notifications/unread-count",
+    "methodName": "count",
+    "returnType": "UnreadCountResponse",
+    "summary": "Nombre de notifications non lues",
+    "params": "@AuthenticationPrincipal AppUserDetails u"
+  },
+  {
+    "controller": "NotificationController",
+    "verb": "POST",
+    "path": "/api/notifications/{id}/read",
+    "methodName": "read",
+    "returnType": "NotificationResponse",
+    "summary": "Marquer une notification comme lue",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@PathVariable Long id"
+  },
+  {
+    "controller": "NotificationController",
+    "verb": "POST",
+    "path": "/api/notifications/read-all",
+    "methodName": "all",
+    "returnType": "Map<String,Integer>",
+    "summary": "Marquer toutes mes notifications comme lues",
+    "params": "@AuthenticationPrincipal AppUserDetails u"
+  },
+  {
+    "controller": "NotificationController",
+    "verb": "DELETE",
+    "path": "/api/notifications/{id}",
+    "methodName": "delete",
+    "returnType": "void",
+    "summary": "Supprimer ma notification",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@PathVariable Long id"
+  },
+  {
+    "controller": "NotificationController",
+    "verb": "GET",
+    "path": "/api/notifications/preferences",
+    "methodName": "preferences",
+    "returnType": "NotificationPreferenceResponse",
+    "summary": "Mes préférences de notifications",
+    "params": "@AuthenticationPrincipal AppUserDetails u"
+  },
+  {
+    "controller": "NotificationController",
+    "verb": "PUT",
+    "path": "/api/notifications/preferences",
+    "methodName": "update",
+    "returnType": "NotificationPreferenceResponse",
+    "summary": "Enregistrer mes préférences",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@Valid @RequestBody NotificationPreferenceRequest r"
+  },
+  {
+    "controller": "OfferController",
+    "verb": "GET",
+    "path": "/api/offers",
+    "methodName": "list",
+    "returnType": "Object",
+    "summary": "",
+    "params": "@RequestParam(required = false"
+  },
+  {
+    "controller": "OfferController",
+    "verb": "GET",
+    "path": "/api/offers/search",
+    "methodName": "search",
+    "returnType": "OfferSearchResponse",
+    "summary": "",
+    "params": "@RequestParam(required = false"
+  },
+  {
+    "controller": "OfferController",
+    "verb": "GET",
+    "path": "/api/offers/{id}",
+    "methodName": "get",
+    "returnType": "OfferResponse",
+    "summary": "",
+    "params": "@PathVariable Long id, @RequestParam(required = false"
+  },
+  {
+    "controller": "OfferController",
+    "verb": "GET",
+    "path": "/api/offers/{id}/translations",
+    "methodName": "getTranslations",
+    "returnType": "List<OfferTranslationResponse>",
+    "summary": "",
+    "params": "@PathVariable Long id"
+  },
+  {
+    "controller": "OfferController",
+    "verb": "PUT",
+    "path": "/api/offers/{id}/translations/{locale}",
+    "methodName": "saveTranslation",
+    "returnType": "OfferTranslationResponse",
+    "summary": "",
+    "params": "@PathVariable Long id, @PathVariable String locale, @Valid @RequestBody OfferTranslationRequest request, @AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "OfferController",
+    "verb": "DELETE",
+    "path": "/api/offers/{id}/translations/{locale}",
+    "methodName": "deleteTranslation",
+    "returnType": "void",
+    "summary": "",
+    "params": "@PathVariable Long id, @PathVariable String locale, @AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "OfferController",
+    "verb": "POST",
+    "path": "/api/offers",
+    "methodName": "create",
+    "returnType": "OfferResponse",
+    "summary": "",
+    "params": "@Valid @RequestBody OfferRequest request, @AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "OfferController",
+    "verb": "PUT",
+    "path": "/api/offers/{id}",
+    "methodName": "update",
+    "returnType": "OfferResponse",
+    "summary": "",
+    "params": "@PathVariable Long id, @Valid @RequestBody OfferRequest request, @AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "OfferController",
+    "verb": "DELETE",
+    "path": "/api/offers/{id}",
+    "methodName": "delete",
+    "returnType": "void",
+    "summary": "",
+    "params": "@PathVariable Long id, @AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "OfferController",
+    "verb": "POST",
+    "path": "/api/offers/{id}/moderation",
+    "methodName": "moderate",
+    "returnType": "OfferResponse",
+    "summary": "",
+    "params": "@PathVariable Long id, @Valid @RequestBody OfferModerationRequest request, @AuthenticationPrincipal AppUserDetails principal"
+  },
+  {
+    "controller": "PaymentController",
+    "verb": "POST",
+    "path": "/api/payments",
+    "methodName": "create",
+    "returnType": "ResponseEntity<PaymentResponse>",
+    "summary": "Initier un paiement idempotent",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@RequestHeader(value=\"Idempotency-Key\",required=false"
+  },
+  {
+    "controller": "PaymentController",
+    "verb": "GET",
+    "path": "/api/payments",
+    "methodName": "booking",
+    "returnType": "List<PaymentResponse>",
+    "summary": "Paiements d",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@RequestParam Long bookingId"
+  },
+  {
+    "controller": "PaymentController",
+    "verb": "GET",
+    "path": "/api/payments/{id}",
+    "methodName": "get",
+    "returnType": "PaymentResponse",
+    "summary": "Détail d",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@PathVariable Long id"
+  },
+  {
+    "controller": "PaymentController",
+    "verb": "GET",
+    "path": "/api/payments/{id}/events",
+    "methodName": "events",
+    "returnType": "List<PaymentEventResponse>",
+    "summary": "Historique immuable du paiement",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@PathVariable Long id"
+  },
+  {
+    "controller": "PaymentController",
+    "verb": "POST",
+    "path": "/api/payments/{id}/refund",
+    "methodName": "refund",
+    "returnType": "PaymentResponse",
+    "summary": "Rembourser totalement ou partiellement",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@PathVariable Long id,@RequestHeader(value=\"Idempotency-Key\",required=false"
+  },
+  {
+    "controller": "PaymentController",
+    "verb": "POST",
+    "path": "/api/payments/{id}/collect-cash",
+    "methodName": "collect",
+    "returnType": "PaymentResponse",
+    "summary": "Enregistrer un encaissement espèces",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@PathVariable Long id,@RequestHeader(value=\"Idempotency-Key\",required=false"
+  },
+  {
+    "controller": "PaymentController",
+    "verb": "GET",
+    "path": "/api/payments/mine",
+    "methodName": "list",
+    "returnType": "PageResponse<PaymentResponse>",
+    "summary": "Liste paginée des paiements",
+    "params": "@AuthenticationPrincipal AppUserDetails u,jakarta.servlet.http.HttpServletRequest request, @RequestParam(required=false"
+  },
+  {
+    "controller": "PaymentController",
+    "verb": "GET",
+    "path": "/api/payments/admin",
+    "methodName": "list",
+    "returnType": "PageResponse<PaymentResponse>",
+    "summary": "Liste paginée des paiements",
+    "params": "@AuthenticationPrincipal AppUserDetails u,jakarta.servlet.http.HttpServletRequest request, @RequestParam(required=false"
+  },
+  {
+    "controller": "PaymentController",
+    "verb": "GET",
+    "path": "/api/payments/cash-pending",
+    "methodName": "list",
+    "returnType": "PageResponse<PaymentResponse>",
+    "summary": "Liste paginée des paiements",
+    "params": "@AuthenticationPrincipal AppUserDetails u,jakarta.servlet.http.HttpServletRequest request, @RequestParam(required=false"
+  },
+  {
+    "controller": "PaymentController",
+    "verb": "GET",
+    "path": "/api/payments/cash-history",
+    "methodName": "list",
+    "returnType": "PageResponse<PaymentResponse>",
+    "summary": "Liste paginée des paiements",
+    "params": "@AuthenticationPrincipal AppUserDetails u,jakarta.servlet.http.HttpServletRequest request, @RequestParam(required=false"
+  },
+  {
+    "controller": "PaymentWebhookController",
+    "verb": "POST",
+    "path": "/api/payments/webhook",
+    "methodName": "",
+    "returnType": "",
+    "summary": "Recevoir un événement sandbox signé",
+    "params": ""
+  },
+  {
+    "controller": "ProfileController",
+    "verb": "GET",
+    "path": "/api/auth/profile-options",
+    "methodName": "options",
+    "returnType": "ProfileOptions",
+    "summary": "Lire les pays ISO et limites d",
+    "params": ""
+  },
+  {
+    "controller": "ProfileController",
+    "verb": "PUT",
+    "path": "/api/auth/profile",
+    "methodName": "update",
+    "returnType": "UserResponse",
+    "summary": "Mettre à jour mon profil",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@Valid @RequestBody UpdateProfileRequest r"
+  },
+  {
+    "controller": "ProfileController",
+    "verb": "GET",
+    "path": "/api/suppliers/me/profile",
+    "methodName": "supplier",
+    "returnType": "SupplierProfileResponse",
+    "summary": "Lire mon profil fournisseur",
+    "params": "@AuthenticationPrincipal AppUserDetails u"
+  },
+  {
+    "controller": "ProfileController",
+    "verb": "PUT",
+    "path": "/api/suppliers/me/profile",
+    "methodName": "supplierUpdate",
+    "returnType": "SupplierProfileResponse",
+    "summary": "Modifier mon profil fournisseur",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@Valid @RequestBody SupplierProfileRequest r"
+  },
+  {
+    "controller": "ProfileController",
+    "verb": "GET",
+    "path": "/api/suppliers/{id}/profile",
+    "methodName": "supplierAdmin",
+    "returnType": "SupplierProfileResponse",
+    "summary": "Lire un fournisseur",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@PathVariable Long id"
+  },
+  {
+    "controller": "PromoCodeController",
+    "verb": "GET",
+    "path": "/api/promo-codes",
+    "methodName": "list",
+    "returnType": "Object",
+    "summary": "",
+    "params": "@org.springframework.web.bind.annotation.RequestParam(required = false"
+  },
+  {
+    "controller": "PromoCodeController",
+    "verb": "GET",
+    "path": "/api/promo-codes/{id}",
+    "methodName": "get",
+    "returnType": "PromoCodeResponse",
+    "summary": "",
+    "params": "@PathVariable Long id"
+  },
+  {
+    "controller": "PromoCodeController",
+    "verb": "POST",
+    "path": "/api/promo-codes",
+    "methodName": "create",
+    "returnType": "PromoCodeResponse",
+    "summary": "",
+    "params": "@Valid @RequestBody PromoCodeRequest request"
+  },
+  {
+    "controller": "PromoCodeController",
+    "verb": "PUT",
+    "path": "/api/promo-codes/{id}",
+    "methodName": "update",
+    "returnType": "PromoCodeResponse",
+    "summary": "",
+    "params": "@PathVariable Long id, @Valid @RequestBody PromoCodeRequest request"
+  },
+  {
+    "controller": "PromoCodeController",
+    "verb": "DELETE",
+    "path": "/api/promo-codes/{id}",
+    "methodName": "delete",
+    "returnType": "void",
+    "summary": "",
+    "params": "@PathVariable Long id"
+  },
+  {
+    "controller": "ReviewController",
+    "verb": "GET",
+    "path": "/api/offers/{offerId}/reviews",
+    "methodName": "getReviewsForOffer",
+    "returnType": "PageResponse<ReviewResponse>",
+    "summary": "Lister les avis publics approuvés d",
+    "params": "@PathVariable Long offerId, @RequestParam(defaultValue = \"0\""
+  },
+  {
+    "controller": "ReviewController",
+    "verb": "GET",
+    "path": "/api/offers/{offerId}/reviews/summary",
+    "methodName": "getReviewSummary",
+    "returnType": "ReviewSummaryResponse",
+    "summary": "Obtenir la note moyenne et la distribution des avis d",
+    "params": "@PathVariable Long offerId"
+  },
+  {
+    "controller": "ReviewController",
+    "verb": "POST",
+    "path": "/api/offers/{offerId}/reviews",
+    "methodName": "createReview",
+    "returnType": "ReviewResponse",
+    "summary": "Déposer un avis certifié sur une offre (nécessite une réservation terminée)",
+    "params": "@PathVariable Long offerId, @Valid @RequestBody ReviewCreateRequest request, @AuthenticationPrincipal AppUserDetails user"
+  },
+  {
+    "controller": "ReviewController",
+    "verb": "PUT",
+    "path": "/api/reviews/{reviewId}",
+    "methodName": "updateReview",
+    "returnType": "ReviewResponse",
+    "summary": "Modifier son propre avis (dans les 48h suivant la publication)",
+    "params": "@PathVariable Long reviewId, @Valid @RequestBody ReviewUpdateRequest request, @AuthenticationPrincipal AppUserDetails user"
+  },
+  {
+    "controller": "ReviewController",
+    "verb": "DELETE",
+    "path": "/api/reviews/{reviewId}",
+    "methodName": "deleteReview",
+    "returnType": "void",
+    "summary": "Supprimer un avis (l",
+    "params": "@PathVariable Long reviewId, @AuthenticationPrincipal AppUserDetails user"
+  },
+  {
+    "controller": "ReviewController",
+    "verb": "POST",
+    "path": "/api/reviews/{reviewId}/reply",
+    "methodName": "replyToReview",
+    "returnType": "ReviewResponse",
+    "summary": "Répondre à un avis (le fournisseur de l",
+    "params": "@PathVariable Long reviewId, @Valid @RequestBody ReviewReplyRequest request, @AuthenticationPrincipal AppUserDetails user"
+  },
+  {
+    "controller": "ReviewController",
+    "verb": "POST",
+    "path": "/api/reviews/{reviewId}/report",
+    "methodName": "reportReview",
+    "returnType": "ReviewResponse",
+    "summary": "Signaler un avis inapproprié ou abusif",
+    "params": "@PathVariable Long reviewId, @AuthenticationPrincipal AppUserDetails user"
+  },
+  {
+    "controller": "ReviewController",
+    "verb": "GET",
+    "path": "/api/reviews/moderation",
+    "methodName": "getReviewsForModeration",
+    "returnType": "PageResponse<ReviewResponse>",
+    "summary": "Lister les avis pour la file de modération administrateur",
+    "params": "@RequestParam(required = false"
+  },
+  {
+    "controller": "ReviewController",
+    "verb": "POST",
+    "path": "/api/reviews/{reviewId}/moderate",
+    "methodName": "moderateReview",
+    "returnType": "ReviewResponse",
+    "summary": "Modérer un avis (approuver ou rejeter)",
+    "params": "@PathVariable Long reviewId, @Valid @RequestBody ReviewModerateRequest request, @AuthenticationPrincipal AppUserDetails user"
+  },
+  {
+    "controller": "SettingController",
+    "verb": "GET",
+    "path": "/api/settings",
+    "methodName": "getAll",
+    "returnType": "List<SettingResponse>",
+    "summary": "Obtenir la liste complte des paramtres systme (ADMIN)",
+    "params": ""
+  },
+  {
+    "controller": "SettingController",
+    "verb": "PUT",
+    "path": "/api/settings/{key}",
+    "methodName": "update",
+    "returnType": "SettingResponse",
+    "summary": "Mise à jour unitaire d",
+    "params": "@PathVariable String key, @AuthenticationPrincipal AppUserDetails user, @Valid @RequestBody SettingUpdateRequest request"
+  },
+  {
+    "controller": "SettingController",
+    "verb": "PUT",
+    "path": "/api/settings",
+    "methodName": "updateAll",
+    "returnType": "List<SettingResponse>",
+    "summary": "Mise  jour groupe et atomique des paramtres (ADMIN)",
+    "params": "@AuthenticationPrincipal AppUserDetails user, @Valid @RequestBody SettingBulkUpdateRequest request"
+  },
+  {
+    "controller": "SettingController",
+    "verb": "GET",
+    "path": "/api/settings/public",
+    "methodName": "getPublicSettings",
+    "returnType": "PublicSettingsResponse",
+    "summary": "Obtenir les paramtres publics non sensibles",
+    "params": ""
+  },
+  {
+    "controller": "StatsController",
+    "verb": "GET",
+    "path": "/api/stats/admin",
+    "methodName": "admin",
+    "returnType": "Admin",
+    "summary": "Dashboard administrateur",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@RequestParam(defaultValue=\"30d\""
+  },
+  {
+    "controller": "StatsController",
+    "verb": "GET",
+    "path": "/api/stats/supplier",
+    "methodName": "supplier",
+    "returnType": "Supplier",
+    "summary": "Dashboard de mon fournisseur",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@RequestParam(defaultValue=\"30d\""
+  },
+  {
+    "controller": "StatsController",
+    "verb": "GET",
+    "path": "/api/stats/agent",
+    "methodName": "agent",
+    "returnType": "Agent",
+    "summary": "Dashboard opérationnel",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@RequestParam(defaultValue=\"30d\""
+  },
+  {
+    "controller": "StatsController",
+    "verb": "GET",
+    "path": "/api/stats/client",
+    "methodName": "client",
+    "returnType": "Client",
+    "summary": "Mes voyages et mon activité",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@RequestParam(defaultValue=\"30d\""
+  },
+  {
+    "controller": "StatsController",
+    "verb": "GET",
+    "path": "/api/stats/admin/export/bookings.csv",
+    "methodName": "bookings",
+    "returnType": "ResponseEntity<StreamingResponseBody>",
+    "summary": "Exporter les réservations CSV",
+    "params": "@AuthenticationPrincipal AppUserDetails u, @RequestParam(required=false"
+  },
+  {
+    "controller": "StatsController",
+    "verb": "GET",
+    "path": "/api/stats/admin/export/revenue.csv",
+    "methodName": "revenue",
+    "returnType": "ResponseEntity<StreamingResponseBody>",
+    "summary": "Exporter le chiffre d",
+    "params": "@AuthenticationPrincipal AppUserDetails u,@RequestParam(defaultValue=\"30d\""
+  },
+  {
+    "controller": "StatusController",
+    "verb": "GET",
+    "path": "/api/status",
+    "methodName": "status",
+    "returnType": "Map<String, Object>",
+    "summary": "",
+    "params": ""
+  },
+  {
+    "controller": "TicketController",
+    "verb": "POST",
+    "path": "/api/tickets",
+    "methodName": "create",
+    "returnType": "TicketResponse",
+    "summary": "Créer un nouveau ticket de support",
+    "params": "@AuthenticationPrincipal AppUserDetails u, @Valid @RequestBody TicketCreateRequest request"
+  },
+  {
+    "controller": "TicketController",
+    "verb": "GET",
+    "path": "/api/tickets",
+    "methodName": "list",
+    "returnType": "PageResponse<TicketResponse>",
+    "summary": "Lister les tickets de support avec pagination et filtres",
+    "params": "@AuthenticationPrincipal AppUserDetails u, @RequestParam(required = false"
+  },
+  {
+    "controller": "TicketController",
+    "verb": "GET",
+    "path": "/api/tickets/stats",
+    "methodName": "getStats",
+    "returnType": "TicketStatsResponse",
+    "summary": "Compteurs statistiques par statut et priorité (agents et admins)",
+    "params": "@AuthenticationPrincipal AppUserDetails u"
+  },
+  {
+    "controller": "TicketController",
+    "verb": "GET",
+    "path": "/api/tickets/{id}",
+    "methodName": "get",
+    "returnType": "TicketResponse",
+    "summary": "Consulter le détail d",
+    "params": "@AuthenticationPrincipal AppUserDetails u, @PathVariable Long id"
+  },
+  {
+    "controller": "TicketController",
+    "verb": "POST",
+    "path": "/api/tickets/{id}/messages",
+    "methodName": "addMessage",
+    "returnType": "TicketResponse",
+    "summary": "Ajouter un message au fil de discussion",
+    "params": "@AuthenticationPrincipal AppUserDetails u, @PathVariable Long id, @Valid @RequestBody TicketMessageRequest request"
+  },
+  {
+    "controller": "TicketController",
+    "verb": "PATCH",
+    "path": "/api/tickets/{id}/status",
+    "methodName": "updateStatus",
+    "returnType": "TicketResponse",
+    "summary": "Modifier le statut d",
+    "params": "@AuthenticationPrincipal AppUserDetails u, @PathVariable Long id, @Valid @RequestBody TicketStatusUpdateRequest request"
+  },
+  {
+    "controller": "TicketController",
+    "verb": "PATCH",
+    "path": "/api/tickets/{id}/assignee",
+    "methodName": "updateAssignee",
+    "returnType": "TicketResponse",
+    "summary": "Assigner un agent ou administrateur au ticket",
+    "params": "@AuthenticationPrincipal AppUserDetails u, @PathVariable Long id, @RequestBody TicketAssigneeUpdateRequest request"
+  },
+  {
+    "controller": "TicketController",
+    "verb": "PATCH",
+    "path": "/api/tickets/{id}/priority",
+    "methodName": "updatePriority",
+    "returnType": "TicketResponse",
+    "summary": "Modifier la priorité d",
+    "params": "@AuthenticationPrincipal AppUserDetails u, @PathVariable Long id, @Valid @RequestBody TicketPriorityUpdateRequest request"
+  },
+  {
+    "controller": "TicketController",
+    "verb": "DELETE",
+    "path": "/api/tickets/{id}",
+    "methodName": "delete",
+    "returnType": "void",
+    "summary": "Supprimer un ticket définitivement (administrateurs uniquement)",
+    "params": "@AuthenticationPrincipal AppUserDetails u, @PathVariable Long id"
+  },
+  {
+    "controller": "UserController",
+    "verb": "GET",
+    "path": "/api/users/me/export",
+    "methodName": "exportMe",
+    "returnType": "ResponseEntity<Map<String, Object>>",
+    "summary": "",
+    "params": "@AuthenticationPrincipal AppUserDetails u"
+  },
+  {
+    "controller": "UserController",
+    "verb": "DELETE",
+    "path": "/api/users/me",
+    "methodName": "deleteMe",
+    "returnType": "ResponseEntity<Map<String, String>>",
+    "summary": "",
+    "params": "@AuthenticationPrincipal AppUserDetails u, @Valid @RequestBody DeleteAccountRequest request, HttpServletResponse response"
+  },
+  {
+    "controller": "UserController",
+    "verb": "GET",
+    "path": "/api/users",
+    "methodName": "list",
+    "returnType": "Object",
+    "summary": "",
+    "params": "@org.springframework.web.bind.annotation.RequestParam(required = false"
+  },
+  {
+    "controller": "UserController",
+    "verb": "GET",
+    "path": "/api/users/{id}",
+    "methodName": "get",
+    "returnType": "UserResponse",
+    "summary": "",
+    "params": "@PathVariable Long id"
+  },
+  {
+    "controller": "UserController",
+    "verb": "PUT",
+    "path": "/api/users/me/preferences",
+    "methodName": "updatePreferences",
+    "returnType": "UserResponse",
+    "summary": "",
+    "params": "@AuthenticationPrincipal AppUserDetails userDetails, @Valid @RequestBody com.agence.voyage.dto.UserPreferencesRequest request"
+  },
+  {
+    "controller": "UserController",
+    "verb": "POST",
+    "path": "/api/users",
+    "methodName": "create",
+    "returnType": "UserResponse",
+    "summary": "",
+    "params": "@Valid @RequestBody UserRequest request"
+  },
+  {
+    "controller": "UserController",
+    "verb": "PUT",
+    "path": "/api/users/{id}",
+    "methodName": "update",
+    "returnType": "UserResponse",
+    "summary": "",
+    "params": "@PathVariable Long id, @Valid @RequestBody UserRequest request"
+  },
+  {
+    "controller": "UserController",
+    "verb": "POST",
+    "path": "/api/users/{id}/archive",
+    "methodName": "archive",
+    "returnType": "UserResponse",
+    "summary": "",
+    "params": "@PathVariable Long id"
+  },
+  {
+    "controller": "UserController",
+    "verb": "POST",
+    "path": "/api/users/{id}/restore",
+    "methodName": "restore",
+    "returnType": "UserResponse",
+    "summary": "",
+    "params": "@PathVariable Long id"
+  },
+  {
+    "controller": "UserController",
+    "verb": "POST",
+    "path": "/api/users/{id}/unlock",
+    "methodName": "unlock",
+    "returnType": "UserResponse",
+    "summary": "",
+    "params": "@PathVariable Long id"
+  },
+  {
+    "controller": "UserController",
+    "verb": "DELETE",
+    "path": "/api/users/{id}",
+    "methodName": "delete",
+    "returnType": "void",
+    "summary": "",
+    "params": "@PathVariable Long id"
+  }
+]

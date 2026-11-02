@@ -20,7 +20,7 @@ Interface **HTML / CSS / JavaScript vanilla** (sans framework), conforme au cahi
 | Styles | `css/client.css` |
 | Logique | `client/js/app.js` |
 
-Redirection : `espace-client.html` → `client/index.html?page=dashboard`. Le logo renvoie vers `accueil.html`. Exemples : `?page=catalogue`, `?page=panier`, `?page=reservations`. Réservé au rôle `CLIENT` (compte de test : **Sarah Benali**) ; le nom affiché est celui du compte connecté. Le **catalogue** (`?page=catalogue`) et la **fiche offre** (`?page=offre&id=…`) sont branchés sur l'API (`/api/offers/search`, `/api/offers/{id}`, `/api/cities`) : filtres, tri, pagination réelle. Le panier, les réservations et le reste de l'espace restent en données démo.
+Redirection : `espace-client.html` → `client/index.html?page=dashboard`. Le logo renvoie vers `accueil.html`. Le catalogue n'est plus dupliqué dans le tableau de bord client : tous les visiteurs utilisent les pages publiques par catégorie. Le panier public utilise `localStorage` pour un invité et `/api/cart` pour un client connecté.
 
 ## Espace fournisseur (maquettes `atlas-voyage-supplier`)
 
@@ -48,7 +48,7 @@ Redirection : `agent.html` → `agent/index.html`. Navigation : `?page=bookings`
 |---|---|---|
 | **Shell admin** | `admin/index.html` | Dashboard, navigation, modules (UI maquette) |
 | Styles | `css/admin.css` | Styles de l’admin (Montserrat, layout) |
-| Logique | `admin/js/app.js` | Navigation SPA + **API** pour Utilisateurs et Villes |
+| Logique | `admin/js/app.js` | Navigation SPA + API pour les utilisateurs et codes promo |
 
 Réservé au rôle `ADMIN` (comme les pages `pages/admin/`).
 
@@ -62,23 +62,19 @@ Réservé au rôle `ADMIN` (comme les pages `pages/admin/`).
 
 Chaque espace charge `js/core/auth.js` dans `<head>` puis appelle `Auth.requireRole("<RÔLE>")` : sans session, ou avec un autre rôle, la page redirige vers `connexion.html`. L’en-tête des pages publiques affiche « Se connecter », ou le lien vers l’espace du rôle et « Déconnexion ». Les droits sont toujours **contrôlés par le Backend** : le Frontend ne fait que rediriger.
 
-## Séance 2 — Module Villes (CRUD détaillé)
+## Localisation des offres
 
-| Page | Fichier | Rôle |
-|---|---|---|
-| **Gestion des villes** | `admin/index.html?page=cities` | Liste, détail, création, modification et suppression via API |
-
-Depuis l’admin : menu **Villes** → liste API ; les actions **Ajouter**, **Détail** et **Modifier** s’ouvrent dans des modales intégrées.
+Le module Villes n’est plus exposé dans l’administration. Dans l’espace fournisseur, le formulaire d’offre recherche les villes avec Open-Meteo et remplit automatiquement le nom et les coordonnées. Le backend crée ou réutilise la ville au moment de l’enregistrement.
 
 ### Séparation des responsabilités (Frontend)
 
 ```
-admin/index.html            → interface d’administration unifiée
-admin/js/app.js             → rendu, interactions et appels du domaine « Ville »
-js/core/api.js              → couche HTTP (fetch), sans règles métier
+supplier/index.html         → formulaire de création et modification d’offre
+supplier/js/app.js          → recherche Open-Meteo et sélection de la ville
+js/core/api.js              → enregistrement de l’offre dans le backend
 ```
 
-La **logique métier** (unicité du nom, validation, persistance) reste dans le backend : `CityController → CityService → CityRepository`.
+La logique métier de création ou réutilisation d’une ville reste dans `OfferService → CityRepository`.
 
 ## Lancement
 

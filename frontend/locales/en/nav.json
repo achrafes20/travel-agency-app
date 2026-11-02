@@ -1,0 +1,26 @@
+{
+  "brand": "Atlas Voyage",
+  "categories": {
+    "hotel": "Hotels & Riads",
+    "flight": "Flights",
+    "car": "Car Rental",
+    "taxi": "Taxi & Transfers",
+    "excursion": "Excursions"
+  },
+  "user": {
+    "login": "Sign in",
+    "register": "Sign up",
+    "logout": "Sign out",
+    "cart": "Cart",
+    "favorites": "My favourites",
+    "mySpace": "My Account",
+    "supplierSpace": "Supplier Portal",
+    "agentSpace": "Agent Portal",
+    "adminSpace": "Administration"
+  },
+  "menu": {
+    "open": "Open navigation menu",
+    "close": "Close menu"
+  }
+}
+

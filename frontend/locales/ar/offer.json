@@ -1,0 +1,48 @@
+{
+  "breadcrumb": {
+    "home": "الرئيسية",
+    "catalog": "العروض"
+  },
+  "gallery": {
+    "viewAll": "عرض الصور بالحجم الكامل",
+    "close": "إغلاق المعرض",
+    "imageAlt": "صورة العرض {title}"
+  },
+  "sections": {
+    "description": "إقامتكم، في قلب اهتمامنا",
+    "amenities": "المزايا والخدمات المشمولة",
+    "location": "الموقع الجغرافي",
+    "supplier": "مزود خدمة معتمد: {name}",
+    "reviews": "تقييمات المسافرين الموثقة"
+  },
+  "amenitiesList": {
+    "availability": "تأكيد فوري لتوفر الحجز",
+    "localSupport": "دعم محلي على مدار الساعة",
+    "payOnArrival": "إمكانية الدفع عند الوصول"
+  },
+  "booking": {
+    "boxTitle": "احجز إقامتك الآن",
+    "startingFrom": "ابتداءً من",
+    "nextAvailability": "التوفر القادم: من {start} إلى {end}",
+    "noAvailability": "لا توجد فترات متوفرة للتواريخ المحددة",
+    "startDate": "تاريخ الوصول",
+    "endDate": "تاريخ المغادرة",
+    "travelers": "المسافرون / المشاركون",
+    "driverAge": "عمر السائق",
+    "pickup": "مكان الاستلام",
+    "dropoff": "مكان التسليم",
+    "sameDropoff": "نفس المكان",
+    "addToCart": "أضف إلى السلة",
+    "bookNow": "احجز الآن",
+    "addedSuccess": "تمت إضافة العرض بنجاح إلى سلة الحجوزات!"
+  },
+  "reviews": {
+    "average": "{score} من 5",
+    "basedOn": "بناءً على {count} تقييم زبون",
+    "writeReview": "أضف تقييمك",
+    "verifiedStay": "إقامة موثقة",
+    "supplierReply": "رد المؤسسة:",
+    "empty": "كن أول من يشارك تجربته بعد انتهاء إقامتك!"
+  }
+}
+

@@ -26,9 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
-@Import({AuthService.class, UserService.class, JwtService.class, PasswordConfig.class})
+@Import({AuthService.class, UserService.class, JwtService.class, PasswordConfig.class,com.agence.voyage.config.ProfileConfig.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
 class AuthServiceTest {
@@ -102,12 +102,12 @@ class AuthServiceTest {
 
     @Test
     void register_alwaysCreatesAClientWithHashedPassword() {
-        AuthResponse response = authService.register(registration("Sarah", "sarah@example.com", "password123"));
+        AuthResponse response = authService.register(registration("Sarah", "sarah@example.com", "Atlas!Voyage2026"));
 
         assertEquals(Role.CLIENT, response.getUser().getRole());
         User saved = userRepository.findByEmailIgnoreCase("sarah@example.com").orElseThrow();
-        assertNotEquals("password123", saved.getPassword());
-        assertTrue(passwordEncoder.matches("password123", saved.getPassword()));
+        assertNotEquals("Atlas!Voyage2026", saved.getPassword());
+        assertTrue(passwordEncoder.matches("Atlas!Voyage2026", saved.getPassword()));
         assertTrue(jwtService.parse(response.getToken()).isPresent());
     }
 

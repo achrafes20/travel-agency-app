@@ -23,12 +23,7 @@ const photos = {
   patio: "https://images.unsplash.com/photo-1624805098931-098c0d918b34?auto=format&fit=crop&w=900&q=85",
 };
 
-const bookings = [
-  { ref: "BK-2026-000123", title: "Riad Atlas – Chambre double", place: "Chefchaouen", date: "18–20 avr. 2026", total: "1 780,00 MAD", status: "Confirmée", type: "success", image: photos.riad },
-  { ref: "BK-2026-000126", title: "Excursion Chefchaouen → Akchour", place: "Chefchaouen", date: "19 avr. 2026", total: "500,00 MAD", status: "En attente", type: "warning", image: photos.medersa },
-  { ref: "BK-2026-000129", title: "Dacia Logan – Agadir", place: "Agadir", date: "06–09 juin 2026", total: "960,00 MAD", status: "Confirmée", type: "success", image: photos.patio },
-  { ref: "BK-2026-000130", title: "Vol Casablanca → Marrakech", place: "Casablanca", date: "12 mars 2026", total: "1 250,00 MAD", status: "Terminée", type: "neutral", image: photos.pool },
-];
+const bookings = [];
 
 const iconPaths = {
   home: '<path d="m3 11 9-8 9 8"/><path d="M5 10v11h14V10M9 21v-7h6v7"/>',
@@ -54,6 +49,7 @@ const iconPaths = {
   plus: '<path d="M12 5v14M5 12h14"/>',
   minus: '<path d="M5 12h14"/>',
   download: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19v2h16v-2"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
 };
 
 function icon(name, size = 20) {
@@ -74,19 +70,21 @@ function status(label, type = "success") {
 }
 
 function header() {
-  const categories = [["plane","Vols","FLIGHT"],["bed","Hôtels & Riads","HOTEL"],["car","Location de voiture","CAR"],["taxi","Taxi / Transferts","TAXI_TRANSFER"],["compass","Excursions","EXCURSION"]];
+  const i18nSwitchers = window.AtlasCurrency ? window.AtlasCurrency.renderCurrencySwitcher() : '<span class="currency">MAD</span>';
+
   return `<header>
     <div class="topbar"><div class="header-inner">
       ${logo()}
       <div class="header-actions">
-        <span class="currency">MAD</span>
+        ${i18nSwitchers}
         <button class="icon-label" data-page="panier">${icon("cart")}<span>Panier</span>${cartBadge("i")}</button>
-        <button class="round-action" data-action="notifications" aria-label="Notifications">${icon("bell")}<i class="red-count">3</i></button>
+        <div class="relative"><button id="notification-toggle" class="round-action" aria-label="Notifications">${icon("bell")}</button><div id="notification-dropdown" hidden></div></div>
         <div class="relative">
-          <button class="account" data-action="account"><span class="avatar">${me.initials}</span><span><small>Bonjour,</small><b>${me.firstName}</b></span><span>⌄</span></button>
+          <button class="account" data-action="account"><span class="avatar">${esc(me.initials)}</span><span><small>Bonjour,</small><b>${esc(me.firstName)}</b></span><span>⌄</span></button>
           <div id="account-menu" class="dropdown account-menu nav-user-menu">
             <button data-page="dashboard">${icon("home",18)} Mon dashboard</button>
             <button data-page="reservations">${icon("calendar",18)} Mes réservations</button>
+            <button data-page="favorites">${icon("heart",18)} Mes favoris</button>
             <button data-page="tickets">${icon("ticket",18)} Mes tickets</button>
             <button data-page="profil">${icon("user",18)} Mon profil</button>
             <hr><button class="logout" data-action="logout">Déconnexion</button>
@@ -94,15 +92,22 @@ function header() {
         </div>
       </div>
     </div></div>
-    <nav class="catnav"><div class="header-inner">${categories.map(([name,label,type]) => `<button data-action="category" data-type="${type}">${icon(name,18)}${label}</button>`).join("")}</div></nav>
   </header>`;
 }
 
 function sidebar(active) {
-  const items = [["home","Vue d'ensemble","dashboard"],["calendar","Mes réservations","reservations"],["cart","Mon panier","panier"],["ticket","Mes tickets","tickets"],["bell","Notifications","dashboard"],["user","Mon profil","profil"]];
+  const items = [
+    ["home","Vue d'ensemble","dashboard"],
+    ["calendar","Mes réservations","reservations"],
+    ["heart","Mes favoris","favorites"],
+    ["cart","Mon panier","panier"],
+    ["ticket","Mes tickets","tickets"],
+    ["bell","Notifications","notifications"],
+    ["user","Mon profil","profil"]
+  ];
   return `<aside class="sidebar">
     <div class="side-top"><button type="button" class="side-toggle" data-action="sidebar-toggle" aria-label="${state.sidebarCollapsed ? "Déplier le menu" : "Replier le menu"}">${icon("menu", 20)}</button></div>
-    <div class="side-user"><span class="avatar big">${me.initials}</span><div><b>${me.fullName}</b><small>Compte client</small></div></div>
+    <div class="side-user"><span class="avatar big">${esc(me.initials)}</span><div><b>${esc(me.fullName)}</b><small>Compte client</small></div></div>
     <div class="side-label">MON ESPACE</div>
     ${items.map(([name,label,page]) => `<button class="${active === page ? "active" : ""}" data-page="${page}" title="${label}">${icon(name,19)}<i class="side-text">${label}</i>${page === "panier" ? cartBadge("span") : ""}</button>`).join("")}
   </aside>`;
@@ -112,37 +117,7 @@ function shell(content, active = state.page) {
   return `${header()}<div class="client-layout static-page${state.sidebarCollapsed ? " collapsed" : ""}">${sidebar(active)}<main class="client-main">${content}</main></div>`;
 }
 
-function dashboard() {
-  const rows = bookings.slice(0, 2).map((item, index) => `
-    <div class="booking-row">
-      <img src="${item.image}" alt="${item.title}">
-      <div class="date-box"><b>${index ? "19" : "18"}</b><span>AVR</span></div>
-      <div class="booking-main"><span>${item.ref}</span><b>${item.title}</b><small>${item.place} · ${item.date}</small></div>
-      <div class="booking-end">${status(item.status,item.type)}<button data-page="reservation">Détails ${icon("arrow",14)}</button></div>
-    </div>`).join("");
-  return shell(`
-    <div class="welcome"><div><span class="eyebrow">VOTRE ESPACE PERSONNEL</span><h1>Bonjour ${me.firstName}, prêt à repartir ?</h1><p>Retrouvez vos prochains voyages et gérez toutes vos réservations.</p></div>${button("Explorer les offres",{iconName:"search",page:"catalogue"})}</div>
-    <div class="kpis">
-      <div class="kpi"><span class="kpi-icon amber">${icon("calendar")}</span><div><small>À VENIR</small><strong>3</strong><p>réservations</p></div><span class="trend">+1 ce mois</span></div>
-      <div class="kpi"><span class="kpi-icon blue">${icon("cart")}</span><div><small>TOTAL DÉPENSÉ</small><strong>8 640</strong><p>MAD cette année</p></div><div class="spark"><i></i><i></i><i></i><i></i><i></i></div></div>
-      <div class="kpi status-kpi"><span class="kpi-icon green">${icon("check")}</span><div><small>RÉSERVATIONS</small><strong>8</strong><p>au total</p></div><div class="donut"><span>75%</span></div></div>
-      <div class="kpi cart-kpi"><span class="kpi-icon violet">${icon("gift")}</span><div><small>MON PANIER</small><strong class="js-cart-num">${cartCount()}</strong><p>article${cartCount() > 1 ? "s" : ""} en attente</p></div><button data-page="panier">Voir ${icon("arrow",14)}</button></div>
-    </div>
-    <div class="dash-grid">
-      <section class="card upcoming"><div class="section-head"><div><span class="eyebrow">PROCHAINS DÉPARTS</span><h2>Vos prochaines réservations</h2></div><button data-page="reservations">Tout voir ${icon("arrow",16)}</button></div><div class="booking-list">${rows}</div></section>
-      <section class="card recent-notices"><div class="section-head"><div><span class="eyebrow">RESTEZ INFORMÉ</span><h2>Notifications récentes</h2></div></div>
-        <div class="notification-list">
-          <div><span class="notice-icon green">${icon("check",17)}</span><p><b>Réservation confirmée</b><small>Votre séjour au Riad Atlas est confirmé.</small><em>Il y a 12 min</em></p><i></i></div>
-          <div><span class="notice-icon amber">${icon("calendar",17)}</span><p><b>Départ dans 2 jours</b><small>Votre voucher est prêt à être téléchargé.</small><em>Il y a 2 h</em></p><i></i></div>
-          <div><span class="notice-icon blue">${icon("ticket",17)}</span><p><b>Réponse du support</b><small>Samira a répondu à votre demande.</small><em>Hier</em></p></div>
-        </div><button class="all-notices" data-action="notifications">Toutes les notifications</button>
-      </section>
-    </div>
-    <section class="card latest"><div class="section-head"><div><span class="eyebrow">HISTORIQUE</span><h2>Dernières réservations</h2></div><div class="quick"><button data-page="catalogue">${icon("search")}Rechercher</button><button data-page="tickets">${icon("ticket")}Mes tickets</button><button data-page="profil">${icon("user")}Mon profil</button></div></div>
-      <table><thead><tr><th>RÉFÉRENCE</th><th>OFFRE</th><th>DATE</th><th>MONTANT</th><th>STATUT</th><th></th></tr></thead><tbody>
-      ${bookings.slice(0,3).map(item => `<tr><td><b>${item.ref}</b></td><td>${item.title}</td><td>${item.date}</td><td><b>${item.total}</b></td><td>${status(item.status,item.type)}</td><td><button data-page="reservation">Voir</button></td></tr>`).join("")}
-      </tbody></table>
-    </section>`);
+function dashboard() { return shell('<div id="stats-module"></div>',"dashboard");
 }
 
 /* ---------- Catalogue : offres réelles (API /api/offers/search) ---------- */
@@ -235,9 +210,9 @@ function paginationHtml(data) {
 
 function offerCard(offer) {
   const type = OFFER_TYPE[offer.type];
-  const low = offer.stock <= 3 ? `<em class="low-stock">Plus que ${offer.stock}</em>` : "";
+  const availability = offer.nextAvailabilityStart ? `<em class="low-stock">Dès le ${new Date(offer.nextAvailabilityStart).toLocaleDateString("fr-MA")}</em>` : "";
   return `<article class="offer-card" data-offer="${offer.id}"><div class="offer-image-static">${imageTag(offerImage(offer), offer.title)}<span>${type.tag}</span></div>
-    <div class="offer-content"><small>${icon("map", 14)}${esc(offer.cityName)}</small><h3>${esc(offer.title)}</h3><div class="rating">${low}${offer.allowsPayOnArrival ? '<span class="pay-tag">Paiement à l\'arrivée</span>' : ""}</div><hr>
+    <div class="offer-content"><small>${icon("map", 14)}${esc(offer.cityName)}</small><h3>${esc(offer.title)}</h3><div class="rating">${availability}${offer.allowsPayOnArrival ? '<span class="pay-tag">Paiement à l\'arrivée</span>' : ""}</div><hr>
       <div><span>À partir de <b>${money(offer.basePrice)}</b><small>${type.unit}</small></span><button data-action="open-offer" data-id="${offer.id}" aria-label="Voir ${esc(offer.title)}">${icon("arrow")}</button></div></div></article>`;
 }
 
@@ -343,7 +318,7 @@ function paintOfferDetail() {
   if (!o) return;
   const images = o.images?.length ? o.images : [NO_IMAGE];
   const type = OFFER_TYPE[o.type];
-  const available = o.active && o.stock > 0;
+  const available = o.active && (o.availableNow || o.nextAvailabilityStart);
   box.innerHTML = `<button class="back" data-page="catalogue">‹ Retour au catalogue</button>
     <div class="offer-layout">
       <section class="offer-gallery"><div class="offer-main-image">${imageTag(images[0], o.title, 'id="gallery-main"')}<span>${type.tag}</span></div>
@@ -353,11 +328,11 @@ function paintOfferDetail() {
       </section>
       <aside class="offer-buy card"><small>${icon("map", 14)}${esc(o.cityName)}</small><h1>${esc(o.title)}</h1>
         <div class="offer-price">À partir de <b>${money(o.basePrice)}</b><small>${type.unit}</small></div>
-        <ul class="offer-badges">${available ? (o.stock <= 3 ? `<li class="warn">Plus que ${o.stock} disponible${o.stock > 1 ? "s" : ""}</li>` : '<li class="ok">Disponible</li>') : '<li class="ko">Indisponible</li>'}${o.allowsPayOnArrival ? "<li>Paiement à l'arrivée possible</li>" : "<li>Paiement en ligne</li>"}</ul>
+        <ul class="offer-badges">${available ? `<li class="ok">${o.availableNow ? "Disponible maintenant" : `Disponible dès le ${new Date(o.nextAvailabilityStart).toLocaleDateString("fr-MA")}`}</li>` : '<li class="ko">Aucune période disponible</li>'}${o.allowsPayOnArrival ? "<li>Paiement à l'arrivée possible</li>" : "<li>Paiement en ligne</li>"}</ul>
         <p class="offer-supplier">Proposé par <b>${esc(o.supplierName)}</b></p>
         ${available ? `<div class="quantity"><button data-action="detail-qty" data-delta="-1" aria-label="Diminuer la quantité">${icon("minus", 15)}</button><b id="detail-qty">${detailState.quantity}</b><button data-action="detail-qty" data-delta="1" aria-label="Augmenter la quantité">${icon("plus", 15)}</button><span>${type.unit.replace("/ ", "")}${detailState.quantity > 1 ? "s" : ""}</span></div>` : ""}
         ${button("Ajouter au panier", { iconName: "cart", action: "add-to-cart", disabled: !available })}
-        <p class="offer-note" id="offer-note">${available ? "Le stock est vérifié à l'ajout puis au paiement." : "Cette offre ne peut pas être ajoutée au panier."}</p></aside>
+        <p class="offer-note" id="offer-note">${available ? "La disponibilité est vérifiée pour la période choisie." : "Cette offre ne peut pas être ajoutée au panier."}</p></aside>
     </div>`;
 }
 
@@ -431,10 +406,16 @@ async function loadCart() {
 function cartLine(line) {
   const type = line.kind === "BUNDLE" ? { tag: "BUNDLE" } : OFFER_TYPE[line.type];
   const canIncrease = line.available && line.quantity < line.stock;
+  let criteria = {};
+  try { criteria = JSON.parse(line.travelCriteria || "{}"); } catch { criteria = {}; }
+  const criteriaText = [criteria.start || criteria.hotelArrival || criteria.flightDepart || criteria.pickupDate || criteria.excursionDate,
+    criteria.hotelGuests || criteria.passengers || criteria.taxiPassengers || criteria.excursionGuests]
+    .filter(Boolean).join(" · ");
   return `<div class="cart-line card" data-line="${line.id}">${imageTag(line.image || NO_IMAGE, line.title)}
     <div class="line-main"><div><span class="type-pill">${type.tag}</span>${line.available ? status("Disponible") : status(line.unavailableReason, "warning")}</div>
       <h3>${esc(line.title)}</h3>
       <p>${icon("map", 15)} ${esc(line.cityName || "—")}${line.allowsPayOnArrival ? ' · <span class="pay-tag">Paiement à l\'arrivée</span>' : ""}</p>
+      ${criteriaText ? `<small>${icon("calendar", 14)} ${esc(criteriaText)}</small>` : ""}
       <div class="quantity"><button data-action="cart-qty" data-id="${line.id}" data-qty="${line.quantity - 1}" ${line.quantity <= 1 ? "disabled" : ""} aria-label="Diminuer la quantité">${icon("minus", 15)}</button><b>${line.quantity}</b><button data-action="cart-qty" data-id="${line.id}" data-qty="${line.quantity + 1}" ${canIncrease ? "" : "disabled"} aria-label="Augmenter la quantité">${icon("plus", 15)}</button></div>
       <div class="line-actions"><button class="text-danger" data-action="cart-remove" data-id="${line.id}" data-title="${esc(line.title)}">Supprimer</button></div></div>
     <div class="line-price"><small>${money(line.unitPrice)} / unité</small><b>${money(line.lineTotal)}</b></div></div>`;
@@ -449,8 +430,8 @@ function cartSummary(c) {
       ${promo ? `<p>${icon("check", 14)} Code ${esc(promo.code)} appliqué</p>` : ""}</div>
     ${promo ? `<div class="sum-row green"><span>Remise (${promo.discountType === "PERCENTAGE" ? `–${Number(promo.value)} %` : "montant fixe"})</span><b>–${money(c.discount)}</b></div>` : ""}
     <hr><div class="total"><span>Total à payer<small>Taxes incluses</small></span><b>${money(c.total)}</b></div>
-    ${button("Passer au paiement", { disabled: true })}
-    <p class="offer-note">${c.hasUnavailableItems ? "Retirez ou ajustez les articles indisponibles avant de payer." : "Le paiement sera disponible prochainement."}</p>
+    ${button("Finaliser ma réservation", { page: "checkout", disabled: c.hasUnavailableItems })}
+    <p class="offer-note">${c.hasUnavailableItems ? "Retirez ou ajustez les prestations indisponibles avant de réserver." : "Les disponibilités et les prix seront revérifiés à la confirmation."}</p>
     <p class="secure">${icon("shield", 17)} ${c.payOnArrivalAllowed ? "Paiement à l'arrivée possible pour ce panier" : "Paiement en ligne obligatoire pour ce panier"}</p></aside>`;
 }
 
@@ -480,39 +461,23 @@ function cart() {
   return shell('<div id="cart-content"></div>', "panier");
 }
 
-function checkout() {
-  const cardActive = state.payment === "card";
-  return shell(`
-    <div class="checkout-title"><button data-page="panier">‹ Retour au panier</button><h1>Finaliser ma réservation</h1><div class="stepper"><div class="done"><span>${icon("check",15)}</span><b>Récapitulatif</b></div><i></i><div class="active"><span>2</span><b>Paiement</b></div><i></i><div><span>3</span><b>Confirmation</b></div></div></div>
-    <div class="checkout-layout"><section class="payment card"><span class="eyebrow">ÉTAPE 2 SUR 3</span><h2>Comment souhaitez-vous payer ?</h2><p>Choisissez votre mode de paiement. Vos données sont sécurisées.</p>
-      <div class="method-grid"><button class="${cardActive ? "active" : ""}" data-action="pay-card"><i></i><span class="method-icon">▣</span><b>Payer maintenant</b><small>Par carte bancaire</small><em>Recommandé</em></button><button class="${!cardActive ? "active" : ""}" data-action="pay-later"><i></i><span class="method-icon">⌂</span><b>Payer à l'arrivée</b><small>Directement sur place</small></button></div>
-      ${cardActive ? `<div class="card-form"><div class="test-info">${icon("shield")}<span><b>Paiement simulé</b><small>Carte test : 4242 4242 4242 4242 · date future · CVV 123</small></span></div><label>TITULAIRE DE LA CARTE<input value="SARAH BENALI"></label><label>NUMÉRO DE CARTE<div class="input-icon"><input id="card-number" value="4242 4242 4242 4242" maxlength="19"><span>VISA</span></div><small id="card-error" class="field-error"></small></label><div class="form-row"><label>EXPIRATION<input value="12/28" maxlength="5"></label><label>CVV<input value="123" maxlength="3"></label></div></div>` : `<div class="later-info">${icon("check")}<div><b>Aucun paiement aujourd'hui</b><p>Vous réglerez le montant directement auprès de nos partenaires à votre arrivée.</p></div></div>`}
-      ${button(cardActive ? "Payer 2 052,00 MAD" : "Confirmer la réservation",{action:"confirm-payment"})}<small class="terms">En confirmant, vous acceptez nos conditions générales de vente.</small>
-    </section>
-    <aside class="summary card"><h2>Votre réservation</h2><div class="mini-line"><img src="${photos.riad}" alt=""><span><b>Riad Atlas</b><small>18–20 avr. · 2 nuits</small></span><b>1 780,00</b></div><div class="mini-line"><img src="${photos.medersa}" alt=""><span><b>Excursion Akchour</b><small>19 avr. · 2 personnes</small></span><b>500,00</b></div><hr><div class="sum-row"><span>Sous-total</span><b>2 280,00 MAD</b></div><div class="sum-row green"><span>BIENVENUE10</span><b>–228,00 MAD</b></div><hr><div class="total"><span>Total</span><b>2 052,00 <small>MAD</small></b></div><div class="summary-note">${icon("check")}Annulation gratuite jusqu'au 16/04/2026</div></aside>
-    </div>`, "panier");
+function checkout() { return shell('<div id="booking-module"></div>', "panier");
 }
 
-function confirmation() {
-  return shell(`<div class="confirmation card"><div class="success-check">${icon("check",36)}</div><span class="eyebrow">RÉSERVATION CONFIRMÉE</span><h1>Votre voyage commence ici !</h1><p>Merci Sarah. Votre réservation a bien été enregistrée et un email de confirmation vous a été envoyé.</p><div class="reference"><span>RÉFÉRENCE DE RÉSERVATION<b>BK-2026-000123</b></span><button data-action="copy-ref">Copier</button>${status("Confirmée")}</div><div class="confirm-grid"><div><img src="${photos.riad}" alt=""><span><b>Riad Atlas – Chambre double</b><small>Chefchaouen · 18–20 avril 2026</small></span></div><div><img src="${photos.medersa}" alt=""><span><b>Excursion Chefchaouen → Akchour</b><small>19 avril 2026 · 2 personnes</small></span></div></div><div class="paid"><span>Montant payé</span><b>2 052,00 MAD</b><small>Carte se terminant par •••• 4242</small></div><div class="next"><b>Et maintenant ?</b><span><i>1</i>Consultez l'email</span><span><i>2</i>Téléchargez le voucher</span><span><i>3</i>Profitez du Maroc</span></div><div class="confirm-actions">${button("Voir ma réservation",{page:"reservation"})}${button("Imprimer le voucher",{variant:"outline",iconName:"download",action:"print"})}<button data-page="catalogue">Continuer mes recherches</button></div></div>`, "reservations");
+function confirmation() { return shell('<div id="booking-module"></div>', "reservations");
 }
 
-function reservations() {
-  return shell(`<div class="page-title"><div><span class="eyebrow">VOS VOYAGES</span><h1>Mes réservations</h1><p>Consultez et gérez l'ensemble de vos réservations.</p></div>${button("Nouvelle recherche",{iconName:"search",page:"catalogue"})}</div><div class="tabs">${["Toutes","En attente","Confirmées","Terminées","Annulées"].map((label,index) => `<button class="${index === 0 ? "active" : ""}" data-action="booking-filter">${label} (${[8,1,3,3,1][index]})</button>`).join("")}</div><section class="card booking-table"><table><thead><tr><th>RÉFÉRENCE</th><th>RÉSERVATION</th><th>DATES</th><th>PAIEMENT</th><th>TOTAL</th><th>STATUT</th><th></th></tr></thead><tbody>${bookings.map(item => `<tr><td><b>${item.ref}</b><small>Créée le 04/02/2026</small></td><td><b>${item.title}</b><small>${item.place}</small></td><td>${item.date}</td><td><span class="paid-pill">Payé</span></td><td><b>${item.total}</b></td><td>${status(item.status,item.type)}</td><td><button data-page="reservation">Voir ${icon("arrow",14)}</button></td></tr>`).join("")}</tbody></table></section>`, "reservations");
+function reservations() { return shell('<div id="booking-module"></div>', "reservations");
 }
 
-function reservation() {
-  return shell(`<button class="back" data-page="reservations">‹ Retour à mes réservations</button><div class="reservation-head"><div><span>RÉSERVATION</span><h1>BK-2026-000123</h1><p>Créée le 04/02/2026 à 14:32</p></div>${status("Confirmée")}</div><div class="timeline card">${["Créée","Paiement reçu","Confirmée","Terminée"].map((label,index) => `<div class="${index < 3 ? "done" : ""}"><span>${index < 3 ? icon("check",14) : "4"}</span><b>${label}</b><small>${index === 0 ? "04/02/2026" : index === 1 ? "04/02/2026" : index === 2 ? "05/02/2026" : "Après le séjour"}</small>${index < 3 ? "<i></i>" : ""}</div>`).join("")}</div><div class="detail-layout"><section><div class="card detail-card"><h2>Détails de la réservation</h2>${bookings.slice(0,2).map((item,index) => `<div class="detail-line"><img src="${item.image}" alt="${item.title}"><div><span>${index ? "EXCURSION" : "HÔTEL"}</span><h3>${item.title}</h3><p>${icon("calendar",15)}${item.date}</p><small>${index ? "2 personnes · Guide francophone" : "2 nuits · 1 chambre · 2 adultes"}</small></div><b>${item.total}</b></div>`).join("")}</div><div class="card logistics"><h2>Informations utiles</h2><div><span>${icon("map")}</span><p><b>Point de rendez-vous</b><small>Place Outa El Hammam, Chefchaouen</small></p></div><div><span>${icon("help")}</span><p><b>Besoin d'aide ?</b><small>Notre équipe locale est disponible 7j/7.</small></p><button data-page="tickets">Contacter le support</button></div></div></section><aside class="card invoice"><h2>Récapitulatif</h2><div><span>Sous-total</span><b>2 280,00 MAD</b></div><div class="green"><span>BIENVENUE10 (–10 %)</span><b>–228,00 MAD</b></div><hr><div class="invoice-total"><span>Total payé</span><b>2 052,00 MAD</b></div><div class="payment-info">${icon("check")}<span><b>Paiement reçu</b><small>Visa •••• 4242 · 04/02/2026</small></span></div>${button("Télécharger le voucher",{variant:"outline",iconName:"download",action:"print"})}<button class="cancel-link" data-action="cancel-booking">Annuler la réservation</button><small>Annulation gratuite jusqu'au 16/04/2026.</small></aside></div>`, "reservations");
+function reservation() { return shell('<div id="booking-module"></div>', "reservations");
 }
 
 function tickets() {
-  const data = [["Modification de l'heure de transfert","RÉSERVATION","En cours","Aujourd'hui à 10:42"],["Question sur le remboursement","PAIEMENT","Résolu","12/02/2026 à 16:20"],["Bagages inclus pour le vol AT 412","AUTRE","Fermé","02/02/2026 à 09:15"]];
-  return shell(`<div class="page-title"><div><span class="eyebrow">NOUS SOMMES LÀ</span><h1>Mes tickets</h1><p>Échangez directement avec notre équipe locale.</p></div>${button("Nouveau ticket",{iconName:"plus",action:"new-ticket"})}</div><section class="card tickets"><div class="ticket-head"><h2>Demandes récentes</h2><select><option>Tous les statuts</option></select></div>${data.map((item,index) => `<button data-action="open-ticket"><span class="ticket-icon">${icon("ticket")}</span><span><small>${item[1]}</small><b>${item[0]}</b><em>Ticket #TK-2026-00${42-index}</em></span>${status(item[2],index === 0 ? "warning" : "neutral")}<span>Dernière activité<b>${item[3]}</b></span>${icon("arrow")}</button>`).join("")}</section>`, "tickets");
+  return shell('<div id="tickets-module"></div>', "tickets");
 }
 
-function profile() {
-  return shell(`<div class="page-title"><div><span class="eyebrow">VOTRE COMPTE</span><h1>Mon profil</h1><p>Gérez vos informations personnelles et votre sécurité.</p></div></div><div class="profile-layout"><section class="card profile-card"><div class="tabs"><button class="active">Informations</button><button>Sécurité</button></div><div class="profile-avatar"><span class="avatar big">SB</span><div><b>Photo de profil</b><small>JPG ou PNG, 2 Mo maximum</small><button data-action="photo">Modifier la photo</button></div></div><div class="form-grid"><label>PRÉNOM<input value="Sarah"></label><label>NOM<input value="Benali"></label><label>ADRESSE EMAIL<div class="input-icon"><input value="sarah.benali@example.com" disabled><span>⌑</span></div><small>L'adresse email ne peut pas être modifiée.</small></label><label>TÉLÉPHONE<input value="+212 6 12 34 56 78"></label><label>PAYS<select><option>Maroc</option></select></label></div>${button("Enregistrer les modifications",{action:"save-profile"})}</section><aside class="card profile-side"><span class="kpi-icon amber">${icon("shield")}</span><h3>Votre compte est sécurisé</h3><p>Dernière connexion le 18/02/2026 à 09:42 depuis Casablanca.</p><hr><b>Besoin de modifier votre email ?</b><p>Contactez notre support avec une pièce justificative.</p><button data-page="tickets">Contacter le support ${icon("arrow",14)}</button></aside></div>`, "profil");
-}
+function profile() { return shell('<div id="profile-module"></div>',"profil"); }
 
 function home() {
   return `${header()}<main class="static-page"><section class="hero" style="background-image:linear-gradient(90deg,rgba(8,27,69,.89),rgba(11,42,107,.42)),url('${photos.riad}')"><div class="hero-inner"><span class="eyebrow">L'ÉVASION COMMENCE ICI</span><h1>Le Maroc vous attend.<br>Vivez-le pleinement.</h1><p>Des expériences choisies avec soin, du vol jusqu'au dernier souvenir.</p><div class="searchbar"><button>${icon("map")}<span><small>Ville</small><b>Où allez-vous ?</b></span></button><button>${icon("calendar")}<span><small>Date de départ</small><b>18/04/2026</b></span></button><button>${icon("calendar")}<span><small>Date de retour</small><b>20/04/2026</b></span></button><button>${icon("user")}<span><small>Voyageurs</small><b>2 adultes</b></span></button>${button("Rechercher",{iconName:"search",page:"catalogue"})}</div><div class="hero-trust"><span>${icon("shield")}Paiement sécurisé</span><span>${icon("check")}Annulation gratuite</span><span>${icon("help")}Support local 7j/7</span></div></div></section><section class="home-section"><span class="eyebrow">EXPLOREZ LE ROYAUME</span><h2>Une façon unique de voyager au Maroc</h2><div class="feature-grid">${[["bed","Hôtels & Riads"],["plane","Vols"],["car","Voitures"],["taxi","Transferts"],["compass","Excursions"]].map(([name,label]) => `<button data-page="catalogue"><span>${icon(name)}</span><b>${label}</b><small>Des expériences authentiques sélectionnées avec soin.</small><em>Découvrir ${icon("arrow",14)}</em></button>`).join("")}</div></section><section class="home-section soft"><div class="section-title"><div><span class="eyebrow">NOS INCONTOURNABLES</span><h2>Villes populaires</h2></div><button data-page="catalogue">Explorer toutes les offres ${icon("arrow",17)}</button></div><div class="city-grid">${[[photos.medersa,"Marrakech","490,00"],[photos.pool,"Chefchaouen","250,00"],[photos.patio,"Fès","390,00"]].map(([image,title,price]) => `<button style="background-image:linear-gradient(0deg,rgba(8,27,69,.82),transparent 65%),url('${image}')" data-page="catalogue"><span><b>${title}</b><small>À partir de ${price} MAD</small></span><i>${icon("arrow")}</i></button>`).join("")}</div></section></main>${footer()}`;
@@ -522,10 +487,151 @@ function footer() {
   return `<footer><div>${logo()}<p>Le Maroc, à votre manière.</p></div><div><b>EXPLORER</b><button data-page="catalogue">Découvrir les offres</button><button data-page="panier">Mon panier</button><button data-page="reservations">Mes réservations</button></div><div><b>ATLAS VOYAGE</b><button>À propos</button><button>Centre d'aide</button><button>Conditions générales</button></div><hr><small>© 2026 Atlas Voyage · Créé avec hospitalité au Maroc</small></footer>`;
 }
 
-const views = { dashboard, catalogue, offre: offerDetail, panier: cart, checkout, confirmation, reservations, reservation, tickets, profil: profile };
+function payment() { return shell('<div id="payment-module"></div>', "reservations"); }
 
-/** L’accueil public reste sur accueil.html (hors SPA client). */
-const externalPages = { accueil: "../accueil.html" };
+function notificationsPage() { return shell('<div id="notification-module"></div>', "notifications"); }
+
+function favoritesPage() {
+  return shell('<div id="favorites-module" class="favorites-container"><div class="p-8 text-center text-slate-500">Chargement de vos favoris…</div></div>', "favorites");
+}
+
+async function initFavorites(container, page = 0) {
+  if (!container) return;
+  container.innerHTML = `
+    <div class="page-head" style="margin-bottom:24px">
+      <div>
+        <h1 style="font-size:24px;font-weight:700;color:var(--navy,#081b45);margin:0 0 6px">Mes favoris</h1>
+        <p style="color:#64748b;font-size:14px;margin:0">Retrouvez ici toutes les offres que vous avez mises de côté.</p>
+      </div>
+    </div>
+    <div id="favorites-content"><div style="padding:40px;text-align:center;color:#64748b">Chargement de vos favoris…</div></div>
+  `;
+
+  const content = container.querySelector("#favorites-content");
+
+  try {
+    const data = await Favorites.list(page, 9);
+    const items = data.content || [];
+    const totalPages = data.totalPages || 0;
+    const totalElements = data.totalElements || 0;
+
+    if (items.length === 0) {
+      content.innerHTML = `
+        <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:48px 24px;text-align:center;max-width:560px;margin:32px auto">
+          <div style="width:64px;height:64px;border-radius:50%;background:#fff1f2;color:#e11d48;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px">
+            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="2" fill="none"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          </div>
+          <h2 style="font-size:20px;font-weight:700;color:#0f172a;margin:0 0 8px">Vous n'avez aucun favori pour le moment</h2>
+          <p style="color:#64748b;font-size:14px;line-height:1.5;margin:0 0 24px">Explorez notre catalogue d'hôtels, de vols et d'excursions, et cliquez sur le cœur d'une offre pour l'enregistrer ici.</p>
+          <a href="../catalogue.html" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none">
+            <span>Explorer les offres</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M5 12h14M14 7l5 5-5 5"/></svg>
+          </a>
+        </div>
+      `;
+      return;
+    }
+
+    let cardsHtml = `
+      <div style="margin-bottom:16px;color:#64748b;font-size:14px">${totalElements} offre${totalElements > 1 ? "s" : ""} favorite${totalElements > 1 ? "s" : ""}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:20px;margin-bottom:32px">
+    `;
+
+    for (const item of items) {
+      const img = item.firstImage || "../images/marrakech.jpg";
+      const inactiveBadge = !item.offerActive
+        ? '<span style="position:absolute;top:10px;left:10px;background:#ef4444;color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600;z-index:2">Indisponible</span>'
+        : "";
+
+      cardsHtml += `
+        <div class="fav-client-card" data-card-offer="${item.offerId}" style="position:relative;background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column">
+          ${inactiveBadge}
+          <div style="position:relative;height:180px;background:#f1f5f9;overflow:hidden">
+            <img src="${esc(img)}" alt="${esc(item.title)}" style="width:100%;height:100%;object-fit:cover" onerror="this.src='../images/marrakech.jpg'">
+            <button type="button" class="fav-remove-btn" data-remove-fav="${item.offerId}" title="Retirer des favoris" style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:#ffffff;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#e11d48;box-shadow:0 2px 4px rgba(0,0,0,0.1)">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="#e11d48"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </button>
+          </div>
+          <div style="padding:16px;flex:1;display:flex;flex-direction:column">
+            <div style="font-size:12px;font-weight:600;color:#0284c7;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">${esc(item.type || "Offre")}</div>
+            <h3 style="font-size:16px;font-weight:700;color:#0f172a;margin:0 0 6px;line-height:1.3">${esc(item.title)}</h3>
+            <p style="font-size:13px;color:#64748b;margin:0 0 12px">${esc(item.city || "Maroc")}</p>
+            <div style="margin-top:auto;display:flex;align-items:baseline;justify-content:space-between;padding-top:12px;border-top:1px solid #f1f5f9">
+              <div>
+                <span style="font-size:11px;color:#64748b;display:block">À partir de</span>
+                <strong style="font-size:18px;color:#081b45">${Number(item.basePrice || 0).toLocaleString("fr-MA")} MAD</strong>
+              </div>
+              <a href="../offre.html?id=${item.offerId}" style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:6px;background:#081b45;color:#fff;font-size:13px;font-weight:600;text-decoration:none">
+                <span>Voir</span>
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M5 12h14M14 7l5 5-5 5"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    cardsHtml += `</div>`;
+
+    if (totalPages > 1) {
+      cardsHtml += `
+        <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:24px">
+          <button class="btn btn-outline" ${page <= 0 ? "disabled" : ""} data-fav-page="${page - 1}">Précédent</button>
+          <span style="font-size:14px;color:#64748b">Page ${page + 1} sur ${totalPages}</span>
+          <button class="btn btn-outline" ${page >= totalPages - 1 ? "disabled" : ""} data-fav-page="${page + 1}">Suivant</button>
+        </div>
+      `;
+    }
+
+    content.innerHTML = cardsHtml;
+
+    content.querySelectorAll("[data-remove-fav]").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const offerId = Number(btn.dataset.removeFav);
+        try {
+          await Favorites.toggle(offerId);
+          toast("Offre retirée de vos favoris", "success");
+          initFavorites(container, page);
+        } catch (err) {
+          toast(err.message || "Erreur lors du retrait du favori", "danger");
+        }
+      });
+    });
+
+    content.querySelectorAll("[data-fav-page]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const p = Number(btn.dataset.favPage);
+        initFavorites(container, p);
+      });
+    });
+
+  } catch (err) {
+    content.innerHTML = `
+      <div style="background:#fef2f2;border:1px solid #fecdd3;border-radius:8px;padding:24px;text-align:center;color:#991b1b">
+        <p style="margin:0 0 12px;font-weight:600">Impossible de charger vos favoris.</p>
+        <p style="margin:0 0 16px;font-size:14px">${esc(err.message || "Erreur de communication avec le serveur.")}</p>
+        <button class="btn btn-primary" id="retry-fav-btn">Réessayer</button>
+      </div>
+    `;
+    content.querySelector("#retry-fav-btn")?.addEventListener("click", () => initFavorites(container, page));
+  }
+}
+
+const views = { notifications: notificationsPage, dashboard, favorites: favoritesPage, panier: cart, checkout, payment, confirmation, reservations, reservation, tickets, profil: profile };
+
+/**
+ * Les offres ont une seule porte d’entrée pour les invités et les clients :
+ * le site public. Les anciennes routes du catalogue client sont conservées
+ * comme redirections afin que les favoris et anciens liens ne créent plus
+ * une seconde vue des offres.
+ */
+const externalPages = {
+  accueil: "../accueil.html",
+  catalogue: "../accueil.html",
+  offre: "../accueil.html",
+};
 
 function navigatePage(page) {
   if (externalPages[page]) {
@@ -536,18 +642,38 @@ function navigatePage(page) {
 }
 
 function render(page = state.page) {
+  StatsUI.dispose(); AccountUI.dispose();
   if (!views[page]) page = "dashboard";
   state.page = page;
   const params = new URLSearchParams(window.location.search);
   params.set("page", page);
-  if (page === "offre" && state.offerId) params.set("id", state.offerId); else params.delete("id");
+  if (!["reservation", "confirmation", "payment"].includes(page)) params.delete("id");
   window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
   document.getElementById("app").innerHTML = (views[page] || dashboard)();
   window.scrollTo({ top: 0, behavior: "smooth" });
   if (page === "catalogue") initCatalogue();
   if (page === "offre") loadOfferDetail();
   if (page === "panier") paintCart();
+  const bookingRoot = document.getElementById("booking-module");
+  if (bookingRoot) {
+    if (page === "checkout") BookingsUI.checkout(bookingRoot);
+    else if (page === "reservations") BookingsUI.list(bookingRoot, "CLIENT");
+    else BookingsUI.detail(bookingRoot, params.get("id"), "CLIENT", { confirmation: page === "confirmation" });
+  }
+  if (page === "dashboard") StatsUI.mount(document.getElementById("stats-module"),"CLIENT");
+  if (page === "payment") PaymentsUI.page(document.getElementById("payment-module"), params.get("id"));
+  if (page === "notifications") NotificationsUI.page(document.getElementById("notification-module"));
+  if (page === "favorites") initFavorites(document.getElementById("favorites-module"));
+  if (page === "tickets") TicketsUI.client(document.getElementById("tickets-module"));
+  if (page === "profil") AccountUI.mount(document.getElementById("profile-module"),"CLIENT");
+  NotificationsUI.attach("#notification-toggle","#notification-dropdown");
   loadCart();
+  const headerEl = document.querySelector("header");
+  if (headerEl) {
+    if (window.I18n) I18n.bindLanguageSwitcher(headerEl);
+    if (window.AtlasCurrency) AtlasCurrency.bindCurrencySwitcher(headerEl);
+  }
+  if (window.I18n) I18n.applyTranslations(document.getElementById("app"));
 }
 
 function toast(message, type = "") {
@@ -587,9 +713,8 @@ document.addEventListener("click", (event) => {
     target.setAttribute("aria-label", state.sidebarCollapsed ? "Déplier le menu" : "Replier le menu");
   }
   if (action === "account") document.getElementById("account-menu")?.classList.toggle("open");
-  if (action === "notifications") toast("3 notifications récentes, dont 2 non lues.");
   if (action === "detail-qty") {
-    const max = detailState.offer?.stock ?? 1;
+    const max = detailState.offer?.availableCapacity ?? 1;
     detailState.quantity = Math.min(Math.max(1, detailState.quantity + Number(target.dataset.delta)), max);
     document.getElementById("detail-qty").textContent = detailState.quantity;
   }
@@ -610,15 +735,8 @@ document.addEventListener("click", (event) => {
   if (action === "promo-remove") cartCall(() => api.delete("/api/cart/promo"), "Code promo retiré.");
   if (action === "pay-card") { state.payment = "card"; render("checkout"); }
   if (action === "pay-later") { state.payment = "later"; render("checkout"); }
-  if (action === "confirm-payment") {
-    target.disabled = true;
-    target.querySelector("span").textContent = "Traitement en cours…";
-    setTimeout(() => render("confirmation"), 700);
-  }
-  if (action === "copy-ref") {
-    navigator.clipboard?.writeText("BK-2026-000123");
-    toast("Référence copiée.", "success");
-  }
+
+
   if (action === "print") window.print();
   if (action === "save-profile") toast("Vos informations ont été enregistrées.", "success");
   if (action === "favorite") { target.textContent = target.textContent === "♥" ? "♡" : "♥"; toast("Liste de favoris mise à jour."); }
@@ -648,9 +766,9 @@ document.addEventListener("click", (event) => {
   }
   if (action === "cart-remove") modal("Retirer cet article ?", `« ${esc(target.dataset.title)} » sera supprimé de votre panier.`, "Retirer", () => cartCall(() => api.delete(`/api/cart/items/${target.dataset.id}`), "Article retiré du panier."));
   if (action === "clear-cart") modal("Vider le panier ?", "Tous les articles seront retirés de votre panier.", "Vider le panier", () => cartCall(() => api.delete("/api/cart"), "Votre panier est maintenant vide."));
-  if (action === "cancel-booking") modal("Annuler la réservation ?", "Vous serez remboursé à 100 %, soit 2 052,00 MAD.", "Confirmer l'annulation", () => toast("Réservation annulée. Le remboursement est en cours.", "success"));
-  if (action === "new-ticket") toast("Le formulaire de création de ticket est prêt.");
-  if (action === "open-ticket") toast("Conversation avec le support ouverte.");
+
+  // if (action === "new-ticket") handled in TicketsUI
+  // if (action === "open-ticket") handled in TicketsUI
   if (action === "photo") toast("Sélectionnez une photo JPG ou PNG de moins de 2 Mo.");
   if (action === "logout") Auth.logout();
 });
@@ -683,4 +801,18 @@ document.addEventListener("input", (event) => {
 
 state.offerId = new URLSearchParams(window.location.search).get("id");
 const initialPage = new URLSearchParams(window.location.search).get("page") || "dashboard";
-navigatePage(initialPage in views || initialPage in externalPages ? initialPage : "dashboard");
+
+if (window.I18n) {
+  I18n.init({ namespaces: ['common', 'nav', 'client', 'cart', 'status', 'errors'] }).then(() => {
+    if (window.AtlasCurrency) AtlasCurrency.init();
+    navigatePage(initialPage in views || initialPage in externalPages ? initialPage : "dashboard");
+  });
+  window.addEventListener('i18n:change', () => {
+    render(state.page);
+  });
+  window.addEventListener('currency:change', () => {
+    render(state.page);
+  });
+} else {
+  navigatePage(initialPage in views || initialPage in externalPages ? initialPage : "dashboard");
+}

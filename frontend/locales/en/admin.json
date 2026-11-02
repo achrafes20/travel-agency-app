@@ -1,0 +1,24 @@
+{
+  "title": "Atlas Voyage Administration",
+  "tabs": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "cities": "Cities & Geography",
+    "offers": "Offer Moderation",
+    "reviews": "Review Moderation",
+    "audit": "Audit Log",
+    "settings": "System Settings"
+  },
+  "moderation": {
+    "pending": "Reviews pending moderation",
+    "approve": "Approve & publish",
+    "reject": "Reject",
+    "reason": "Moderation reason"
+  },
+  "settings": {
+    "title": "Global Configuration",
+    "save": "Save changes",
+    "maintenance": "Platform maintenance mode"
+  }
+}
+

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Erreur serveur (500) | Atlas Voyage</title>
+    <meta name="description" content="Une interruption temporaire est survenue sur notre serveur. Nos équipes techniques s'en occupent activement." />
+    <link rel="icon" type="image/png" href="images/favicon.png" />
+    <link rel="stylesheet" href="css/av.css" />
+    <script src="js/shared/theme.js"></script>
+    <script src="js/core/config.js"></script>
+  </head>
+  <body style="min-height: 100vh; display: flex; flex-direction: column;">
+    <a href="#main-content" class="av-skip-link">Aller au contenu principal</a>
+
+    <!-- Simple Header -->
+    <header style="background: var(--av-color-surface); border-bottom: 1px solid var(--av-color-border-subtle); padding: var(--av-space-4) 0;">
+      <div class="av-container" style="display: flex; align-items: center; justify-content: space-between;">
+        <a href="accueil.html" class="av-brand" aria-label="Atlas Voyage - Accueil">
+          <img src="images/logo.png" alt="Atlas Voyage" style="height: 40px; width: auto;" />
+        </a>
+      </div>
+    </header>
+
+    <main id="main-content" style="flex: 1; display: flex; align-items: center; justify-content: center; padding: var(--av-space-12) var(--av-space-4); text-align: center;">
+      <div style="max-width: 600px;">
+        <div style="font-size: clamp(4rem, 12vw, 8rem); font-weight: 900; line-height: 1; color: var(--av-color-brand); margin-bottom: var(--av-space-2); letter-spacing: -0.05em;">
+          500
+        </div>
+        <div class="av-badge av-badge--danger" style="margin-bottom: var(--av-space-4);" data-i18n="errors.serverError">
+          Interruption de service temporaire
+        </div>
+        <h1 class="av-heading-2" style="margin-bottom: var(--av-space-3);" data-i18n="errors.http500.title">
+          Une tempête de sable passagère
+        </h1>
+        <p style="color: var(--av-color-text-subtle); font-size: var(--av-text-base); line-height: 1.6; margin-bottom: var(--av-space-8);" data-i18n="errors.http500.desc">
+          Notre serveur rencontre une difficulté imprévue. Nos chameliers du numérique travaillent déjà à rétablir la connexion au plus vite.
+        </p>
+
+        <div id="service-status" style="font-size: var(--av-text-xs); color: var(--av-color-text-subtle); margin-bottom: var(--av-space-6);" aria-live="polite">
+          Vérification de l'état des services en cours...
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: var(--av-space-4);">
+          <button type="button" class="av-btn av-btn--primary" onclick="window.location.reload()" data-i18n="common.actions.retry">
+            Réessayer la page
+          </button>
+          <a href="accueil.html" class="av-btn av-btn--outline" data-i18n="errors.http404.button">
+            Retourner à l'accueil
+          </a>
+          <a href="contact.html" class="av-btn av-btn--ghost" data-i18n="nav.links.contact">
+            Signaler un incident
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <footer style="background-color: var(--av-color-surface); border-top: 1px solid var(--av-color-border-subtle); padding: var(--av-space-4) 0; text-align: center; font-size: var(--av-text-xs); color: var(--av-color-text-subtle);">
+      &copy; 2026 Atlas Voyage S.A.R.L. Tous droits réservés.
+    </footer>
+
+    <script src="js/shared/i18n.js?v=14"></script>
+    <script src="js/shared/currency.js?v=14"></script>
+    <script>
+      const apiBase = window.APP_CONFIG?.apiBase || 'http://localhost:8080';
+
+      if (window.I18n) {
+        I18n.init({ namespaces: ['common', 'nav', 'errors'] }).then(() => {
+          I18n.applyTranslations(document);
+        });
+        window.addEventListener('i18n:change', () => {
+          I18n.applyTranslations(document);
+        });
+      }
+
+      // Vérification du statut de l'API
+      fetch(`${apiBase}/api/status`)
+        .then(res => res.json())
+        .then(data => {
+          const statusEl = document.getElementById('service-status');
+          if (statusEl) {
+            statusEl.textContent = `Statut API : ${data.status || 'Opérationnel'} (Version ${data.version || '2.0'})`;
+            statusEl.style.color = '#0D7A57';
+          }
+        })
+        .catch(() => {
+          const statusEl = document.getElementById('service-status');
+          if (statusEl) {
+            statusEl.textContent = "L'API backend est temporairement indisponible.";
+            statusEl.style.color = '#B91C1C';
+          }
+        });
+    </script>
+  </body>
+</html>
+

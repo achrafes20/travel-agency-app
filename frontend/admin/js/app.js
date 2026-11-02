@@ -1,16 +1,15 @@
 const state = {
   page: "dashboard",
   collapsed: false,
-  notifications: [],
 };
 
 const pages = {
   dashboard: "Tableau de bord",
   users: "Utilisateurs",
-  cities: "Villes",
   promos: "Codes promo",
   offers: "Supervision des offres",
   bookings: "Réservations",
+  payments: "Paiements",
   tickets: "Tickets de support",
   audit: "Journal d’audit",
   settings: "Paramètres globaux",
@@ -20,26 +19,17 @@ const pages = {
 
 const navGroups = [
   { label: "Pilotage", items: [["dashboard", "layout-dashboard", "Tableau de bord"]] },
-  { label: "Gestion", items: [["users", "users", "Utilisateurs"], ["cities", "map", "Villes"], ["promos", "tags", "Codes promo"], ["offers", "briefcase-business", "Offres"]] },
-  { label: "Activité", items: [["bookings", "calendar-days", "Réservations"], ["tickets", "messages-square", "Tickets", 8], ["audit", "history", "Journal d’audit"]] },
+  { label: "Gestion", items: [["users", "users", "Utilisateurs"], ["promos", "tags", "Codes promo"], ["offers", "briefcase-business", "Offres"]] },
+  { label: "Activité", items: [["bookings", "calendar-days", "Réservations"], ["payments", "credit-card", "Paiements"], ["tickets", "messages-square", "Tickets"], ["audit", "history", "Journal d’audit"]] },
   { label: "Système", items: [["settings", "settings", "Paramètres"]] },
 ];
 
-const offers = [
-  ["hotel","Riad Atlas Prestige","Hôtel & Riad","Riad Atlas Group","Marrakech","1 450,00 MAD","8","Active"],
-  ["plane","Vol CMN → CDG","Vol","Atlas Sky","Casablanca","2 890,00 MAD","24","Active"],
-  ["compass","Circuit désert Merzouga","Excursion","Sahara Évasion","Marrakech","850,00 MAD","12","Active"],
-  ["car","Dacia Duster — Auto","Voiture","Atlas Cars","Agadir","520,00 MAD","5","Inactive"],
-  ["car-taxi-front","Transfert Aéroport Menara","Taxi / Transfert","Marrakech Transfer","Marrakech","280,00 MAD","9","Active"],
-  ["hotel","Dar Zitoune","Hôtel & Riad","Riads du Maroc","Fès","1 180,00 MAD","3","Désactivée par l’admin"],
-];
-const bookings = [
-  ["BK-2026-000312","Yasmine Benali","05/10/2026","12 → 15 oct.","2","4 380,00 MAD","Carte simulée","Payé","Confirmée"],
-  ["BK-2026-000311","Amine Berrada","05/10/2026","18 → 20 oct.","1","2 900,00 MAD","À l’arrivée","En attente","En attente"],
-  ["BK-2026-000310","Sofia El Amrani","04/10/2026","08 → 12 oct.","3","7 240,00 MAD","Carte simulée","Payé","Confirmée"],
-  ["BK-2026-000309","Mehdi Tazi","04/10/2026","21 → 23 oct.","1","1 700,00 MAD","Carte simulée","Remboursé","Annulée"],
-  ["BK-2026-000308","Julie Martin","03/10/2026","05 → 09 oct.","2","8 920,00 MAD","Carte simulée","Payé","Terminée"],
-];
+let adminOffers = [];
+const offerTypes = {
+  HOTEL: ["Hôtel & Riad", "hotel"], FLIGHT: ["Vol", "plane"], CAR: ["Location de voiture", "car"],
+  TAXI_TRANSFER: ["Taxi / Transfert", "car-taxi-front"], EXCURSION: ["Excursion", "compass"]
+};
+const bookings = [];
 
 function icon(name, cls = "") { return `<i data-lucide="${name}" class="${cls}"></i>`; }
 function badge(label, tone = "blue") { return `<span class="badge badge-${tone}">${label}</span>`; }
@@ -83,25 +73,8 @@ function renderNav() {
   document.querySelector("#main-nav").innerHTML = navGroups.map(group => `<div class="nav-group"><p class="nav-label">${group.label}</p>${group.items.map(([id,ico,label,count]) => `<button class="nav-item nav-link ${state.page===id?"active":""}" data-page="${id}" title="${label}">${icon(ico)}<span>${label}</span>${count?`<b class="nav-count">${count}</b>`:""}</button>`).join("")}</div>`).join("");
 }
 
-function renderNotificationsPreview() {
-  if (!state.notifications.length) {
-    document.querySelector("#notification-preview").innerHTML = `<p style="padding:16px;color:var(--muted)">Aucune notification.</p>`;
-    return;
-  }
-  document.querySelector("#notification-preview").innerHTML = state.notifications.slice(0,3).map(n=>`<div class="notice"><span class="notice-icon">${icon(n.icon)}</span><div><strong>${n.title}</strong><p>${n.text}</p><small>${n.time}</small></div>${n.unread?'<i class="notice-dot"></i>':""}</div>`).join("");
-}
 
-function dashboardPage() {
-  const kpis = [["users","Utilisateurs totaux","1 248","+7,2 %","vs période précédente"],["user-plus","Nouvelles inscriptions","86","+12,4 %","sur les 30 derniers jours"],["clipboard-list","Réservations","312","+8,6 %","sur les 30 derniers jours"],["circle-dollar-sign","Chiffre d’affaires","486 320","MAD · +15,3 %","vs période précédente"]];
-  const bars=[42,68,55,82,61,94,76,105,88,119,96,128];
-  return `<div class="toolbar"><div class="toolbar-copy"><strong>Bonjour Nadia,</strong><span>Voici ce qui se passe sur Atlas Voyage aujourd’hui.</span></div><div class="toolbar-actions"><select><option>30 derniers jours</option><option>7 derniers jours</option><option>90 derniers jours</option></select>${button("Actualiser","refresh-cw","secondary",'data-action="refresh"')}</div></div>
-  <div class="kpi-grid">${kpis.map(k=>`<article class="card kpi-card"><div class="kpi-top"><span class="round-icon">${icon(k[0])}</span><span class="trend">${icon("arrow-up")} ${k[3]}</span></div><span class="kpi-label">${k[1]}</span><div class="kpi-value">${k[2]} <small>${k[1]==="Chiffre d’affaires"?"MAD":""}</small></div><span class="kpi-note">${k[4]}</span></article>`).join("")}</div>
-  <div class="analytics-grid"><article class="card chart-card">${sectionTitle("Aperçu des réservations","Évolution par statut sur les 30 derniers jours",["Voir les réservations","bookings"])}<div class="bar-chart"><div class="chart-y"><span>120</span><span>80</span><span>40</span><span>0</span></div><div class="bars">${bars.map((v,i)=>`<div class="bar-group"><div class="bar-pair"><i class="bar-primary" style="height:${v}px"></i><i class="bar-accent" style="height:${Math.max(9,v*.2)}px"></i></div><span>${i%2===0?"S"+(i/2+1):""}</span></div>`).join("")}</div><div class="chart-legend"><span><i style="background:#0b3c8f"></i>Confirmées</span><span><i style="background:#ffb400"></i>En attente</span><span><i style="background:#1e9e5a"></i>Terminées</span><span><i style="background:#d93b3b"></i>Annulées</span></div></div></article>
-  <article class="card chart-card">${sectionTitle("Utilisateurs par rôle","Répartition actuelle")}<div class="donut-wrap"><div class="donut"><div><strong>1 248</strong><span>utilisateurs</span></div></div><div class="donut-legend">${[["#0b3c8f","Clients","1 084"],["#ffb400","Fournisseurs","112"],["#1e9e5a","Agents","44"],["#d93b3b","Admins","8"]].map(x=>`<span><i style="background:${x[0]}"></i>${x[1]}<strong>${x[2]}</strong></span>`).join("")}</div></div></article></div>
-  <div class="bottom-grid"><article class="card">${sectionTitle("Top destinations","Par chiffre d’affaires",["Voir les villes","cities"])}<div class="destination-list">${[["Marrakech","128 450 MAD",86],["Casablanca","94 280 MAD",68],["Chefchaouen","72 840 MAD",54],["Agadir","56 120 MAD",42],["Fès","41 690 MAD",31]].map((x,i)=>`<div class="destination-row"><b class="rank">${i+1}</b><div><strong>${x[0]}</strong><span class="progress"><i style="width:${x[2]}%"></i></span></div><span>${x[1]}</span></div>`).join("")}</div></article>
-  <article class="card">${sectionTitle("Offres les plus réservées","30 derniers jours",["Voir les offres","offers"])}<div class="mini-list">${[["https://images.unsplash.com/photo-1570133435536-7ececf000ef6?auto=format&fit=crop&w=100&q=80","Riad Atlas Prestige","Hôtel & Riad","62"],["https://images.unsplash.com/photo-1548018560-4cb48a8837c1?auto=format&fit=crop&w=100&q=80","Week-end Bleu","Bundle","51"],["https://images.unsplash.com/photo-1531230689007-0b32d7a7c33e?auto=format&fit=crop&w=100&q=80","Circuit désert Merzouga","Excursion","44"]].map(x=>`<div class="mini-row"><img src="${x[0]}" alt=""><div><strong>${x[1]}</strong><span>${x[2]}</span></div><b>${x[3]} résa.</b></div>`).join("")}</div></article>
-  <article class="card">${sectionTitle("Codes promo","À surveiller",["Gérer","promos"])}<div class="mini-list">${[["BIENVENUE10","84 / 100","12/10/2026"],["AUTOMNE25","47 / 60","18/10/2026"],["RIAD200","19 / 50","31/10/2026"]].map(x=>`<div class="mini-row"><span class="promo-symbol">%</span><div><strong>${x[0]}</strong><span>Expire le ${x[2]}</span></div><b>${x[1]}</b></div>`).join("")}</div></article></div>
-  <div class="alert-strip"><span class="notice-icon">${icon("triangle-alert")}</span><div><strong>3 éléments requièrent votre attention</strong><span>8 tickets non assignés · 3 codes promo expirent bientôt · 2 offres signalées</span></div><button class="nav-link" data-page="tickets">Consulter les alertes →</button></div>`;
+function dashboardPage() { return '<div id="stats-module"></div>';
 }
 
 let adminUsers = [];
@@ -124,52 +97,26 @@ async function usersPage() {
     .join("");
   return `<div class="page-actions"><p>Gérez les accès et les rôles des utilisateurs de la plateforme.</p>${button("Créer un compte","plus","primary",'data-modal="create-user"')}</div>${filters("Nom ou email...",[["Tous les rôles","Client","Fournisseur","Agent","Administrateur"],["Utilisateurs actifs","Utilisateurs archivés","Tous les statuts"]])}${table(["Utilisateur","Rôle","Statut",""], rows, "")}`;
 }
-let adminCities = [
-  { id: 1, name: "Marrakech", country: "Maroc", code: "MA", latitude: "31.6295", longitude: "-7.9811", airport: "Oui", offers: 284, active: true },
-  { id: 2, name: "Casablanca", country: "Maroc", code: "MA", latitude: "33.5731", longitude: "-7.5898", airport: "Oui", offers: 213, active: true },
-  { id: 3, name: "Chefchaouen", country: "Maroc", code: "MA", latitude: "35.1688", longitude: "-5.2636", airport: "Non", offers: 96, active: true },
-  { id: 4, name: "Tanger", country: "Maroc", code: "MA", latitude: "35.7595", longitude: "-5.8340", airport: "Oui", offers: 88, active: true },
-  { id: 5, name: "Fès", country: "Maroc", code: "MA", latitude: "34.0181", longitude: "-5.0078", airport: "Oui", offers: 72, active: true },
-  { id: 6, name: "Paris", country: "France", code: "FR", latitude: "48.8566", longitude: "2.3522", airport: "Oui", offers: 18, active: true },
-];
-let citiesApiSynced = false;
+let adminCities = [];
 
 async function syncCitiesApi() {
-  if (citiesApiSynced) return;
   try {
     const list = await api.get("/api/cities");
-    if (Array.isArray(list) && list.length > 0) {
-      const airportList = ["marrakech", "casablanca", "tanger", "fès", "fes", "paris", "agadir", "rabat", "ouarzazate", "nador", "oujda", "dakhla"];
-      const countryMap = { "paris": "France", "madrid": "Espagne" };
-      const codeMap = { "France": "FR", "Espagne": "ES", "Maroc": "MA" };
-      const offersMap = { "marrakech": 284, "casablanca": 213, "chefchaouen": 96, "tanger": 88, "fès": 72, "fes": 72, "paris": 18, "essaouira": 64 };
-
-      const apiCities = list.map((c) => {
-        const lower = (c.name || "").toLowerCase();
-        const country = countryMap[lower] || "Maroc";
-        const code = codeMap[country] || "MA";
-        const airport = airportList.includes(lower) ? "Oui" : "Non";
-        const offers = offersMap[lower] || (Math.floor(Math.random() * 40) + 20);
-        return {
-          id: c.id,
-          name: c.name,
-          country,
-          code,
-          latitude: c.latitude != null ? Number(c.latitude).toFixed(4) : "—",
-          longitude: c.longitude != null ? Number(c.longitude).toFixed(4) : "—",
-          airport,
-          offers,
-          active: true,
-        };
-      });
-
-      const apiNames = new Set(apiCities.map((c) => c.name.toLowerCase()));
-      const extras = adminCities.filter((d) => !apiNames.has(d.name.toLowerCase()));
-      adminCities = [...apiCities, ...extras];
-      citiesApiSynced = true;
+    if (Array.isArray(list)) {
+      adminCities = list.map((c) => ({
+        id: c.id,
+        name: c.name,
+        country: c.country || "Maroc",
+        code: c.countryCode || "MA",
+        latitude: c.latitude != null ? Number(c.latitude).toFixed(4) : "—",
+        longitude: c.longitude != null ? Number(c.longitude).toFixed(4) : "—",
+        airport: c.hasAirport ? "Oui" : "Non",
+        offers: c.offerCount != null ? Number(c.offerCount) : 0,
+        active: true,
+      }));
     }
   } catch (err) {
-    console.warn("Backend API /api/cities non disponible, utilisation des données locales :", err);
+    console.warn("Backend API /api/cities non disponible :", err);
   }
 }
 
@@ -192,6 +139,7 @@ async function citiesPage() {
           <div class="row-actions-group">
             <button type="button" class="action-btn action-view" data-action-city="detail" data-id="${c.id}" title="Voir le détail" aria-label="Voir le détail">${icon("eye")}</button>
             <button type="button" class="action-btn action-edit" data-action-city="edit" data-id="${c.id}" title="Modifier" aria-label="Modifier">${icon("pencil")}</button>
+            <button type="button" class="action-btn action-delete" data-action-city="delete" data-id="${c.id}" title="Supprimer" aria-label="Supprimer">${icon("trash-2")}</button>
           </div>
         </td>
       </tr>`;
@@ -224,52 +172,66 @@ async function promosPage() {
   const empty = adminPromos.length ? "" : `<div class="empty-state"><span class="round-icon">${icon("tags")}</span><h2>Aucun code promo</h2><p>Créez votre premier code pour lancer une campagne.</p></div>`;
   return `<div class="page-actions"><p>Créez et gérez les codes promo appliqués au panier des clients.</p>${button("Nouveau code", "plus", "primary", 'data-modal="create-promo"')}</div>${filters("Rechercher par code...", [["Tous les statuts", "Actif", "Expiré", "Désactivé"], ["Tous les types", "Pourcentage", "Montant fixe"]])}${adminPromos.length ? table(["Code", "Type", "Valeur", "Expiration", "Statut", "Actif", ""], rows, "") : empty}`;
 }
-function offersPage() {
-  const rows=offers.map(o=>`<tr data-search="${o.join(" ").toLowerCase()}"><td><div class="identity"><span class="round-icon">${icon(o[0])}</span><strong>${o[1]}</strong></div></td><td>${badge(o[2],"blue")}</td><td>${o[3]}</td><td>${o[4]}</td><td><strong>${o[5]}</strong></td><td>${o[6]}</td><td>${badge(o[7],statusTone(o[7]))}</td><td><button class="row-action" data-modal="offer">${icon("ellipsis")}</button></td></tr>`).join("");
-  return `<div class="page-actions"><p>Supervisez les offres publiées par tous les fournisseurs.</p><div>${button("Vue liste","list","secondary")} ${button("Vue grille","grid-2x2","ghost")}</div></div>${filters("Titre de l’offre...",[["Tous les types","Hôtel & Riad","Vol","Voiture","Excursion"],["Tous les fournisseurs"],["Tous les statuts"]])}${table(["Offre","Type","Fournisseur","Ville","Prix de base","Stock","Statut",""],rows,"684 offres")}`;
+function offerMoney(value) { return new Intl.NumberFormat("fr-MA", { style: "currency", currency: "MAD" }).format(Number(value || 0)); }
+function offerDate(value) { return value ? new Intl.DateTimeFormat("fr-MA", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)) : "—"; }
+function offerMeta(type) { return offerTypes[type] || [type || "Offre", "briefcase-business"]; }
+function offerImage(path) {
+  if (!path) return "../images/favicon.png";
+  try { const url = new URL(path, location.href); if (["localhost", "127.0.0.1"].includes(url.hostname) && url.pathname.startsWith("/images/")) return `../images/${url.pathname.slice(8)}`; } catch (_) { /* chemin relatif */ }
+  return path;
 }
-function bookingsPage() {
-  const rows=bookings.map(b=>`<tr data-search="${b.join(" ").toLowerCase()}"><td><span class="booking-ref">${b[0]}</span></td><td><strong>${b[1]}</strong></td><td>${b[2]}</td><td>${b[3]}</td><td>${b[4]}</td><td><strong>${b[5]}</strong></td><td>${b[6]}</td><td>${badge(b[7],statusTone(b[7]))}</td><td>${badge(b[8],statusTone(b[8]))}</td><td><button class="row-action" data-action="view-booking">${icon("eye")}</button></td></tr>`).join("");
-  return `<div class="info-banner">${icon("eye")}<div><strong>Consultation en lecture seule</strong><span>Les actions de validation, d’annulation et de remboursement sont réservées aux agents.</span></div>${button("Exporter en CSV","download","secondary",'data-action="export"')}</div>${filters("Référence ou client...",[["Tous les statuts"],["Tous les paiements"]])}${table(["Référence","Client","Créée le","Séjour","Lignes","Total","Paiement","Statut paiement","Réservation",""],rows,"312 réservations")}`;
+async function offersPage() {
+  try { adminOffers = await api.get("/api/offers"); }
+  catch (err) { adminOffers = []; return `${apiErrorBanner(err.message)}<div class="empty-state"><span class="round-icon">${icon("briefcase-business")}</span><h2>Offres indisponibles</h2><p>Vérifiez le backend et votre session administrateur.</p>${button("Réessayer", "refresh-cw", "primary", 'data-action="refresh-offers"')}</div>`; }
+  const active = adminOffers.filter(o => o.active).length, inactive = adminOffers.length - active;
+  const withoutAvailability = adminOffers.filter(o => !o.availabilities?.some(p => new Date(p.endAt) > new Date())).length;
+  const suppliers = [...new Set(adminOffers.map(o => o.supplierName).filter(Boolean))].sort((a,b) => a.localeCompare(b, "fr"));
+  const rows = adminOffers.map(o => {
+    const [label, ico] = offerMeta(o.type), hasFuture = o.availabilities?.some(p => new Date(p.endAt) > new Date()), status = !o.active ? "Désactivée" : hasFuture ? "Disponible" : "Sans disponibilité";
+    const search = `${o.title} ${label} ${o.supplierName} ${o.cityName} ${status}`.toLowerCase();
+    return `<tr data-search="${escapeHtml(search)}" data-offer-type="${escapeHtml(label)}" data-offer-supplier="${escapeHtml(o.supplierName)}" data-offer-status="${status}"><td><div class="offer-cell"><img src="${escapeHtml(offerImage(o.images?.[0]))}" alt=""><div><strong>${escapeHtml(o.title)}</strong><span>#${o.id} · ${escapeHtml(o.cityName || "Ville non renseignée")}</span></div></div></td><td>${badge(label,"blue")}</td><td>${escapeHtml(o.supplierName || "—")}</td><td>${escapeHtml(o.cityName || "—")}</td><td><strong>${offerMoney(o.basePrice)}</strong></td><td>${o.availabilities?.length || 0} période${o.availabilities?.length === 1 ? "" : "s"}</td><td>${badge(status, !o.active ? "red" : hasFuture ? "green" : "amber")}</td><td class="table-actions-cell"><div class="row-actions-group"><button class="action-btn action-view" data-offer-view="${o.id}" title="Voir le détail">${icon("eye")}</button><button class="action-btn ${o.active ? "action-delete" : "action-edit"}" data-offer-moderate="${o.id}" title="${o.active ? "Désactiver" : "Réactiver"}">${icon(o.active ? "circle-pause" : "circle-play")}</button></div></td></tr>`;
+  }).join("");
+  const kpis = `<div class="offer-kpis"><div class="offer-kpi"><span>${icon("briefcase-business")}</span><div><small>Total</small><strong>${adminOffers.length}</strong></div></div><div class="offer-kpi success"><span>${icon("circle-check")}</span><div><small>Actives</small><strong>${active}</strong></div></div><div class="offer-kpi danger"><span>${icon("circle-pause")}</span><div><small>Désactivées</small><strong>${inactive}</strong></div></div><div class="offer-kpi warning"><span>${icon("calendar-x")}</span><div><small>Sans disponibilité</small><strong>${withoutAvailability}</strong></div></div></div>`;
+  const filterHtml = filters("Titre, ville ou fournisseur...", [["Tous les types", ...Object.values(offerTypes).map(x=>x[0])], ["Tous les fournisseurs", ...suppliers], ["Tous les statuts", "Disponibles", "Désactivées", "Sans disponibilité"]]);
+  const content = adminOffers.length ? table(["Offre","Type","Fournisseur","Ville","Prix de base","Disponibilités","Statut","Actions"], rows, "") : `<div class="empty-state card"><span class="round-icon">${icon("package-open")}</span><h2>Aucune offre</h2><p>Les offres créées par les fournisseurs apparaîtront ici.</p></div>`;
+  return `<div class="page-actions"><p>Consultez et modérez toutes les offres publiées par les fournisseurs.</p>${button("Actualiser", "refresh-cw", "secondary", 'data-action="refresh-offers"')}</div>${kpis}${filterHtml}${content}`;
 }
-function ticketsPage() {
-  const data=[["Problème avec mon remboursement","Annulation","Mehdi Tazi","BK-2026-000309","Ouvert","Non assigné","Il y a 12 min"],["Modification des dates du séjour","Réservation","Sofia El Amrani","BK-2026-000310","En cours","Salma Idrissi","Il y a 38 min"],["Paiement débité deux fois","Paiement","Nora Amrani","BK-2026-000298","En cours","Youssef Alaoui","Il y a 2 h"],["Question sur le transfert","Autre","Julie Martin","BK-2026-000308","Résolu","Salma Idrissi","Hier, 16:22"]];
-  const rows=data.map(r=>`<tr data-search="${r.join(" ").toLowerCase()}"><td><strong>${r[0]}</strong></td><td>${r[1]}</td><td>${r[2]}</td><td><span class="booking-ref">${r[3]}</span></td><td>${badge(r[4],statusTone(r[4]))}</td><td>${r[5]}</td><td>${r[6]}</td><td><button class="row-action">${icon("eye")}</button></td></tr>`).join("");
-  return `<div class="info-banner">${icon("eye")}<div><strong>Consultation en lecture seule</strong><span>Le traitement et les réponses sont réservés aux agents.</span></div></div>${filters("Sujet, client ou réservation...",[["Tous les statuts"],["Toutes les catégories"],["Tous les agents"]])}${table(["Sujet","Catégorie","Client","Réservation liée","Statut","Agent assigné","Dernière réponse",""],rows,"48 tickets")}`;
+function bookingsPage() { return '<div id="booking-module"></div>';
 }
-function auditPage() {
-  const data=[["05/10/2026 · 10:24","Nadia Lahlou","Admin","Désactivation d’offre","Dar Zitoune","active: true → false"],["05/10/2026 · 09:56","Salma Idrissi","Agent","Remboursement","BK-2026-000309","0,00 → 1 700,00 MAD"],["04/10/2026 · 17:12","Nadia Lahlou","Admin","Changement de rôle","Hicham Amrani","CLIENT → SUPPLIER"],["04/10/2026 · 15:40","Youssef Alaoui","Agent","Annulation","BK-2026-000301","CONFIRMED → CANCELLED"],["03/10/2026 · 11:08","Nadia Lahlou","Admin","Paramètre modifié","Délai d’annulation","72 h → 48 h"]];
-  const rows=data.map(r=>`<tr data-search="${r.join(" ").toLowerCase()}"><td>${r[0]}</td><td><strong>${r[1]}</strong></td><td>${badge(r[2],roleTone(r[2]))}</td><td>${r[3]}</td><td><span class="booking-ref">${r[4]}</span></td><td><code>${r[5]}</code></td><td><button class="row-action">${icon("chevron-right")}</button></td></tr>`).join("");
-  return `<div class="page-actions"><p>Consultez la traçabilité des actions sensibles de la plateforme.</p>${button("Exporter en CSV","download","secondary",'data-action="export"')}</div>${filters("Rechercher un acteur ou une cible...",[["Toutes les actions"]])}${table(["Date et heure","Acteur","Rôle","Action","Cible","Détails",""],rows,"2 418 événements")}`;
-}
-function settingsPage() {
-  const settings=[["clock-3","Délai d’annulation client","Délai minimum avant le début de la réservation.","48","heures"],["package-open","Seuil de stock bas","Déclenche une notification au fournisseur.","3","unités"],["shopping-cart","Nombre maximum de lignes au panier","Limite d’articles distincts dans un panier client.","20","lignes"]];
-  return `<div class="settings-layout"><aside class="settings-intro"><h2>Règles de la plateforme</h2><p>Ces paramètres pilotent les règles métier globales. Toute modification s’applique immédiatement.</p><div class="warning-note">${icon("triangle-alert")}<span>Vérifiez l’impact d’un changement avant de l’enregistrer.</span></div></aside><div class="settings-list">${settings.map(s=>`<div class="setting-row"><span class="round-icon">${icon(s[0])}</span><div class="setting-copy"><strong>${s[1]}</strong><span>${s[2]}</span><small>Dernière modification par Nadia Lahlou, le 03/10/2026</small></div><div class="number-field"><input value="${s[3]}"><span>${s[4]}</span></div>${button("Enregistrer","","secondary",'data-action="save-setting"')}</div>`).join("")}<div class="setting-row"><span class="round-icon">${icon("wallet-cards")}</span><div class="setting-copy"><strong>Paiement à l’arrivée</strong><span>Autoriser globalement ce mode de paiement.</span><small>Dernière modification le 02/10/2026</small></div><button class="toggle active"><span></span></button>${button("Enregistrer","","secondary",'data-action="save-setting"')}</div></div></div>`;
-}
-function notificationsPage() {
-  if (!state.notifications.length) {
-    return `<div class="empty-state"><span class="round-icon">${icon("bell")}</span><h2>Aucune notification</h2><p>Vous n’avez aucune notification pour le moment.</p></div>`;
-  }
-  return `<div class="page-actions"><div class="tabs"><button class="active">Toutes · ${state.notifications.length}</button><button>Non lues · ${state.notifications.filter(n=>n.unread).length}</button></div>${button("Tout marquer comme lu","","secondary",'data-action="read-all"')}</div><div class="card">${state.notifications.map(n=>`<div class="full-notice ${n.unread?"unread":""}"><span class="notice-icon">${icon(n.icon)}</span><div><strong>${n.title}</strong><p>${n.text}</p><small>${n.time}</small></div>${n.unread?'<button data-action="read-one">Marquer comme lu</button>':""}</div>`).join("")}</div>`;
-}
-function profilePage() {
-  return `<div class="profile-grid"><section class="card profile-card"><div class="profile-hero"><span class="avatar">NL</span><div><h2>Nadia Lahlou</h2><span>Administratrice · Compte actif</span></div></div><div class="form-grid"><label class="field">Prénom<input value="Nadia"></label><label class="field">Nom<input value="Lahlou"></label><label class="field full">Adresse email<input disabled value="nadia.lahlou@atlasvoyage.ma"><small>L’adresse email ne peut pas être modifiée.</small></label><label class="field">Téléphone<input value="+212 6 12 34 56 78"></label><label class="field">Pays<select><option>Maroc</option></select></label></div><div class="form-actions">${button("Enregistrer les modifications","","primary",'data-action="save-profile"')}</div></section><section class="card password-card"><h2>Changer le mot de passe</h2><p>Utilisez au moins 8 caractères, une majuscule et un chiffre.</p><label class="field">Mot de passe actuel<input type="password" value="password"></label><label class="field">Nouveau mot de passe<input type="password" placeholder="Votre nouveau mot de passe"></label><label class="field">Confirmer le mot de passe<input type="password" placeholder="Confirmez le mot de passe"></label>${button("Mettre à jour","","secondary",'data-action="save-password"')}</section></div>`;
-}
+function ticketsPage() { return '<div id="tickets-module"></div>'; }
+function auditPage() { return '<div id="audit-module"></div>'; }
+function settingsPage() { return '<div id="settings-module"></div>'; }
+function notificationsPage() { return '<div id="notification-module"></div>'; }
+function profilePage() { return '<div id="profile-module"></div>'; }
 
-const renderers={dashboard:dashboardPage,users:usersPage,cities:citiesPage,promos:promosPage,offers:offersPage,bookings:bookingsPage,tickets:ticketsPage,audit:auditPage,settings:settingsPage,notifications:notificationsPage,profile:profilePage};
+const renderers={dashboard:dashboardPage,users:usersPage,promos:promosPage,offers:offersPage,bookings:bookingsPage,payments:()=>'<div id="payment-module"></div>',tickets:ticketsPage,audit:auditPage,settings:settingsPage,notifications:notificationsPage,profile:profilePage};
 
 async function renderPage(page) {
+  StatsUI.dispose(); AccountUI.dispose();
   if (!pages[page]) page = "dashboard";
   state.page = page;
   const params = new URLSearchParams(window.location.search);
   params.set("page", page);
   window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
-  document.querySelector("#page-title").textContent = pages[page];
-  document.querySelector("#breadcrumb-page").textContent = pages[page];
-  document.querySelector("#page-content").innerHTML = `<div class="card" style="padding:18px;color:var(--muted)">Chargement…</div>`;
+  const titleEl = document.querySelector("#page-title");
+  if (titleEl) titleEl.textContent = pages[page];
+  const breadcrumbEl = document.querySelector("#breadcrumb-page");
+  if (breadcrumbEl) breadcrumbEl.textContent = pages[page];
+  const pageHeader = document.querySelector("#page-header");
+  if (pageHeader) pageHeader.innerHTML = `<h1 class="page-title">${pages[page]}</h1>`;
+  const container = document.querySelector("#page-content") || document.querySelector("#page-body");
+  if (container) container.innerHTML = `<div class="card" style="padding:18px;color:var(--muted)">Chargement…</div>`;
   const renderer = renderers[page] || dashboardPage;
   const html = await renderer();
-  document.querySelector("#page-content").innerHTML = html;
+  if (container) container.innerHTML = html;
+  if (page === "bookings") BookingsUI.list(document.getElementById("booking-module"), "ADMIN");
+  if (page === "dashboard") StatsUI.mount(document.getElementById("stats-module"), "ADMIN");
+  if (page === "payments") PaymentsUI.list(document.getElementById("payment-module"), "ADMIN");
+  if (page === "notifications") NotificationsUI.page(document.getElementById("notification-module"));
+  if (page === "tickets") TicketsUI.admin(document.getElementById("tickets-module"));
+  if (page === "profile") AccountUI.mount(document.getElementById("profile-module"),"ADMIN");
+  if (page === "audit") initAudit(document.getElementById("audit-module"));
+  if (page === "settings") initSettings(document.getElementById("settings-module"));
   renderNav();
   closePopovers();
   bindDynamicEvents();
@@ -418,12 +380,16 @@ function bindDynamicEvents() {
     const q = searchInput ? searchInput.value.toLowerCase().trim() : "";
     const isUsersPage = state.page === "users";
     const isPromosPage = state.page === "promos";
+    const isOffersPage = state.page === "offers";
     const role = isUsersPage && filterSelects[0] ? filterSelects[0].value : "Tous les rôles";
     const status = isUsersPage && filterSelects[1] ? filterSelects[1].value : "Tous les statuts";
-    const country = !isUsersPage && !isPromosPage && filterSelects[0] ? filterSelects[0].value : "Tous les pays";
-    const airport = !isUsersPage && !isPromosPage && filterSelects[1] ? filterSelects[1].value : "Aéroport : Tous";
+    const country = !isUsersPage && !isPromosPage && !isOffersPage && filterSelects[0] ? filterSelects[0].value : "Tous les pays";
+    const airport = !isUsersPage && !isPromosPage && !isOffersPage && filterSelects[1] ? filterSelects[1].value : "Aéroport : Tous";
     const promoStatus = isPromosPage && filterSelects[0] ? filterSelects[0].value : "Tous les statuts";
     const promoType = isPromosPage && filterSelects[1] ? filterSelects[1].value : "Tous les types";
+    const offerType = isOffersPage && filterSelects[0] ? filterSelects[0].value : "Tous les types";
+    const offerSupplier = isOffersPage && filterSelects[1] ? filterSelects[1].value : "Tous les fournisseurs";
+    const offerStatus = isOffersPage && filterSelects[2] ? filterSelects[2].value : "Tous les statuts";
 
     const allRows = Array.from(document.querySelectorAll("tbody tr"));
     if (!allRows.length) return;
@@ -447,8 +413,16 @@ function bindDynamicEvents() {
 
       const matchPromo = (promoStatus === "Tous les statuts" || row.dataset.promoStatus === promoStatus)
         && (promoType === "Tous les types" || row.dataset.promoType === promoType);
+      const rowOfferStatus = row.dataset.offerStatus || "";
+      const matchOfferStatus = offerStatus === "Tous les statuts"
+        || (offerStatus === "Disponibles" && rowOfferStatus === "Disponible")
+        || (offerStatus === "Désactivées" && rowOfferStatus === "Désactivée")
+        || (offerStatus === "Sans disponibilité" && rowOfferStatus === "Sans disponibilité");
+      const matchOffer = (offerType === "Tous les types" || row.dataset.offerType === offerType)
+        && (offerSupplier === "Tous les fournisseurs" || row.dataset.offerSupplier === offerSupplier)
+        && matchOfferStatus;
 
-      if (matchQ && matchRole && matchStatus && matchCountry && matchAirport && matchPromo) {
+      if (matchQ && matchRole && matchStatus && matchCountry && matchAirport && matchPromo && matchOffer) {
         matchedRows.push(row);
       } else {
         row.classList.add("hidden");
@@ -560,14 +534,21 @@ function bindDynamicEvents() {
 
   document.querySelectorAll("[data-copy]").forEach(btn=>btn.addEventListener("click",async()=>{ await navigator.clipboard?.writeText(btn.dataset.copy); showToast("Code copié",`${btn.dataset.copy} est dans le presse-papiers.`); }));
   document.querySelectorAll('[data-action="refresh"]').forEach(b=>b.addEventListener("click",()=>showToast("Données actualisées","Les indicateurs sont à jour.")));
+  document.querySelectorAll('[data-action="refresh-offers"]').forEach(b=>b.addEventListener("click",()=>renderPage("offers")));
+  document.querySelectorAll("[data-offer-view]").forEach(b=>b.addEventListener("click",()=>openOfferDetail(adminOffers.find(o=>String(o.id)===b.dataset.offerView))));
+  document.querySelectorAll("[data-offer-moderate]").forEach(b=>b.addEventListener("click",()=>openOfferModeration(adminOffers.find(o=>String(o.id)===b.dataset.offerModerate))));
   document.querySelectorAll('[data-action="export"]').forEach(b=>b.addEventListener("click",()=>showToast("Export prêt","Le fichier CSV a été généré.")));
   document.querySelectorAll('[data-action="save-setting"]').forEach(b=>b.addEventListener("click",()=>showToast("Paramètre enregistré","La modification s’applique immédiatement.")));
-  document.querySelectorAll('[data-action="save-profile"]').forEach(b=>b.addEventListener("click",()=>showToast("Profil mis à jour","Vos informations ont été enregistrées.")));
-  document.querySelectorAll('[data-action="save-password"]').forEach(b=>b.addEventListener("click",()=>showToast("Mot de passe modifié","Votre nouveau mot de passe est actif.")));
-  document.querySelectorAll('[data-action="read-all"]').forEach(b=>b.addEventListener("click",markAllRead));
 }
 
 async function searchCityApi(query) {
+  if (typeof window !== "undefined" && window.GeocodingClient) {
+    try {
+      return await window.GeocodingClient.search(query);
+    } catch (e) {
+      console.warn("GeocodingClient error, fallback:", e);
+    }
+  }
   if (!query || query.trim().length < 2) return [];
   const q = query.trim();
 
@@ -811,13 +792,51 @@ function confirmModal({ title, message, label, icon: iconName = "triangle-alert"
 function userFormBody(user = null) {
   const roles = [["CLIENT", "Client"], ["SUPPLIER", "Fournisseur"], ["AGENT", "Agent"], ["ADMIN", "Administrateur"]];
   const options = roles.map(([value, label]) => `<option value="${value}" ${user?.role === value ? "selected" : ""}>${label}</option>`).join("");
-  const passwordHint = user ? "Laissez vide pour conserver le mot de passe actuel." : "8 caractères minimum.";
-  return `<div class="form-grid"><label class="field full">Nom complet<input id="user-fullname" placeholder="Prénom Nom" maxlength="120" value="${user ? escapeHtml(user.fullName) : ""}"></label><label class="field full">Email<input id="user-email" type="email" placeholder="nom@exemple.ma" maxlength="180" value="${user ? escapeHtml(user.email) : ""}"></label><label class="field">Rôle<select id="user-role">${options}</select></label><label class="field">Mot de passe<input id="user-password" type="password" autocomplete="new-password" maxlength="100" placeholder="${user ? "Inchangé" : "Mot de passe"}"><small>${passwordHint}</small></label></div>`;
+  const passwordHint = user ? "Laissez vide pour conserver le mot de passe actuel." : "10 caractères minimum, majuscule, minuscule, chiffre et symbole ; 72 octets maximum, sans l’e-mail.";
+  const categories = Object.entries(offerTypes).map(([value,[label]])=>`<option value="${value}" ${user?.supplierCategory===value?"selected":""}>${label}</option>`).join("");
+  return `<div class="form-grid"><label class="field full">Nom complet<input id="user-fullname" placeholder="Prénom Nom" maxlength="120" value="${user ? escapeHtml(user.fullName) : ""}"></label><label class="field full">Email<input id="user-email" type="email" placeholder="nom@exemple.ma" maxlength="180" value="${user ? escapeHtml(user.email) : ""}"></label><label class="field">Rôle<select id="user-role">${options}</select></label><label class="field">Mot de passe<input id="user-password" type="password" autocomplete="new-password" maxlength="100" placeholder="${user ? "Inchangé" : "Mot de passe"}"><small>${passwordHint}</small></label><label class="field full" id="supplier-category-wrap" style="display:${user?.role==="SUPPLIER"?"flex":"none"}">Spécialité du fournisseur<select id="user-supplier-category"><option value="">Sélectionner une activité</option>${categories}</select><small>Ce compte pourra créer uniquement ce type d’offre.</small></label></div>`;
 }
 
 /** Corps de requête de l'API à partir d'un code existant, avec les champs à remplacer. */
 function promoPayload(promo, overrides = {}) {
   return { code: promo.code, discountType: promo.discountType, value: promo.value, expiryDate: promo.expiryDate, active: promo.active, ...overrides };
+}
+
+function offerSpecificDetails(o) {
+  const values = o.type === "HOTEL" ? [["Étoiles", `${o.stars || "—"}/5`], ["Chambre", o.roomType], ["Adresse", o.address]]
+    : o.type === "FLIGHT" ? [["Compagnie", o.airline], ["Vol", o.flightNumber], ["Trajet", `${o.departureAirport || "—"} → ${o.arrivalAirport || "—"}`], ["Type", o.roundTrip ? "Aller-retour" : "Aller simple"], ["Classe", ({ECONOMY:"Économique",PREMIUM_ECONOMY:"Économique premium",BUSINESS:"Affaires",FIRST:"Première classe"})[o.cabinClass] || o.cabinClass], ["Départ aller", offerDate(o.departureDateTime)], ...(o.roundTrip ? [["Départ retour", offerDate(o.returnDepartureDateTime)]] : [])]
+    : o.type === "CAR" ? [["Véhicule", `${o.brand || ""} ${o.model || ""}`], ["Transmission", o.transmission], ["Places", o.seats], ["Prise en charge", o.pickupLocation], ["Restitutions autorisées", (o.dropoffLocations || []).join(" · ")], ["Âge conducteur", `${o.minimumDriverAge || 21}–${o.maximumDriverAge || 75} ans`]]
+    : o.type === "TAXI_TRANSFER" ? [["Départ", o.pickupLocation], ["Arrivée", o.dropoffLocation], ["Véhicule", o.vehicleType]]
+    : [["Durée", o.durationHours ? `${o.durationHours} h` : "—"], ["Guide", o.includesGuide ? "Inclus" : "Non inclus"], ["Transport", o.includesTransport ? "Inclus" : "Non inclus"], ["Itinéraire", o.itinerary]];
+  return values.filter(([,v])=>v !== null && v !== undefined && v !== "").map(([k,v])=>`<div><small>${k}</small><strong>${escapeHtml(v)}</strong></div>`).join("");
+}
+
+function openOfferDetail(o) {
+  if (!o) return;
+  const [label] = offerMeta(o.type);
+  const periods = (o.availabilities || []).map(p=>`<li><strong>${offerDate(p.startAt)}</strong> → <strong>${offerDate(p.endAt)}</strong> · capacité ${p.capacity}</li>`).join("") || "<li>Aucune période configurée</li>";
+  document.querySelector("#modal-root").innerHTML = `<div class="modal-backdrop"><div class="modal large"><header class="modal-header"><span class="modal-symbol">${icon("briefcase-business")}</span><div><h2>${escapeHtml(o.title)}</h2><p>Offre #${o.id} · ${escapeHtml(label)}</p></div><button data-close-modal>${icon("x")}</button></header><div class="modal-body"><div class="offer-detail-hero"><img src="${escapeHtml(offerImage(o.images?.[0]))}" alt=""><div><div>${badge(o.active ? "Active" : "Désactivée", o.active ? "green" : "red")}</div><h3>${offerMoney(o.basePrice)}</h3><p>${escapeHtml(o.description || "Aucune description fournie.")}</p></div></div><div class="offer-detail-grid"><div><small>Fournisseur</small><strong>${escapeHtml(o.supplierName || "—")}</strong></div><div><small>Ville</small><strong>${escapeHtml(o.cityName || "—")}</strong></div><div><small>Périodes</small><strong>${o.availabilities?.length || 0}</strong></div><div><small>Paiement à l’arrivée</small><strong>${o.allowsPayOnArrival ? "Autorisé" : "Non autorisé"}</strong></div>${offerSpecificDetails(o)}</div><div class="offer-moderation-note"><strong>Calendrier des disponibilités</strong><ul>${periods}</ul></div>${o.moderatedAt ? `<div class="offer-moderation-note"><strong>Dernière modération</strong><span>${escapeHtml(o.moderatedByName || "Administrateur")} · ${offerDate(o.moderatedAt)}</span><p>${escapeHtml(o.moderationReason || "Aucun motif renseigné")}</p></div>` : ""}</div><footer class="modal-actions">${button("Fermer", "", "ghost", "data-close-modal")}${button(o.active ? "Désactiver" : "Réactiver", o.active ? "circle-pause" : "circle-play", o.active ? "danger" : "primary", `data-detail-moderate="${o.id}"`)}</footer></div></div>`;
+  lucide.createIcons();
+  document.querySelectorAll("[data-close-modal]").forEach(b=>b.addEventListener("click",closeModal));
+  document.querySelector("#user-role")?.addEventListener("change", event => { const wrap=document.querySelector("#supplier-category-wrap"); if(wrap) wrap.style.display=event.target.value==="SUPPLIER"?"flex":"none"; });
+  document.querySelector("[data-detail-moderate]")?.addEventListener("click",()=>{ closeModal(); openOfferModeration(o); });
+}
+
+function openOfferModeration(o) {
+  if (!o) return;
+  const activate = !o.active;
+  document.querySelector("#modal-root").innerHTML = `<div class="modal-backdrop"><div class="modal"><header class="modal-header"><span class="modal-symbol ${activate ? "" : "danger"}">${icon(activate ? "circle-play" : "triangle-alert")}</span><div><h2>${activate ? "Réactiver" : "Désactiver"} l’offre</h2><p>${escapeHtml(o.title)} · ${escapeHtml(o.supplierName || "Fournisseur")}</p></div><button data-close-modal>${icon("x")}</button></header><div class="modal-body">${activate ? "" : `<div class="modal-warning">${icon("triangle-alert")}L’offre disparaîtra immédiatement du catalogue public et ne pourra plus être ajoutée au panier.</div>`}<label class="field">Motif ${activate ? "de réactivation" : "obligatoire"}<textarea id="offer-moderation-reason" maxlength="1000" placeholder="Expliquez clairement la décision..."></textarea><small>Cette information est conservée dans l’historique de l’offre.</small></label><div class="reason-pills"><button type="button">Contenu inexact</button><button type="button">Prix non conforme</button><button type="button">Signalement client</button><button type="button">Informations corrigées</button></div></div><footer class="modal-actions">${button("Annuler", "", "ghost", "data-close-modal")}${button(activate ? "Réactiver" : "Désactiver", "", activate ? "primary" : "danger", "data-confirm-offer-moderation")}</footer></div></div>`;
+  lucide.createIcons();
+  document.querySelectorAll("[data-close-modal]").forEach(b=>b.addEventListener("click",closeModal));
+  document.querySelectorAll(".reason-pills button").forEach(b=>b.addEventListener("click",()=>{ document.querySelector("#offer-moderation-reason").value=b.textContent; }));
+  document.querySelector("[data-confirm-offer-moderation]").addEventListener("click", async (event)=>{
+    const reason = document.querySelector("#offer-moderation-reason").value.trim();
+    if (!activate && !reason) { showToast("Motif requis", "Indiquez pourquoi cette offre doit être désactivée."); return; }
+    event.currentTarget.disabled = true;
+    try { await api.post(`/api/offers/${o.id}/moderation`, { active: activate, reason: reason || null }); }
+    catch (err) { event.currentTarget.disabled = false; showToast("Modération impossible", err.message); return; }
+    closeModal(); showToast(activate ? "Offre réactivée" : "Offre désactivée", `« ${o.title} » a été mise à jour.`); renderPage("offers");
+  });
 }
 
 function promoFormBody(promo = null) {
@@ -871,12 +890,12 @@ function openModal(type, extra = null) {
         if (confirm(`Confirmez-vous la suppression de la ville « ${foundCity?.name} » ?`)) {
           try {
             await api.delete(`/api/cities/${cid}`);
+            showToast("Ville supprimée", `La ville « ${foundCity?.name} » a été supprimée.`);
+            await syncCitiesApi();
+            renderPage("cities");
           } catch (e) {
-            console.warn("API DELETE city:", e);
+            showToast("Suppression impossible", e.message || "Impossible de supprimer cette ville : elle est utilisée par des offres.");
           }
-          adminCities = adminCities.filter(x => String(x.id) !== String(cid));
-          showToast("Ville supprimée", `La ville « ${foundCity?.name} » a été supprimée.`);
-          renderPage("cities");
         }
       }
     });
@@ -888,15 +907,17 @@ function openModal(type, extra = null) {
       const email = document.querySelector("#user-email").value.trim();
       const role = document.querySelector("#user-role").value;
       const password = document.querySelector("#user-password").value;
+      const supplierCategory = document.querySelector("#user-supplier-category")?.value || null;
       if (!fullName || !email) {
         showToast("Champs requis", "Le nom complet et l’email sont obligatoires.");
         return;
       }
-      if ((type === "create-user" && !password) || (password && password.length < 8)) {
-        showToast("Mot de passe invalide", "Le mot de passe doit contenir au moins 8 caractères.");
+      if ((type === "create-user" && !password) || (password && AccountUI.rules(password,email).some(rule=>!rule[0]))) {
+        showToast("Mot de passe invalide", "Utilisez au moins 10 caractères, une minuscule, une majuscule, un chiffre et un symbole, sans l’e-mail (72 octets maximum).");
         return;
       }
-      const payload = { fullName, email, role, ...(password ? { password } : {}) };
+      if (role === "SUPPLIER" && !supplierCategory) { showToast("Spécialité requise", "Choisissez l’activité autorisée pour ce fournisseur."); return; }
+      const payload = { fullName, email, role, supplierCategory: role === "SUPPLIER" ? supplierCategory : null, ...(password ? { password } : {}) };
       try {
         if (type === "create-user") {
           await api.post("/api/users", payload);
@@ -949,40 +970,30 @@ function openModal(type, extra = null) {
         showToast("Champ requis", "Veuillez saisir le nom de la ville.");
         return;
       }
-      const countryVal = document.querySelector("#modal-city-country")?.value || "Maroc";
-      const codeVal = (document.querySelector("#modal-city-code")?.value || "MA").toUpperCase();
-      const airportVal = document.querySelector("#modal-city-airport")?.value || "Oui";
+      const countryVal = document.querySelector("#modal-city-country")?.value?.trim() || "Maroc";
+      const codeVal = (document.querySelector("#modal-city-code")?.value?.trim() || "MA").toUpperCase();
+      const airportVal = (document.querySelector("#modal-city-airport")?.value || "Non") === "Oui";
       const latRaw = document.querySelector("#modal-city-lat")?.value;
       const lngRaw = document.querySelector("#modal-city-lng")?.value;
       const latNum = latRaw ? parseFloat(latRaw) : null;
       const lngNum = lngRaw ? parseFloat(lngRaw) : null;
 
-      let newId = Date.now();
       try {
-        const created = await api.post("/api/cities", {
+        await api.post("/api/cities", {
           name: nameVal,
           latitude: latNum,
           longitude: lngNum,
+          country: countryVal,
+          countryCode: codeVal,
+          hasAirport: airportVal,
         });
-        if (created?.id) newId = created.id;
+        closeModal();
+        showToast("Ville ajoutée", `La ville « ${nameVal} » a été enregistrée avec succès.`);
+        await syncCitiesApi();
+        renderPage("cities");
       } catch (e) {
-        console.warn("API POST city:", e);
+        showToast("Erreur", e.message || "Impossible d'enregistrer la ville.");
       }
-
-      adminCities.unshift({
-        id: newId,
-        name: nameVal,
-        country: countryVal,
-        code: codeVal,
-        latitude: latNum != null ? latNum.toFixed(4) : "—",
-        longitude: lngNum != null ? lngNum.toFixed(4) : "—",
-        airport: airportVal,
-        offers: 12,
-        active: true,
-      });
-      closeModal();
-      showToast("Ville ajoutée", `La ville « ${nameVal} » a été enregistrée avec succès.`);
-      renderPage("cities");
       return;
     }
 
@@ -1042,8 +1053,658 @@ function showToast(title,message){
   lucide.createIcons();
   setTimeout(()=>document.querySelector(`#${id}`)?.remove(),3000);
 }
-function closePopovers(){document.querySelector("#notification-popover").classList.add("hidden");document.querySelector("#account-popover").classList.add("hidden");}
-function markAllRead(){state.notifications.forEach(n=>n.unread=false);renderNotificationsPreview();if(state.page==="notifications")renderPage("notifications");showToast("Notifications lues","Toutes les notifications ont été marquées comme lues.");lucide.createIcons();}
+function closePopovers(){NotificationsUI.close();document.querySelector("#account-popover").classList.add("hidden");}
+
+// -------------------------------------------------------------
+// PARTIE 2 : JOURNAL D'AUDIT (FRONTEND)
+// -------------------------------------------------------------
+let auditState = {
+  page: 0,
+  size: 20,
+  action: "",
+  resourceType: "",
+  search: "",
+  startDate: "",
+  endDate: "",
+  loading: false,
+  error: null,
+  data: null
+};
+
+async function initAudit(container) {
+  if (!container) return;
+
+  function renderAuditLayout() {
+    container.innerHTML = `
+      <div class="page-actions" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <p style="margin:0;color:var(--muted);font-size:13px">Consultez et exportez la traçabilité complète des actions sensibles exécutées sur la plateforme.</p>
+        <div style="display:flex;gap:8px">
+          ${button("Exporter en CSV", "download", "secondary", 'id="btn-audit-export"')}
+          ${button("Actualiser", "refresh-cw", "ghost", 'id="btn-audit-refresh"')}
+        </div>
+      </div>
+
+      <div class="card" style="padding:14px;margin-bottom:16px;background:#fff;border:1px solid var(--border);border-radius:10px">
+        <form id="audit-filter-form" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)) auto auto;gap:10px;align-items:end">
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px">Recherche libre</label>
+            <input id="audit-filter-search" class="field" style="width:100%;height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:12px" placeholder="Email, description, cible..." value="${escapeHtml(auditState.search)}">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px">Action</label>
+            <select id="audit-filter-action" style="width:100%;height:36px;border:1px solid var(--border);border-radius:6px;padding:0 8px;font-size:12px">
+              <option value="">Toutes les actions</option>
+              <option value="LOGIN_SUCCESS" ${auditState.action === "LOGIN_SUCCESS" ? "selected" : ""}>Connexion réussie</option>
+              <option value="LOGIN_FAILURE" ${auditState.action === "LOGIN_FAILURE" ? "selected" : ""}>Échec de connexion</option>
+              <option value="USER_CREATED" ${auditState.action === "USER_CREATED" ? "selected" : ""}>Création utilisateur</option>
+              <option value="USER_UPDATED" ${auditState.action === "USER_UPDATED" ? "selected" : ""}>Mise à jour utilisateur</option>
+              <option value="USER_ARCHIVED" ${auditState.action === "USER_ARCHIVED" ? "selected" : ""}>Archivage utilisateur</option>
+              <option value="USER_RESTORED" ${auditState.action === "USER_RESTORED" ? "selected" : ""}>Restauration utilisateur</option>
+              <option value="USER_DELETED" ${auditState.action === "USER_DELETED" ? "selected" : ""}>Suppression utilisateur</option>
+              <option value="OFFER_ACTIVATED" ${auditState.action === "OFFER_ACTIVATED" ? "selected" : ""}>Activation offre</option>
+              <option value="OFFER_DEACTIVATED" ${auditState.action === "OFFER_DEACTIVATED" ? "selected" : ""}>Désactivation offre</option>
+              <option value="OFFER_DELETED" ${auditState.action === "OFFER_DELETED" ? "selected" : ""}>Suppression offre</option>
+              <option value="PROMO_CREATED" ${auditState.action === "PROMO_CREATED" ? "selected" : ""}>Création code promo</option>
+              <option value="PROMO_UPDATED" ${auditState.action === "PROMO_UPDATED" ? "selected" : ""}>Mise à jour code promo</option>
+              <option value="PROMO_DELETED" ${auditState.action === "PROMO_DELETED" ? "selected" : ""}>Suppression code promo</option>
+              <option value="SETTINGS_UPDATED" ${auditState.action === "SETTINGS_UPDATED" ? "selected" : ""}>Paramètres modifiés</option>
+              <option value="SETTING_UPDATED" ${auditState.action === "SETTING_UPDATED" ? "selected" : ""}>Paramètre unitaire</option>
+              <option value="AUDIT_EXPORTED" ${auditState.action === "AUDIT_EXPORTED" ? "selected" : ""}>Export d'audit</option>
+              <option value="PAYMENT_CAPTURE_REQUESTED" ${auditState.action === "PAYMENT_CAPTURE_REQUESTED" ? "selected" : ""}>Paiement capturé</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px">Type de ressource</label>
+            <select id="audit-filter-resource" style="width:100%;height:36px;border:1px solid var(--border);border-radius:6px;padding:0 8px;font-size:12px">
+              <option value="">Tous les types</option>
+              <option value="USER" ${auditState.resourceType === "USER" ? "selected" : ""}>Utilisateurs (USER)</option>
+              <option value="OFFER" ${auditState.resourceType === "OFFER" ? "selected" : ""}>Offres (OFFER)</option>
+              <option value="PROMO" ${auditState.resourceType === "PROMO" ? "selected" : ""}>Codes promo (PROMO)</option>
+              <option value="SETTING" ${auditState.resourceType === "SETTING" ? "selected" : ""}>Paramètres (SETTING)</option>
+              <option value="PAYMENT" ${auditState.resourceType === "PAYMENT" ? "selected" : ""}>Paiements (PAYMENT)</option>
+              <option value="TICKET" ${auditState.resourceType === "TICKET" ? "selected" : ""}>Tickets (TICKET)</option>
+              <option value="AUTH" ${auditState.resourceType === "AUTH" ? "selected" : ""}>Authentification (AUTH)</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px">Du</label>
+            <input type="date" id="audit-filter-start" style="width:100%;height:36px;border:1px solid var(--border);border-radius:6px;padding:0 8px;font-size:12px" value="${auditState.startDate}">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px">Au</label>
+            <input type="date" id="audit-filter-end" style="width:100%;height:36px;border:1px solid var(--border);border-radius:6px;padding:0 8px;font-size:12px" value="${auditState.endDate}">
+          </div>
+          <div>
+            ${button("Filtrer", "filter", "primary", 'type="submit"')}
+          </div>
+          <div>
+            ${button("Réinitialiser", "rotate-ccw", "ghost", 'type="button" id="btn-audit-reset"')}
+          </div>
+        </form>
+      </div>
+
+      <div id="audit-table-area"></div>
+    `;
+
+    container.querySelector("#btn-audit-export")?.addEventListener("click", exportAuditCsv);
+    container.querySelector("#btn-audit-refresh")?.addEventListener("click", () => fetchAuditLogs());
+
+    const filterForm = container.querySelector("#audit-filter-form");
+    filterForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      auditState.search = container.querySelector("#audit-filter-search").value.trim();
+      auditState.action = container.querySelector("#audit-filter-action").value;
+      auditState.resourceType = container.querySelector("#audit-filter-resource").value;
+      auditState.startDate = container.querySelector("#audit-filter-start").value;
+      auditState.endDate = container.querySelector("#audit-filter-end").value;
+      auditState.page = 0;
+      fetchAuditLogs();
+    });
+
+    container.querySelector("#btn-audit-reset")?.addEventListener("click", () => {
+      auditState.search = "";
+      auditState.action = "";
+      auditState.resourceType = "";
+      auditState.startDate = "";
+      auditState.endDate = "";
+      auditState.page = 0;
+      renderAuditLayout();
+      fetchAuditLogs();
+    });
+
+    lucide.createIcons();
+  }
+
+  async function fetchAuditLogs() {
+    const area = container.querySelector("#audit-table-area");
+    if (!area) return;
+    area.innerHTML = `<div class="card" style="padding:28px;text-align:center;color:var(--muted)">Chargement du journal d'audit…</div>`;
+
+    const params = new URLSearchParams({
+      page: String(auditState.page),
+      size: String(auditState.size)
+    });
+    if (auditState.search) params.set("search", auditState.search);
+    if (auditState.action) params.set("action", auditState.action);
+    if (auditState.resourceType) params.set("resourceType", auditState.resourceType);
+    if (auditState.startDate) params.set("startDate", auditState.startDate);
+    if (auditState.endDate) params.set("endDate", auditState.endDate);
+
+    try {
+      const data = await api.get(`/api/audit?${params.toString()}`);
+      auditState.data = data;
+      renderAuditTable(data);
+    } catch (err) {
+      area.innerHTML = `
+        <div class="card" style="padding:28px;text-align:center;border-color:#fca5a5;background:#fff5f5">
+          <p style="color:#b91c1c;font-weight:600;margin-bottom:8px">Impossible de charger le journal d'audit.</p>
+          <p style="color:#7f1d1d;font-size:12px;margin-bottom:14px">${escapeHtml(err.message)}</p>
+          ${button("Réessayer", "refresh-cw", "primary", 'id="btn-audit-retry"')}
+        </div>
+      `;
+      area.querySelector("#btn-audit-retry")?.addEventListener("click", () => fetchAuditLogs());
+      lucide.createIcons();
+    }
+  }
+
+  function actionTone(action) {
+    if (!action) return "gray";
+    if (action.includes("DELETE") || action.includes("FAILURE") || action.includes("ARCHIVE") || action.includes("DEACTIVATE")) return "red";
+    if (action.includes("SUCCESS") || action.includes("CREATE") || action.includes("RESTORE") || action.includes("ACTIVATE")) return "green";
+    if (action.includes("UPDATE") || action.includes("CHANGE")) return "amber";
+    return "blue";
+  }
+
+  function renderAuditTable(data) {
+    const area = container.querySelector("#audit-table-area");
+    if (!area) return;
+
+    const items = data.content || [];
+    const total = data.totalElements || 0;
+    const totalPages = data.totalPages || 0;
+
+    if (items.length === 0) {
+      area.innerHTML = `
+        <div class="empty-state card" style="padding:48px 18px;text-align:center">
+          <span class="round-icon">${icon("history")}</span>
+          <h2>Aucun événement d'audit</h2>
+          <p style="color:var(--muted);font-size:12px;max-width:400px;margin:8px auto 0">Aucune entrée ne correspond aux critères de recherche actuels.</p>
+        </div>
+      `;
+      lucide.createIcons();
+      return;
+    }
+
+    const rows = items.map((row) => {
+      const dateStr = row.createdAt ? new Date(row.createdAt).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "medium" }) : "—";
+      const targetStr = row.resourceType ? `${row.resourceType}${row.resourceId != null ? ` #${row.resourceId}` : ""}` : "—";
+      const descStr = row.description ? escapeHtml(row.description) : "—";
+      const roleStr = row.actorRole || "SYSTEM";
+
+      return `<tr>
+        <td style="white-space:nowrap;font-size:11px">${dateStr}</td>
+        <td><strong style="font-size:11px">${escapeHtml(row.actorEmail || "Système")}</strong></td>
+        <td>${badge(roleStr, roleTone(roleStr))}</td>
+        <td>${badge(row.action, actionTone(row.action))}</td>
+        <td><span class="booking-ref" style="font-size:11px">${escapeHtml(targetStr)}</span></td>
+        <td style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px" title="${descStr}">${descStr}</td>
+        <td style="text-align:right">
+          <button type="button" class="btn btn-ghost btn-sm" data-audit-detail="${row.id}" title="Voir le détail complet" style="padding:4px 8px">
+            ${icon("eye")}
+          </button>
+        </td>
+      </tr>`;
+    }).join("");
+
+    area.innerHTML = `
+      <div class="table-card">
+        <div class="table-wrap"><table>
+          <thead><tr>${["Date & Heure", "Acteur", "Rôle", "Action", "Cible", "Description", ""].map((heading, index, headings) => `<th class="${index === headings.length - 1 ? "th-center" : ""}">${heading}</th>`).join("")}</tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>
+        ${AtlasTablePagination.render({ page: auditState.page, totalPages, totalElements: total, size: auditState.size })}
+      </div>
+    `;
+
+    AtlasTablePagination.bind(area, {
+      onPage: pageNumber => {
+        auditState.page = pageNumber;
+        fetchAuditLogs();
+      },
+      onSize: size => {
+        auditState.size = size;
+        auditState.page = 0;
+        fetchAuditLogs();
+      }
+    });
+
+    area.querySelectorAll("[data-audit-detail]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = Number(btn.dataset.auditDetail);
+        const log = (data.content || []).find((x) => x.id === id);
+        if (log) showAuditDetailModal(log);
+      });
+    });
+
+    lucide.createIcons();
+  }
+
+  async function exportAuditCsv() {
+    const params = new URLSearchParams();
+    if (auditState.action) params.set("action", auditState.action);
+    if (auditState.resourceType) params.set("resourceType", auditState.resourceType);
+    if (auditState.search) params.set("search", auditState.search);
+    if (auditState.startDate) params.set("startDate", auditState.startDate);
+    if (auditState.endDate) params.set("endDate", auditState.endDate);
+
+    try {
+      showToast("Exportation en cours", "Génération du fichier CSV...");
+      const res = await fetch(`${api.baseUrl()}/api/audit/export?${params.toString()}`, {
+        headers: {
+          Accept: "text/csv",
+          Authorization: `Bearer ${Auth.getToken()}`
+        }
+      });
+      if (!res.ok) throw new Error(`Échec du téléchargement (${res.status})`);
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `audit_logs_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      showToast("Export réussi", "Le fichier CSV a été téléchargé.");
+    } catch (err) {
+      showToast("Erreur export", err.message || "Impossible d'exporter le fichier CSV.");
+    }
+  }
+
+  function showAuditDetailModal(log) {
+    function formatJson(str) {
+      if (!str) return "—";
+      try {
+        const obj = typeof str === "string" ? JSON.parse(str) : str;
+        return escapeHtml(JSON.stringify(obj, null, 2));
+      } catch {
+        return escapeHtml(str);
+      }
+    }
+
+    const dateStr = log.createdAt ? new Date(log.createdAt).toLocaleString("fr-FR", { dateStyle: "full", timeStyle: "medium" }) : "—";
+
+    const modalBody = `
+      <div style="display:flex;flex-direction:column;gap:14px;max-height:65vh;overflow-y:auto;padding-right:6px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #e2e8f0;font-size:12px">
+          <div><strong style="color:var(--muted)">Identifiant d'événement :</strong> #${log.id}</div>
+          <div><strong style="color:var(--muted)">Date :</strong> ${dateStr}</div>
+          <div><strong style="color:var(--muted)">Acteur :</strong> ${escapeHtml(log.actorEmail || "Système")} (ID: ${log.actorId ?? "—"})</div>
+          <div><strong style="color:var(--muted)">Rôle acteur :</strong> ${badge(log.actorRole || "SYSTEM", roleTone(log.actorRole || "SYSTEM"))}</div>
+          <div><strong style="color:var(--muted)">Action exécutée :</strong> ${badge(log.action, actionTone(log.action))}</div>
+          <div><strong style="color:var(--muted)">Cible :</strong> ${escapeHtml(log.resourceType || "—")}${log.resourceId != null ? ` #${log.resourceId}` : ""}</div>
+          <div><strong style="color:var(--muted)">Adresse IP :</strong> <code>${escapeHtml(log.ipAddress || "127.0.0.1")}</code></div>
+          <div style="grid-column:1 / -1"><strong style="color:var(--muted)">Navigateur / Agent :</strong> <span style="font-size:11px;word-break:break-all">${escapeHtml(log.userAgent || "—")}</span></div>
+        </div>
+
+        <div>
+          <strong style="display:block;font-size:12px;margin-bottom:4px">Description :</strong>
+          <p style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;margin:0;color:#1e293b">${escapeHtml(log.description || "Aucune description fournie.")}</p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:${log.beforeJson && log.afterJson ? "1fr 1fr" : "1fr"};gap:12px">
+          ${log.beforeJson ? `
+            <div>
+              <strong style="display:block;font-size:12px;color:#b91c1c;margin-bottom:4px">État avant modification :</strong>
+              <pre style="background:#fef2f2;border:1px solid #fecdd3;border-radius:6px;padding:10px;font-size:11px;font-family:monospace;white-space:pre-wrap;word-break:break-all;max-height:220px;overflow-y:auto;margin:0"><code>${formatJson(log.beforeJson)}</code></pre>
+            </div>
+          ` : ""}
+          ${log.afterJson ? `
+            <div>
+              <strong style="display:block;font-size:12px;color:#15803d;margin-bottom:4px">État après modification :</strong>
+              <pre style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:10px;font-size:11px;font-family:monospace;white-space:pre-wrap;word-break:break-all;max-height:220px;overflow-y:auto;margin:0"><code>${formatJson(log.afterJson)}</code></pre>
+            </div>
+          ` : ""}
+        </div>
+      </div>
+    `;
+
+    document.querySelector("#modal-root").innerHTML = `
+      <div class="modal-backdrop">
+        <div class="modal large" style="max-width:760px">
+          <header class="modal-header">
+            <span class="modal-symbol">${icon("history")}</span>
+            <div>
+              <h2>Détail de l'événement d'audit #${log.id}</h2>
+              <p>${escapeHtml(log.action)} sur ${escapeHtml(log.resourceType || "ressource")}</p>
+            </div>
+            <button data-close-modal>${icon("x")}</button>
+          </header>
+          <div class="modal-body">${modalBody}</div>
+          <footer class="modal-actions">
+            ${button("Fermer", "", "secondary", "data-close-modal")}
+          </footer>
+        </div>
+      </div>
+    `;
+    lucide.createIcons();
+    document.querySelectorAll("[data-close-modal]").forEach((b) => b.addEventListener("click", closeModal));
+  }
+
+  renderAuditLayout();
+  await fetchAuditLogs();
+}
+
+// -------------------------------------------------------------
+// PARTIE 3 : PARAMÈTRES GLOBAUX (FRONTEND)
+// -------------------------------------------------------------
+let settingsOriginalMap = {};
+let settingsCurrentMap = {};
+let settingsMetaList = [];
+
+async function initSettings(container) {
+  if (!container) return;
+
+  container.innerHTML = `<div class="card" style="padding:28px;text-align:center;color:var(--muted)">Chargement des paramètres globaux…</div>`;
+
+  try {
+    settingsMetaList = await api.get("/api/settings");
+    settingsOriginalMap = {};
+    settingsCurrentMap = {};
+    settingsMetaList.forEach((s) => {
+      settingsOriginalMap[s.key] = s.value;
+      settingsCurrentMap[s.key] = s.value;
+    });
+    renderSettingsLayout();
+  } catch (err) {
+    container.innerHTML = `
+      <div class="card" style="padding:28px;text-align:center;border-color:#fca5a5;background:#fff5f5">
+        <p style="color:#b91c1c;font-weight:600;margin-bottom:8px">Impossible de charger les paramètres de la plateforme.</p>
+        <p style="color:#7f1d1d;font-size:12px;margin-bottom:14px">${escapeHtml(err.message)}</p>
+        ${button("Réessayer", "refresh-cw", "primary", 'id="btn-settings-retry"')}
+      </div>
+    `;
+    container.querySelector("#btn-settings-retry")?.addEventListener("click", () => initSettings(container));
+    lucide.createIcons();
+  }
+
+  function getDirtyKeys() {
+    return Object.keys(settingsCurrentMap).filter((k) => settingsCurrentMap[k] !== settingsOriginalMap[k]);
+  }
+
+  function updateActionButtons() {
+    const dirty = getDirtyKeys();
+    const btnSave = container.querySelector("#btn-save-all-settings");
+    const btnCancel = container.querySelector("#btn-cancel-settings");
+    const countBadge = container.querySelector("#dirty-settings-count");
+
+    if (btnSave) btnSave.disabled = dirty.length === 0;
+    if (btnCancel) btnCancel.disabled = dirty.length === 0;
+    if (countBadge) {
+      countBadge.textContent = dirty.length > 0 ? `${dirty.length} modification${dirty.length > 1 ? "s" : ""}` : "";
+      countBadge.style.display = dirty.length > 0 ? "inline-block" : "none";
+    }
+  }
+
+  function renderSettingsLayout() {
+    const dirty = getDirtyKeys();
+
+    const sections = [
+      {
+        title: "Réservations",
+        description: "Délais d'annulation, alertes d'expiration et capacité du panier.",
+        iconName: "calendar",
+        keys: [
+          { key: "booking.cancellation.deadline.hours", label: "Délai d'annulation client", icon: "clock-3", unit: "heures" },
+          { key: "availability.expiration.alert.days", label: "Alerte de fin de disponibilité", icon: "calendar-clock", unit: "jours" },
+          { key: "cart.items.max", label: "Nombre maximum de lignes au panier", icon: "shopping-cart", unit: "lignes" }
+        ]
+      },
+      {
+        title: "Paiements",
+        description: "Modes de règlement acceptés et devise par défaut.",
+        iconName: "wallet-cards",
+        keys: [
+          { key: "payment.cash.enabled", label: "Paiement à l'arrivée (Espèces)", icon: "banknote", type: "toggle" },
+          { key: "payment.currency.default", label: "Devise par défaut de la plateforme", icon: "coins", unit: "" }
+        ]
+      },
+      {
+        title: "Offres & Catalogue",
+        description: "Contraintes éditoriales appliquées aux fournisseurs.",
+        iconName: "package",
+        keys: [
+          { key: "offers.images.max", label: "Nombre maximum d'images par offre", icon: "image", unit: "photos" }
+        ]
+      },
+      {
+        title: "Affichage & Maintenance",
+        description: "Mode maintenance et message affiché aux visiteurs.",
+        iconName: "shield-alert",
+        keys: [
+          { key: "platform.maintenance.enabled", label: "Mode maintenance global", icon: "alert-triangle", type: "maintenance-toggle" },
+          { key: "platform.maintenance.message", label: "Message de maintenance", icon: "message-square", type: "textarea" }
+        ]
+      }
+    ];
+
+    let html = `
+      <div class="page-actions" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <p style="margin:0;color:var(--muted);font-size:13px">Pilotez les règles métier de la plateforme. Toute modification s'applique immédiatement.</p>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span id="dirty-settings-count" style="display:none;background:#fef3c7;color:#92400e;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:600"></span>
+          ${button("Annuler", "rotate-ccw", "ghost", 'id="btn-cancel-settings" disabled')}
+          ${button("Enregistrer tout", "save", "primary", 'id="btn-save-all-settings" disabled')}
+        </div>
+      </div>
+
+      <div class="settings-layout">
+        <aside class="settings-intro">
+          <h2>Règles de la plateforme</h2>
+          <p>Ces paramètres pilotent la logique métier globale du système Atlas Voyage.</p>
+          <div class="warning-note">
+            ${icon("triangle-alert")}
+            <span>Toute modification enregistrée est journalisée dans l'audit et prend effet immédiatement.</span>
+          </div>
+        </aside>
+
+        <div style="display:flex;flex-direction:column;gap:20px">
+    `;
+
+    sections.forEach((sec) => {
+      html += `
+        <div class="settings-list">
+          <div style="padding:14px 19px;background:#f8fafc;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+            ${icon(sec.iconName)}
+            <span>${sec.title}</span>
+            <small style="margin-left:auto;color:var(--muted);font-weight:400;font-size:11px">${sec.description}</small>
+          </div>
+      `;
+
+      sec.keys.forEach((def) => {
+        const meta = settingsMetaList.find((m) => m.key === def.key) || {
+          key: def.key,
+          value: settingsCurrentMap[def.key] ?? "",
+          description: def.label,
+          valueType: "STRING",
+          updatedBy: "Admin",
+          updatedAt: new Date().toISOString()
+        };
+
+        const val = settingsCurrentMap[def.key] ?? meta.value;
+        const updatedDate = meta.updatedAt ? new Date(meta.updatedAt).toLocaleDateString("fr-FR") : "—";
+        const updatedBy = meta.updatedBy || "Système";
+
+        if (def.type === "toggle" || def.type === "maintenance-toggle") {
+          const isActive = String(val).toLowerCase() === "true";
+          html += `
+            <div class="setting-row">
+              <span class="round-icon">${icon(def.icon || "toggle-left")}</span>
+              <div class="setting-copy">
+                <strong>${escapeHtml(def.label)}</strong>
+                <span>${escapeHtml(meta.description || "")}</span>
+                <small>Dernière modification par ${escapeHtml(updatedBy)}, le ${updatedDate}</small>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:center">
+                <button type="button" class="toggle ${isActive ? "active" : ""}" data-setting-toggle="${def.key}" aria-label="Basculer">
+                  <span></span>
+                </button>
+              </div>
+              <div>
+                ${button("Sauvegarder", "", "secondary", `data-setting-save="${def.key}"`)}
+              </div>
+            </div>
+          `;
+        } else if (def.type === "textarea") {
+          html += `
+            <div class="setting-row" style="grid-template-columns:40px 1fr 220px 100px">
+              <span class="round-icon">${icon(def.icon || "align-left")}</span>
+              <div class="setting-copy">
+                <strong>${escapeHtml(def.label)}</strong>
+                <span>${escapeHtml(meta.description || "")}</span>
+                <small>Dernière modification par ${escapeHtml(updatedBy)}, le ${updatedDate}</small>
+              </div>
+              <div>
+                <textarea data-setting-input="${def.key}" style="width:100%;height:60px;border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:11px;resize:none">${escapeHtml(val)}</textarea>
+              </div>
+              <div>
+                ${button("Sauvegarder", "", "secondary", `data-setting-save="${def.key}"`)}
+              </div>
+            </div>
+          `;
+        } else if (meta.valueType === "INTEGER") {
+          const min = meta.minValue ?? 0;
+          const max = meta.maxValue ?? 9999;
+          html += `
+            <div class="setting-row">
+              <span class="round-icon">${icon(def.icon || "hash")}</span>
+              <div class="setting-copy">
+                <strong>${escapeHtml(def.label)}</strong>
+                <span>${escapeHtml(meta.description || "")} (min ${min}, max ${max})</span>
+                <small>Dernière modification par ${escapeHtml(updatedBy)}, le ${updatedDate}</small>
+              </div>
+              <div class="number-field">
+                <input type="number" min="${min}" max="${max}" value="${escapeHtml(val)}" data-setting-input="${def.key}">
+                <span>${def.unit || ""}</span>
+              </div>
+              <div>
+                ${button("Sauvegarder", "", "secondary", `data-setting-save="${def.key}"`)}
+              </div>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="setting-row">
+              <span class="round-icon">${icon(def.icon || "type")}</span>
+              <div class="setting-copy">
+                <strong>${escapeHtml(def.label)}</strong>
+                <span>${escapeHtml(meta.description || "")}</span>
+                <small>Dernière modification par ${escapeHtml(updatedBy)}, le ${updatedDate}</small>
+              </div>
+              <div>
+                <input type="text" class="field" style="width:100%;height:38px;border:1px solid var(--border);border-radius:8px;padding:0 10px;font-size:12px;font-weight:700" value="${escapeHtml(val)}" data-setting-input="${def.key}">
+              </div>
+              <div>
+                ${button("Sauvegarder", "", "secondary", `data-setting-save="${def.key}"`)}
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      html += `</div>`;
+    });
+
+    html += `</div></div>`;
+    container.innerHTML = html;
+
+    container.querySelectorAll("[data-setting-input]").forEach((input) => {
+      input.addEventListener("input", () => {
+        const key = input.dataset.settingInput;
+        settingsCurrentMap[key] = input.value;
+        updateActionButtons();
+      });
+    });
+
+    container.querySelectorAll("[data-setting-toggle]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.settingToggle;
+        const currentVal = String(settingsCurrentMap[key]).toLowerCase() === "true";
+        const nextVal = !currentVal;
+
+        if (key === "platform.maintenance.enabled" && nextVal) {
+          if (!confirm("Attention : Activer le mode maintenance bloquera l'accès à tous les utilisateurs (clients et fournisseurs). Seuls les administrateurs pourront continuer à naviguer. Confirmer l'activation ?")) {
+            return;
+          }
+        }
+
+        settingsCurrentMap[key] = String(nextVal);
+        btn.classList.toggle("active", nextVal);
+        updateActionButtons();
+      });
+    });
+
+    container.querySelectorAll("[data-setting-save]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const key = btn.dataset.settingSave;
+        const value = settingsCurrentMap[key];
+
+        if (key === "platform.maintenance.enabled" && String(value).toLowerCase() === "true" && settingsOriginalMap[key] !== "true") {
+          if (!confirm("Confirmez-vous le passage immédiat de la plateforme en mode maintenance ?")) {
+            return;
+          }
+        }
+
+        try {
+          btn.disabled = true;
+          await api.put(`/api/settings/${encodeURIComponent(key)}`, { value: String(value) });
+          showToast("Paramètre enregistré", `« ${key} » a été mis à jour.`);
+          settingsOriginalMap[key] = value;
+          updateActionButtons();
+          initSettings(container);
+        } catch (err) {
+          btn.disabled = false;
+          showToast("Erreur d'enregistrement", err.message || "Impossible de sauvegarder ce paramètre.");
+        }
+      });
+    });
+
+    container.querySelector("#btn-save-all-settings")?.addEventListener("click", async () => {
+      const dirty = getDirtyKeys();
+      if (dirty.length === 0) return;
+
+      if (dirty.includes("platform.maintenance.enabled") && settingsCurrentMap["platform.maintenance.enabled"] === "true" && settingsOriginalMap["platform.maintenance.enabled"] !== "true") {
+        if (!confirm("Attention : Vous êtes sur le point d'activer le mode maintenance pour toute la plateforme. Continuer ?")) {
+          return;
+        }
+      }
+
+      const payload = {
+        settings: dirty.map((k) => ({
+          key: k,
+          value: String(settingsCurrentMap[k])
+        }))
+      };
+
+      try {
+        container.querySelector("#btn-save-all-settings").disabled = true;
+        await api.put("/api/settings", payload);
+        showToast("Paramètres sauvegardés", `${dirty.length} paramètre(s) mis à jour avec succès.`);
+        initSettings(container);
+      } catch (err) {
+        container.querySelector("#btn-save-all-settings").disabled = false;
+        showToast("Erreur d'enregistrement", err.message || "Impossible de sauvegarder les paramètres.");
+      }
+    });
+
+    container.querySelector("#btn-cancel-settings")?.addEventListener("click", () => {
+      initSettings(container);
+    });
+
+    updateActionButtons();
+    lucide.createIcons();
+  }
+}
 
 document.querySelector("#sidebar-toggle").addEventListener("click",()=>{
   state.collapsed=!state.collapsed;
@@ -1051,18 +1712,38 @@ document.querySelector("#sidebar-toggle").addEventListener("click",()=>{
   document.querySelector("#brand-area").classList.toggle("collapsed",state.collapsed);
   document.querySelector("#main-content").classList.toggle("expanded",state.collapsed);
 });
-document.querySelector("#notification-toggle").addEventListener("click",e=>{e.stopPropagation();document.querySelector("#account-popover").classList.add("hidden");document.querySelector("#notification-popover").classList.toggle("hidden");});
-document.querySelector("#account-toggle").addEventListener("click",e=>{e.stopPropagation();document.querySelector("#notification-popover").classList.add("hidden");document.querySelector("#account-popover").classList.toggle("hidden");});
+document.querySelector("#account-toggle").addEventListener("click",e=>{e.stopPropagation();NotificationsUI.close();document.querySelector("#account-popover").classList.toggle("hidden");});
 document.querySelector("#logout").addEventListener("click",()=>Auth.logout());
 document.addEventListener("click",e=>{if(!e.target.closest(".popover-wrap"))closePopovers();});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){closePopovers();closeModal();}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){document.querySelector("#account-popover").classList.add("hidden");closeModal();}});
 
 const currentUser = Auth.getUser();
 if (currentUser) {
   document.querySelector("#account-toggle .avatar").textContent = initialsFromName(currentUser.fullName);
   document.querySelector("#account-toggle strong").textContent = currentUser.fullName;
 }
+if (window.I18n) {
+  I18n.init({ namespaces: ['common', 'nav', 'admin', 'status', 'errors'] }).then(() => {
+    const c = document.getElementById("admin-i18n-container");
+    if (c) {
+      c.innerHTML = (window.AtlasCurrency ? AtlasCurrency.renderCurrencySwitcher() : "");
+      if (window.AtlasCurrency) AtlasCurrency.bindCurrencySwitcher(c);
+    }
+  });
+  window.addEventListener("i18n:change", () => {
+    const c = document.getElementById("admin-i18n-container");
+    if (c) {
+      c.innerHTML = (window.AtlasCurrency ? AtlasCurrency.renderCurrencySwitcher() : "");
+      if (window.AtlasCurrency) AtlasCurrency.bindCurrencySwitcher(c);
+    }
+    renderNav();
+    const curr = new URLSearchParams(window.location.search).get("page") || "dashboard";
+    renderPage(curr in pages ? curr : "dashboard");
+  });
+}
+
 renderNav();
-renderNotificationsPreview();
 const requestedPage = new URLSearchParams(window.location.search).get("page") || "dashboard";
 renderPage(requestedPage in pages ? requestedPage : "dashboard");
+
+NotificationsUI.attach("#notification-toggle","#notification-popover");

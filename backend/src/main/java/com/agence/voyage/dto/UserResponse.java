@@ -2,6 +2,7 @@ package com.agence.voyage.dto;
 
 import com.agence.voyage.entity.Role;
 import com.agence.voyage.entity.User;
+import com.agence.voyage.entity.OfferType;
 
 public class UserResponse {
 
@@ -10,6 +11,21 @@ public class UserResponse {
     private String email;
     private Role role;
     private boolean archived;
+    private OfferType supplierCategory;
+    private String phone,country,avatarUrl;
+    private String preferredLanguage;
+    private String preferredCurrency;
+    public String getPreferredLanguage(){return preferredLanguage;}
+    public String getPreferredCurrency(){return preferredCurrency;}
+    private boolean emailVerified;
+    private java.time.LocalDateTime createdAt,updatedAt,passwordChangedAt;
+    public String getPhone(){return phone;}
+    public String getCountry(){return country;}
+    public String getAvatarUrl(){return avatarUrl;}
+    public boolean isEmailVerified(){return emailVerified;}
+    public java.time.LocalDateTime getCreatedAt(){return createdAt;}
+    public java.time.LocalDateTime getUpdatedAt(){return updatedAt;}
+    public java.time.LocalDateTime getPasswordChangedAt(){return passwordChangedAt;}
 
     public UserResponse() {
     }
@@ -23,7 +39,14 @@ public class UserResponse {
     }
 
     public static UserResponse from(User user) {
-        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getRole(), user.isArchived());
+        UserResponse response = new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getRole(), user.isArchived());
+        response.supplierCategory = user.getSupplierCategory();
+        response.phone=user.getPhone();response.country=user.getCountry();response.avatarUrl=user.getAvatarUrl();
+        response.emailVerified=user.isEmailVerified();response.createdAt=user.getCreatedAt();response.updatedAt=user.getUpdatedAt();
+        response.passwordChangedAt=user.getPasswordChangedAt();
+        response.preferredLanguage = user.getPreferredLanguage();
+        response.preferredCurrency = user.getPreferredCurrency();
+        return response;
     }
 
     public boolean isArchived() {
@@ -65,4 +88,6 @@ public class UserResponse {
     public void setRole(Role role) {
         this.role = role;
     }
+    public OfferType getSupplierCategory() { return supplierCategory; }
+    public void setSupplierCategory(OfferType supplierCategory) { this.supplierCategory = supplierCategory; }
 }

@@ -1,5 +1,5 @@
 package com.agence.voyage.entity;
 
 public enum PaymentStatus {
-    PENDING, COMPLETED
+    PENDING, PROCESSING, PAID, FAILED, CANCELLED, REFUNDED, PARTIALLY_REFUNDED
 }

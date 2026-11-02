@@ -18,6 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Codes promo", description = "ADMIN uniquement.")
+@io.swagger.v3.oas.annotations.responses.ApiResponses({
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Requête invalide", content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.agence.voyage.dto.ApiError.class))),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Authentification requise", content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.agence.voyage.dto.ApiError.class))),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Droits insuffisants", content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.agence.voyage.dto.ApiError.class))),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ressource introuvable", content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.agence.voyage.dto.ApiError.class)))
+})
 @RequestMapping("/api/promo-codes")
 public class PromoCodeController {
 
@@ -28,28 +35,37 @@ public class PromoCodeController {
     }
 
     @GetMapping
-    public List<PromoCodeResponse> list() {
-        return promoCodeService.findAll().stream().map(PromoCodeResponse::from).toList();
+    @io.swagger.v3.oas.annotations.Operation(summary = "Lister les ressources", description = "ADMIN uniquement.")
+    public Object list(@org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+                       @org.springframework.web.bind.annotation.RequestParam(required = false) Integer size,
+                       @org.springframework.web.bind.annotation.RequestParam(required = false) String sort) {
+        return com.agence.voyage.service.PaginationSupport.list(
+                promoCodeService.findAll().stream().map(PromoCodeResponse::from).toList(),
+                page, size, sort, java.util.Set.of("id","code","expiryDate"));
     }
 
     @GetMapping("/{id}")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Consulter la ressource", description = "ADMIN uniquement.")
     public PromoCodeResponse get(@PathVariable Long id) {
         return PromoCodeResponse.from(promoCodeService.findById(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @io.swagger.v3.oas.annotations.Operation(summary = "Créer la ressource", description = "ADMIN uniquement.")
     public PromoCodeResponse create(@Valid @RequestBody PromoCodeRequest request) {
         return PromoCodeResponse.from(promoCodeService.create(request));
     }
 
     @PutMapping("/{id}")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Modifier la ressource", description = "ADMIN uniquement.")
     public PromoCodeResponse update(@PathVariable Long id, @Valid @RequestBody PromoCodeRequest request) {
         return PromoCodeResponse.from(promoCodeService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @io.swagger.v3.oas.annotations.Operation(summary = "Supprimer la ressource", description = "ADMIN uniquement.")
     public void delete(@PathVariable Long id) {
         promoCodeService.delete(id);
     }

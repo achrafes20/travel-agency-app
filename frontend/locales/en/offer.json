@@ -1,0 +1,48 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "catalog": "Offers"
+  },
+  "gallery": {
+    "viewAll": "View photos in fullscreen",
+    "close": "Close gallery",
+    "imageAlt": "Photo of {title}"
+  },
+  "sections": {
+    "description": "Your stay, our careful attention",
+    "amenities": "Included Services & Amenities",
+    "location": "Geographic Location",
+    "supplier": "Certified Supplier: {name}",
+    "reviews": "Verified Traveller Reviews"
+  },
+  "amenitiesList": {
+    "availability": "Real-time verified availability",
+    "localSupport": "24/7 dedicated local support",
+    "payOnArrival": "Pay on arrival available"
+  },
+  "booking": {
+    "boxTitle": "Book your experience",
+    "startingFrom": "From",
+    "nextAvailability": "Next availability: from {start} to {end}",
+    "noAvailability": "No availability for the selected dates",
+    "startDate": "Check-in date",
+    "endDate": "Check-out date",
+    "travelers": "Travellers / participants",
+    "driverAge": "Driver's age",
+    "pickup": "Pick-up location",
+    "dropoff": "Drop-off location",
+    "sameDropoff": "Same location",
+    "addToCart": "Add to cart",
+    "bookNow": "Book now",
+    "addedSuccess": "Offer successfully added to your cart!"
+  },
+  "reviews": {
+    "average": "{score} out of 5",
+    "basedOn": "Based on {count} verified customer reviews",
+    "writeReview": "Write a review",
+    "verifiedStay": "Verified Stay",
+    "supplierReply": "Reply from property:",
+    "empty": "Be the first traveller to leave a review after your stay!"
+  }
+}
+

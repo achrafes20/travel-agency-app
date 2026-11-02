@@ -1,9 +1,92 @@
 {
   "info": {
     "name": "Atlas Voyage - API REST",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Phase 6 : 85 opérations API. Profils, sécurité des comptes, images multipart. Le mot de passe fort s’applique aux créations uniquement ; logins de démonstration password123 conservés."
   },
   "item": [
+    {
+      "name": "00 - Fondations Phase 1",
+      "item": [
+        {
+          "name": "Pagination plafonnée",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const b=pm.response.json();",
+                  "pm.test('Page standard',()=>{['content','page','size','totalElements','totalPages','first','last','sort','typeCounts','maxPrice'].forEach(k=>pm.expect(b).to.have.property(k));pm.expect(b.size).to.eql(100);});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "postman-phase1"
+              }
+            ],
+            "url": "{{baseUrl}}/api/offers/search?page=0&size=999"
+          }
+        },
+        {
+          "name": "Tri invalide et ApiError",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400',()=>pm.response.to.have.status(400));",
+                  "const b=pm.response.json();",
+                  "pm.test('Erreur uniforme',()=>{pm.expect(Object.keys(b).sort()).to.eql(['timestamp','status','code','message','details','path','correlationId'].sort());pm.expect(b.code).to.eql('BAD_REQUEST');pm.expect(b.correlationId).to.eql(pm.response.headers.get('X-Correlation-Id'));});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "postman-phase1"
+              }
+            ],
+            "url": "{{baseUrl}}/api/offers/search?sort=password,asc"
+          }
+        },
+        {
+          "name": "Corrélation réutilisée",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "pm.test('Corrélation',()=>pm.expect(pm.response.headers.get('X-Correlation-Id')).to.eql('postman-phase1'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "postman-phase1"
+              }
+            ],
+            "url": "{{baseUrl}}/api/status"
+          }
+        }
+      ]
+    },
     {
       "name": "00 - Statut",
       "item": [
@@ -131,7 +214,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Postman Test\",\n  \"email\": \"{{testEmail}}\",\n  \"role\": \"CLIENT\",\n  \"password\": \"password123\"\n}",
+              "raw": "{\n  \"fullName\": \"Postman Test\",\n  \"email\": \"{{testEmail}}\",\n  \"role\": \"CLIENT\",\n  \"password\": \"Voyage!Securise42\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1684,7 +1767,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Postman Inscrit\",\n  \"email\": \"postman.inscrit@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"ADMIN\"\n}"
+              "raw": "{\n  \"fullName\": \"Postman Inscrit\",\n  \"email\": \"postman.inscrit@example.com\",\n  \"password\": \"Voyage!Securise42\",\n  \"role\": \"ADMIN\"\n}"
             },
             "auth": {
               "type": "noauth"
@@ -1739,7 +1822,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Doublon\",\n  \"email\": \"POSTMAN.inscrit@example.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"fullName\": \"Doublon\",\n  \"email\": \"POSTMAN.inscrit@example.com\",\n  \"password\": \"Voyage!Securise42\"\n}"
             },
             "auth": {
               "type": "noauth"
@@ -2272,7 +2355,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Autre Fournisseur\",\n  \"email\": \"autre.fournisseur.postman@example.com\",\n  \"role\": \"SUPPLIER\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"fullName\": \"Autre Fournisseur\",\n  \"email\": \"autre.fournisseur.postman@example.com\",\n  \"role\": \"SUPPLIER\",\n  \"password\": \"Voyage!Securise42\"\n}"
             },
             "auth": {
               "type": "bearer",
@@ -2322,7 +2405,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"autre.fournisseur.postman@example.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"email\": \"autre.fournisseur.postman@example.com\",\n  \"password\": \"Voyage!Securise42\"\n}"
             },
             "auth": {
               "type": "noauth"
@@ -4758,9 +4841,2639 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "09 - Réservations Phase 2",
+      "description": "Préparer un panier avec dates futures, disponibilités et critères valides. Création fige les prix et vide le panier. ONLINE reste PENDING jusqu'au paiement Phase 3. Une confirmation manuelle ne peut pas contourner un paiement non encaissé. Voucher après paiement ou choix arrivée autorisé.",
+      "item": [
+        {
+          "name": "Créer depuis le panier",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/bookings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"ONLINE\",\n  \"contactPhone\": \"+212600000000\",\n  \"notes\": \"Exemple Postman : préparer un panier daté avant de lancer\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Créée',()=>pm.response.to.have.status(201));",
+                  "if(pm.response.code===201) pm.collectionVariables.set('bookingId',pm.response.json().id);",
+                  "pm.test('Référence',()=>pm.expect(pm.response.json().reference).to.match(/^BK-[0-9]{4}-[0-9]{6}$/));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mes réservations",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings?page=0&size=20&sort=createdAt,desc"
+          }
+        },
+        {
+          "name": "Détail",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}"
+          }
+        },
+        {
+          "name": "Réservations du fournisseur",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/supplier?page=0&size=20"
+          }
+        },
+        {
+          "name": "Gestion globale",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/admin?page=0&size=20&sort=createdAt,desc"
+          }
+        },
+        {
+          "name": "Confirmer manuellement",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}/confirm",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Voucher PDF signé",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}/voucher"
+          }
+        },
+        {
+          "name": "Annuler et restituer",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}/cancel",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Changement de programme demandé par le client\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Paiements Phase 3 (SANDBOX)",
+      "description": "Aucun débit bancaire réel. Préparer Booking ONLINE puis payer. Après refus, effacer paymentIdempotencyKey pour une nouvelle tentative ; la conserver après une erreur réseau. Une réservation PAY_ON_ARRIVAL fournit déjà son paiement PENDING. Remboursement ADMIN, encaissement AGENT/ADMIN. Webhook : secret d'environnement local, jamais dans la collection.",
+      "item": [
+        {
+          "name": "Carte sandbox (nouvelle clé après refus)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{paymentIdempotencyKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/payments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"bookingId\":{{bookingId}},\"method\":\"CARD\",\"cardToken\":\"tok_sandbox_success\",\"cardLast4\":\"4242\",\"cardBrand\":\"VISA\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Conserver cette variable pour rejouer ; l'effacer pour une nouvelle tentative volontaire.",
+                  "if(!pm.collectionVariables.get('paymentIdempotencyKey')) pm.collectionVariables.set('paymentIdempotencyKey',pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Création ou rejeu',()=>pm.expect([200,201]).to.include(pm.response.code));",
+                  "if([200,201].includes(pm.response.code)){const p=pm.response.json();pm.collectionVariables.set('paymentId',p.id);pm.collectionVariables.set('paymentProviderReference',p.providerReference);pm.test('Pas de cache',()=>pm.expect(pm.response.headers.get('Cache-Control')).to.eql('no-store'));}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Choisir le paiement à l'arrivée",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{cashChoiceIdempotencyKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/payments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"bookingId\":{{bookingId}},\"method\":\"CASH_ON_ARRIVAL\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Conserver cette variable pour rejouer ; l'effacer pour une nouvelle tentative volontaire.",
+                  "if(!pm.collectionVariables.get('cashChoiceIdempotencyKey')) pm.collectionVariables.set('cashChoiceIdempotencyKey',pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if([200,201].includes(pm.response.code))pm.collectionVariables.set('paymentId',pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Détail paiement",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/payments/{{paymentId}}"
+          }
+        },
+        {
+          "name": "Tentatives de la réservation",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/payments?bookingId={{bookingId}}"
+          }
+        },
+        {
+          "name": "Événements immuables",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/payments/{{paymentId}}/events"
+          }
+        },
+        {
+          "name": "Mes paiements paginés",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/payments/mine?page=0&size=20"
+          }
+        },
+        {
+          "name": "Gestion paiements",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/payments/admin?page=0&size=20&sort=createdAt,desc"
+          }
+        },
+        {
+          "name": "Espèces à encaisser",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/payments/cash-pending?page=0&size=20"
+          }
+        },
+        {
+          "name": "Historique de mes encaissements",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/payments/cash-history?page=0&size=20"
+          }
+        },
+        {
+          "name": "Remboursement partiel",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{refundIdempotencyKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/payments/{{paymentId}}/refund",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 250,\n  \"reason\": \"Geste commercial sandbox\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Conserver cette variable pour rejouer ; l'effacer pour une nouvelle tentative volontaire.",
+                  "if(!pm.collectionVariables.get('refundIdempotencyKey')) pm.collectionVariables.set('refundIdempotencyKey',pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remboursement du solde",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{fullRefundIdempotencyKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/payments/{{paymentId}}/refund",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Remboursement total sandbox\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Conserver cette variable pour rejouer ; l'effacer pour une nouvelle tentative volontaire.",
+                  "if(!pm.collectionVariables.get('fullRefundIdempotencyKey')) pm.collectionVariables.set('fullRefundIdempotencyKey',pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Encaissement exact espèces",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{collectionIdempotencyKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/payments/{{paymentId}}/collect-cash",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"amount\":{{cashAmount}},\"note\":\"Règlement reçu à l’accueil\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Conserver cette variable pour rejouer ; l'effacer pour une nouvelle tentative volontaire.",
+                  "if(!pm.collectionVariables.get('collectionIdempotencyKey')) pm.collectionVariables.set('collectionIdempotencyKey',pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Webhook signé (secret dans environnement local)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Atlas-Signature",
+                "value": "{{paymentWebhookSignature}}"
+              },
+              {
+                "key": "X-Atlas-Timestamp",
+                "value": "{{paymentWebhookTimestamp}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/payments/webhook",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"eventId\":\"{{paymentWebhookEventId}}\",\"type\":\"payment.succeeded\",\"providerReference\":\"{{paymentProviderReference}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const secret=pm.environment.get('paymentWebhookSecret');",
+                  "if(!secret||secret.length<32) throw new Error('Définir paymentWebhookSecret dans un environnement local non partagé.');",
+                  "if(!pm.collectionVariables.get('paymentWebhookEventId'))pm.collectionVariables.set('paymentWebhookEventId','postman-'+pm.variables.replaceIn('{{$guid}}'));",
+                  "const raw=pm.variables.replaceIn(pm.request.body.raw);",
+                  "pm.request.body.update(raw);",
+                  "const CryptoJS=require('crypto-js');",
+                  "pm.variables.set('paymentWebhookSignature',CryptoJS.HmacSHA256(raw,secret).toString(CryptoJS.enc.Hex));",
+                  "pm.variables.set('paymentWebhookTimestamp',String(Math.floor(Date.now()/1000)));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Traité ou ignoré',()=>{pm.response.to.have.status(200);pm.expect(['PROCESSED','IGNORED']).to.include(pm.response.json().status);});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "11 - Notifications Phase 4",
+      "description": "Toutes les routes concernent exclusivement le sujet JWT (tous rôles). Préparer notificationId avec la liste ; pour essayer un autre rôle remplacer clientToken par son jeton. 404 sur un message étranger, même pour ADMIN. Aucun endpoint public de création. Inscription, modération, Booking et Payment génèrent les notifications. Mailpit localhost:8025 si MAIL_ENABLED=true.",
+      "item": [
+        {
+          "name": "Mes notifications, pagination et filtres",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/notifications?page=0&size=20"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Liste privée paginée',()=>{pm.response.to.have.status(200);const p=pm.response.json();pm.expect(p.size).to.be.at.most(50);if(p.content.length)pm.collectionVariables.set('notificationId',p.content[0].id);});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Compteur réel",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/notifications/unread-count"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Compteur',()=>{pm.response.to.have.status(200);pm.expect(pm.response.json().count).to.be.at.least(0);});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Marquer comme lue (idempotent)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/notifications/{{notificationId}}/read",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Tout marquer comme lu",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/notifications/read-all",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Lire les préférences",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/notifications/preferences"
+          }
+        },
+        {
+          "name": "Enregistrer les préférences",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/notifications/preferences",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailEnabled\": true,\n  \"inAppEnabled\": true,\n  \"bookingEmail\": true,\n  \"paymentEmail\": true,\n  \"offerEmail\": false,\n  \"supportEmail\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer ma notification",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/api/notifications/{{notificationId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Statistiques Phase 5 et exports CSV",
+      "description": "Périodes Africa/Casablanca ; MAD TTC ; données par sujet JWT. CSV UTF-8 BOM ; streaming limité à 50000 réservations. Voir docs/statistiques.md.",
+      "item": [
+        {
+          "name": "Admin",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/admin?period=30d",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "stats",
+                "admin"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d"
+                }
+              ]
+            },
+            "description": "Rôle ADMIN. period=7d/30d/12m ; autre valeur 400 BAD_REQUEST ; sans token 401, mauvais rôle 403. Cache admin 2 minutes ; autres sujets sans cache."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "pm.test('HTTP no-store',()=>pm.expect(pm.response.headers.get('Cache-Control')).to.eql('no-store'));",
+                  "const stats=pm.response.json();",
+                  "pm.test('Contrat commun',()=>{['period','from','to','generatedAt'].forEach(k=>pm.expect(stats).to.have.property(k));pm.expect(stats.currency).to.eql('MAD');pm.expect(stats.timezone).to.eql('Africa/Casablanca');});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Fournisseur",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{supplierToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/supplier?period=30d",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "stats",
+                "supplier"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d"
+                }
+              ]
+            },
+            "description": "Rôle SUPPLIER. period=7d/30d/12m ; autre valeur 400 BAD_REQUEST ; sans token 401, mauvais rôle 403. Cache admin 2 minutes ; autres sujets sans cache."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "pm.test('HTTP no-store',()=>pm.expect(pm.response.headers.get('Cache-Control')).to.eql('no-store'));",
+                  "const stats=pm.response.json();",
+                  "pm.test('Contrat commun',()=>{['period','from','to','generatedAt'].forEach(k=>pm.expect(stats).to.have.property(k));pm.expect(stats.currency).to.eql('MAD');pm.expect(stats.timezone).to.eql('Africa/Casablanca');});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agent",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agentToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/agent?period=30d",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "stats",
+                "agent"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d"
+                }
+              ]
+            },
+            "description": "Rôle AGENT. period=7d/30d/12m ; autre valeur 400 BAD_REQUEST ; sans token 401, mauvais rôle 403. Cache admin 2 minutes ; autres sujets sans cache."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "pm.test('HTTP no-store',()=>pm.expect(pm.response.headers.get('Cache-Control')).to.eql('no-store'));",
+                  "const stats=pm.response.json();",
+                  "pm.test('Contrat commun',()=>{['period','from','to','generatedAt'].forEach(k=>pm.expect(stats).to.have.property(k));pm.expect(stats.currency).to.eql('MAD');pm.expect(stats.timezone).to.eql('Africa/Casablanca');});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Client",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{clientToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/client?period=30d",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "stats",
+                "client"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d"
+                }
+              ]
+            },
+            "description": "Rôle CLIENT. period=7d/30d/12m ; autre valeur 400 BAD_REQUEST ; sans token 401, mauvais rôle 403. Cache admin 2 minutes ; autres sujets sans cache."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "pm.test('HTTP no-store',()=>pm.expect(pm.response.headers.get('Cache-Control')).to.eql('no-store'));",
+                  "const stats=pm.response.json();",
+                  "pm.test('Contrat commun',()=>{['period','from','to','generatedAt'].forEach(k=>pm.expect(stats).to.have.property(k));pm.expect(stats.currency).to.eql('MAD');pm.expect(stats.timezone).to.eql('Africa/Casablanca');});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Export réservations CSV",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/admin/export/bookings.csv?period=30d",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "stats",
+                "admin",
+                "export",
+                "bookings.csv"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d"
+                },
+                {
+                  "key": "from",
+                  "value": "2026-10-01",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-10-31",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "CONFIRMED",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "ADMIN seulement. Télécharger la réponse avec Save response. Cellules texte protégées contre les formules, séparateur ;."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "pm.test('HTTP no-store',()=>pm.expect(pm.response.headers.get('Cache-Control')).to.eql('no-store'));",
+                  "pm.test('CSV attachment',()=>{pm.expect(pm.response.headers.get('Content-Type')).to.include('text/csv');pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment');});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Export CA CSV",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/admin/export/revenue.csv?period=30d",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "stats",
+                "admin",
+                "export",
+                "revenue.csv"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d"
+                }
+              ]
+            },
+            "description": "ADMIN seulement. Télécharger la réponse avec Save response. Cellules texte protégées contre les formules, séparateur ;."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "pm.test('HTTP no-store',()=>pm.expect(pm.response.headers.get('Cache-Control')).to.eql('no-store'));",
+                  "pm.test('CSV attachment',()=>{pm.expect(pm.response.headers.get('Content-Type')).to.include('text/csv');pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment');});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "13 - Profils, sécurité et images Phase 6",
+      "description": "Les requêtes mot de passe ciblent exclusivement un compte de test : ne pas modifier les mots de passe des démos. Copier les tokens reset/vérification depuis le mail (logs dev hors prod). Choisir un fichier local pour multipart. Les variables asset* sont alimentées par l’upload. Limite 5/15 min. Après change/reset, les anciens JWT sont révoqués.",
+      "item": [
+        {
+          "name": "Lire les pays ISO et limites images",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile-options",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "profile-options"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Modifier mon profil (email immuable)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "profile"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Sarah Benali\",\n  \"phone\": \"+212612345678\",\n  \"country\": \"MA\",\n  \"avatarUrl\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Lire mon entreprise (création lazy)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/suppliers/me/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "suppliers",
+                "me",
+                "profile"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Modifier mon entreprise et les informations légales",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/suppliers/me/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "suppliers",
+                "me",
+                "profile"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Riad Atlas SARL\",\n  \"contactPhone\": \"+212612345678\",\n  \"cityId\": 1,\n  \"address\": \"Médina\",\n  \"description\": \"Démonstration\",\n  \"logoUrl\": null,\n  \"legalForm\": \"SARL\",\n  \"registrationNumber\": \"RC-DEMO-100\",\n  \"ice\": \"001234567890123\",\n  \"taxId\": \"IF-DEMO-100\",\n  \"legalNotes\": \"Données de démonstration\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "ADMIN : lire une entreprise",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/suppliers/{{supplierId}}/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "suppliers",
+                "{{supplierId}}",
+                "profile"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Changer le mot de passe (compte de test uniquement)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{profileTestToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "change-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"{{profileCurrentPassword}}\",\n  \"newPassword\": \"{{profileNewPassword}}\",\n  \"confirmNewPassword\": \"{{profileNewPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('profileTestToken', pm.response.json().token);",
+                  "pm.collectionVariables.set('profileCurrentPassword', pm.collectionVariables.get('profileNewPassword'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Demander un lien de reset (message générique)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{profileTestEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Réinitialiser avec le lien reçu (usage unique)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"newPassword\": \"{{profileNewPassword}}\",\n  \"confirmNewPassword\": \"{{profileNewPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Vérifier avec le lien reçu (usage unique)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/verify-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-email"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{emailVerificationToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Renvoyer le lien de vérification (authentifié)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{profileTestToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/resend-verification",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "resend-verification"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Uploader une image (choisir un fichier local)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/images",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "images"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "purpose",
+                  "value": "OFFER_IMAGE",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Sélectionner un JPEG/PNG/WebP local, 200x200 minimum, 5 MiB maximum."
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const f=pm.response.json(); pm.collectionVariables.set('assetId',f.id); pm.collectionVariables.set('assetUrl',f.url); pm.collectionVariables.set('assetName',f.url.split('/').pop());"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Lire publiquement une image",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/{{assetName}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "{{assetName}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Supprimer une image TEMP (détacher avant si ATTACHED)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supplierToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/{{assetId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "{{assetId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "14 - Tickets de support",
+      "description": "Gestion complète des tickets de support client, fournisseur, agent et admin.",
+      "item": [
+        {
+          "name": "1. Créer un ticket (Client)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Demande d'information sur les horaires de navette\",\n  \"category\": \"BOOKING\",\n  \"priority\": \"MEDIUM\",\n  \"message\": \"Bonjour, pourriez-vous m'indiquer l'horaire de prise en charge à l'aéroport ?\",\n  \"attachments\": []\n}"
+            },
+            "url": "{{baseUrl}}/api/tickets"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Ticket créé avec référence TK-2026-XXXXXX', () => {",
+                  "  pm.response.to.have.status(201);",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.reference).to.match(/^TK-\\d{4}-\\d{6}$/);",
+                  "  pm.expect(data.status).to.eql('OPEN');",
+                  "  pm.collectionVariables.set('ticketId', data.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Liste paginée et filtrée des tickets",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/tickets?status=OPEN&page=0&size=20&sort=createdAt,desc"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Liste des tickets retournée avec succès', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.content).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Consulter le détail d'un ticket",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/tickets/{{ticketId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Détail du ticket avec messages', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.id).to.eql(pm.collectionVariables.get('ticketId'));",
+                  "  pm.expect(data.messages).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Ajouter une réponse (Agent)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Bonjour, la navette vous attendra à la sortie du terminal 1 à 10h30.\",\n  \"internalNote\": false,\n  \"attachments\": []\n}"
+            },
+            "url": "{{baseUrl}}/api/tickets/{{ticketId}}/messages"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Message agent créé et ticket passé en IN_PROGRESS', () => {",
+                  "  pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Mettre à jour le statut du ticket",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"RESOLVED\"\n}"
+            },
+            "url": "{{baseUrl}}/api/tickets/{{ticketId}}/status"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut mis à jour à RESOLVED', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.status).to.eql('RESOLVED');",
+                  "  pm.expect(data.resolvedAt).to.not.be.null;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6. Assigner le ticket à un agent",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assigneeId\": 2\n}"
+            },
+            "url": "{{baseUrl}}/api/tickets/{{ticketId}}/assignee"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Ticket assigné', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.assignee).to.not.be.null;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7. Modifier la priorité du ticket",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priority\": \"HIGH\"\n}"
+            },
+            "url": "{{baseUrl}}/api/tickets/{{ticketId}}/priority"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Priorité mise à jour à HIGH', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.priority).to.eql('HIGH');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "8. Compteurs et statistiques des tickets",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{agentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/tickets/stats"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Stats retournées avec compteurs par statut et priorité', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.total).to.be.a('number');",
+                  "  pm.expect(data.byStatus).to.be.an('object');",
+                  "  pm.expect(data.byPriority).to.be.an('object');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9. Supprimer un ticket (Admin)",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/tickets/{{ticketId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Ticket supprimé avec succès', () => {",
+                  "  pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "15 - Favoris Phase 8",
+      "item": [
+        {
+          "name": "Lister mes favoris (paginé)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/favorites?page=0&size=10"
+          }
+        },
+        {
+          "name": "Lister les IDs d'offres favorites",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/favorites/ids"
+          }
+        },
+        {
+          "name": "Ajouter un favori (idempotent)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/favorites/1"
+          }
+        },
+        {
+          "name": "Supprimer un favori (idempotent)",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/favorites/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 - Journal d'audit Phase 8",
+      "item": [
+        {
+          "name": "Consulter le journal d'audit (paginé et filtré)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/audit?page=0&size=20"
+          }
+        },
+        {
+          "name": "Détail d'une entrée d'audit",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/audit/1"
+          }
+        },
+        {
+          "name": "Exporter le journal d'audit en CSV",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/audit/export"
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 - Paramètres globaux Phase 8",
+      "item": [
+        {
+          "name": "Lister tous les paramètres (Admin)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/settings"
+          }
+        },
+        {
+          "name": "Modifier un paramètre unitaire (Admin)",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": \"48\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/settings/booking.cancellation.deadline.hours"
+          }
+        },
+        {
+          "name": "Mise à jour en masse de paramètres (Admin)",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"settings\": [\n    {\n      \"key\": \"booking.cancellation.deadline.hours\",\n      \"value\": \"48\"\n    },\n    {\n      \"key\": \"cart.items.max\",\n      \"value\": \"20\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/settings"
+          }
+        },
+        {
+          "name": "Paramètres publics (PermitAll)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/settings/public"
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 - Avis, Notations et Contact (Phase 12)",
+      "item": [
+        {
+          "name": "Lister les avis publics d'une offre",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/1/reviews?page=0&size=10&sort=recent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "1",
+                "reviews"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "recent"
+                }
+              ]
+            },
+            "description": "Retourne les avis approuvés pour une offre."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtenir le résumé des avis d'une offre",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/1/reviews/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "1",
+                "reviews",
+                "summary"
+              ]
+            },
+            "description": "Note moyenne et distribution 1 à 5 étoiles."
+          },
+          "response": []
+        },
+        {
+          "name": "Déposer un avis certifié (CLIENT)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{clientToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": 1,\n  \"rating\": 5,\n  \"title\": \"Séjour inoubliable au riad\",\n  \"comment\": \"Accueil chaleureux, thé à la menthe offert et vue imprenable sur la médina de Marrakech.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/1/reviews",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "1",
+                "reviews"
+              ]
+            },
+            "description": "Nécessite une réservation terminée COMPLETED."
+          },
+          "response": []
+        },
+        {
+          "name": "Répondre à un avis (SUPPLIER / ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{supplierToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reply\": \"Merci beaucoup Sarah pour votre retour chaleureux, au plaisir de vous revoir !\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/1/reply",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "1",
+                "reply"
+              ]
+            },
+            "description": "Réservé au fournisseur propriétaire de l'offre ou à l'administrateur."
+          },
+          "response": []
+        },
+        {
+          "name": "Envoyer un message de contact public (Honeypot)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Visiteur Curieux\",\n  \"email\": \"visiteur@example.com\",\n  \"subject\": \"Demande d'informations circuits Sud\",\n  \"message\": \"Bonjour, proposez-vous des circuits privatifs dans le désert de Merzouga ?\",\n  \"_hp\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contact"
+              ]
+            },
+            "description": "Formulaire de contact avec protection par pot de miel (_hp doit rester vide)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "19 - Devises et Internationalisation (Phase 14)",
+      "item": [
+        {
+          "name": "Obtenir les taux de change indicatifs (MAD de référence)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/currencies/rates",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "currencies",
+                "rates"
+              ]
+            },
+            "description": "Renvoie les taux indicatifs mis en cache (EUR, USD, GBP) et l'avertissement légal."
+          },
+          "response": []
+        },
+        {
+          "name": "Mettre à jour mes préférences linguistiques et de devise (CLIENT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{clientToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"preferredLanguage\": \"ar\",\n  \"preferredCurrency\": \"EUR\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "preferences"
+              ]
+            },
+            "description": "Enregistre la langue (fr/en/ar) et la devise d'affichage préférées de l'utilisateur."
+          },
+          "response": []
+        },
+        {
+          "name": "Lister les traductions d'une offre (SUPPLIER / ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{supplierToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/1/translations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "1",
+                "translations"
+              ]
+            },
+            "description": "Liste toutes les traductions existantes pour l'offre."
+          },
+          "response": []
+        },
+        {
+          "name": "Enregistrer une traduction arabe pour une offre (SUPPLIER)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{supplierToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"جناح أزرق بإطلالة على المدينة العتيقة\",\n  \"description\": \"إقامة ساحرة في قلب مراكش مع وجبة فطور تقليدية وإطلالة بانورامية.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/1/translations/ar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "1",
+                "translations",
+                "ar"
+              ]
+            },
+            "description": "Enregistre le titre et la description en arabe (RTL)."
+          },
+          "response": []
+        },
+        {
+          "name": "Consulter une offre en arabe (avec fallback auto)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/1?lang=ar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "ar"
+                }
+              ]
+            },
+            "description": "Retourne l'offre avec titre et description traduits en arabe si disponibles."
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "variable": [
+    {
+      "key": "notificationId",
+      "value": ""
+    },
+    {
+      "key": "paymentId",
+      "value": ""
+    },
+    {
+      "key": "paymentProviderReference",
+      "value": ""
+    },
+    {
+      "key": "cashAmount",
+      "value": ""
+    },
     {
       "key": "baseUrl",
       "value": "http://localhost:8080"
@@ -4887,6 +7600,46 @@
     },
     {
       "key": "promoCode",
+      "value": ""
+    },
+    {
+      "key": "bookingId",
+      "value": ""
+    },
+    {
+      "key": "profileTestEmail",
+      "value": "phase6-test@example.test"
+    },
+    {
+      "key": "profileTestToken",
+      "value": ""
+    },
+    {
+      "key": "profileCurrentPassword",
+      "value": "Voyage!Securise42"
+    },
+    {
+      "key": "profileNewPassword",
+      "value": "Nouveau!Securise43"
+    },
+    {
+      "key": "resetToken",
+      "value": ""
+    },
+    {
+      "key": "emailVerificationToken",
+      "value": ""
+    },
+    {
+      "key": "assetId",
+      "value": ""
+    },
+    {
+      "key": "assetUrl",
+      "value": ""
+    },
+    {
+      "key": "assetName",
       "value": ""
     }
   ],

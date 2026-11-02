@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Design System — Atlas Voyage</title>
+    <meta name="description" content="Catalogue de composants et guide de styles du design system Atlas Voyage." />
+    <link rel="icon" type="image/png" href="../images/favicon.png" />
+    <link rel="stylesheet" href="../css/av.css" />
+    <script src="../js/shared/theme.js"></script>
+    <style>
+      .ds-section { margin-bottom: var(--av-space-12); padding-bottom: var(--av-space-8); border-bottom: 1px solid var(--av-color-border-subtle); }
+      .ds-grid-colors { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--av-space-4); }
+      .ds-color-box { border-radius: var(--av-radius-md); overflow: hidden; border: 1px solid var(--av-color-border-subtle); }
+      .ds-color-swatch { height: 70px; }
+      .ds-color-info { padding: var(--av-space-2) var(--av-space-3); background: var(--av-color-surface); font-size: var(--av-text-xs); }
+      .ds-demo-row { display: flex; flex-wrap: wrap; gap: var(--av-space-3); align-items: center; margin-bottom: var(--av-space-4); }
+    </style>
+  </head>
+  <body>
+    <a href="#main-content" class="av-skip-link">Aller au contenu principal</a>
+
+    <header style="background: var(--av-color-surface); border-bottom: 1px solid var(--av-color-border-subtle); padding: var(--av-space-4) 0; position: sticky; top: 0; z-index: var(--av-z-sticky);">
+      <div class="av-container av-flex av-items-center av-justify-between">
+        <div class="av-flex av-items-center av-gap-3">
+          <img src="../images/logo.png" alt="Atlas Voyage" style="height: 38px;" />
+          <span style="font-weight: 700; font-size: var(--av-text-lg); color: var(--av-color-brand);">Design System</span>
+          <span class="av-badge" data-variant="amber">v12.0</span>
+        </div>
+        <div class="av-flex av-items-center av-gap-3">
+          <a href="../accueil.html" class="av-btn av-btn-ghost av-btn-sm">← Retour au site</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content" class="av-container" style="padding-top: var(--av-space-8); padding-bottom: var(--av-space-16);">
+      <div class="av-bg-zellige" style="padding: var(--av-space-8); border-radius: var(--av-radius-xl); background-color: var(--av-color-surface); border: 1px solid var(--av-color-border-subtle); margin-bottom: var(--av-space-10);">
+        <h1 style="color: var(--av-color-brand); margin-bottom: var(--av-space-2);">Atlas Voyage Design System</h1>
+        <p style="color: var(--av-color-text-muted); font-size: var(--av-text-lg); max-width: 700px; margin-bottom: 0;">
+          Bibliothèque unifiée de tokens sémantiques, de composants accessibles WCAG 2.1 AA et d'utilitaires modernes en CSS/JS vanilla.
+        </p>
+      </div>
+
+      <!-- 1. TOKENS DE COULEURS -->
+      <section class="ds-section" aria-labelledby="heading-colors">
+        <h2 id="heading-colors">1. Palette et Ratios de Contraste WCAG 2.1 AA</h2>
+        <p class="av-text-muted">Chaque teinte respecte au minimum un ratio de contraste de 4.5:1 sur son arrière-plan (AA).</p>
+        <div class="ds-grid-colors">
+          <div class="ds-color-box">
+            <div class="ds-color-swatch" style="background: var(--av-brand-700);"></div>
+            <div class="ds-color-info"><strong>Bleu Atlas</strong><br/>#0A2B66 (11.4:1)</div>
+          </div>
+          <div class="ds-color-box">
+            <div class="ds-color-swatch" style="background: var(--av-amber-700);"></div>
+            <div class="ds-color-info"><strong>Ambre Safran</strong><br/>#B45309 (5.2:1)</div>
+          </div>
+          <div class="ds-color-box">
+            <div class="ds-color-swatch" style="background: var(--av-terracotta-700);"></div>
+            <div class="ds-color-info"><strong>Terracotta</strong><br/>#C2410C (5.1:1)</div>
+          </div>
+          <div class="ds-color-box">
+            <div class="ds-color-swatch" style="background: var(--av-mint-700);"></div>
+            <div class="ds-color-info"><strong>Vert Zellige</strong><br/>#0D7A57 (5.4:1)</div>
+          </div>
+          <div class="ds-color-box">
+            <div class="ds-color-swatch" style="background: var(--av-sand-50); border-bottom: 1px solid var(--av-color-border);"></div>
+            <div class="ds-color-info"><strong>Fond Sable</strong><br/>#FAFAF8 (Neutre chaud)</div>
+          </div>
+          <div class="ds-color-box">
+            <div class="ds-color-swatch" style="background: var(--av-slate-900);"></div>
+            <div class="ds-color-info"><strong>Bleu Nuit / Texte</strong><br/>#0F172A (15.8:1)</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. BOUTONS -->
+      <section class="ds-section" aria-labelledby="heading-buttons">
+        <h2 id="heading-buttons">2. Boutons (<code>.av-btn</code>)</h2>
+        <p class="av-text-muted">Hauteur minimale garantie de 44px pour l'accessibilité tactile (WCAG 2.5.5).</p>
+        <div class="ds-demo-row">
+          <button class="av-btn av-btn-primary">Bouton Primaire</button>
+          <button class="av-btn av-btn-secondary">Bouton Secondaire</button>
+          <button class="av-btn av-btn-ghost">Bouton Fantôme</button>
+          <button class="av-btn av-btn-danger">Bouton Danger</button>
+          <button class="av-btn av-btn-primary" disabled>Désactivé</button>
+          <button class="av-btn av-btn-primary is-loading">Chargement</button>
+        </div>
+        <div class="ds-demo-row">
+          <button class="av-btn av-btn-primary av-btn-sm">Petit (sm)</button>
+          <button class="av-btn av-btn-primary">Standard</button>
+          <button class="av-btn av-btn-primary av-btn-lg">Grand (lg)</button>
+          <button class="av-btn av-btn-secondary av-btn-icon" aria-label="Rechercher">🔍</button>
+        </div>
+      </section>
+
+      <!-- 3. BADGES DE STATUT -->
+      <section class="ds-section" aria-labelledby="heading-badges">
+        <h2 id="heading-badges">3. Badges de Statut (<code>.av-badge</code>)</h2>
+        <p class="av-text-muted">L'information n'est jamais transmise par la couleur seule : présence d'une icône et d'un texte explicite.</p>
+        <div class="ds-demo-row">
+          <span class="av-badge" data-variant="success">✓ Confirmé</span>
+          <span class="av-badge" data-variant="warning">⏳ En attente</span>
+          <span class="av-badge" data-variant="danger">✕ Annulé</span>
+          <span class="av-badge" data-variant="info">ℹ Information</span>
+          <span class="av-badge" data-variant="amber">★ 4.9 / 5</span>
+          <span class="av-badge" data-variant="neutral">Déconnecté</span>
+        </div>
+      </section>
+
+      <!-- 4. STEPPER -->
+      <section class="ds-section" aria-labelledby="heading-stepper">
+        <h2 id="heading-stepper">4. Stepper de Réservation (<code>.av-stepper</code>)</h2>
+        <div class="av-stepper" role="list" aria-label="Étapes de réservation">
+          <div class="av-stepper-progress"><div class="av-stepper-progress-bar" style="width: 50%;"></div></div>
+          <div class="av-step is-completed" role="listitem">
+            <div class="av-step-number" aria-label="Étape 1 complétée">✓</div>
+            <span class="av-step-label">1. Panier</span>
+          </div>
+          <div class="av-step is-active" role="listitem">
+            <div class="av-step-number" aria-current="step">2</div>
+            <span class="av-step-label">2. Coordonnées</span>
+          </div>
+          <div class="av-step" role="listitem">
+            <div class="av-step-number">3</div>
+            <span class="av-step-label">3. Paiement</span>
+          </div>
+          <div class="av-step" role="listitem">
+            <div class="av-step-number">4</div>
+            <span class="av-step-label">4. Confirmation</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. FORMULAIRES -->
+      <section class="ds-section" aria-labelledby="heading-forms">
+        <h2 id="heading-forms">5. Formulaires Accessibles (<code>.av-field</code>)</h2>
+        <div style="max-width: 480px;">
+          <div class="av-field">
+            <label for="demo-email" class="av-label">Adresse e-mail <span class="av-label-required">*</span></label>
+            <div class="av-input-group">
+              <span class="av-input-icon" aria-hidden="true">✉</span>
+              <input id="demo-email" class="av-input" type="email" placeholder="votre.nom@exemple.ma" required />
+            </div>
+            <span class="av-field-help">Nous ne partageons jamais vos coordonnées.</span>
+          </div>
+
+          <div class="av-field">
+            <label for="demo-city" class="av-label">Ville de destination</label>
+            <select id="demo-city" class="av-select">
+              <option value="">Sélectionnez une ville...</option>
+              <option value="marrakech">Marrakech</option>
+              <option value="chefchaouen">Chefchaouen</option>
+              <option value="fes">Fès</option>
+            </select>
+          </div>
+
+          <div class="av-field">
+            <label for="demo-error" class="av-label">Champ avec erreur</label>
+            <input id="demo-error" class="av-input" value="valeur_invalide" aria-invalid="true" aria-describedby="demo-error-msg" />
+            <span id="demo-error-msg" class="av-field-error">⚠ Veuillez renseigner un format valide.</span>
+          </div>
+
+          <label class="av-checkbox-label">
+            <input type="checkbox" class="av-checkbox" checked />
+            J'accepte les Conditions Générales et la Politique de Confidentialité.
+          </label>
+        </div>
+      </section>
+
+      <!-- 6. SKELETONS -->
+      <section class="ds-section" aria-labelledby="heading-skeletons">
+        <h2 id="heading-skeletons">6. Skeletons Anti-CLS (<code>.av-skeleton</code>)</h2>
+        <p class="av-text-muted">Animations de chargement douces respectant les dimensions réelles pour prévenir tout décalage visuel (CLS).</p>
+        <div style="max-width: 320px;" class="av-card">
+          <div class="av-skeleton av-skeleton-rect"></div>
+          <div style="padding: var(--av-space-4);">
+            <div class="av-skeleton av-skeleton-text" style="width: 70%;"></div>
+            <div class="av-skeleton av-skeleton-text" style="width: 40%;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. COMPOSANTS INTERACTIFS (MODALE & TOASTS) -->
+      <section class="ds-section" aria-labelledby="heading-interactive">
+        <h2 id="heading-interactive">7. Composants Interactifs</h2>
+        <div class="ds-demo-row">
+          <button id="open-modal-btn" class="av-btn av-btn-primary">Ouvrir une modale accessible</button>
+          <button id="toast-success-btn" class="av-btn av-btn-secondary">Toast Succès</button>
+          <button id="toast-error-btn" class="av-btn av-btn-danger">Toast Erreur</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modale de Démonstration -->
+    <div id="demo-modal" class="av-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+      <div class="av-modal-dialog">
+        <div class="av-modal-header">
+          <h3 id="modal-title" class="av-modal-title">Confirmation d'Action</h3>
+          <button class="av-btn av-btn-icon av-btn-ghost close-modal-btn" aria-label="Fermer la modale">✕</button>
+        </div>
+        <div class="av-modal-body">
+          <p>Cette boîte de dialogue piège le focus au clavier, se ferme avec la touche <kbd>Échap</kbd> ou un clic sur l'arrière-plan, et restitue le focus à son déclencheur.</p>
+        </div>
+        <div class="av-modal-footer">
+          <button class="av-btn av-btn-secondary close-modal-btn">Annuler</button>
+          <button class="av-btn av-btn-primary close-modal-btn">Confirmer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conteneur de Toasts -->
+    <div id="toast-container" class="av-toast-container" aria-live="polite"></div>
+
+    <script>
+      // Modale Interactive
+      const modal = document.getElementById("demo-modal");
+      const openModalBtn = document.getElementById("open-modal-btn");
+      const closeButtons = modal.querySelectorAll(".close-modal-btn");
+
+      openModalBtn.addEventListener("click", () => {
+        modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden", "false");
+        modal.querySelector(".close-modal-btn").focus();
+      });
+
+      function closeModal() {
+        modal.classList.remove("is-open");
+        modal.setAttribute("aria-hidden", "true");
+        openModalBtn.focus();
+      }
+      closeButtons.forEach(btn => btn.addEventListener("click", closeModal));
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
+      });
+
+      // Toasts Interactifs
+      const toastContainer = document.getElementById("toast-container");
+      function showToast(text, type) {
+        const toast = document.createElement("div");
+        toast.className = "av-toast";
+        toast.innerHTML = `<span>${type === 'success' ? '✓' : '⚠'}</span><div style="flex:1;">${text}</div><button style="border:none;background:none;cursor:pointer;" aria-label="Fermer">✕</button>`;
+        toast.querySelector("button").addEventListener("click", () => toast.remove());
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+      }
+      document.getElementById("toast-success-btn").addEventListener("click", () => showToast("Votre action a été enregistrée avec succès !", "success"));
+      document.getElementById("toast-error-btn").addEventListener("click", () => showToast("Une erreur est survenue lors de la communication réseau.", "error"));
+    </script>
+  </body>
+</html>
