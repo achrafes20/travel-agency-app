@@ -1,0 +1,46 @@
+{
+  "eyebrow": "YOUR ESCAPE BEGINS HERE",
+  "heroTitle": "Morocco is calling.<br>Experience it fully.",
+  "heroSubtitle": "From blue-washed alleyways to golden dunes, find the journey tailored for you with Atlas Voyage.",
+  "search": {
+    "city": "City or destination",
+    "cityPlaceholder": "Search a city in Morocco...",
+    "departure": "Departure date",
+    "return": "Return date",
+    "travelers": "Travellers",
+    "button": "Search my trip"
+  },
+  "socialProof": {
+    "rating": "4.8/5",
+    "reviewsCount": "12,000+ traveller reviews",
+    "featuredIn": "Featured in"
+  },
+  "featured": {
+    "title": "Our handpicked stays & experiences",
+    "subtitle": "A curated selection of authentic riads and unforgettable excursions.",
+    "startingFrom": "From"
+  },
+  "pillars": {
+    "title": "Why choose Atlas Voyage?",
+    "authentic": {
+      "title": "Guaranteed Authenticity",
+      "desc": "Rigorous selection of traditional riads and local travel craftspeople."
+    },
+    "flexibility": {
+      "title": "Flexibility & Peace of Mind",
+      "desc": "Pay on arrival available and crystal-clear cancellation terms."
+    },
+    "assistance": {
+      "title": "24/7 Local Assistance",
+      "desc": "Our Moroccan team supports you at every step of your adventure."
+    }
+  },
+  "newsletter": {
+    "title": "Receive our secret gems & exclusive offers",
+    "subtitle": "Subscribe to discover the best-kept secrets of the Moroccan Kingdom.",
+    "placeholder": "Your email address...",
+    "button": "Subscribe",
+    "success": "Thank you! You are now subscribed to our newsletter."
+  }
+}
+

@@ -1,0 +1,48 @@
+{
+  "breadcrumb": {
+    "home": "Accueil",
+    "catalog": "Offres"
+  },
+  "gallery": {
+    "viewAll": "Voir les photos en plein écran",
+    "close": "Fermer la galerie",
+    "imageAlt": "Photo de l'offre {title}"
+  },
+  "sections": {
+    "description": "Votre séjour, notre attention",
+    "amenities": "Prestations & Inclusions",
+    "location": "Localisation géographique",
+    "supplier": "Fournisseur certifié : {name}",
+    "reviews": "Avis des voyageurs vérifiés"
+  },
+  "amenitiesList": {
+    "availability": "Disponibilités vérifiées en temps réel",
+    "localSupport": "Assistance locale 24/7",
+    "payOnArrival": "Paiement à l'arrivée disponible"
+  },
+  "booking": {
+    "boxTitle": "Réserver votre séjour",
+    "startingFrom": "À partir de",
+    "nextAvailability": "Prochaine disponibilité : du {start} au {end}",
+    "noAvailability": "Aucune disponibilité pour les dates sélectionnées",
+    "startDate": "Date d'arrivée",
+    "endDate": "Date de départ",
+    "travelers": "Voyageurs / participants",
+    "driverAge": "Âge du conducteur",
+    "pickup": "Lieu de prise en charge",
+    "dropoff": "Lieu de restitution",
+    "sameDropoff": "Même lieu",
+    "addToCart": "Ajouter au panier",
+    "bookNow": "Réserver maintenant",
+    "addedSuccess": "Offre ajoutée avec succès à votre panier !"
+  },
+  "reviews": {
+    "average": "{score} sur 5",
+    "basedOn": "Basé sur {count} avis clients",
+    "writeReview": "Donner mon avis",
+    "verifiedStay": "Séjour vérifié",
+    "supplierReply": "Réponse de l'établissement :",
+    "empty": "Soyez le premier à donner votre avis après votre séjour !"
+  }
+}
+

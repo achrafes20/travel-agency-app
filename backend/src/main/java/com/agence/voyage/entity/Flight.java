@@ -20,6 +20,10 @@ public class Flight extends Offer {
     private LocalDateTime departureDateTime;
 
     private LocalDateTime arrivalDateTime;
+    private Boolean roundTrip = false;
+    private LocalDateTime returnDepartureDateTime;
+    private LocalDateTime returnArrivalDateTime;
+    private String cabinClass;
 
     public String getAirline() {
         return airline;
@@ -68,4 +72,12 @@ public class Flight extends Offer {
     public void setArrivalDateTime(LocalDateTime arrivalDateTime) {
         this.arrivalDateTime = arrivalDateTime;
     }
+    public Boolean getRoundTrip() { return roundTrip; }
+    public void setRoundTrip(Boolean roundTrip) { this.roundTrip = roundTrip; }
+    public LocalDateTime getReturnDepartureDateTime() { return returnDepartureDateTime; }
+    public void setReturnDepartureDateTime(LocalDateTime value) { this.returnDepartureDateTime = value; }
+    public LocalDateTime getReturnArrivalDateTime() { return returnArrivalDateTime; }
+    public void setReturnArrivalDateTime(LocalDateTime value) { this.returnArrivalDateTime = value; }
+    public String getCabinClass() { return cabinClass; }
+    public void setCabinClass(String cabinClass) { this.cabinClass = cabinClass; }
 }

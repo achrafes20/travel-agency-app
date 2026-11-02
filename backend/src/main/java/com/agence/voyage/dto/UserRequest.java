@@ -1,6 +1,8 @@
 package com.agence.voyage.dto;
 
 import com.agence.voyage.entity.Role;
+import com.agence.voyage.entity.OfferType;
+import com.agence.voyage.validation.StrongPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,9 +21,10 @@ public class UserRequest {
 
     @NotNull(message = "Le rôle est obligatoire")
     private Role role;
+    private OfferType supplierCategory;
 
     // Obligatoire à la création (vérifié dans UserService) ; vide ou absent en modification = inchangé.
-    @Size(min = 8, max = 100, message = "Le mot de passe doit contenir au moins 8 caractères")
+    @Size(max = 128, message = "Le champ mot de passe ne doit pas dépasser 128 caractères")
     private String password;
 
     public String getFullName() {
@@ -47,6 +50,8 @@ public class UserRequest {
     public void setRole(Role role) {
         this.role = role;
     }
+    public OfferType getSupplierCategory() { return supplierCategory; }
+    public void setSupplierCategory(OfferType supplierCategory) { this.supplierCategory = supplierCategory; }
 
     public String getPassword() {
         return password;

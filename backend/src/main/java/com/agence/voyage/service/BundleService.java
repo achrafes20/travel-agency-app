@@ -21,6 +21,7 @@ import java.util.List;
 
 @Service
 public class BundleService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(BundleService.class);
 
     private static final int MIN_OFFERS = 2;
 
@@ -35,6 +36,7 @@ public class BundleService {
     }
 
     public List<Bundle> findAll(Long agentId) {
+        log.debug("list resource=bundle");
         return agentId != null ? bundleRepository.findByCreatedById(agentId) : bundleRepository.findAll();
     }
 
@@ -72,7 +74,7 @@ public class BundleService {
 
     private static void assertOwner(Bundle bundle, Long userId) {
         if (bundle.getCreatedBy() == null || !bundle.getCreatedBy().getId().equals(userId)) {
-            throw new ForbiddenException("Ce bundle a été créé par un autre agent");
+            throw new ForbiddenException(com.agence.voyage.exception.ErrorCode.NOT_OWNER, "Ce bundle a été créé par un autre agent");
         }
     }
 

@@ -1,0 +1,75 @@
+{
+  "actions": {
+    "search": "Search",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "continue": "Continue",
+    "view": "View",
+    "viewAll": "View all",
+    "clearFilters": "Clear filters",
+    "retry": "Retry",
+    "download": "Download",
+    "print": "Print"
+  },
+  "language": {
+    "select": "Select language (current: {current})",
+    "fr": "Français",
+    "en": "English",
+    "ar": "العربية"
+  },
+  "currency": {
+    "select": "Display currency ({current})",
+    "disclaimer": "Indicative amount. Final charge will strictly be processed in Moroccan Dirhams (MAD).",
+    "updatedAt": "Rates updated on {date}",
+    "rate": "1 MAD = {rate} {currency}"
+  },
+  "plurals": {
+    "travelers": {
+      "one": "{count} traveller",
+      "other": "{count} travellers"
+    },
+    "nights": {
+      "one": "{count} night",
+      "other": "{count} nights"
+    },
+    "reviews": {
+      "zero": "No reviews",
+      "one": "{count} review",
+      "other": "{count} reviews"
+    },
+    "offers": {
+      "zero": "No offers",
+      "one": "{count} offer found",
+      "other": "{count} offers found"
+    }
+  },
+  "states": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "empty": "No items to display",
+    "success": "Operation successful",
+    "error": "An error has occurred"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page} of {total}"
+  },
+  "footer": {
+    "slogan": "Your trusted partner to discover the authentic beauty of Morocco.",
+    "links": {
+      "about": "About us",
+      "contact": "Contact",
+      "faq": "FAQ",
+      "cgu": "Terms of Service",
+      "privacy": "Privacy & GDPR"
+    },
+    "copyright": "© {year} Atlas Voyage SARL. All rights reserved."
+  }
+}
+

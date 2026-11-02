@@ -38,9 +38,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
-@Import({CartService.class, PromoCodeService.class, OfferService.class, BundleService.class})
+@Import({CartService.class, PromoCodeService.class, OfferService.class, BundleService.class,com.agence.voyage.service.AssetAttachmentService.class,com.agence.voyage.profile.AssetTestConfiguration.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
 class CartServiceTest {
@@ -152,6 +152,30 @@ class CartServiceTest {
         assertEquals(3500.0, cart.getSubtotal());
         assertEquals(3500.0, cart.getTotal());
         assertEquals(OfferType.HOTEL, cart.getItems().get(0).getType());
+    }
+
+    @Test
+    void addItem_preservesTravelSearchCriteria() {
+        CartItemRequest request = offerLine(hotel, 1);
+        request.setTravelCriteria("{\"hotelArrival\":\"2026-12-10\",\"hotelGuests\":\"2\"}");
+
+        CartResponse cart = cartService.addItem(client.getId(), request);
+
+        assertEquals(request.getTravelCriteria(), cart.getItems().get(0).getTravelCriteria());
+    }
+
+    @Test
+    void addItem_keepsSeparateLinesForDifferentTravelCriteria() {
+        CartItemRequest first = offerLine(hotel, 1);
+        first.setTravelCriteria("{\"hotelArrival\":\"2026-12-10\"}");
+        CartItemRequest second = offerLine(hotel, 1);
+        second.setTravelCriteria("{\"hotelArrival\":\"2026-12-20\"}");
+
+        cartService.addItem(client.getId(), first);
+        CartResponse cart = cartService.addItem(client.getId(), second);
+
+        assertEquals(2, cart.getItems().size());
+        assertEquals(2, cart.getItemCount());
     }
 
     @Test

@@ -1,0 +1,29 @@
+{
+  "title": "Traveller Account",
+  "tabs": {
+    "bookings": "My Bookings",
+    "favorites": "My Favourites",
+    "tickets": "Help & Support",
+    "profile": "My Profile",
+    "preferences": "My Preferences"
+  },
+  "bookings": {
+    "title": "My Travel History",
+    "empty": "You have not made any bookings yet.",
+    "explore": "Explore our offers",
+    "ref": "Reference",
+    "dates": "Travel dates",
+    "amount": "Amount",
+    "status": "Status",
+    "voucher": "Download Voucher",
+    "cancel": "Cancel booking"
+  },
+  "preferences": {
+    "title": "Language & Display Currency",
+    "langLabel": "Preferred interface language",
+    "curLabel": "Preferred display currency",
+    "save": "Save my preferences",
+    "saved": "Preferences successfully saved!"
+  }
+}
+

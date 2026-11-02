@@ -1,0 +1,29 @@
+{
+  "title": "Espace Voyageur",
+  "tabs": {
+    "bookings": "Mes Réservations",
+    "favorites": "Mes Favoris",
+    "tickets": "Assistance & Support",
+    "profile": "Mon Profil",
+    "preferences": "Mes Préférences"
+  },
+  "bookings": {
+    "title": "Historique de mes séjours",
+    "empty": "Vous n'avez pas encore effectué de réservation.",
+    "explore": "Découvrir nos offres",
+    "ref": "Référence",
+    "dates": "Dates de séjour",
+    "amount": "Montant",
+    "status": "Statut",
+    "voucher": "Télécharger le bon (Voucher)",
+    "cancel": "Annuler la réservation"
+  },
+  "preferences": {
+    "title": "Langue et Devise d'affichage",
+    "langLabel": "Langue préférée de l'interface",
+    "curLabel": "Devise d'affichage préférée",
+    "save": "Enregistrer mes préférences",
+    "saved": "Préférences enregistrées avec succès !"
+  }
+}
+

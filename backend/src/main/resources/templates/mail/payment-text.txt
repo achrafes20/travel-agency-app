@@ -1,0 +1,11 @@
+Atlas Voyage
+[[${title}]]
+
+Bonjour [[${name}]],
+
+[[${message}]]
+
+[[${link}]]
+
+Gérer mes préférences : [[${preferencesUrl}]]
+Les e-mails de compte et de sécurité restent obligatoires.

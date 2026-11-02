@@ -1,0 +1,22 @@
+{
+  "title": "Contact our agency",
+  "subtitle": "Have a question about a stay, riad or transfer? Our team in Marrakech is at your full disposal.",
+  "hq": {
+    "title": "Marrakech Agency & Headquarters",
+    "address": "Avenue Mohammed VI, Hivernage, Marrakech, Morocco",
+    "phone": "+212 5 24 00 00 00",
+    "email": "contact@atlasvoyage.ma",
+    "hours": "Monday to Saturday: 09:00 - 19:00 (Morocco Time)"
+  },
+  "form": {
+    "title": "Send us a message",
+    "name": "Your full name",
+    "email": "Your email address",
+    "subject": "Subject of your enquiry",
+    "message": "Your detailed message...",
+    "submit": "Send Message",
+    "sending": "Sending...",
+    "success": "Thank you! Your message has been successfully delivered to our travel consultants."
+  }
+}
+

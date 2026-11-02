@@ -1,0 +1,82 @@
+/* ==============================================================================
+   ATLAS VOYAGE — UTILITAIRES CSS (utilities.css)
+   ============================================================================== */
+
+/* Conteneur principal centré avec largeur max */
+.av-container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--av-space-4);
+  padding-right: var(--av-space-4);
+}
+@media (min-width: 768px) {
+  .av-container {
+    padding-left: var(--av-space-6);
+    padding-right: var(--av-space-6);
+  }
+}
+@media (min-width: 1280px) {
+  .av-container {
+    padding-left: var(--av-space-8);
+    padding-right: var(--av-space-8);
+  }
+}
+
+/* Texte réservé aux lecteurs d'écran (Screen Reader Only) */
+.av-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Texture Zellige d'arrière-plan */
+.av-bg-zellige {
+  background-image: var(--av-pattern-zellige);
+  background-repeat: repeat;
+}
+
+/* Grilles responsive */
+.av-grid {
+  display: grid;
+  gap: var(--av-space-6);
+}
+.av-grid-1 { grid-template-columns: 1fr; }
+@media (min-width: 640px) {
+  .av-grid-sm-2 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 768px) {
+  .av-grid-md-3 { grid-template-columns: repeat(3, 1fr); }
+  .av-grid-md-2 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .av-grid-lg-4 { grid-template-columns: repeat(4, 1fr); }
+  .av-grid-lg-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Flex Helpers */
+.av-flex { display: flex; }
+.av-flex-col { flex-direction: column; }
+.av-items-center { align-items: center; }
+.av-justify-between { justify-content: space-between; }
+.av-justify-center { justify-content: center; }
+.av-gap-2 { gap: var(--av-space-2); }
+.av-gap-3 { gap: var(--av-space-3); }
+.av-gap-4 { gap: var(--av-space-4); }
+.av-gap-6 { gap: var(--av-space-6); }
+
+/* Text helpers */
+.av-text-muted { color: var(--av-color-text-muted); }
+.av-text-brand { color: var(--av-color-brand); }
+.av-text-amber { color: var(--av-color-accent); }
+.av-text-terracotta { color: var(--av-color-terracotta); }
+.av-text-center { text-align: center; }
+.av-font-bold { font-weight: var(--av-font-weight-bold); }
+

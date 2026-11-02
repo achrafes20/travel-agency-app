@@ -1,0 +1,29 @@
+{
+  "title": "Espace Fournisseur Partenaire",
+  "tabs": {
+    "dashboard": "Tableau de bord",
+    "offers": "Mes Offres",
+    "newOffer": "Créer une offre",
+    "bookings": "Réservations reçues",
+    "profile": "Profil Entreprise"
+  },
+  "wizard": {
+    "step1": "1. Informations générales",
+    "step2": "2. Spécificités & Détails",
+    "step3": "3. Galerie photos",
+    "step4": "4. Tarifs & Disponibilités",
+    "titleLabel": "Titre de l'offre",
+    "descLabel": "Description complète",
+    "priceLabel": "Prix de base (MAD)",
+    "translations": {
+      "title": "Traductions de l'offre (Optionnel)",
+      "badgeNotTranslated": "Non traduit",
+      "badgeTranslated": "Traduit",
+      "tabFr": "Français (Source)",
+      "tabEn": "English",
+      "tabAr": "العربية",
+      "saveTranslation": "Enregistrer la traduction"
+    }
+  }
+}
+

@@ -1,0 +1,33 @@
+{
+  "booking": {
+    "CONFIRMED": "مؤكد",
+    "PENDING": "قيد الانتظار",
+    "CANCELLED": "ملغى",
+    "COMPLETED": "مكتمل",
+    "EXPIRED": "منتهي الصلاحية"
+  },
+  "payment": {
+    "PENDING": "في انتظار الأداء",
+    "PAID": "تم الأداء",
+    "REFUNDED": "مسترد",
+    "FAILED": "فشل الأداء"
+  },
+  "review": {
+    "PENDING": "قيد المراجعة",
+    "APPROVED": "معتمد ومنشور",
+    "REJECTED": "مرفوض"
+  },
+  "ticket": {
+    "OPEN": "مفتوح",
+    "IN_PROGRESS": "قيد المعالجة",
+    "RESOLVED": "تم الحل",
+    "CLOSED": "مغلق"
+  },
+  "roles": {
+    "CLIENT": "زبون مسافر",
+    "SUPPLIER": "مزود خدمة",
+    "AGENT": "وكيل أسفار",
+    "ADMIN": "مسؤول النظام"
+  }
+}
+

@@ -1,0 +1,15 @@
+{
+  "title": "Espace Agent de Voyage",
+  "tabs": {
+    "dashboard": "Tableau de bord",
+    "bundles": "Packages & Bundles",
+    "bookings": "Gestion des Réservations",
+    "clients": "Voyageurs"
+  },
+  "bundles": {
+    "title": "Packages combinés",
+    "new": "Créer un package",
+    "discount": "Remise appliquée"
+  }
+}
+

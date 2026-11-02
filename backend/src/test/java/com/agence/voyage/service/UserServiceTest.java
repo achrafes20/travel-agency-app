@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
 @Import({UserService.class, PasswordConfig.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -44,9 +44,9 @@ class UserServiceTest {
 
     @Test
     void create_rejectsDuplicateEmail() {
-        userService.create(request("Sara", "sara@example.com", Role.CLIENT, "password123"));
+        userService.create(request("Sara", "sara@example.com", Role.CLIENT, "Atlas!Voyage2026"));
 
-        UserRequest duplicate = request("Autre", "SARA@example.com", Role.AGENT, "password123");
+        UserRequest duplicate = request("Autre", "SARA@example.com", Role.AGENT, "Atlas!Voyage2026");
 
         assertThrows(BusinessException.class, () -> userService.create(duplicate));
         assertEquals(1, userRepository.count());
@@ -54,16 +54,16 @@ class UserServiceTest {
 
     @Test
     void create_hashesPasswordAndRequiresOne() {
-        User user = userService.create(request("Sara", "sara@example.com", Role.CLIENT, "password123"));
+        User user = userService.create(request("Sara", "sara@example.com", Role.CLIENT, "Atlas!Voyage2026"));
 
-        assertNotEquals("password123", user.getPassword());
+        assertNotEquals("Atlas!Voyage2026", user.getPassword());
         assertThrows(BusinessException.class,
                 () -> userService.create(request("Ali", "ali@example.com", Role.CLIENT, null)));
     }
 
     @Test
     void update_keepsPasswordWhenBlank() {
-        User user = userService.create(request("Sara", "sara@example.com", Role.CLIENT, "password123"));
+        User user = userService.create(request("Sara", "sara@example.com", Role.CLIENT, "Atlas!Voyage2026"));
         String hash = user.getPassword();
 
         User updated = userService.update(user.getId(), request("Sara B.", "sara@example.com", Role.AGENT, null));
@@ -75,7 +75,7 @@ class UserServiceTest {
 
     @Test
     void archive_restore_andDeleteRequiresArchived() {
-        User user = userService.create(request("Sara", "sara@example.com", Role.CLIENT, "password123"));
+        User user = userService.create(request("Sara", "sara@example.com", Role.CLIENT, "Atlas!Voyage2026"));
         assertFalse(user.isArchived());
         assertThrows(BusinessException.class, () -> userService.delete(user.getId()));
 
@@ -89,8 +89,8 @@ class UserServiceTest {
 
     @Test
     void update_rejectsEmailTakenByAnotherUser() {
-        userService.create(request("Sara", "sara@example.com", Role.CLIENT, "password123"));
-        User other = userService.create(request("Ali", "ali@example.com", Role.CLIENT, "password123"));
+        userService.create(request("Sara", "sara@example.com", Role.CLIENT, "Atlas!Voyage2026"));
+        User other = userService.create(request("Ali", "ali@example.com", Role.CLIENT, "Atlas!Voyage2026"));
 
         assertThrows(BusinessException.class,
                 () -> userService.update(other.getId(), request("Ali", "sara@example.com", Role.CLIENT, null)));

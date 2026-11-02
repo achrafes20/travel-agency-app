@@ -1,0 +1,29 @@
+{
+  "title": "Mon Panier de voyage",
+  "empty": "Votre panier est actuellement vide.",
+  "exploreCatalog": "Explorer notre catalogue d'offres",
+  "itemsCount": "{count} article(s) sélectionné(s)",
+  "item": {
+    "dates": "Du {start} au {end}",
+    "travelers": "{count} voyageur(s)",
+    "remove": "Retirer cet article",
+    "unitPrice": "Prix unitaire : {price}",
+    "total": "Total : {price}"
+  },
+  "promo": {
+    "title": "Code promotionnel",
+    "placeholder": "Entrez votre code...",
+    "apply": "Appliquer",
+    "applied": "Code promo appliqué ({code})",
+    "invalid": "Code promotionnel invalide ou expiré"
+  },
+  "summary": {
+    "title": "Récapitulatif de la commande",
+    "subtotal": "Sous-total :",
+    "discount": "Remise :",
+    "total": "Montant total :",
+    "legalNotice": "Tous les prix sont exprimés en Dirhams Marocains (MAD) TTC. Les conversions en d'autres devises sont strictement indicatives.",
+    "proceedToCheckout": "Valider mon panier & Réserver"
+  }
+}
+

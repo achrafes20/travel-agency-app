@@ -1,0 +1,33 @@
+{
+  "booking": {
+    "CONFIRMED": "Confirmed",
+    "PENDING": "Pending",
+    "CANCELLED": "Cancelled",
+    "COMPLETED": "Completed",
+    "EXPIRED": "Expired"
+  },
+  "payment": {
+    "PENDING": "Payment Pending",
+    "PAID": "Paid",
+    "REFUNDED": "Refunded",
+    "FAILED": "Failed"
+  },
+  "review": {
+    "PENDING": "Under Moderation",
+    "APPROVED": "Published",
+    "REJECTED": "Rejected"
+  },
+  "ticket": {
+    "OPEN": "Open",
+    "IN_PROGRESS": "In Progress",
+    "RESOLVED": "Resolved",
+    "CLOSED": "Closed"
+  },
+  "roles": {
+    "CLIENT": "Client",
+    "SUPPLIER": "Supplier",
+    "AGENT": "Agent",
+    "ADMIN": "Administrator"
+  }
+}
+

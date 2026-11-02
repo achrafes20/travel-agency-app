@@ -1,7 +1,7 @@
 const root = "./";
 const apiBase = () => window.APP_CONFIG?.apiBase ?? "http://localhost:8080";
 document.documentElement.lang = "fr";
-const data = [
+const demoData = [
   {
     id: "chefchaouen",
     city: "Chefchaouen",
@@ -111,17 +111,177 @@ const data = [
     desc: "Prenez la route à votre rythme pour découvrir les montagnes et villages du nord.",
   },
 ];
-const CUR = { MAD: 1, EUR: 0.092, USD: 0.1 };
-const curCode = () => localStorage.getItem("atlas-cur") || "MAD";
-const money = (n) => {
-  const c = curCode();
-  return (
-    new Intl.NumberFormat("fr-MA", {
-      maximumFractionDigits: c === "MAD" ? 0 : 2,
-    }).format(Math.round(n * CUR[c] * 100) / 100) +
-    " " +
-    c
+let data = [];
+let offersLoadError = "";
+
+const esc = (value) =>
+  String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+const OFFER_LABELS = AtlasCatalog.OFFER_LABELS;
+
+function fallbackOfferImage(offer) {
+  const byType = {
+    FLIGHT: "images/offers/vol-paris-casablanca.jpg",
+    CAR: "images/offers/renault-clio.jpg",
+    TAXI_TRANSFER: "images/offers/taxi-casablanca.jpg",
+    EXCURSION: "images/offers/kasbah-ouarzazate.jpg",
+  };
+  const byCity = {
+    Marrakech: "images/marrakech.jpg",
+    Chefchaouen: "images/chefchaouen.jpg",
+    "Fès": "images/fes.jpg",
+    Essaouira: "images/essaouira.jpg",
+  };
+  return byType[offer.type] || byCity[offer.cityName] || demoData[0].img;
+}
+
+function publicOfferImage(path, offer) {
+  if (!path) return fallbackOfferImage(offer);
+  try {
+    const url = new URL(path, window.location.href);
+    const isLocal = ["localhost", "127.0.0.1"].includes(url.hostname);
+    if (isLocal && url.pathname.startsWith("/images/")) {
+      return `${root}images/${url.pathname.slice("/images/".length)}`;
+    }
+  } catch {
+    // Une URL relative valide peut être utilisée telle quelle.
+  }
+  return path;
+}
+
+function normalizeOffer(offer) {
+  return {
+    id: offer.id,
+    city: offer.cityName || "Maroc",
+    title: offer.title || "Offre Atlas Voyage",
+    type: OFFER_LABELS[offer.type] || offer.type,
+    district:
+      offer.address ||
+      offer.pickupLocation ||
+      offer.departureAirport ||
+      (offer.durationHours ? `${offer.durationHours} h` : ""),
+    stars: Math.max(0, Math.min(5, Number(offer.stars) || 0)),
+    rating: "9,0",
+    price: Number(offer.basePrice) || 0,
+    img: publicOfferImage(offer.images?.find(Boolean), offer),
+    desc: offer.description || "Découvrez cette expérience sélectionnée par Atlas Voyage.",
+    availabilities: offer.availabilities || [],
+    availableNow: Boolean(offer.availableNow),
+    nextAvailabilityStart: offer.nextAvailabilityStart || "",
+    nextAvailabilityEnd: offer.nextAvailabilityEnd || "",
+    availableCapacity: Number(offer.availableCapacity) || 0,
+    allowsPayOnArrival: Boolean(offer.allowsPayOnArrival),
+    supplierName: offer.supplierName || "Atlas Voyage",
+    departureAirport: offer.departureAirport || "",
+    arrivalAirport: offer.arrivalAirport || "",
+    departureDateTime: offer.departureDateTime || "",
+    arrivalDateTime: offer.arrivalDateTime || "",
+    roundTrip: Boolean(offer.roundTrip),
+    returnDepartureDateTime: offer.returnDepartureDateTime || "",
+    returnArrivalDateTime: offer.returnArrivalDateTime || "",
+    cabinClass: offer.cabinClass || "ECONOMY",
+    brand: offer.brand || "",
+    model: offer.model || "",
+    transmission: offer.transmission || "",
+    seats: Number(offer.seats) || 0,
+    pickupLocation: offer.pickupLocation || "",
+    dropoffLocation: offer.dropoffLocation || "",
+    dropoffLocations: offer.dropoffLocations || (offer.dropoffLocation ? [offer.dropoffLocation] : []),
+    allowsDifferentDropoff: Boolean(offer.allowsDifferentDropoff),
+    minimumDriverAge: Number(offer.minimumDriverAge) || 21,
+    maximumDriverAge: Number(offer.maximumDriverAge) || 75,
+    vehicleType: offer.vehicleType || "",
+    durationHours: Number(offer.durationHours) || 0,
+    includesGuide: Boolean(offer.includesGuide),
+    includesTransport: Boolean(offer.includesTransport),
+    itinerary: offer.itinerary || "",
+  };
+}
+
+function availableFor(offer, start, end) {
+  if (!start) return offer.availabilities.some(p => new Date(p.endAt) > new Date());
+  if (offer.type === "Vol") {
+    const coversDay = day => offer.availabilities.some(p => p.startAt.slice(0,10) <= day && p.endAt.slice(0,10) >= day && p.capacity > 0);
+    return coversDay(start) && (!end || end === start || coversDay(end));
+  }
+  const from = new Date(start.includes("T") ? start : `${start}T00:00:00`);
+  const effectiveEnd = end || start;
+  const until = new Date(effectiveEnd.includes("T") ? effectiveEnd : `${effectiveEnd}T23:59:59`);
+  return offer.availabilities.some(p => from >= new Date(p.startAt) && until <= new Date(p.endAt) && p.capacity > 0);
+}
+
+async function loadPublicOffers() {
+  try {
+    const lang = typeof I18n !== "undefined" ? I18n.lang : "fr";
+    const response = await fetch(`${apiBase()}/api/offers/search?page=0&size=100&sort=recent&lang=${encodeURIComponent(lang)}`, {
+      headers: { Accept: "application/json", "Accept-Language": lang },
+    });
+    if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
+    const payload = await response.json();
+    data = (payload.content || []).map(normalizeOffer);
+  } catch (error) {
+    data = [];
+    offersLoadError = "Impossible de charger les offres. Vérifiez que le backend est démarré sur le port 8080.";
+    console.error("Chargement du catalogue impossible", error);
+  }
+}
+
+async function searchPlaces(query) {
+  if (typeof window !== "undefined" && window.GeocodingClient) {
+    try {
+      return await window.GeocodingClient.search(query);
+    } catch (e) {
+      console.warn("GeocodingClient error, fallback:", e);
+    }
+  }
+  const response = await fetch(
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=7&language=fr&format=json`,
   );
+  if (!response.ok) throw new Error("Le service de recherche des villes est indisponible.");
+  return (await response.json()).results || [];
+}
+
+function bindPlaceApiInputs(scope) {
+  const names = ["hotelDestination", "from", "to", "pickup", "dropoff", "taxiFrom", "taxiTo", "excursionDestination"];
+  scope.querySelectorAll(names.map((name) => `[name="${name}"]`).join(",")).forEach((input, index) => {
+    const listId = `place-api-${input.name}-${index}`;
+    let list = document.getElementById(listId);
+    if (!list) {
+      list = document.createElement("datalist");
+      list.id = listId;
+      input.after(list);
+    }
+    input.setAttribute("list", listId);
+    input.setAttribute("autocomplete", "off");
+    let timer;
+    input.addEventListener("input", () => {
+      clearTimeout(timer);
+      const query = input.value.trim();
+      if (query.length < 2) return;
+      timer = setTimeout(async () => {
+        try {
+          const places = await searchPlaces(query);
+          list.innerHTML = places.map((place) =>
+            `<option value="${esc(place.name)}">${esc([place.admin1, place.country].filter(Boolean).join(", "))}</option>`,
+          ).join("");
+        } catch {
+          list.innerHTML = "";
+        }
+      }, 300);
+    });
+  });
+}
+const curCode = () => (typeof AtlasCurrency !== "undefined" ? AtlasCurrency.currency : (localStorage.getItem("atlas-cur") || "MAD"));
+const money = (n) => {
+  if (typeof AtlasCurrency !== "undefined") {
+    return AtlasCurrency.formatPrice(n, curCode());
+  }
+  return (Number(n) || 0) + " MAD";
 };
 const icon = (name) => {
   const paths = {
@@ -152,61 +312,98 @@ const icon = (name) => {
   };
   return `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${paths[name] || paths.compass}</svg>`;
 };
-const nav = [
-  ["Vols", "plane"],
-  ["Hôtels & Riads", "bed"],
-  ["Location de voiture", "car"],
-  ["Taxi/Transferts", "taxi"],
-  ["Excursions", "compass"],
-];
-const navUrl = (text) =>
-  text === "Hôtels & Riads"
-    ? `${root}accueil.html`
-    : `${root}catalogue.html?type=${encodeURIComponent(text)}`;
+const nav = AtlasCatalog.NAV;
+const navUrl = (text) => `${root}catalogue.html?type=${encodeURIComponent(text)}`;
 
 const ROLE_LABELS = { CLIENT: "Mon espace", SUPPLIER: "Espace fournisseur", AGENT: "Espace agent", ADMIN: "Administration" };
 const loggedUser = () => (typeof Auth !== "undefined" && Auth.isLoggedIn() ? Auth.getUser() : null);
+const cartUrl = () =>
+  loggedUser()?.role === "CLIENT" ? `${root}client/index.html?page=panier` : `${root}panier.html`;
 
 function accountLinks() {
   const user = loggedUser();
-  if (!user) return `<a class="client-link" href="${root}connexion.html">Se connecter</a>`;
-  return `<a class="client-link" href="${Auth.homeUrl(user.role)}">${ROLE_LABELS[user.role]}</a><a href="#" id="logout-link">Déconnexion</a>`;
+  const loginText = typeof I18n !== "undefined" ? I18n.t("nav.user.login") : "Se connecter";
+  const logoutText = typeof I18n !== "undefined" ? I18n.t("nav.user.logout") : "Déconnexion";
+  const mySpaceText = typeof I18n !== "undefined" ? I18n.t("nav.user.mySpace") : "Mon espace";
+  if (!user) return `<a class="client-link" href="${root}connexion.html">${loginText}</a>`;
+  const roleLabel = (ROLE_LABELS[user.role] && typeof I18n !== "undefined" && user.role === "CLIENT") ? mySpaceText : (ROLE_LABELS[user.role] || mySpaceText);
+  return `<a class="client-link" href="${Auth.homeUrl(user.role)}">${roleLabel}</a><a href="#" id="logout-link">${logoutText}</a>`;
 }
 function footerAccountLink() {
   const user = loggedUser();
-  return user ? `<a href="${Auth.homeUrl(user.role)}">${ROLE_LABELS[user.role]}</a>` : `<a href="${root}connexion.html">Se connecter</a>`;
+  const loginText = typeof I18n !== "undefined" ? I18n.t("nav.user.login") : "Se connecter";
+  const mySpaceText = typeof I18n !== "undefined" ? I18n.t("nav.user.mySpace") : "Mon espace";
+  return user ? `<a href="${Auth.homeUrl(user.role)}">${(ROLE_LABELS[user.role] && typeof I18n !== "undefined" && user.role === "CLIENT") ? mySpaceText : (ROLE_LABELS[user.role] || mySpaceText)}</a>` : `<a href="${root}connexion.html">${loginText}</a>`;
 }
 
 function header(active = "") {
-  return `<header><div class="topbar"><div class="container"><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><div class="top-actions"><div class="locale" id="locale"><button type="button" class="locale-btn" aria-haspopup="true" aria-expanded="false"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span id="locale-label">Devise · ${curCode()}</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button><div class="locale-menu" role="menu"><div class="locale-title">Devise d’affichage</div><div class="cur-row">${Object.keys(
-    CUR,
-  )
-    .map(
-      (c) =>
-        `<button type="button" data-cur="${c}" class="${curCode() === c ? "on" : ""}">${c}</button>`,
-    )
-    .join(
-      "",
-    )}</div></div></div><a class="cart-link" href="${root}panier.html">${icon("cart")} Panier <span class="cart-count" id="cart-count">0</span></a>${accountLinks()}</div></div></div><nav class="main-nav"><div class="container">${nav.map(([text, i]) => `<a class="${active === text ? "active" : ""}" href="${navUrl(text)}">${icon(i)}${text}</a>`).join("")}</div></nav></header>`;
+  const i18nControls = `<div class="av-i18n-controls">${typeof AtlasCurrency !== "undefined" ? AtlasCurrency.renderCurrencySwitcher() : ""}</div>`;
+  const cartLabel = typeof I18n !== "undefined" ? I18n.t("nav.user.cart") : "Panier";
+  return `<header><div class="topbar"><div class="container"><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><div class="top-actions">${i18nControls}<a class="cart-link" href="${cartUrl()}">${icon("cart")} ${cartLabel} <span class="cart-count" id="cart-count">0</span></a>${accountLinks()}</div></div></div><nav class="main-nav"><div class="container">${nav.map(([text, i]) => `<a class="${active === text ? "active" : ""}" href="${navUrl(text)}">${icon(i)}${text}</a>`).join("")}</div></nav></header>`;
 }
 function footer() {
-  return `<footer><div class="container"><div class="footer-row"><div><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><p>Le Maroc, à votre manière. Des voyages soigneusement imaginés et un accueil qui vient du cœur.</p></div><div class="foot-links"><a href="${root}catalogue.html">Découvrir les offres</a><a href="${root}panier.html">Mon panier</a>${footerAccountLink()}</div></div><div class="copyright">© 2026 Atlas Voyage · Créé avec hospitalité au Maroc</div></div></footer>`;
+  const t = (k, def) => (typeof I18n !== "undefined" ? I18n.t(k) : def);
+  return `<footer><div class="container"><div class="footer-row"><div><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><p>${t("footer.slogan", "Le Maroc, à votre manière. Des voyages soigneusement imaginés et un accueil qui vient du cœur.")}</p></div><div class="foot-links"><a href="${root}catalogue.html">${t("catalog.title", "Découvrir les offres")}</a><a href="${root}a-propos.html">${t("footer.links.about", "À propos")}</a><a href="${root}faq.html">${t("footer.links.faq", "Foire aux questions")}</a><a href="${root}contact.html">${t("footer.links.contact", "Contact")}</a><a href="${root}panier.html">${t("nav.user.cart", "Mon panier")}</a><a href="${root}cgu.html">${t("footer.links.cgu", "Conditions Générales")}</a><a href="${root}confidentialite.html">${t("footer.links.privacy", "Confidentialité")}</a>${footerAccountLink()}</div></div><div class="copyright">© 2026 Atlas Voyage · Conforme WCAG 2.1 AA</div></div></footer>`;
 }
 function searchBar() {
   const p = new URLSearchParams(location.search);
   let dates = JSON.parse(sessionStorage.getItem("atlas-search") || "{}");
   const dateValue = (v) => v || "";
-  return `<form class="search-bar" action="${root}catalogue.html" method="GET"><input type="hidden" name="type" value="Hôtels & Riads"><input type="hidden" name="search" value="1"><div class="search-field ville">${icon("pin")}<div><label for="ville">Ville</label><select id="ville" name="ville"><option value="">Toutes les villes</option>${["Chefchaouen", "Marrakech", "Fès", "Essaouira", "Tanger"].map((c) => `<option ${p.get("ville") === c || dates.ville === c ? "selected" : ""}>${c}</option>`).join("")}</select></div></div><div class="search-field">${icon("calendar")}<div><label for="depart">Date de départ</label><input id="depart" name="depart" type="date" value="${dateValue(p.get("depart") || dates.depart)}"></div></div><div class="search-field">${icon("calendar")}<div><label for="retour">Date de retour</label><input id="retour" name="retour" type="date" value="${dateValue(p.get("retour") || dates.retour)}"></div></div><div class="search-field">${icon("users")}<div><label for="voyageurs">Voyageurs</label><select id="voyageurs" name="voyageurs">${[1, 2, 3, 4, 5, 6].map((n) => `<option value="${n}" ${Number(p.get("voyageurs") || dates.voyageurs || 2) === n ? "selected" : ""}>${n} voyageur${n > 1 ? "s" : ""}</option>`).join("")}</select></div></div><button class="btn btn-yellow" type="submit">${icon("search")} Rechercher</button></form>`;
+  const city = p.get("ville") || dates.ville || "";
+  const t = (k, def) => (typeof I18n !== "undefined" ? I18n.t(k) : def);
+  return `<form class="search-bar" action="${root}catalogue.html" method="GET"><input type="hidden" name="search" value="1"><div class="search-field ville city-api-field">${icon("pin")}<div><label for="ville">${t("home.search.city", "Ville")}</label><input id="ville" name="ville" value="${esc(city)}" placeholder="${t("home.search.cityPlaceholder", "Rechercher une ville...")}" autocomplete="off"><input id="ville-lat" name="villeLat" type="hidden" value="${esc(dates.villeLat || "")}"><input id="ville-lon" name="villeLon" type="hidden" value="${esc(dates.villeLon || "")}"><div id="city-api-suggestions" class="city-api-suggestions" hidden></div></div></div><div class="search-field">${icon("calendar")}<div><label for="depart">${t("home.search.departure", "Date de départ")}</label><input id="depart" name="depart" type="date" value="${esc(dateValue(p.get("depart") || dates.depart))}"></div></div><div class="search-field">${icon("calendar")}<div><label for="retour">${t("home.search.return", "Date de retour")}</label><input id="retour" name="retour" type="date" value="${esc(dateValue(p.get("retour") || dates.retour))}"></div></div><div class="search-field">${icon("users")}<div><label for="voyageurs">${t("home.search.travelers", "Voyageurs")}</label><select id="voyageurs" name="voyageurs">${[1, 2, 3, 4, 5, 6].map((n) => `<option value="${n}" ${Number(p.get("voyageurs") || dates.voyageurs || 2) === n ? "selected" : ""}>${typeof I18n !== "undefined" ? I18n.plural("common.plurals.travelers", n) : `${n} voyageur${n > 1 ? "s" : ""}`}</option>`).join("")}</select></div></div><button class="btn btn-yellow" type="submit">${icon("search")} ${t("home.search.button", "Rechercher")}</button></form>`;
 }
+function favHeart(offerId) {
+  if (typeof Favorites === "undefined" || !Favorites.canFavorite()) return "";
+  const isFav = Favorites.isFavorite(offerId);
+  return `<button type="button" class="fav-heart-btn ${isFav ? "active" : ""}" data-fav-offer="${offerId}" aria-label="${isFav ? "Retirer des favoris" : "Ajouter aux favoris"}" onclick="event.preventDefault();event.stopPropagation();Favorites.toggle(${offerId})"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="${isFav ? "#e11d48" : "none"}" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></button>`;
+}
+
+function detailFavButton(offerId) {
+  if (typeof Favorites === "undefined" || !Favorites.canFavorite()) return "";
+  const isFav = Favorites.isFavorite(offerId);
+  return `<button type="button" id="detail-fav-btn" class="detail-fav-btn ${isFav ? "active" : ""}" data-fav-offer="${offerId}" onclick="Favorites.toggle(${offerId})"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="${isFav ? "#e11d48" : "none"}" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg><span>${isFav ? "Dans vos favoris" : "Ajouter aux favoris"}</span></button>`;
+}
+
 function card(d) {
-  return `<a class="dest-card" href="${root}offre.html?id=${d.id}"><img src="${d.img}" alt="${d.city}" loading="lazy"><div class="dest-card-body"><h3>${d.city}</h3><p>${d.district} · Une invitation au voyage</p><div class="price">À partir de <strong>${money(d.price)}</strong></div></div></a>`;
+  const ratingHtml = d.averageRating && d.averageRating > 0
+    ? `<div class="av-stars-card" style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--av-color-accent);font-weight:600;margin-top:4px;">
+         <svg width="14" height="14" viewBox="0 0 24 24" fill="#B45309" stroke="#B45309" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+         <span>${d.averageRating.toFixed(1)}</span>
+         <span style="color:var(--av-color-text-subtle);font-weight:400;">(${d.reviewCount || 0})</span>
+       </div>`
+    : '';
+
+  return `<a class="dest-card" href="${root}offre.html?id=${encodeURIComponent(d.id)}">${favHeart(d.id)}<img src="${esc(d.img)}" alt="${esc(d.title)}" loading="lazy"><div class="dest-card-body"><h3>${esc(d.title)}</h3><p>${esc(d.city)}${d.district ? ` · ${esc(d.district)}` : ""}</p>${ratingHtml}<div class="price">À partir de <strong>${money(d.price)}</strong></div></div></a>`;
 }
+
+function homeOffersByCategory() {
+  const categories = [
+    ["Hôtels & Riads", "bed", "Séjours soigneusement sélectionnés"],
+    ["Vols", "plane", "Rejoignez votre prochaine destination"],
+    ["Location de voiture", "car", "Voyagez librement à votre rythme"],
+    ["Taxi/Transferts", "taxi", "Des trajets simples et confortables"],
+  ];
+  return `<div class="container"><div class="section-head home-offers-title"><div><h2>Offres disponibles</h2><p>Explorez nos offres par service.</p></div></div><div class="offer-category-list">${categories.map(([type, iconName, subtitle]) => {
+    const offers = data.filter((offer) => offer.type === type).slice(0, 4);
+    return `<section class="offer-category"><div class="offer-category-head"><div><span class="offer-category-icon">${icon(iconName)}</span><span><h3>${type}</h3><p>${subtitle}</p></span></div><a class="text-link" href="${navUrl(type)}">Voir toutes les offres →</a></div><div class="dest-grid">${offers.length ? offers.map(card).join("") : `<div class="empty-state"><h3>Aucune offre disponible</h3><p>De nouvelles offres seront bientôt publiées dans cette catégorie.</p></div>`}</div></section>`;
+  }).join("")}</div></div>`;
+}
+
 function home() {
   document.getElementById("app").innerHTML =
-    header("Hôtels & Riads") +
-    `<main><section class="hero"><div class="container"><div class="eyebrow">L’ÉVASION COMMENCE ICI</div><h1>Le Maroc vous attend.<br>Vivez-le pleinement.</h1><p>Des ruelles bleues aux dunes dorées, trouvez le voyage qui vous ressemble avec Atlas Voyage.</p></div></section><div class="container search-wrap">${searchBar()}</div><div class="container"><div class="social-proof"><span class="sp-stars" style="color:#feba02">★★★★★</span> <strong>4.6/5</strong> <span style="color:#666">· 12 000 avis voyageurs</span><span class="sp-sep"></span><span class="sp-seen">Vu dans</span><span class="sp-logo">Le Matin</span><span class="sp-logo">TelQuel</span><span class="sp-logo">Hespress</span><span class="sp-logo">Qualité Tourisme</span></div><div class="quick-row">${nav.map(([t, i]) => `<a class="quick" href="${navUrl(t)}"><span class="quick-ico">${icon(i)}</span><span>${t}</span></a>`).join("")}</div></div><section class="section"><div class="container"><div class="section-head"><div><h2>Villes populaires</h2><p>Le meilleur du Maroc, à portée de clic.</p></div><a class="text-link" href="${root}catalogue.html">Explorer toutes les offres →</a></div><div class="dest-grid">${data.slice(0, 4).map(card).join("")}</div></div></section><div class="zellige-divider" aria-hidden="true"></div><section class="trust-band"><div class="container trust-grid"><div class="trust">${icon("wallet")}<div><strong>Paiement à l’arrivée disponible</strong><span>Réservez l’esprit tranquille</span></div></div><div class="trust">${icon("shield")}<div><strong>Annulation gratuite</strong><span>Sur une sélection d’offres</span></div></div><div class="trust">${icon("headset")}<div><strong>Support client local</strong><span>Une équipe qui connaît le Maroc</span></div></div></div></section><section class="feature-banner"><div class="container"><div><h2>Votre prochain souvenir commence ici.</h2><p>Riads, excursions et découvertes : à vous de choisir.</p></div><a class="btn btn-ghost" href="${root}catalogue.html">Découvrir les offres ${icon("arrow")}</a></div></section></main>` +
+    header("") +
+    `<main id="main-content"><section class="hero"><div class="container"><div class="eyebrow">L’ÉVASION COMMENCE ICI</div><h1>Le Maroc vous attend.<br>Vivez-le pleinement.</h1><p>Des ruelles bleues aux dunes dorées, trouvez le voyage qui vous ressemble avec Atlas Voyage.</p></div></section><div class="container search-wrap">${searchBar()}</div><div class="container"><div class="social-proof"><span class="sp-stars" style="color:#feba02">★★★★★</span> <strong>4.6/5</strong> <span style="color:#666">· 12 000 avis voyageurs</span><span class="sp-sep"></span><span class="sp-seen">Vu dans</span><span class="sp-logo">Le Matin</span><span class="sp-logo">TelQuel</span><span class="sp-logo">Hespress</span><span class="sp-logo">Qualité Tourisme</span></div><div class="quick-row">${nav.map(([t, i]) => `<a class="quick" href="${navUrl(t)}"><span class="quick-ico">${icon(i)}</span><span>${t}</span></a>`).join("")}</div></div><section class="section"><div class="container"><div class="section-head"><div><h2>Offres disponibles</h2><p>Des offres réelles, actives et disponibles.</p></div><a class="text-link" href="${root}catalogue.html">Explorer toutes les offres →</a></div><div class="dest-grid">${data.length ? data.slice(0, 4).map(card).join("") : `<div class="empty-state"><h3>Aucune offre disponible</h3><p>${esc(offersLoadError || "De nouvelles offres seront bientôt publiées.")}</p></div>`}</div></div></section><div class="zellige-divider" aria-hidden="true"></div><section class="trust-band"><div class="container trust-grid"><div class="trust">${icon("wallet")}<div><strong>Paiement à l’arrivée disponible</strong><span>Réservez l’esprit tranquille</span></div></div><div class="trust">${icon("shield")}<div><strong>Annulation gratuite</strong><span>Sur une sélection d’offres</span></div></div><div class="trust">${icon("headset")}<div><strong>Support client local</strong><span>Une équipe qui connaît le Maroc</span></div></div></div></section><section class="feature-banner"><div class="container"><div><h2>Votre prochain souvenir commence ici.</h2><p>Riads, excursions et découvertes : à vous de choisir.</p></div><a class="btn btn-ghost" href="${root}catalogue.html">Découvrir les offres ${icon("arrow")}</a></div></section></main>` +
     footer();
-    bindSearch();
+    const homeMain = document.querySelector("main");
+    const searchWrap = homeMain.querySelector(".search-wrap");
+    const dynamicContent = document.createElement("div");
+    dynamicContent.id = "home-dynamic-content";
+    while (searchWrap.nextSibling) dynamicContent.appendChild(searchWrap.nextSibling);
+    searchWrap.remove();
+    homeMain.appendChild(dynamicContent);
+    const offersSection = dynamicContent.querySelector(".section");
+    if (offersSection) offersSection.innerHTML = homeOffersByCategory();
 
     // Carrousel pour la section Hero avec animation fluide (Crossfade)
   const hero = document.querySelector(".hero");
@@ -258,12 +455,79 @@ function home() {
     }, 4500);
   }
 }
+
+function renderHomeHotelResults(params) {
+  const target = document.getElementById("home-dynamic-content");
+  if (!target) return;
+  const destination = (params.get("ville") || "").trim();
+  const normalizedDestination = destination.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const hotels = data.filter((offer) => {
+    if (offer.type !== "Hôtels & Riads") return false;
+    if (!normalizedDestination) return true;
+    const searchable = `${offer.city} ${offer.title} ${offer.district}`
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    return searchable.includes(normalizedDestination);
+  });
+  const travelers = Number(params.get("voyageurs") || 2);
+  target.innerHTML = `<section class="section home-hotel-results"><div class="container"><div class="section-head"><div><span class="eyebrow">HÔTELS & RIADS</span><h2>${hotels.length} hébergement${hotels.length !== 1 ? "s" : ""} trouvé${hotels.length !== 1 ? "s" : ""}${destination ? ` à ${esc(destination)}` : ""}</h2><p>${esc(params.get("depart") || "Dates flexibles")} · ${travelers} voyageur${travelers > 1 ? "s" : ""}</p></div><button id="reset-hotel-search" class="btn btn-light" type="button">Réinitialiser</button></div><div class="home-result-list">${hotels.length ? hotels.map(resultCard).join("") : `<div class="empty-state"><h3>Aucun hôtel ou riad trouvé</h3><p>Essayez une autre ville ou modifiez vos critères de recherche.</p></div>`}</div></div></section>`;
+  document.getElementById("reset-hotel-search").onclick = () => {
+    location.href = `${root}accueil.html`;
+  };
+  target.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function bindSearch() {
   const f = document.querySelector(".search-bar");
   if (!f) return;
+  const cityInput = f.querySelector("#ville");
+  const latitude = f.querySelector("#ville-lat");
+  const longitude = f.querySelector("#ville-lon");
+  const suggestions = f.querySelector("#city-api-suggestions");
+  let cityTimer;
+  let cityResults = [];
+
+  cityInput.addEventListener("input", () => {
+    clearTimeout(cityTimer);
+    latitude.value = "";
+    longitude.value = "";
+    const query = cityInput.value.trim();
+    if (query.length < 2) {
+      suggestions.hidden = true;
+      return;
+    }
+    cityTimer = setTimeout(async () => {
+      suggestions.hidden = false;
+      suggestions.innerHTML = '<div class="city-api-message">Recherche…</div>';
+      try {
+        cityResults = await searchPlaces(query);
+        suggestions.innerHTML = cityResults.length
+          ? cityResults.map((city, index) => `<button type="button" data-city-index="${index}"><strong>${esc(city.name)}</strong><span>${esc([city.admin1, city.country].filter(Boolean).join(", "))}</span></button>`).join("")
+          : '<div class="city-api-message">Aucune ville trouvée.</div>';
+      } catch (error) {
+        suggestions.innerHTML = `<div class="city-api-message error">${esc(error.message)}</div>`;
+      }
+    }, 350);
+  });
+
+  suggestions.addEventListener("click", (event) => {
+    const choice = event.target.closest("[data-city-index]");
+    if (!choice) return;
+    const city = cityResults[Number(choice.dataset.cityIndex)];
+    if (!city) return;
+    cityInput.value = city.name;
+    latitude.value = city.latitude;
+    longitude.value = city.longitude;
+    suggestions.hidden = true;
+  });
+
   f.addEventListener("submit", (e) => {
     let depart = f.querySelector("#depart").value,
       retour = f.querySelector("#retour").value;
+    if (cityInput.value.trim() && (!latitude.value || !longitude.value)) {
+      e.preventDefault();
+      toast("Sélectionnez une ville dans les suggestions de l’API.");
+      return;
+    }
     if (depart && retour && retour < depart) {
       e.preventDefault();
       toast("La date de retour doit suivre la date de départ.");
@@ -273,28 +537,235 @@ function bindSearch() {
       "atlas-search",
       JSON.stringify(Object.fromEntries(new FormData(f))),
     );
+    if (page === "home") {
+      e.preventDefault();
+      const params = new URLSearchParams(new FormData(f));
+      history.replaceState({}, "", `${root}accueil.html?${params.toString()}`);
+      renderHomeHotelResults(params);
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".city-api-field")) suggestions.hidden = true;
   });
 }
 function resultCard(d) {
-  return `<article class="result-card"><img src="${d.img}" alt="${d.city}" loading="lazy"><div class="result-main"><h3>${d.title}</h3><p>${icon("pin")} ${d.city} · ${d.district} &nbsp;·&nbsp; ${"★".repeat(d.stars)}</p><span class="badge">✓ Paiement à l’arrivée</span><p class="description">${d.desc}</p></div><div class="result-side"><div class="rating">Excellent <b>${d.rating}</b></div><div><small>À partir de / séjour</small><div class="result-price">${money(d.price)}</div></div><a class="btn btn-blue" href="${root}offre.html?id=${d.id}">Voir détails</a></div></article>`;
+  const criteria = new URLSearchParams(location.search);
+  criteria.delete("id");
+  return `<article class="result-card">${favHeart(d.id)}<img src="${esc(d.img)}" alt="${esc(d.title)}" loading="lazy"><div class="result-main"><h3>${esc(d.title)}</h3><p>${icon("pin")} ${esc(d.city)}${d.district ? ` · ${esc(d.district)}` : ""} ${d.stars ? `&nbsp;·&nbsp; ${"★".repeat(d.stars)}` : ""}</p>${d.allowsPayOnArrival ? '<span class="badge">✓ Paiement à l’arrivée</span>' : ""}<p class="description">${esc(d.desc)}</p></div><div class="result-side"><div><small>À partir de</small><div class="result-price">${money(d.price)}</div></div><a class="btn btn-blue" href="${root}offre.html?id=${encodeURIComponent(d.id)}&${criteria.toString()}">Voir détails</a></div></article>`;
 }
+
+function flightSearchPanel(params) {
+  const today = new Date().toISOString().slice(0, 10);
+  return `<section class="flight-search-hero"><div class="flight-search-copy"><span class="eyebrow">VOLS ATLAS VOYAGE</span><h1>Où voulez-vous partir ?</h1><p>Comparez les vols disponibles et trouvez le trajet qui vous convient.</p><form id="flight-search-form" action="${root}catalogue.html" method="GET"><input type="hidden" name="type" value="Vols"><input type="hidden" name="flightSearch" value="1"><div class="flight-trip-type"><label><input type="radio" name="trip" value="round" ${params.get("trip") !== "oneway" ? "checked" : ""}> Aller-retour</label><label><input type="radio" name="trip" value="oneway" ${params.get("trip") === "oneway" ? "checked" : ""}> Aller simple</label></div><div class="flight-search-row"><label class="flight-place"><span>Départ</span><input id="flight-from" name="from" value="${esc(params.get("from") || "")}" placeholder="Ville ou aéroport (ex. CMN)" required autocomplete="off"></label><button type="button" id="swap-flight-places" class="flight-swap" aria-label="Inverser le départ et la destination">⇄</button><label class="flight-place"><span>Destination</span><input id="flight-to" name="to" value="${esc(params.get("to") || "")}" placeholder="Où allez-vous ?" required autocomplete="off"></label><label><span>Aller</span><input id="flight-depart" name="flightDepart" type="date" min="${today}" value="${esc(params.get("flightDepart") || "")}" required></label><label id="flight-return-wrap"><span>Retour</span><input id="flight-return" name="flightReturn" type="date" min="${today}" value="${esc(params.get("flightReturn") || "")}"></label><label><span>Voyageurs & classe</span><select name="passengers"><option value="1" ${params.get("passengers") === "1" ? "selected" : ""}>1 adulte, Économique</option><option value="2" ${!params.get("passengers") || params.get("passengers") === "2" ? "selected" : ""}>2 adultes, Économique</option><option value="3" ${params.get("passengers") === "3" ? "selected" : ""}>3 adultes, Économique</option><option value="business" ${params.get("passengers") === "business" ? "selected" : ""}>1 adulte, Affaires</option></select></label><button class="btn btn-yellow" type="submit">${icon("search")} Rechercher</button></div></form></div><div class="flight-visual" aria-hidden="true"><div class="flight-photo flight-photo-main"></div><div class="flight-photo flight-photo-top"></div><div class="flight-photo flight-photo-bottom"></div></div></section>`;
+}
+
+function bindFlightSearch() {
+  const form = document.getElementById("flight-search-form");
+  if (!form) return;
+  bindPlaceApiInputs(form);
+  const from = document.getElementById("flight-from");
+  const to = document.getElementById("flight-to");
+  const depart = document.getElementById("flight-depart");
+  const back = document.getElementById("flight-return");
+  const backWrap = document.getElementById("flight-return-wrap");
+  document.getElementById("swap-flight-places").onclick = () => {
+    [from.value, to.value] = [to.value, from.value];
+  };
+  const updateTrip = () => {
+    const oneWay = form.elements.trip.value === "oneway";
+    backWrap.hidden = oneWay;
+    back.required = !oneWay;
+    if (oneWay) back.value = "";
+  };
+  form.querySelectorAll('[name="trip"]').forEach((radio) => radio.addEventListener("change", updateTrip));
+  depart.addEventListener("change", () => {
+    back.min = depart.value || new Date().toISOString().slice(0, 10);
+    if (back.value && back.value < depart.value) back.value = "";
+  });
+  form.addEventListener("submit", (event) => {
+    if (back.required && (!back.value || back.value < depart.value)) {
+      event.preventDefault();
+      toast("La date de retour doit suivre la date de départ.");
+    }
+  });
+  updateTrip();
+}
+
+function carSearchPanel(params) {
+  const today = new Date().toISOString().slice(0, 10);
+  return `<section class="car-search-hero"><div class="car-search-inner"><span class="eyebrow">LOCATION DE VOITURE</span><h1>Une voiture pour chaque voyage</h1><p>Trouvez le véhicule adapté à votre trajet, au meilleur prix parmi nos partenaires.</p><form id="car-search-form" action="${root}catalogue.html" method="GET"><input type="hidden" name="type" value="Location de voiture"><input type="hidden" name="carSearch" value="1"><div class="car-search-row"><label class="car-place"><span>Lieu de prise en charge</span><input id="car-pickup" name="pickup" value="${esc(params.get("pickup") || "")}" placeholder="Aéroport, ville ou gare" required autocomplete="off"></label><label><span>Date de prise en charge</span><input id="car-pickup-date" name="pickupDate" type="date" min="${today}" value="${esc(params.get("pickupDate") || "")}" required></label><label><span>Heure</span><input name="pickupTime" type="time" value="${esc(params.get("pickupTime") || "10:00")}" required></label><label><span>Date de restitution</span><input id="car-return-date" name="returnDate" type="date" min="${today}" value="${esc(params.get("returnDate") || "")}" required></label><label><span>Heure</span><input name="returnTime" type="time" value="${esc(params.get("returnTime") || "10:00")}" required></label><button class="btn btn-yellow" type="submit">${icon("search")} Rechercher</button></div><div class="car-search-options"><label><input id="different-dropoff" name="differentDropoff" type="checkbox" value="1" ${params.has("differentDropoff") ? "checked" : ""}> Restituer la voiture à un autre endroit</label><label><input name="driverAge" type="checkbox" value="30-65" ${params.get("driverAge") !== "" ? "checked" : ""}> Le conducteur a entre 30 et 65 ans</label></div><label id="dropoff-wrap" class="car-dropoff" ${params.has("differentDropoff") ? "" : "hidden"}><span>Lieu de restitution</span><input name="dropoff" value="${esc(params.get("dropoff") || "")}" placeholder="Ville, aéroport ou gare"></label></form></div></section>`;
+}
+
+function bindCarSearch() {
+  const form = document.getElementById("car-search-form");
+  if (!form) return;
+  bindPlaceApiInputs(form);
+  const pickupDate = document.getElementById("car-pickup-date");
+  const returnDate = document.getElementById("car-return-date");
+  const different = document.getElementById("different-dropoff");
+  const dropoffWrap = document.getElementById("dropoff-wrap");
+  different.addEventListener("change", () => {
+    dropoffWrap.hidden = !different.checked;
+    dropoffWrap.querySelector("input").required = different.checked;
+  });
+  pickupDate.addEventListener("change", () => {
+    returnDate.min = pickupDate.value || new Date().toISOString().slice(0, 10);
+    if (returnDate.value && returnDate.value < pickupDate.value) returnDate.value = "";
+  });
+  form.addEventListener("submit", (event) => {
+    if (!returnDate.value || returnDate.value < pickupDate.value) {
+      event.preventDefault();
+      toast("La restitution doit avoir lieu après la prise en charge.");
+    }
+  });
+  dropoffWrap.querySelector("input").required = different.checked;
+}
+
+function taxiSearchPanel(params) {
+  const now = new Date();
+  const localMin = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  return `<section class="taxi-search-hero"><div class="taxi-search-inner"><span class="eyebrow">TAXI & TRANSFERT AÉROPORT</span><h1>Réservez votre transfert aéroport</h1><p>Voyagez simplement entre l’aéroport, la gare et votre hébergement.</p><form id="taxi-search-form" action="${root}catalogue.html" method="GET"><input type="hidden" name="type" value="Taxi/Transferts"><input type="hidden" name="taxiSearch" value="1"><div class="taxi-trip-type"><label><input type="radio" name="taxiTrip" value="oneway" ${params.get("taxiTrip") !== "round" ? "checked" : ""}> Aller simple</label><label><input type="radio" name="taxiTrip" value="round" ${params.get("taxiTrip") === "round" ? "checked" : ""}> Aller-retour</label></div><div class="taxi-search-row"><label><span>Lieu de prise en charge</span><input id="taxi-from" name="taxiFrom" value="${esc(params.get("taxiFrom") || "")}" placeholder="Aéroport, gare ou adresse" required></label><button type="button" id="swap-taxi-places" class="taxi-swap" aria-label="Inverser les lieux">⇄</button><label><span>Destination</span><input id="taxi-to" name="taxiTo" value="${esc(params.get("taxiTo") || "")}" placeholder="Indiquez la destination" required></label><label><span>Date et heure de prise en charge</span><input id="taxi-departure" name="taxiDeparture" type="datetime-local" min="${localMin}" value="${esc(params.get("taxiDeparture") || "")}" required></label><label id="taxi-return-wrap"><span>Date et heure du retour</span><input id="taxi-return" name="taxiReturn" type="datetime-local" min="${localMin}" value="${esc(params.get("taxiReturn") || "")}"></label><label><span>Passagers</span><select name="taxiPassengers">${[1, 2, 3, 4, 5, 6, 7, 8].map((number) => `<option value="${number}" ${Number(params.get("taxiPassengers") || 2) === number ? "selected" : ""}>${number} passager${number > 1 ? "s" : ""}</option>`).join("")}</select></label><button class="btn btn-yellow" type="submit">${icon("search")} Rechercher</button></div></form><div class="taxi-benefits"><div>${icon("plane")}<span><strong>Suivi des vols</strong><small>Votre chauffeur adapte l’heure de prise en charge en cas de retard.</small></span></div><div>${icon("wallet")}<span><strong>Tarif clair</strong><small>Prix confirmé dès la réservation, sans frais cachés.</small></span></div><div>${icon("headset")}<span><strong>Chauffeurs approuvés</strong><small>Service professionnel et assistance locale 7j/7.</small></span></div></div></div></section>`;
+}
+
+function bindTaxiSearch() {
+  const form = document.getElementById("taxi-search-form");
+  if (!form) return;
+  bindPlaceApiInputs(form);
+  const from = document.getElementById("taxi-from");
+  const to = document.getElementById("taxi-to");
+  const departure = document.getElementById("taxi-departure");
+  const back = document.getElementById("taxi-return");
+  const backWrap = document.getElementById("taxi-return-wrap");
+  document.getElementById("swap-taxi-places").onclick = () => {
+    [from.value, to.value] = [to.value, from.value];
+  };
+  const updateTrip = () => {
+    const round = form.elements.taxiTrip.value === "round";
+    backWrap.hidden = !round;
+    back.required = round;
+    if (!round) back.value = "";
+  };
+  form.querySelectorAll('[name="taxiTrip"]').forEach((radio) => radio.addEventListener("change", updateTrip));
+  departure.addEventListener("change", () => {
+    back.min = departure.value;
+    if (back.value && back.value <= departure.value) back.value = "";
+  });
+  form.addEventListener("submit", (event) => {
+    if (back.required && (!back.value || back.value <= departure.value)) {
+      event.preventDefault();
+      toast("Le retour doit avoir lieu après la prise en charge.");
+    }
+  });
+  updateTrip();
+}
+
+function hotelSearchPanel(params) {
+  const today = new Date().toISOString().slice(0, 10);
+  const hotelCities = [...new Set(data.filter((offer) => offer.type === "Hôtels & Riads").map((offer) => offer.city).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "fr"));
+  return `<section class="hotel-search-hero"><div class="hotel-search-inner"><span class="eyebrow">HÔTELS & RIADS</span><h1>Trouvez votre prochain séjour</h1><p>Recherchez des hôtels, des riads authentiques et des hébergements sélectionnés.</p><form id="hotel-search-form" action="${root}catalogue.html" method="GET"><input type="hidden" name="type" value="Hôtels & Riads"><input type="hidden" name="hotelSearch" value="1"><div class="hotel-search-row"><label class="hotel-destination"><span>Destination</span><input name="hotelDestination" value="${esc(params.get("hotelDestination") || "")}" list="hotel-cities" placeholder="Où allez-vous ?" autocomplete="off" required><datalist id="hotel-cities">${hotelCities.map((city) => `<option value="${esc(city)}"></option>`).join("")}</datalist></label><label><span>Date d’arrivée</span><input id="hotel-arrival" name="hotelArrival" type="date" min="${today}" value="${esc(params.get("hotelArrival") || "")}" required></label><label><span>Date de départ</span><input id="hotel-departure" name="hotelDeparture" type="date" min="${today}" value="${esc(params.get("hotelDeparture") || "")}" required></label><label><span>Voyageurs & chambres</span><select name="hotelGuests"><option value="1" ${params.get("hotelGuests") === "1" ? "selected" : ""}>1 adulte · 1 chambre</option><option value="2" ${!params.get("hotelGuests") || params.get("hotelGuests") === "2" ? "selected" : ""}>2 adultes · 1 chambre</option><option value="3" ${params.get("hotelGuests") === "3" ? "selected" : ""}>2 adultes · 1 enfant · 1 chambre</option><option value="4" ${params.get("hotelGuests") === "4" ? "selected" : ""}>4 adultes · 2 chambres</option></select></label><button class="btn btn-yellow" type="submit">${icon("search")} Rechercher</button></div><label class="hotel-work-trip"><input name="workTrip" type="checkbox" value="1" ${params.has("workTrip") ? "checked" : ""}> Je voyage pour le travail</label></form></div></section>`;
+}
+
+function bindHotelSearch() {
+  const form = document.getElementById("hotel-search-form");
+  if (!form) return;
+  bindPlaceApiInputs(form);
+  const arrival = document.getElementById("hotel-arrival");
+  const departure = document.getElementById("hotel-departure");
+  arrival.addEventListener("change", () => {
+    departure.min = arrival.value || new Date().toISOString().slice(0, 10);
+    if (departure.value && departure.value <= arrival.value) departure.value = "";
+  });
+  form.addEventListener("submit", (event) => {
+    if (!departure.value || departure.value <= arrival.value) {
+      event.preventDefault();
+      toast("La date de départ doit être postérieure à la date d’arrivée.");
+    }
+  });
+}
+
+function excursionSearchPanel(params) {
+  const today = new Date().toISOString().slice(0, 10);
+  const excursionCities = [...new Set(data.filter((offer) => offer.type === "Excursions").map((offer) => offer.city).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "fr"));
+  return `<section class="excursion-search-hero"><div class="excursion-search-inner"><span class="eyebrow">ACTIVITÉS & EXPÉRIENCES</span><h1>Découvrez le Maroc autrement</h1><p>Réservez des excursions, visites guidées et expériences sélectionnées pour votre voyage.</p><form id="excursion-search-form" action="${root}catalogue.html" method="GET"><input type="hidden" name="type" value="Excursions"><input type="hidden" name="excursionSearch" value="1"><div class="excursion-search-row"><label class="excursion-destination"><span>Destination</span><input name="excursionDestination" value="${esc(params.get("excursionDestination") || "")}" list="excursion-cities" placeholder="Où allez-vous ?" autocomplete="off"><datalist id="excursion-cities">${excursionCities.map((city) => `<option value="${esc(city)}"></option>`).join("")}</datalist></label><label><span>Date de l’activité</span><input name="excursionDate" type="date" min="${today}" value="${esc(params.get("excursionDate") || "")}" required></label><label><span>Participants</span><select name="excursionGuests">${[1, 2, 3, 4, 5, 6, 7, 8].map((number) => `<option value="${number}" ${Number(params.get("excursionGuests") || 2) === number ? "selected" : ""}>${number} personne${number > 1 ? "s" : ""}</option>`).join("")}</select></label><button class="btn btn-yellow" type="submit">${icon("search")} Rechercher</button></div><div class="excursion-options"><label><input name="withGuide" type="checkbox" value="1" ${params.has("withGuide") ? "checked" : ""}> Avec guide</label><label><input name="withTransport" type="checkbox" value="1" ${params.has("withTransport") ? "checked" : ""}> Transport inclus</label></div></form><div class="excursion-highlights"><div>${icon("compass")}<span><strong>Expériences locales</strong><small>Des activités choisies pour découvrir chaque destination.</small></span></div><div>${icon("shield")}<span><strong>Réservation sécurisée</strong><small>Des prestataires vérifiés et des places confirmées.</small></span></div><div>${icon("headset")}<span><strong>Assistance 7j/7</strong><small>Une équipe disponible avant et pendant votre activité.</small></span></div></div></div></section>`;
+}
+
 function catalogue() {
   const p = new URLSearchParams(location.search);
   let dest = p.get("ville") || "",
     type = p.get("type") || "",
     page = 1;
-  const hasSearch = p.has("search") || !!dest || p.has("depart") || p.has("retour");
-  if (type === "Hôtels & Riads" && !hasSearch) {
-    window.location.replace(`${root}accueil.html`);
-    return;
-  }
+  const isFlightSearch = type === "Vols";
+  const flightSearchSubmitted = p.has("flightSearch");
+  const isCarSearch = type === "Location de voiture";
+  const carSearchSubmitted = p.has("carSearch");
+  const isTaxiSearch = type === "Taxi/Transferts";
+  const taxiSearchSubmitted = p.has("taxiSearch");
+  const isExcursionSearch = type === "Excursions";
+  const excursionSearchSubmitted = p.has("excursionSearch");
+  const isHotelSearch = type === "Hôtels & Riads";
+  const hotelSearchSubmitted = p.has("hotelSearch");
+  const showResults = (!isHotelSearch || hotelSearchSubmitted) && (!isFlightSearch || flightSearchSubmitted) &&
+    (!isCarSearch || carSearchSubmitted) && (!isTaxiSearch || taxiSearchSubmitted) &&
+    (!isExcursionSearch || excursionSearchSubmitted);
+  const hasSearch = p.has("search") || p.has("hotelSearch") || p.has("flightSearch") || p.has("carSearch") || p.has("taxiSearch") || p.has("excursionSearch") || !!dest || p.has("depart") || p.has("retour");
   const titleText = hasSearch
     ? `Résultats de recherche${dest ? " à " + dest : ""}`
     : `Explorez nos offres${dest ? " à " + dest : ""}`;
+  const availableCities = [...new Set(data.map((offer) => offer.city).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, "fr"),
+  );
   document.getElementById("app").innerHTML =
     header(type) +
-    `<main><div class="container"><div class="page-intro"><div class="breadcrumb"><a href="${root}accueil.html">Accueil</a> / Résultats de recherche</div><h1>${titleText}</h1><p>Votre prochaine aventure au Maroc commence ici.</p></div><div class="results-layout"><aside class="filter-panel"><h3>Filtrer les résultats</h3><div class="filter-block"><h4>Prix maximum</h4><input id="price-filter" type="range" min="300" max="2000" step="50" value="2000"><div class="range-values"><span>300 MAD</span><span id="price-value">2 000 MAD</span></div></div><div class="filter-block"><h4>Type d’offre</h4>${nav.map(([n]) => `<label><input type="checkbox" name="type" value="${n}" ${type === n ? "checked" : ""}>${n}</label>`).join("")}</div><div class="filter-block"><h4>Étoiles</h4><label><input type="checkbox" name="stars" value="5"> 5 étoiles</label><label><input type="checkbox" name="stars" value="4"> 4 étoiles</label></div><div class="filter-block"><h4>Ville / quartier</h4><select id="city-filter"><option value="">Toutes les villes</option>${["Chefchaouen", "Marrakech", "Fès", "Essaouira", "Tanger"].map((c) => `<option ${dest === c ? "selected" : ""}>${c}</option>`).join("")}</select></div><button class="btn btn-light" id="clear-filters" style="width:100%">Effacer les filtres</button></aside><div><div class="result-top"><h2 id="result-count"></h2><select id="sort"><option value="relevant">Trier : Pertinence</option><option value="price">Prix croissant</option></select></div><div class="result-list" id="result-list"></div><div class="pagination" id="pagination"></div></div></div></div></main>` +
+    `<main id="main-content"><div class="container"><div class="page-intro"><div class="breadcrumb"><a href="${root}accueil.html">Accueil</a> / Résultats de recherche</div><h1>${esc(titleText)}</h1><p>Votre prochaine aventure au Maroc commence ici.</p></div><div class="results-layout"><aside class="filter-panel"><h3>Filtrer les résultats</h3><div class="filter-block"><h4>Prix maximum</h4><input id="price-filter" type="range" min="300" max="2000" step="50" value="2000" aria-label="Prix maximum"><div class="range-values"><span>300 MAD</span><span id="price-value">2 000 MAD</span></div></div><div class="filter-block"><h4>Type d’offre</h4>${nav.map(([n]) => `<label><input type="checkbox" name="type" value="${n}" ${type === n ? "checked" : ""}>${n}</label>`).join("")}</div><div class="filter-block"><h4>Étoiles</h4><label><input type="checkbox" name="stars" value="5"> 5 étoiles</label><label><input type="checkbox" name="stars" value="4"> 4 étoiles</label></div><div class="filter-block"><h4>Ville / quartier</h4><select id="city-filter" aria-label="Ville ou quartier"><option value="">Toutes les villes</option>${availableCities.map((c) => `<option value="${esc(c)}" ${dest === c ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div><button class="btn btn-light" id="clear-filters" style="width:100%">Effacer les filtres</button></aside><div><div class="result-top"><h2 id="result-count" role="status" aria-live="polite"></h2><select id="sort" aria-label="Trier les résultats"><option value="relevant">Trier : Pertinence</option><option value="price">Prix croissant</option><option value="price_desc">Prix décroissant</option><option value="rating_desc">Mieux notés</option></select></div><div class="result-list" id="result-list"></div><div class="pagination" id="pagination" aria-label="Pagination"></div></div></div></div></main>` +
     footer();
+  if (isHotelSearch) {
+    const main = document.querySelector("main");
+    main.insertAdjacentHTML("afterbegin", hotelSearchPanel(p));
+    bindHotelSearch();
+    if (!showResults) {
+      main.querySelector(":scope > .container").hidden = true;
+      return;
+    }
+  }
+  if (isFlightSearch) {
+    const main = document.querySelector("main");
+    main.insertAdjacentHTML("afterbegin", flightSearchPanel(p));
+    bindFlightSearch();
+    if (!showResults) {
+      main.querySelector(":scope > .container").hidden = true;
+      return;
+    }
+  }
+  if (isCarSearch) {
+    const main = document.querySelector("main");
+    main.insertAdjacentHTML("afterbegin", carSearchPanel(p));
+    bindCarSearch();
+    if (!showResults) {
+      main.querySelector(":scope > .container").hidden = true;
+      return;
+    }
+  }
+  if (isTaxiSearch) {
+    const main = document.querySelector("main");
+    main.insertAdjacentHTML("afterbegin", taxiSearchPanel(p));
+    bindTaxiSearch();
+    if (!showResults) {
+      main.querySelector(":scope > .container").hidden = true;
+      return;
+    }
+  }
+  if (isExcursionSearch) {
+    const main = document.querySelector("main");
+    main.insertAdjacentHTML("afterbegin", excursionSearchPanel(p));
+    bindPlaceApiInputs(main.querySelector("#excursion-search-form"));
+    if (!showResults) {
+      main.querySelector(":scope > .container").hidden = true;
+      return;
+    }
+  }
   const filters = document.querySelector(".filter-panel");
   function render() {
     let types = [...filters.querySelectorAll("[name=type]:checked")].map(
@@ -313,14 +784,86 @@ function catalogue() {
         (!types.length || types.includes(d.type)) &&
         (!stars.length || stars.includes(d.stars)),
     );
-    if (document.getElementById("sort").value === "price")
+    const carStart = p.get("pickupDate") ? `${p.get("pickupDate")}T${p.get("pickupTime") || "10:00"}` : "";
+    const carEnd = p.get("returnDate") ? `${p.get("returnDate")}T${p.get("returnTime") || "10:00"}` : "";
+    const requestedStart = p.get("hotelArrival") || p.get("flightDepart") || carStart || p.get("taxiDeparture")?.slice(0,10) || p.get("excursionDate") || "";
+    const requestedEnd = p.get("hotelDeparture") || p.get("flightReturn") || carEnd || p.get("taxiReturn")?.slice(0,10) || requestedStart;
+    list = list.filter(d => availableFor(d, requestedStart, requestedEnd));
+    if (isFlightSearch) {
+      const from = (p.get("from") || "").toLowerCase();
+      const to = (p.get("to") || "").toLowerCase();
+      const departDate = p.get("flightDepart") || "";
+      const returnDate = p.get("flightReturn") || "";
+      const wantsRoundTrip = p.get("trip") !== "oneway";
+      const passengerChoice = p.get("passengers") || "2";
+      const passengers = Number.parseInt(passengerChoice, 10) || 1;
+      const wantedClass = passengerChoice.includes("business") ? "BUSINESS" : "ECONOMY";
+      list = list.filter((d) => {
+        const titleParts = d.title.split(/[-→]/);
+        const routeStart = `${d.departureAirport} ${titleParts[0] || ""}`.toLowerCase();
+        const routeEnd = `${d.arrivalAirport} ${d.city} ${titleParts.at(-1) || ""}`.toLowerCase();
+        return (!from || routeStart.includes(from)) &&
+          (!to || routeEnd.includes(to)) &&
+          (!departDate || d.departureDateTime.startsWith(departDate)) &&
+          (!wantsRoundTrip || (d.roundTrip && (!returnDate || d.returnDepartureDateTime.startsWith(returnDate)))) &&
+          (wantsRoundTrip || !d.roundTrip) && d.cabinClass === wantedClass && d.availableCapacity >= passengers;
+      });
+    }
+    if (isHotelSearch) {
+      const destination = (p.get("hotelDestination") || "").trim()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      list = list.filter((d) => {
+        const searchable = `${d.city} ${d.title} ${d.district}`
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        return !destination || searchable.includes(destination);
+      });
+    }
+    if (isCarSearch) {
+      const pickup = (p.get("pickup") || "").trim().toLowerCase();
+      const dropoff = (p.get("dropoff") || "").trim().toLowerCase();
+      const needsDifferentDropoff = p.has("differentDropoff");
+      const driverInStandardRange = p.get("driverAge") === "30-65";
+      list = list.filter((d) => {
+        const pickupText = `${d.pickupLocation} ${d.city} ${d.title} ${d.brand} ${d.model}`.toLowerCase();
+        const dropoffText = `${d.dropoffLocations.join(" ")} ${d.dropoffLocation} ${d.city} ${d.title}`.toLowerCase();
+        return (!pickup || pickupText.includes(pickup)) &&
+          (!needsDifferentDropoff || (d.allowsDifferentDropoff && (!dropoff || dropoffText.includes(dropoff)))) &&
+          (!driverInStandardRange || (d.minimumDriverAge <= 30 && d.maximumDriverAge >= 65));
+      });
+    }
+    if (isTaxiSearch) {
+      const from = (p.get("taxiFrom") || "").trim().toLowerCase();
+      const to = (p.get("taxiTo") || "").trim().toLowerCase();
+      list = list.filter((d) => {
+        const pickup = `${d.pickupLocation} ${d.city} ${d.title}`.toLowerCase();
+        const dropoff = `${d.dropoffLocation} ${d.city} ${d.title}`.toLowerCase();
+        return (!from || pickup.includes(from)) && (!to || dropoff.includes(to));
+      });
+    }
+    if (isExcursionSearch) {
+      const destination = (p.get("excursionDestination") || "").trim().toLowerCase();
+      const withGuide = p.has("withGuide");
+      const withTransport = p.has("withTransport");
+      list = list.filter((d) =>
+        (!destination || `${d.city} ${d.title} ${d.itinerary}`.toLowerCase().includes(destination)) &&
+        (!withGuide || d.includesGuide) &&
+        (!withTransport || d.includesTransport),
+      );
+    }
+    const sortVal = document.getElementById("sort").value;
+    if (sortVal === "price") {
       list.sort((a, b) => a.price - b.price);
-    else
+    } else if (sortVal === "price_desc") {
+      list.sort((a, b) => b.price - a.price);
+    } else if (sortVal === "rating_desc") {
+      list.sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
+    } else {
       list.sort(
         (a, b) =>
-          parseFloat(b.rating.replace(",", ".")) -
-          parseFloat(a.rating.replace(",", ".")),
+          parseFloat(String(b.rating || "0").replace(",", ".")) -
+          parseFloat(String(a.rating || "0").replace(",", ".")),
       );
+    }
     const pages = Math.max(1, Math.ceil(list.length / 4));
     page = Math.min(page, pages);
     document.getElementById("result-count").textContent =
@@ -383,10 +926,20 @@ function saveCart(v) {
   localStorage.setItem("atlas-cart", JSON.stringify(v));
   refreshCart();
 }
-function refreshCart() {
-  document
-    .querySelectorAll("#cart-count")
-    .forEach((el) => (el.textContent = getCart().length));
+async function refreshCart() {
+  let count = getCart().length;
+  const user = loggedUser();
+  if (user?.role === "CLIENT") {
+    try {
+      const response = await fetch(`${apiBase()}/api/cart`, {
+        headers: { Accept: "application/json", Authorization: `Bearer ${Auth.getToken()}` },
+      });
+      if (response.ok) count = Number((await response.json()).itemCount) || 0;
+    } catch {
+      // Le panier local reste affiché si l'API est momentanément indisponible.
+    }
+  }
+  document.querySelectorAll("#cart-count").forEach((el) => (el.textContent = count));
 }
 function toast(msg) {
   document.querySelector(".toast")?.remove();
@@ -397,115 +950,171 @@ function toast(msg) {
   document.body.append(div);
   setTimeout(() => div.remove(), 3500);
 }
-function addItem(d, dates) {
+async function addItem(d, dates) {
+  const user = loggedUser();
+  if (user?.role === "CLIENT") {
+    const response = await fetch(`${apiBase()}/api/cart/items`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Auth.getToken()}`,
+      },
+      body: JSON.stringify({ offerId: d.id, quantity: 1, travelCriteria: JSON.stringify(dates || {}) }),
+    });
+    if (!response.ok) {
+      let message = "Impossible d’ajouter cette offre au panier.";
+      try {
+        const payload = await response.json();
+        message = payload.message || message;
+        if (Array.isArray(payload.details) && payload.details.length) {
+          message += " : " + payload.details.map(d => [d.field, d.message].filter(Boolean).join(" : ")).join("; ");
+        }
+      } catch {
+        // La réponse d'erreur n'est pas au format JSON.
+      }
+      throw new Error(message);
+    }
+    await refreshCart();
+    toast("Offre ajoutée à votre panier client");
+    return;
+  }
   let items = getCart();
   items.push({ id: d.id, dates, entry: Date.now() });
   saveCart(items);
   toast("Offre ajoutée au panier");
 }
 function detail() {
-  let id = new URLSearchParams(location.search).get("id"),
-    d = data.find((x) => x.id === id) || data[0];
+  const detailParams = new URLSearchParams(location.search);
+  let id = detailParams.get("id"),
+    d = data.find((x) => String(x.id) === String(id));
+  if (!d) {
+    document.getElementById("app").innerHTML =
+      header() +
+      `<main><div class="container"><div class="empty-state"><h2>Offre introuvable</h2><p>${esc(offersLoadError || "Cette offre n’existe plus ou n’est plus disponible.")}</p><a class="btn btn-blue" href="${root}accueil.html">Retour à l’accueil</a></div></div></main>` +
+      footer();
+    return;
+  }
   document.title = d.title + " | Atlas Voyage";
   document.getElementById("app").innerHTML =
     header(d.type) +
-    `<main><div class="container"><div class="page-intro"><div class="breadcrumb"><a href="${root}accueil.html">Accueil</a> / <a href="${root}catalogue.html">Offres</a> / ${d.city}</div><h1>${d.title}</h1><p>${icon("pin")} ${d.city}, ${d.district} · ${"★".repeat(d.stars)} · Excellent ${d.rating}/10</p></div><div class="detail-grid"><div><div class="gallery"><img src="${d.img}" alt="${d.title}"><img src="images/fes.jpg" alt="Architecture marocaine"><img src="images/chefchaouen.jpg" alt="Paysage marocain"></div><div class="detail-copy"><h2>Votre séjour, notre attention</h2><p>${d.desc} Chez Atlas Voyage, chaque étape est pensée pour vous faire découvrir l’hospitalité marocaine dans toute sa générosité. Profitez de moments authentiques, des médinas animées aux paysages qui invitent à ralentir.</p><div class="amenities"><span>✓ Accueil chaleureux</span><span>✓ Assistance locale</span><span>✓ Paiement à l’arrivée</span><span>✓ Confirmation immédiate</span></div><h2>Localisation</h2><p>${d.district}, ${d.city}, Maroc. Un point de départ idéal pour explorer les trésors de la région.</p><h2>Avis des voyageurs</h2><div class="review"><strong>« Une expérience inoubliable » &nbsp; ${d.rating}/10</strong><p>Un accueil formidable et une organisation impeccable. Nous avons adoré découvrir le Maroc à notre rythme.</p><small>— Voyageur Atlas Voyage</small></div></div></div><aside class="panel booking-box"><span class="badge">✓ Paiement à l’arrivée disponible</span><p style="margin:21px 0 4px;color:var(--muted)">À partir de / séjour</p><div class="result-price">${money(d.price)}</div><label for="start-date">Date de départ</label><input id="start-date" type="date"><label for="end-date">Date de retour</label><input id="end-date" type="date"><button class="btn btn-outline" id="add-cart">${icon("cart")} Ajouter au panier</button><button class="btn btn-yellow" id="book-now">Réserver maintenant ${icon("arrow")}</button><span class="price-note">Aucun paiement requis pour réserver</span></aside></div></div></main>` +
+    `<main id="main-content"><div class="container"><div class="page-intro"><div class="breadcrumb"><a href="${root}accueil.html">Accueil</a> / <a href="${root}catalogue.html">Offres</a> / ${esc(d.city)}</div><h1>${esc(d.title)}</h1><p>${icon("pin")} ${esc(d.city)}${d.district ? `, ${esc(d.district)}` : ""}${d.stars ? ` · ${"★".repeat(d.stars)}` : ""}</p>${detailFavButton(d.id)}</div><div class="detail-grid"><div><div class="gallery" id="offer-gallery"><img src="${esc(d.img)}" alt="${esc(d.title)}" class="gallery-thumb"><img src="images/fes.jpg" alt="Architecture marocaine" class="gallery-thumb"><img src="images/chefchaouen.jpg" alt="Paysage marocain" class="gallery-thumb"></div><div class="detail-copy"><h2>Votre séjour, notre attention</h2><p>${esc(d.desc)}</p><div class="amenities"><span>✓ Disponibilités vérifiées selon vos dates</span><span>✓ Assistance locale</span>${d.allowsPayOnArrival ? "<span>✓ Paiement à l’arrivée</span>" : ""}<span>✓ Fournisseur : ${esc(d.supplierName)}</span></div><h2>Localisation</h2><p>${d.district ? `${esc(d.district)}, ` : ""}${esc(d.city)}, Maroc.</p><div id="offer-map-container" class="av-map-container" style="margin-top:16px;"><div id="offer-map" class="av-map"></div></div></div></div><aside class="panel booking-box">${d.allowsPayOnArrival ? '<span class="badge">✓ Paiement à l’arrivée disponible</span>' : ""}<p style="margin:21px 0 4px;color:var(--muted)">À partir de</p><div class="result-price">${money(d.price)}</div><p class="price-note">${d.nextAvailabilityStart ? `Prochaine disponibilité : ${new Date(d.nextAvailabilityStart).toLocaleDateString("fr-MA")} au ${new Date(d.nextAvailabilityEnd).toLocaleDateString("fr-MA")}` : "Aucune période disponible"}</p><label for="start-date">Date de début</label><input id="start-date" type="date"><label for="end-date">Date de fin</label><input id="end-date" type="date"><label for="booking-travelers">Voyageurs / participants</label><input id="booking-travelers" type="number" min="1" max="100" value="1">${d.type === "Location de voiture" ? `<label for="booking-driver-age">Âge du conducteur</label><input id="booking-driver-age" type="number" min="${d.minimumDriverAge}" max="${d.maximumDriverAge}" value="35"><label>Prise en charge<input id="booking-pickup" value="${esc(d.pickupLocation)}" readonly></label><label>Restitution<select id="booking-dropoff"><option value="">Même lieu</option>${d.allowsDifferentDropoff ? d.dropoffLocations.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("") : ""}</select></label>` : ""}<button class="btn btn-outline" id="add-cart">${icon("cart")} Ajouter au panier</button><button class="btn btn-yellow" id="book-now">Réserver maintenant ${icon("arrow")}</button></aside></div><div id="offer-reviews-section" style="margin-top:48px;"></div></div></main>` +
     footer();
-  function add(go) {
+  const suggestedStart = detailParams.get("hotelArrival") || detailParams.get("flightDepart") ||
+    detailParams.get("pickupDate") || detailParams.get("taxiDeparture")?.slice(0, 10) ||
+    detailParams.get("excursionDate") || "";
+  const suggestedEnd = detailParams.get("hotelDeparture") || detailParams.get("flightReturn") ||
+    detailParams.get("returnDate") || detailParams.get("taxiReturn")?.slice(0, 10) || "";
+  document.getElementById("start-date").value = suggestedStart || d.departureDateTime?.slice(0,10) || "";
+  document.getElementById("booking-travelers").value = Number(detailParams.get("passengers") || detailParams.get("hotelAdults") || detailParams.get("taxiPassengers") || detailParams.get("excursionGuests")) || 1;
+  document.getElementById("end-date").value = suggestedEnd || d.returnDepartureDateTime?.slice(0,10) || "";
+  async function add(go) {
     let start = document.getElementById("start-date").value,
       end = document.getElementById("end-date").value;
     if (start && end && end < start) {
       toast("La date de retour doit suivre la date de départ.");
       return;
     }
-    addItem(d, { start, end });
-    if (go) location.href = root + "panier.html";
+    try {
+      const criteria = Object.fromEntries(detailParams);
+      delete criteria.id;
+      if (!start || (["Hôtels & Riads", "Location de voiture"].includes(d.type) && !end)) { toast("Choisissez les dates du service avant de réserver."); return; }
+      let startDate = start, endDate = end;
+      if (d.type === "Location de voiture") {
+        startDate += "T" + (criteria.pickupTime || "10:00");
+        if (endDate) endDate += "T" + (criteria.returnTime || "10:00");
+        criteria.driverAge = document.getElementById("booking-driver-age").value;
+        criteria.pickup = document.getElementById("booking-pickup").value;
+        criteria.dropoff = document.getElementById("booking-dropoff").value || criteria.pickup;
+      }
+      if (d.type === "Taxi/Transferts") {
+        startDate += "T" + (criteria.taxiDeparture?.slice(11,16) || "12:00");
+        if (endDate) endDate += "T" + (criteria.taxiReturn?.slice(11,16) || "12:00");
+      }
+      if (d.type === "Vols") { criteria.trip = d.roundTrip ? "round" : "oneway"; criteria.cabinClass = d.cabinClass; }
+      const travelers = Number(document.getElementById("booking-travelers").value);
+      if (!Number.isInteger(travelers) || travelers < 1) { toast("Indiquez un nombre de voyageurs positif."); return; }
+      await addItem(d, { ...criteria, travelers, startDate, endDate, start, end });
+      if (go) {
+        const user = loggedUser();
+        location.href = user?.role === "CLIENT" ? `${root}client/index.html?page=panier` : `${root}panier.html`;
+      }
+    } catch (error) {
+      toast(error.message);
+    }
   }
   document.getElementById("add-cart").onclick = () => add(false);
   document.getElementById("book-now").onclick = () => add(true);
+
+  // 1. Galerie Lightbox Accessible
+  const galleryImages = [
+    { src: d.img, alt: d.title, caption: d.title },
+    { src: "images/fes.jpg", alt: "Architecture marocaine", caption: "Patio traditionnel et zellige raffiné" },
+    { src: "images/chefchaouen.jpg", alt: "Paysage marocain", caption: "Vue panoramique sur les ruelles bleues" }
+  ];
+  const LightboxClass = window.AtlasLightbox || (typeof AtlasLightbox !== "undefined" ? AtlasLightbox : null);
+  if (LightboxClass) {
+    const lb = new LightboxClass();
+    document.querySelectorAll(".gallery-thumb").forEach((img, idx) => {
+      img.style.cursor = "zoom-in";
+      img.setAttribute("tabindex", "0");
+      img.setAttribute("role", "button");
+      img.setAttribute("aria-label", `Agrandir la photo ${idx + 1} : ${galleryImages[idx]?.caption || d.title}`);
+      const open = () => lb.open(galleryImages, idx, img);
+      img.addEventListener("click", open);
+      img.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          open();
+        }
+      });
+    });
+  }
+
+  // 2. Carte Géographique Leaflet
+  const cityCoords = {
+    "Marrakech": [31.6295, -7.9811],
+    "Fès": [34.0331, -5.0003],
+    "Chefchaouen": [35.1688, -5.2636],
+    "Essaouira": [31.5085, -9.7595],
+    "Tanger": [35.7595, -5.8340],
+    "Casablanca": [33.5731, -7.5898],
+    "Rabat": [34.0209, -6.8416],
+    "Agadir": [30.4278, -9.5981],
+    "Ouarzazate": [30.9335, -6.9370]
+  };
+  const coords = cityCoords[d.city] || [31.6295, -7.9811];
+  if (window.initOfferMap) {
+    window.initOfferMap("offer-map", {
+      lat: coords[0],
+      lng: coords[1],
+      title: d.title,
+      address: `${d.district ? d.district + ", " : ""}${d.city}, Maroc`
+    });
+  }
+
+  // 3. Module d'Avis & Notations
+  const ReviewsClass = window.AtlasReviews || (typeof AtlasReviews !== "undefined" ? AtlasReviews : null);
+  if (ReviewsClass) {
+    const rev = new ReviewsClass("offer-reviews-section", d.id, loggedUser());
+    rev.init();
+  }
 }
 function checkout() {
   document.getElementById("app").innerHTML =
     header() +
-    `<main><div class="container"><div class="page-intro"><div class="breadcrumb"><a href="${root}accueil.html">Accueil</a> / Mon panier</div><h1>Votre panier</h1><p>Un dernier regard avant de prendre la route.</p></div><div id="checkout-content"></div></div></main>` +
+    `<main id="main-content" class="container section">
+      <nav class="av-stepper" aria-label="Étapes de votre réservation" style="margin: 24px 0 32px 0;">
+        <div class="av-stepper-progress"><div class="av-stepper-progress-bar" style="width: 35%;"></div></div>
+        <div class="av-step is-completed"><div class="av-step-number">✓</div><div class="av-step-label">1. Panier</div></div>
+        <div class="av-step is-active"><div class="av-step-number">2</div><div class="av-step-label">2. Coordonnées</div></div>
+        <div class="av-step"><div class="av-step-number">3</div><div class="av-step-label">3. Paiement</div></div>
+        <div class="av-step"><div class="av-step-number">4</div><div class="av-step-label">4. Confirmation</div></div>
+      </nav>
+      <div id="booking-module"></div>
+    </main>` +
     footer();
-  function render() {
-    let items = getCart();
-    if (!items.length) {
-      document.getElementById("checkout-content").innerHTML =
-        `<div class="panel confirmation" style="margin-bottom:70px"><h2>Votre panier est vide</h2><p>Le Maroc a tant à vous offrir. Trouvez votre prochaine expérience !</p><a class="btn btn-yellow" href="${root}catalogue.html">Explorer les offres</a></div>`;
-      return;
-    }
-    let sum = items.reduce(
-      (a, item) => a + (data.find((x) => x.id === item.id)?.price || 0),
-      0,
-    );
-    document.getElementById("checkout-content").innerHTML =
-      `<div class="checkout-grid"><div><section class="panel"><h2>Votre sélection (${items.length})</h2>${items
-        .map((item, i) => {
-          let d = data.find((x) => x.id === item.id);
-          return d
-            ? `<div class="cart-item"><img src="${d.img}" alt="${d.city}"><div><h3>${d.title}</h3><p>${d.city} · ${d.type}${item.dates?.start ? " · " + new Date(item.dates.start + "T12:00:00").toLocaleDateString("fr-MA") : ""}</p><strong>${money(d.price)}</strong></div><button aria-label="Retirer ${d.title}" data-remove="${i}">✕</button></div>`
-            : "";
-        })
-        .join(
-          "",
-        )}</section><section class="panel" style="margin-top:18px"><h2>Mode de paiement</h2><label class="pay-choice"><input type="radio" name="payment" value="now" checked> Payer maintenant (simulé)</label><label class="pay-choice"><input type="radio" name="payment" value="arrival"> Paiement à l’arrivée</label></section><section class="panel checkout-form" style="margin-top:18px"><h2>Vos coordonnées</h2><label for="customer-name">Nom complet</label><input id="customer-name" placeholder="Votre nom complet" required><label for="customer-email">Adresse e-mail</label><input id="customer-email" type="email" placeholder="nom@exemple.com" required><label for="customer-phone">Téléphone (+212)</label><input id="customer-phone" type="tel" placeholder="+212 6 00 00 00 00" required></section></div><aside class="panel" style="align-self:start"><h2>Résumé du prix</h2><label style="display:block;font-weight:700;margin:22px 0 8px" for="promo">Code promo</label><div class="promo-row"><input id="promo" placeholder="Votre code promo"><button class="btn btn-outline" id="apply-promo">Appliquer</button></div><p id="promo-message" style="font-size:12px;color:var(--muted);min-height:16px"></p><div class="summary-row"><span>Sous-total</span><strong>${money(sum)}</strong></div><div class="summary-row"><span>Réduction</span><strong id="discount">0 MAD</strong></div><div class="summary-row total"><span>Total</span><strong id="total">${money(sum)}</strong></div><button class="btn btn-yellow" id="confirm" style="width:100%;margin-top:12px">Confirmer la réservation</button><p class="price-note" style="text-align:center">Paiement simulé · Aucun prélèvement effectué</p></aside></div>`;
-    let discount = 0;
-    document.querySelectorAll("[data-remove]").forEach(
-      (b) =>
-        (b.onclick = () => {
-          let next = getCart();
-          next.splice(+b.dataset.remove, 1);
-          saveCart(next);
-          render();
-        }),
-    );
-    document.getElementById("apply-promo").onclick = () => {
-      let code = document.getElementById("promo").value.trim().toUpperCase();
-      discount = code === "ATLAS10" ? Math.round(sum * 0.1) : 0;
-      document.getElementById("promo-message").textContent = discount
-        ? "Code ATLAS10 appliqué : -10 %"
-        : "Code promo non reconnu.";
-      document.getElementById("discount").textContent = money(discount);
-      document.getElementById("total").textContent = money(sum - discount);
-    };
-    document.getElementById("confirm").onclick = () => {
-      let name = document.getElementById("customer-name"),
-        email = document.getElementById("customer-email"),
-        phone = document.getElementById("customer-phone");
-      if (
-        !name.value.trim() ||
-        !email.checkValidity() ||
-        !email.value ||
-        !phone.value.trim()
-      ) {
-        toast("Veuillez renseigner vos coordonnées valides.");
-        return;
-      }
-      let payment = document.querySelector("[name=payment]:checked").value;
-      let ref = "AV-" + Math.floor(100000 + Math.random() * 900000),
-        booking = {
-          ref,
-          client: name.value.trim(),
-          email: email.value,
-          phone: phone.value,
-          total: sum - discount,
-          payment,
-          items,
-          status: "Confirmed",
-          created: new Date().toISOString(),
-        };
-      let bookings = JSON.parse(localStorage.getItem("atlas-bookings") || "[]");
-      bookings.unshift(booking);
-      localStorage.setItem("atlas-bookings", JSON.stringify(bookings));
-      saveCart([]);
-      document.getElementById("checkout-content").innerHTML =
-        `<div class="panel confirmation" style="margin-bottom:70px"><div style="font-size:40px;color:var(--green)">✓</div><h2>Votre réservation est confirmée !</h2><p>Merci ${booking.client}. Votre référence est <strong>${ref}</strong>.</p><p>${payment === "arrival" ? "Vous réglerez votre séjour à l’arrivée." : "Votre paiement simulé a été enregistré."} Un récapitulatif est prêt pour ${booking.email}.</p><a class="btn btn-blue" href="${root}accueil.html">Retour à l’accueil</a></div>`;
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-  }
-  render();
+  BookingsUI.checkout(document.getElementById("booking-module"));
 }
 function admin() {
   document.getElementById("app").innerHTML =
@@ -642,22 +1251,42 @@ function admin() {
     (a) =>
       (a.onclick = (e) => {
         e.preventDefault();
-        if (a.dataset.tab === "Villes") {
-          window.location.href = `${root}admin/index.html?page=cities`;
-          return;
-        }
         render(a.dataset.tab);
       }),
   );
   render("Dashboard");
 }
 const page = document.body.dataset.page;
-if (page === "home") home();
-if (page === "catalogue") catalogue();
-if (page === "detail") detail();
-if (page === "checkout") checkout();
-if (page === "admin") admin();
-refreshCart();
+async function renderActiveView() {
+  if (["home", "catalogue", "detail", "checkout"].includes(page)) {
+    await loadPublicOffers();
+  }
+  if (page === "home") home();
+  if (page === "catalogue") catalogue();
+  if (page === "detail") detail();
+  if (page === "checkout") checkout();
+  await refreshCart();
+  if (typeof I18n !== "undefined") I18n.bindLanguageSwitcher();
+  if (typeof AtlasCurrency !== "undefined") AtlasCurrency.bindCurrencySwitcher();
+}
+
+async function startApplication() {
+  if (typeof I18n !== "undefined") {
+    await I18n.init({ namespaces: ["common", "nav", "home", "catalog", "offer", "cart", "checkout", "auth", "errors", "status"] });
+  }
+  if (typeof AtlasCurrency !== "undefined") {
+    AtlasCurrency.init();
+  }
+  await renderActiveView();
+}
+startApplication();
+
+window.addEventListener("i18n:change", () => {
+  renderActiveView();
+});
+window.addEventListener("currency:change", () => {
+  renderActiveView();
+});
 
 document.addEventListener("click", (e) => {
   const box = document.getElementById("locale");
@@ -687,3 +1316,44 @@ document.addEventListener("click", (event) => {
     Auth.logout();
   }
 });
+
+// Phase 8: Synchronisation dynamique des favoris dans le catalogue et les pages publiques
+window.addEventListener("atlas:favorites-changed", (event) => {
+  const { offerId, isFavorite } = event.detail || {};
+  if (offerId == null) return;
+  document.querySelectorAll(`[data-fav-offer="${offerId}"]`).forEach((btn) => {
+    btn.classList.toggle("active", !!isFavorite);
+    const svg = btn.querySelector("svg");
+    if (svg) {
+      svg.setAttribute("fill", isFavorite ? "#e11d48" : "none");
+    }
+    const label = btn.querySelector("span");
+    if (label) {
+      label.textContent = isFavorite ? "Dans vos favoris" : "Ajouter aux favoris";
+    }
+    btn.setAttribute("aria-label", isFavorite ? "Retirer des favoris" : "Ajouter aux favoris");
+  });
+});
+
+window.addEventListener("atlas:favorites-loaded", (event) => {
+  const ids = event.detail?.ids || [];
+  const set = new Set(ids);
+  document.querySelectorAll("[data-fav-offer]").forEach((btn) => {
+    const id = Number(btn.dataset.favOffer);
+    const isFav = set.has(id);
+    btn.classList.toggle("active", isFav);
+    const svg = btn.querySelector("svg");
+    if (svg) {
+      svg.setAttribute("fill", isFav ? "#e11d48" : "none");
+    }
+    const label = btn.querySelector("span");
+    if (label) {
+      label.textContent = isFav ? "Dans vos favoris" : "Ajouter aux favoris";
+    }
+    btn.setAttribute("aria-label", isFav ? "Retirer des favoris" : "Ajouter aux favoris");
+  });
+});
+
+if (typeof Favorites !== "undefined" && Favorites.canFavorite()) {
+  Favorites.load();
+}

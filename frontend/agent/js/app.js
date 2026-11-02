@@ -44,20 +44,14 @@ const photos = {
 const navItems = [
   ["dashboard", "Tableau de bord", "grid", ""],
   ["bundles", "Bundles", "package", ""],
-  ["bookings", "Réservations", "calendar", "7"],
-  ["payments", "Paiements à l'arrivée", "wallet", "5"],
-  ["tickets", "Tickets de support", "message", "3"],
+  ["bookings", "Réservations", "calendar", ""],
+  ["payments", "Paiements à l'arrivée", "wallet", ""],
+  ["tickets", "Tickets de support", "message", ""],
   ["notifications", "Notifications", "bell", ""],
   ["profile", "Mon profil", "user", ""],
 ];
 
-const bookingRows = [
-  ["BK-2026-000123", "Youssef El Amrani", "youssef.amrani@gmail.com", "Riad Atlas + Excursion", "18/06/2026", "4 850,00 MAD"],
-  ["BK-2026-000119", "Lina Chraïbi", "lina.chraibi@gmail.com", "Vol Casablanca → Paris", "18/06/2026", "3 240,00 MAD"],
-  ["BK-2026-000116", "Omar Alaoui", "omar.alaoui@gmail.com", "Week-end Nord", "19/06/2026", "2 082,50 MAD"],
-  ["BK-2026-000108", "Sara El Fassi", "sara.elfassi@gmail.com", "Voiture Renault Clio", "20/06/2026", "1 600,00 MAD"],
-  ["BK-2026-000101", "Mehdi Berrada", "mehdi.berrada@gmail.com", "Riad Bleu Essaouira", "21/06/2026", "2 950,00 MAD"],
-];
+const bookingRows = [];
 
 let currentPage = "dashboard";
 
@@ -74,80 +68,13 @@ function renderNav() {
     </button>`).join("");
 }
 
-function dashboardPage() {
-  const kpis = [
-    ["clock", "12", "Réservations", "En attente de validation", "+3 aujourd'hui", ""],
-    ["wallet", "5", "Paiements", "À encaisser à l'arrivée", "8 750,00 MAD", "amber"],
-    ["message", "3", "Tickets ouverts", "Dont 1 non assigné", "Action requise", "violet"],
-    ["calendar", "6", "Aujourd'hui", "Réservations du jour", "+20 % vs hier", "sky"],
-  ];
-  const rows = bookingRows.slice(0, 4).map((row) => `<tr>
-    <td><button class="reference" data-page="booking">${row[0]}</button></td>
-    <td><strong>${row[1]}</strong><small>${row[3]}</small></td><td>${row[4]}</td><td><strong>${row[5]}</strong></td>
-    <td>${badge("En attente")}</td><td><button class="round-button" data-page="booking">${icon("arrow")}</button></td>
-  </tr>`).join("");
-  const payments = [
-    ["Demain", "09:00", "Nadia El Idrissi", "1 850,00 MAD"],
-    ["18/06", "14:30", "Karim Benjelloun", "3 200,00 MAD"],
-    ["20/06", "10:00", "Sofia Tazi", "980,00 MAD"],
-  ].map((item) => `<div class="payment-line"><span class="date-tile"><small>${item[0]}</small><strong>${item[1]}</strong></span><div><strong>${item[2]}</strong><small>Riad Atlas – Chambre double</small></div><strong>${item[3]}</strong>${button("Encaisser", "primary button-small", `data-toast="Paiement de ${item[2]} encaissé"`)}</div>`).join("");
-  const tickets = [
-    ["YE", "Remboursement non reçu", "Youssef El Amrani · Paiement", "Urgent", "red", "12 min"],
-    ["IF", "Modifier ma date d'arrivée", "Imane Fikri · Réservation", "Ouvert", "blue", "38 min"],
-    ["AC", "Question transfert aéroport", "Adam Chami · Autre", "Ouvert", "blue", "1 h"],
-  ].map((item) => `<button class="ticket-line" data-page="tickets"><span class="avatar">${item[0]}</span><span><strong>${item[1]}</strong><small>${item[2]}</small></span>${badge(item[3], item[4])}<time>${item[5]}</time>${icon("arrow")}</button>`).join("");
-  return pageHead("Espace agent", "Bonjour Nadia, voici votre journée.", "Mardi 16 juin 2026 · Marrakech, 10:42", `${button("Voir les réservations", "outline", 'data-page="bookings"')}${button(`${icon("plus")} Nouveau bundle`, "primary", 'data-page="bundle-editor"')}`)
-    + `<div class="kpi-grid">${kpis.map((item) => `<section class="card kpi-card"><div class="kpi-top"><span class="kpi-icon ${item[5]}">${icon(item[0])}</span><span class="kpi-trend">${item[4]}</span></div><div class="kpi-number">${item[1]}</div><strong>${item[2]}</strong><p>${item[3]}</p></section>`).join("")}</div>
-    <div class="dashboard-grid">
-      <section class="card table-card"><div class="card-head"><div><h2>Réservations à valider</h2><p>Les demandes les plus récentes</p></div><button class="text-link" data-page="bookings">Tout voir ${icon("arrow")}</button></div><table><thead><tr><th>Référence</th><th>Client & contenu</th><th>Début</th><th>Total</th><th>Statut</th><th></th></tr></thead><tbody>${rows}</tbody></table></section>
-      <section class="card chart-card"><div class="card-head"><div><h2>Activité</h2><p>7 derniers jours</p></div>${badge("+14,2 %", "green")}</div><div class="chart-summary">42 <small>réservations</small></div><div class="bar-chart">${[45,62,38,72,55,86,68].map((height, index) => `<div class="bar-column ${index === 5 ? "active" : ""}"><i style="height:${height}%"></i><small>${["Mer","Jeu","Ven","Sam","Dim","Lun","Mar"][index]}</small></div>`).join("")}</div></section>
-      <section class="card payments-card"><div class="card-head"><div><h2>Paiements à encaisser</h2><p>Triés par date de début</p></div><button class="text-link" data-page="payments">Tout voir ${icon("arrow")}</button></div>${payments}</section>
-      <section class="card tickets-card"><div class="card-head"><div><h2>Derniers tickets</h2><p>3 conversations nécessitent une réponse</p></div><button class="text-link" data-page="tickets">Ouvrir la file ${icon("arrow")}</button></div>${tickets}</section>
-    </div>`;
+function dashboardPage() { return '<div id="stats-module"></div>';
 }
 
-function bookingsPage() {
-  const rows = bookingRows.map((row, index) => `<tr class="${index < 3 ? "pending-row" : ""}">
-    <td><button class="reference" data-page="booking">${row[0]}</button><small>Créée il y a ${index + 1} h</small></td>
-    <td><strong>${row[1]}</strong><small>${row[2]}</small></td><td><strong>${row[3]}</strong><small>${index === 1 ? "Vol" : "Bundle · 2 voyageurs"}</small></td>
-    <td><strong>${row[4]}</strong><small>→ ${index + 20}/06/2026</small></td><td><strong>${row[5]}</strong></td>
-    <td>${badge(index === 3 ? "À l'arrivée" : "Payé", index === 3 ? "amber" : "green")}</td><td>${badge("En attente")}</td>
-    <td><div class="row-actions"><button data-page="booking" title="Voir">${icon("eye")}</button><button class="success" data-modal="Valider" title="Valider">${icon("check")}</button><button title="Plus">${icon("more")}</button></div></td>
-  </tr>`).join("");
-  return pageHead("Gestion", "Réservations", "Suivez, validez et gérez toutes les réservations clients.", button(`${icon("filter")} Exporter la liste`, "outline"))
-    + `<section class="card filters">
-      <label class="simple-field wide"><span>Rechercher</span><div>${icon("search")}<input placeholder="Référence, client, email…" /></div></label>
-      <label class="simple-field"><span>Période</span><div>${icon("calendar")}<input value="01/06/2026 — 30/06/2026" readonly /></div></label>
-      <label class="simple-field"><span>Type d'offre</span><div>${icon("package")}<select><option>Tous les types</option><option>Hôtel</option><option>Vol</option><option>Bundle</option></select></div></label>
-      ${button("Réinitialiser", "ghost")}
-      <div class="chips"><span>Statut</span>${["Toutes","En attente","Confirmée","Terminée","Annulée"].map((text, i) => `<button class="chip ${i === 1 ? "active" : ""}">${text}${i === 1 ? " · 7" : ""}</button>`).join("")}</div>
-    </section>
-    <section class="card table-card"><div class="list-title"><div><h2>Réservations</h2><p>24 résultats trouvés</p></div></div>
-      <table><thead><tr><th>Référence</th><th>Client</th><th>Contenu</th><th>Dates</th><th>Total</th><th>Paiement</th><th>Statut</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>${pagination()}
-    </section>`;
+function bookingsPage() { return '<div id="booking-module"></div>';
 }
 
-function bookingPage() {
-  const items = [
-    ["bed", "Riad Atlas – Chambre double", "Atlas Hospitality", "2 nuits", "1 700,00 MAD"],
-    ["car", "Excursion Chefchaouen → Tanger", "Rif Experience", "2 personnes", "2 650,00 MAD"],
-    ["plane", "Taxi aéroport Tanger", "Atlas Transferts", "1 trajet", "500,00 MAD"],
-  ].map((item) => `<div class="booking-item"><span>${icon(item[0])}</span><div><strong>${item[1]}</strong><small>${item[2]}</small></div><p>${item[3]}</p><b>${item[4]}</b></div>`).join("");
-  const timeline = [
-    ["check", "Demande créée", "Youssef El Amrani", "15/06/2026 · 14:32"],
-    ["check", "Paiement autorisé", "Système Atlas Pay", "15/06/2026 · 14:33"],
-    ["clock", "En attente de validation", "Routage automatique", "15/06/2026 · 14:34"],
-  ].map((item, i) => `<div class="timeline-item ${i === 2 ? "current" : ""}"><span>${icon(item[0])}</span><strong>${item[1]}</strong><p>${item[2]}</p><time>${item[3]}</time></div>`).join("");
-  return `<button class="back-link" data-page="bookings">← Retour aux réservations</button>`
-    + pageHead("Réservation", "BK-2026-000123", "Créée le 15/06/2026 à 14:32", badge("En attente de validation"))
-    + `<div class="detail-grid"><div class="stack">
-      <section class="card padded-card"><div class="client-title"><div><h2>Youssef El Amrani</h2><p>Client depuis septembre 2023 · 6 réservations</p></div><span class="avatar">YE</span></div><div class="contact-grid"><div><small>Email</small><strong>youssef.amrani@gmail.com</strong></div><div><small>Téléphone</small><strong>+212 6 12 34 56 78</strong></div><div><small>Pays</small><strong>Maroc</strong></div></div></section>
-      <section class="card"><div class="card-head"><div><h2>Détails du voyage</h2><p>Bundle : Échappée bleue du Nord</p></div>${badge("2 voyageurs", "blue")}</div><div class="bundle-header"><img src="${photos.blue}" alt="Chefchaouen" /><div><em>Bundle</em><strong>Échappée bleue du Nord</strong><small>18/06/2026 → 21/06/2026</small></div><strong>4 850,00 MAD</strong></div>${items}</section>
-      <section class="card"><div class="card-head"><h2>Historique</h2></div><div class="timeline">${timeline}</div></section>
-    </div><aside class="stack">
-      <section class="card action-card"><span class="eyebrow">Action requise</span><h2>Valider cette réservation</h2><p>Vérifiez les disponibilités avant de confirmer auprès du client.</p>${button(`${icon("check")} Valider la réservation`, "success", 'data-modal="Valider"')}${button("Rejeter la demande", "outline", 'data-modal="Rejeter"')}</section>
-      <section class="card padded-card"><h2>Paiement</h2><div style="display:flex;justify-content:space-between;margin:12px 0">${badge("Payé", "green")}<strong style="font-size:9px">Visa •••• 4242</strong></div><div class="summary-row"><span>Montant autorisé</span><strong>4 850,00 MAD</strong></div><div class="summary-row"><span>Transaction</span><strong>TXN-8F3C91</strong></div><div class="summary-row"><span>Sous-total</span><strong>5 500,00 MAD</strong></div><div class="summary-row discount"><span>Remise bundle</span><strong>−650,00 MAD</strong></div><div class="total-row"><span>Total payé</span><strong>4 850,00 MAD</strong></div>${button("Rembourser", "ghost", 'data-modal="Rembourser"')}</section>
-    </aside></div>`;
+function bookingPage() { return '<div id="booking-module"></div>';
 }
 
 /* ---------- Bundles (branchés sur l'API /api/bundles) ---------- */
@@ -229,7 +156,7 @@ function bundleCard(b) {
     <div class="bundle-body"><span class="location">${esc(b.cities.join(" · ") || "—")}</span><h2>${esc(b.title)}</h2>
     <div class="component-count"><span>${icon("package")}</span>${b.offers.length} composantes</div>
     <div class="price-flow"><small>Prix des offres</small>${discount > 0 ? `<del>${money(b.sumPrice)}</del><em>−${discount} %</em>` : "<span></span><span></span>"}<strong>${money(b.finalPrice)}</strong></div>
-    <div class="stock-title"><span>Stock dynamique</span><strong>${b.stock} bundle${b.stock > 1 ? "s" : ""} disponible${b.stock > 1 ? "s" : ""}</strong></div>
+    <div class="stock-title"><span>Capacité disponible</span><strong>${b.stock} réservation${b.stock > 1 ? "s" : ""} possible${b.stock > 1 ? "s" : ""}</strong></div>
     <div class="stock-track"><i style="width:${Math.min(100, Math.max(4, b.stock * 10))}%"></i></div>
     <div class="stock-note">Limité par : ${esc(b.limitingOfferTitle || "—")}</div>
     <div class="bundle-actions">${button("Modifier", "outline", `data-bundle-edit="${b.id}"`)}${button("Supprimer", "ghost", `data-bundle-delete="${b.id}" style="color:var(--red)"`)}</div></div></section>`;
@@ -252,7 +179,7 @@ function bundleSaveButtons() {
 function bundleComponentsHtml() {
   const offers = bundleState.draft.offers;
   if (!offers.length) return `<p style="color:var(--muted);font-size:9px;margin-bottom:12px">Aucune offre ajoutée pour le moment.</p>`;
-  return offers.map((o) => `<div class="component-row"><i></i><span class="offer-icon">${icon(OFFER_TYPE_ICONS[o.type] || "package")}</span><div><strong>${esc(o.title)}</strong><small>${esc(o.cityName || "—")} · Stock : ${o.stock}${o.active ? "" : " · inactive"}</small></div><span>${OFFER_TYPE_LABELS[o.type] || ""}</span><b>${money(o.basePrice)}</b><button class="remove-button" data-bundle-remove="${o.id}" aria-label="Retirer">×</button></div>`).join("");
+  return offers.map((o) => `<div class="component-row"><i></i><span class="offer-icon">${icon(OFFER_TYPE_ICONS[o.type] || "package")}</span><div><strong>${esc(o.title)}</strong><small>${esc(o.cityName || "—")} · Capacité : ${o.stock}${o.active ? "" : " · inactive"}</small></div><span>${OFFER_TYPE_LABELS[o.type] || ""}</span><b>${money(o.basePrice)}</b><button class="remove-button" data-bundle-remove="${o.id}" aria-label="Retirer">×</button></div>`).join("");
 }
 
 function bundleRecapHtml() {
@@ -263,7 +190,7 @@ function bundleRecapHtml() {
     <div class="summary-row"><span>Somme des offres</span><strong>${money(t.sum)}</strong></div>
     <div class="summary-row discount"><span>Remise (${t.discount} %)</span><strong>−${money(t.saved)}</strong></div>
     <div class="final-price"><span>Prix final</span><strong>${money(t.final)}</strong><small>${d.offers.length} offre${d.offers.length > 1 ? "s" : ""} combinée${d.offers.length > 1 ? "s" : ""}</small></div>
-    <div class="dynamic-stock">${icon("package")}<div><span>Stock dynamique</span><strong>${t.stock} bundle${t.stock > 1 ? "s" : ""} disponible${t.stock > 1 ? "s" : ""}</strong><small>${t.limiting ? `Limité par ${esc(t.limiting.title)}` : "Ajoutez des offres"}</small></div></div>
+    <div class="dynamic-stock">${icon("calendar-check")}<div><span>Capacité commune</span><strong>${t.stock} réservation${t.stock > 1 ? "s" : ""} possible${t.stock > 1 ? "s" : ""}</strong><small>${t.limiting ? `Limitée par ${esc(t.limiting.title)}` : "Ajoutez des offres"}</small></div></div>
     <div style="display:flex;flex-direction:column;gap:8px">${bundleSaveButtons()}</div></section>`;
 }
 
@@ -352,7 +279,7 @@ function renderPickList() {
   const query = (document.querySelector("#pick-search")?.value || "").trim().toLowerCase();
   const offers = bundleState.catalog.filter((o) => o.title.toLowerCase().includes(query) || (o.cityName || "").toLowerCase().includes(query));
   list.innerHTML = offers.length
-    ? offers.map((o) => `<label class="component-row" style="grid-template-columns:20px 36px 1fr auto auto;cursor:${o.stock > 0 ? "pointer" : "not-allowed"};opacity:${o.stock > 0 ? 1 : .5}"><input type="checkbox" data-pick-offer="${o.id}" ${bundleState.pick.has(o.id) ? "checked" : ""} ${o.stock > 0 ? "" : "disabled"} /><span class="offer-icon">${icon(OFFER_TYPE_ICONS[o.type] || "package")}</span><div><strong>${esc(o.title)}</strong><small>${OFFER_TYPE_LABELS[o.type]} · ${esc(o.cityName)} · ${esc(o.supplierName)} · Stock : ${o.stock}</small></div><span></span><b>${money(o.basePrice)}</b></label>`).join("")
+    ? offers.map((o) => `<label class="component-row" style="grid-template-columns:20px 36px 1fr auto auto;cursor:${o.stock > 0 ? "pointer" : "not-allowed"};opacity:${o.stock > 0 ? 1 : .5}"><input type="checkbox" data-pick-offer="${o.id}" ${bundleState.pick.has(o.id) ? "checked" : ""} ${o.stock > 0 ? "" : "disabled"} /><span class="offer-icon">${icon(OFFER_TYPE_ICONS[o.type] || "package")}</span><div><strong>${esc(o.title)}</strong><small>${OFFER_TYPE_LABELS[o.type]} · ${esc(o.cityName)} · ${esc(o.supplierName)} · Capacité : ${o.stock}</small></div><span></span><b>${money(o.basePrice)}</b></label>`).join("")
     : `<p style="color:var(--muted);font-size:9px;padding:14px 0">Aucune offre active ne correspond.</p>`;
   hydrateIcons(list);
   const count = document.querySelector("#pick-count");
@@ -437,47 +364,16 @@ document.addEventListener("click", (event) => {
   if (t.closest("[data-bundle-save]")) saveBundle();
 });
 
-function paymentsPage() {
-  const items = [
-    ["17 JUIN","09:00","NE","Nadia El Idrissi","BK-2026-000098","+212 6 84 22 10 40","1 850,00 MAD","Demain"],
-    ["18 JUIN","14:30","KB","Karim Benjelloun","BK-2026-000104","+212 6 73 11 92 08","3 200,00 MAD","À venir"],
-    ["20 JUIN","10:00","ST","Sofia Tazi","BK-2026-000111","+212 6 14 54 76 38","980,00 MAD","À venir"],
-    ["22 JUIN","16:00","RB","Rania Bennis","BK-2026-000118","+212 6 94 36 60 12","2 720,00 MAD","À venir"],
-  ].map((item, i) => `<div class="pay-row"><span class="pay-date"><strong>${item[0]}</strong><small>${item[1]}</small></span><span class="avatar" style="background:var(--pale);color:var(--navy)">${item[2]}</span><div><strong>${item[3]}</strong><small>${item[5]}</small></div><div><button class="reference">${item[4]}</button><small>Riad Atlas – Chambre double</small></div><strong>${item[6]}</strong>${badge(item[7], i === 0 ? "amber" : "blue")}${button("Marquer encaissé", "primary button-small", `data-toast="Paiement de ${item[3]} marqué encaissé"`)}</div>`).join("");
-  return pageHead("Encaissements", "Paiements à l'arrivée", "Suivez les montants à encaisser directement auprès des voyageurs.", button("Exporter", "outline"))
-    + `<div class="tabbar"><button class="active">À venir · 5</button><button>En retard · 2</button><button>Encaissés</button></div><section class="card table-card"><div class="list-title"><div><h2>Prochains encaissements</h2><p>Triés par date de début</p></div></div>${items}</section>`;
+function paymentsPage() { return '<div id="payment-module"></div>';
 }
 
 function ticketsPage() {
-  const tickets = [
-    ["#TK-0482","Remboursement non reçu","Youssef El Amrani","Paiement","Il y a 12 min","Urgent","red"],
-    ["#TK-0481","Modifier ma date d'arrivée","Imane Fikri","Réservation","Il y a 38 min","Ouvert","blue"],
-    ["#TK-0479","Question transfert aéroport","Adam Chami","Autre","Il y a 1 h","Ouvert","blue"],
-    ["#TK-0472","Facture de mon séjour","Meryem Saïdi","Paiement","Hier","Résolu","green"],
-  ].map((item, i) => `<button class="ticket-item ${i === 0 ? "selected" : ""}"><div><span>${item[0]}</span><time>${item[4]}</time></div><strong>${item[1]}</strong><p>${item[2]} · ${item[3]}</p>${badge(item[5], item[6])}</button>`).join("");
-  return pageHead("Assistance", "Tickets de support", "Répondez rapidement aux demandes des voyageurs.", button(`${icon("filter")} Filtres`, "outline"))
-    + `<div class="ticket-layout"><section class="card ticket-list"><div class="ticket-tabs"><button class="active">Mes tickets · 3</button><button>Non assignés · 1</button><button>Tous</button></div><label class="ticket-search">${icon("search")}<input placeholder="Rechercher un ticket…" /></label>${tickets}</section>
-      <section class="card conversation"><div class="conversation-head"><div><span>#TK-0482 · Paiement</span><h2>Remboursement non reçu</h2><p>Youssef El Amrani · BK-2026-000123</p></div>${badge("En cours", "blue")}</div><div class="messages"><div class="day-separator">Aujourd'hui</div><div class="message"><span class="avatar">YE</span><div class="message-bubble"><strong>Youssef El Amrani</strong><p>Bonjour, j'ai annulé ma réservation il y a une semaine mais je n'ai toujours pas reçu le remboursement sur ma carte. Pouvez-vous vérifier ?</p><time>09:14</time></div></div><div class="message agent"><div class="message-bubble"><strong>Nadia · Vous</strong><p>Bonjour Youssef, je vérifie immédiatement le statut de votre remboursement auprès de notre prestataire de paiement.</p><time>09:26 · Lu</time></div><span class="avatar">NE</span></div><div class="message"><span class="avatar">YE</span><div class="message-bubble"><strong>Youssef El Amrani</strong><p>Merci beaucoup. La référence de la réservation est BK-2026-000123.</p><time>10:30</time></div></div></div><div class="reply-box"><textarea id="ticket-reply" placeholder="Écrivez votre réponse…"></textarea><div class="reply-actions"><span>Joindre un fichier</span>${button("Envoyer", "primary", 'data-action="send-reply"')}</div></div></section>
-      <aside><section class="card ticket-info"><h2>Informations</h2><label><span>Statut</span><select><option>En cours</option><option>Résolu</option></select></label><label><span>Assigné à</span><select><option>Nadia El Fassi</option></select></label><hr /><small>Client</small><strong>Youssef El Amrani</strong><p>youssef.amrani@gmail.com</p><hr /><small>Réservation liée</small><button class="reference" data-page="booking">BK-2026-000123</button><p>4 850,00 MAD · Payé</p></section></aside></div>`;
+  return '<div id="tickets-module"></div>';
 }
 
-function notificationsPage() {
-  const items = [
-    ["calendar","Nouvelle réservation en attente","Youssef El Amrani a réservé « Échappée bleue du Nord ».","Il y a 5 min",""],
-    ["message","Nouveau ticket de support","Remboursement non reçu · Ticket #TK-0482","Il y a 18 min","amber"],
-    ["wallet","Rappel de paiement non encaissé","Le paiement de Nadia El Idrissi est attendu demain.","Il y a 4 h","violet"],
-    ["check","Réservation confirmée","La réservation BK-2026-000119 a bien été confirmée.","Hier","green"],
-  ].map((item, i) => `<button class="notification-row"><span class="notification-icon ${item[4]}">${icon(item[0])}</span><div><strong>${item[1]}</strong><p>${item[2]}</p><time>${item[3]}</time></div>${i < 4 ? "<i></i>" : ""}<span class="text-link">Voir ${icon("arrow")}</span></button>`).join("");
-  return pageHead("Centre d'activité", "Notifications", "Retrouvez toutes les informations qui nécessitent votre attention.", button("Tout marquer comme lu", "ghost"))
-    + `<div class="tabbar"><button class="active">Toutes</button><button>Non lues · 4</button></div><section class="card notification-card">${items}</section>`;
-}
+function notificationsPage() { return '<div id="notification-module"></div>'; }
 
-function profilePage() {
-  return pageHead("Mon compte", "Profil", "Gérez vos informations personnelles et la sécurité de votre compte.")
-    + `<div class="profile-grid"><section class="card profile-summary"><span class="profile-avatar">NE</span><h2>Nadia El Fassi</h2><p>Agent · Agence Marrakech Guéliz</p>${badge("Compte actif", "green")}<div class="profile-meta"><small>Membre depuis</small><strong>12 janvier 2024</strong><small>Dernière connexion</small><strong>Aujourd'hui à 08:42</strong></div></section>
-      <div><section class="card profile-form"><h2>Informations personnelles</h2><p>Ces informations sont visibles par votre équipe.</p><div class="form-grid"><label class="full-field"><span>Prénom</span><input value="Nadia" /></label><label class="full-field"><span>Nom</span><input value="El Fassi" /></label><label class="full-field"><span>Téléphone</span><input value="+212 6 42 18 29 30" /></label><label class="full-field"><span>Email professionnel</span><input value="nadia.elfassi@atlasvoyage.ma" disabled /><small>L'adresse email n'est pas modifiable.</small></label></div>${button("Enregistrer les modifications", "primary", 'data-toast="Profil mis à jour"')}</section>
-      <section class="card profile-form"><h2>Changer le mot de passe</h2><p>Utilisez au moins 8 caractères, une majuscule et un chiffre.</p><div class="form-grid"><label class="full-field span-two"><span>Mot de passe actuel</span><input type="password" placeholder="••••••••••••" /></label><label class="full-field"><span>Nouveau mot de passe</span><input type="password" placeholder="8 caractères minimum" /></label><label class="full-field"><span>Confirmer</span><input type="password" placeholder="Répétez le mot de passe" /></label></div>${button("Mettre à jour le mot de passe", "outline", 'data-toast="Mot de passe mis à jour"')}</section></div></div>`;
-}
+function profilePage() { return '<div id="profile-module"></div>'; }
 
 const pageHooks = { bundles: loadBundlesPage };
 
@@ -494,6 +390,7 @@ const pageRenderers = {
 };
 
 function renderPage(page) {
+  StatsUI.dispose(); AccountUI.dispose();
   if (!pageRenderers[page]) page = "dashboard";
   currentPage = page;
   const params = new URLSearchParams(window.location.search);
@@ -504,6 +401,13 @@ function renderPage(page) {
   document.querySelector("#breadcrumb-label").textContent = page === "booking" ? "Détail de la réservation" : page === "bundle-editor" ? (bundleState.editingId !== null ? "Modifier le bundle" : "Nouveau bundle") : navItems.find((item) => item[0] === page)?.[1] || "Tableau de bord";
   renderNav();
   hydrateIcons(document.querySelector("#page-content"));
+  if (page === "bookings") BookingsUI.list(document.getElementById("booking-module"), "AGENT");
+  if (page === "dashboard") StatsUI.mount(document.getElementById("stats-module"), "AGENT");
+  if (page === "booking") BookingsUI.detail(document.getElementById("booking-module"), params.get("id"), "AGENT");
+  if (page === "payments") PaymentsUI.list(document.getElementById("payment-module"), "AGENT", true);
+  if (page === "notifications") NotificationsUI.page(document.getElementById("notification-module"));
+  if (page === "tickets") TicketsUI.agent(document.getElementById("tickets-module"));
+  if (page === "profile") AccountUI.mount(document.getElementById("profile-module"),"AGENT");
   pageHooks[page]?.();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -515,59 +419,24 @@ function showToast(message, error = false) {
   showToast.timer = window.setTimeout(() => { root.innerHTML = ""; }, error ? 5000 : 3200);
 }
 
-function showModal(kind) {
-  const reject = kind === "Rejeter";
-  const refund = kind === "Rembourser";
-  const publish = kind === "Publier";
-  const title = publish ? "Publier ce bundle ?" : `${kind} la réservation ?`;
-  const description = reject
-    ? "Le client sera notifié immédiatement. Un remboursement automatique de 100 % sera déclenché."
-    : refund
-      ? "Indiquez le montant à rembourser sur le moyen de paiement d'origine."
-      : publish
-        ? "Le bundle sera immédiatement visible dans le catalogue avec un stock dynamique de 8 unités."
-        : "La réservation BK-2026-000123 sera confirmée et le client recevra son récapitulatif.";
-  const field = reject
-    ? `<label class="full-field"><span>Motif obligatoire</span><textarea id="modal-reason" placeholder="Expliquez le motif du rejet…"></textarea></label>`
-    : refund
-      ? `<label class="full-field"><span>Montant à rembourser</span><input value="4 850,00 MAD" /></label>`
-      : "";
-  document.querySelector("#modal-root").innerHTML = `<div class="modal-backdrop" data-action="close-modal"><section class="modal" role="dialog" aria-modal="true"><button class="modal-close" data-action="close-modal">×</button><span class="modal-icon ${reject ? "red" : refund ? "violet" : ""}">${icon(reject ? "alert" : refund ? "wallet" : "check")}</span><h2>${title}</h2><p>${description}</p>${field}<div class="modal-summary"><span>${publish ? "Bundle" : "Réservation"}</span><strong>${publish ? "Escapade entre médina et océan" : "BK-2026-000123"}</strong><span>${publish ? "Stock disponible" : "Client"}</span><strong>${publish ? "8 bundles" : "Youssef El Amrani"}</strong><span>${publish ? "Prix final" : "Montant"}</span><strong>${publish ? "2 507,50 MAD" : "4 850,00 MAD"}</strong></div><div class="modal-actions">${button("Annuler", "ghost", 'data-action="close-modal"')}${button(publish ? "Publier le bundle" : `${kind} la réservation`, reject ? "danger" : refund ? "outline" : "success", `data-action="confirm-modal" data-kind="${kind}"`)}</div></section></div>`;
-}
 
-function renderNotificationDropdown() {
-  document.querySelector("#notification-dropdown").innerHTML = `<div class="dropdown-title"><strong>Notifications</strong><button>Tout marquer comme lu</button></div>
-    <button class="dropdown-item" data-page="booking"><span>${icon("calendar")}</span><span><strong>Nouvelle réservation</strong><p>BK-2026-000123 est en attente</p><small>Il y a 5 min</small></span><i class="unread-dot"></i></button>
-    <button class="dropdown-item" data-page="tickets"><span>${icon("message")}</span><span><strong>Nouveau ticket</strong><p>Demande de Youssef El Amrani</p><small>Il y a 18 min</small></span><i class="unread-dot"></i></button>
-    <button class="dropdown-footer" data-page="notifications">Voir toutes les notifications ${icon("arrow")}</button>`;
-}
+
+
 
 document.addEventListener("click", (event) => {
   const pageButton = event.target.closest("[data-page]");
   if (pageButton) {
     if (pageButton.dataset.page === "bundle-editor") startNewBundle();
     renderPage(pageButton.dataset.page);
-    document.querySelector("#notification-dropdown").classList.add("hidden");
+    NotificationsUI.close();
     return;
   }
   const toastButton = event.target.closest("[data-toast]");
   if (toastButton) showToast(toastButton.dataset.toast);
-  const modalButton = event.target.closest("[data-modal]");
-  if (modalButton) showModal(modalButton.dataset.modal);
   const actionButton = event.target.closest("[data-action]");
   if (!actionButton) return;
   if (actionButton.dataset.action === "close-modal" && (event.target === actionButton || actionButton.tagName === "BUTTON")) document.querySelector("#modal-root").innerHTML = "";
-  if (actionButton.dataset.action === "confirm-modal") {
-    const kind = actionButton.dataset.kind;
-    const reason = document.querySelector("#modal-reason");
-    if (reason && !reason.value.trim()) {
-      reason.style.borderColor = "#dc2626";
-      reason.focus();
-      return;
-    }
-    document.querySelector("#modal-root").innerHTML = "";
-    showToast(kind === "Publier" ? "Bundle publié avec succès" : `Réservation ${kind.toLowerCase()} avec succès`);
-  }
+
   if (actionButton.dataset.action === "close-toast") document.querySelector("#toast-root").innerHTML = "";
   if (actionButton.dataset.action === "send-reply") {
     const reply = document.querySelector("#ticket-reply");
@@ -586,9 +455,6 @@ document.querySelector("#sidebar-toggle").addEventListener("click", () => {
   document.querySelector("#sidebar-toggle").setAttribute("aria-label", collapsed ? "Déplier le menu" : "Replier le menu");
 });
 
-document.querySelector("#notification-button").addEventListener("click", () => {
-  document.querySelector("#notification-dropdown").classList.toggle("hidden");
-});
 
 document.querySelector("#logout-button").addEventListener("click", () => Auth.logout());
 
@@ -601,9 +467,33 @@ if (currentUser) {
   document.querySelector("#account-name").textContent = currentUser.fullName;
 }
 
-renderNotificationDropdown();
 renderNav();
 hydrateIcons();
 
+if (window.I18n) {
+  I18n.init({ namespaces: ['common', 'nav', 'agent', 'status', 'errors'] }).then(() => {
+    const c = document.getElementById("agent-i18n-container");
+    if (c) {
+      c.innerHTML = (window.AtlasCurrency ? AtlasCurrency.renderCurrencySwitcher() : "");
+      I18n.bindLanguageSwitcher(c);
+      if (window.AtlasCurrency) AtlasCurrency.bindCurrencySwitcher(c);
+    }
+  });
+  window.addEventListener("i18n:change", () => {
+    const c = document.getElementById("agent-i18n-container");
+    if (c) {
+      c.innerHTML = (window.AtlasCurrency ? AtlasCurrency.renderCurrencySwitcher() : "");
+      I18n.bindLanguageSwitcher(c);
+      if (window.AtlasCurrency) AtlasCurrency.bindCurrencySwitcher(c);
+    }
+    renderNav();
+    hydrateIcons();
+    const curr = new URLSearchParams(window.location.search).get("page") || "dashboard";
+    renderPage(curr in pageRenderers ? curr : "dashboard");
+  });
+}
+
 const requestedPage = new URLSearchParams(window.location.search).get("page") || "dashboard";
 renderPage(requestedPage in pageRenderers ? requestedPage : "dashboard");
+
+NotificationsUI.attach("#notification-button","#notification-dropdown");

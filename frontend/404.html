@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page introuvable (404) | Atlas Voyage</title>
+    <meta name="description" content="La page que vous recherchez semble introuvable. Retrouvez votre chemin vers les plus beaux voyages au Maroc sur Atlas Voyage." />
+    <link rel="icon" type="image/png" href="images/favicon.png" />
+    <link rel="stylesheet" href="css/av.css" />
+    <script src="js/shared/theme.js"></script>
+  </head>
+  <body style="min-height: 100vh; display: flex; flex-direction: column;">
+    <a href="#main-content" class="av-skip-link">Aller au contenu principal</a>
+
+    <!-- Simple Header -->
+    <header style="background: var(--av-color-surface); border-bottom: 1px solid var(--av-color-border-subtle); padding: var(--av-space-4) 0;">
+      <div class="av-container" style="display: flex; align-items: center; justify-content: space-between;">
+        <a href="accueil.html" class="av-brand" aria-label="Atlas Voyage - Accueil">
+          <img src="images/logo.png" alt="Atlas Voyage" style="height: 40px; width: auto;" />
+        </a>
+      </div>
+    </header>
+
+    <main id="main-content" style="flex: 1; display: flex; align-items: center; justify-content: center; padding: var(--av-space-12) var(--av-space-4); text-align: center;">
+      <div style="max-width: 600px;">
+        <div style="font-size: clamp(4rem, 12vw, 8rem); font-weight: 900; line-height: 1; color: var(--av-color-brand); margin-bottom: var(--av-space-2); letter-spacing: -0.05em;">
+          404
+        </div>
+        <div class="av-badge av-badge--warning" style="margin-bottom: var(--av-space-4);" data-i18n="errors.notFound">
+          Ruelle sans issue dans la médina
+        </div>
+        <h1 class="av-heading-2" style="margin-bottom: var(--av-space-3);" data-i18n="errors.http404.title">
+          Cette page s'est perdue dans les souks
+        </h1>
+        <p style="color: var(--av-color-text-subtle); font-size: var(--av-text-base); line-height: 1.6; margin-bottom: var(--av-space-8);" data-i18n="errors.http404.desc">
+          L'adresse demandée n'existe pas ou a été déplacée. Ne vous inquiétez pas, notre caravane est là pour vous guider vers les plus belles destinations du Maroc.
+        </p>
+
+        <form action="catalogue.html" method="GET" style="display: flex; gap: var(--av-space-2); max-width: 440px; margin: 0 auto var(--av-space-8) auto;">
+          <input type="search" name="ville" class="av-field__input" placeholder="Où souhaitez-vous aller ? (ex. Marrakech)" aria-label="Rechercher une destination" style="flex: 1;" />
+          <button type="submit" class="av-btn av-btn--primary" data-i18n="common.actions.search">Rechercher</button>
+        </form>
+
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: var(--av-space-4);">
+          <a href="accueil.html" class="av-btn av-btn--primary" data-i18n="errors.http404.button">
+            Retourner à l'accueil
+          </a>
+          <a href="catalogue.html" class="av-btn av-btn--outline" data-i18n="home.hero.cta">
+            Explorer tout le catalogue
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <footer style="background-color: var(--av-color-surface); border-top: 1px solid var(--av-color-border-subtle); padding: var(--av-space-4) 0; text-align: center; font-size: var(--av-text-xs); color: var(--av-color-text-subtle);">
+      &copy; 2026 Atlas Voyage S.A.R.L. Tous droits réservés.
+    </footer>
+
+    <script src="js/shared/i18n.js?v=14"></script>
+    <script src="js/shared/currency.js?v=14"></script>
+    <script>
+      if (window.I18n) {
+        I18n.init({ namespaces: ['common', 'nav', 'errors', 'home'] }).then(() => {
+          I18n.applyTranslations(document);
+        });
+        window.addEventListener('i18n:change', () => {
+          I18n.applyTranslations(document);
+        });
+      }
+    </script>
+  </body>
+</html>
+

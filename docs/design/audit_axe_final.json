@@ -1,0 +1,142 @@
+{
+  "404": {
+    "url": "http://127.0.0.1:5500/frontend/404.html",
+    "passes": 20,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "500": {
+    "url": "http://127.0.0.1:5500/frontend/500.html",
+    "passes": 18,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "accueil": {
+    "url": "http://127.0.0.1:5500/frontend/accueil.html",
+    "passes": 18,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "catalogue": {
+    "url": "http://127.0.0.1:5500/frontend/catalogue.html?type=H%C3%B4tels%20%26%20Riads",
+    "passes": 21,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "offre": {
+    "url": "http://127.0.0.1:5500/frontend/offre.html?id=chefchaouen",
+    "passes": 17,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "panier": {
+    "url": "http://127.0.0.1:5500/frontend/panier.html",
+    "passes": 18,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "connexion": {
+    "url": "http://127.0.0.1:5500/frontend/connexion.html",
+    "passes": 26,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "a-propos": {
+    "url": "http://127.0.0.1:5500/frontend/a-propos.html",
+    "passes": 20,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "contact": {
+    "url": "http://127.0.0.1:5500/frontend/contact.html",
+    "passes": 24,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "faq": {
+    "url": "http://127.0.0.1:5500/frontend/faq.html",
+    "passes": 24,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "admin": {
+    "url": "http://127.0.0.1:5500/frontend/admin/index.html",
+    "passes": 26,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "client": {
+    "url": "http://127.0.0.1:5500/frontend/client/index.html",
+    "passes": 26,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "supplier": {
+    "url": "http://127.0.0.1:5500/frontend/supplier/index.html",
+    "passes": 26,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  },
+  "agent": {
+    "url": "http://127.0.0.1:5500/frontend/agent/index.html",
+    "passes": 26,
+    "violationsCount": 0,
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "details": []
+  }
+}

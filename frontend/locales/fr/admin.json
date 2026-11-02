@@ -1,0 +1,24 @@
+{
+  "title": "Administration Atlas Voyage",
+  "tabs": {
+    "dashboard": "Tableau de bord",
+    "users": "Utilisateurs",
+    "cities": "Villes & Géographie",
+    "offers": "Modération des Offres",
+    "reviews": "Modération des Avis",
+    "audit": "Journal d'Audit",
+    "settings": "Paramètres Système"
+  },
+  "moderation": {
+    "pending": "Avis en attente de validation",
+    "approve": "Approuver et publier",
+    "reject": "Rejeter",
+    "reason": "Motif de modération"
+  },
+  "settings": {
+    "title": "Configuration globale",
+    "save": "Enregistrer les modifications",
+    "maintenance": "Mode maintenance plateforme"
+  }
+}
+

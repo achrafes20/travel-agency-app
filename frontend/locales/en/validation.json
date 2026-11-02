@@ -1,0 +1,12 @@
+{
+  "required": "This field is required.",
+  "email": "Please enter a valid email address.",
+  "passwordLength": "The password must be at least 12 characters long.",
+  "passwordMismatch": "The two passwords do not match.",
+  "invalidDates": "Departure date must be before return date.",
+  "pastDate": "Selected date cannot be in the past.",
+  "positiveNumber": "Please enter a positive number.",
+  "minTravelers": "Number of travellers must be at least 1.",
+  "driverAge": "Driver age must be between {min} and {max} years old."
+}
+

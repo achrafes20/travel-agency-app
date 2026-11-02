@@ -1,0 +1,5 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:fragment="layout"><body style="margin:0;background:#f3f6fc;font-family:Arial,sans-serif;color:#102b54">
+<table role="presentation" style="width:100%;max-width:620px;margin:24px auto;background:white;border-radius:16px"><tr><td style="background:#083b85;padding:24px;color:white;font-size:24px;font-weight:bold">Atlas<span style="color:#ffbf00">Voyage</span></td></tr>
+<tr><td style="padding:28px"><h1 th:text="${title}" style="font-size:23px"></h1><p>Bonjour <span th:text="${name}"></span>,</p><p style="white-space:pre-line;line-height:1.7" th:text="${message}"></p><a th:if="${!#strings.isEmpty(link)}" th:href="${link}" style="display:inline-block;background:#083b85;color:white;padding:12px 20px;border-radius:8px;text-decoration:none">Consulter mon espace</a></td></tr>
+<tr><td style="padding:24px;color:#64748b;font-size:12px">Atlas Voyage · Assistance et voyages au Maroc<br><a th:href="${preferencesUrl}">Gérer mes préférences</a><p>Les e-mails de compte et de sécurité restent obligatoires.</p></td></tr></table></body></html>

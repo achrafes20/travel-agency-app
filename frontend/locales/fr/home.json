@@ -1,0 +1,46 @@
+{
+  "eyebrow": "L'ÉVASION COMMENCE ICI",
+  "heroTitle": "Le Maroc vous attend.<br>Vivez-le pleinement.",
+  "heroSubtitle": "Des ruelles bleues aux dunes dorées, trouvez le voyage qui vous ressemble avec Atlas Voyage.",
+  "search": {
+    "city": "Ville ou destination",
+    "cityPlaceholder": "Rechercher une ville au Maroc...",
+    "departure": "Date de départ",
+    "return": "Date de retour",
+    "travelers": "Voyageurs",
+    "button": "Rechercher mon séjour"
+  },
+  "socialProof": {
+    "rating": "4.8/5",
+    "reviewsCount": "12 000+ avis voyageurs",
+    "featuredIn": "Vu dans"
+  },
+  "featured": {
+    "title": "Nos séjours & expériences coups de cœur",
+    "subtitle": "Une sélection soignée d'hébergements authentiques et d'excursions inoubliables.",
+    "startingFrom": "À partir de"
+  },
+  "pillars": {
+    "title": "Pourquoi choisir Atlas Voyage ?",
+    "authentic": {
+      "title": "Authenticité garantie",
+      "desc": "Sélection rigoureuse de riads traditionnels et d'artisans du voyage locaux."
+    },
+    "flexibility": {
+      "title": "Flexibilité & Sécurité",
+      "desc": "Paiement à l'arrivée disponible et conditions d'annulation transparentes."
+    },
+    "assistance": {
+      "title": "Assistance 24/7 sur place",
+      "desc": "Notre équipe marocaine vous accompagne à chaque étape de votre périple."
+    }
+  },
+  "newsletter": {
+    "title": "Recevez nos pépites & offres exclusives",
+    "subtitle": "Inscrivez-vous pour découvrir les secrets les mieux gardés du Royaume.",
+    "placeholder": "Votre adresse email...",
+    "button": "S'abonner",
+    "success": "Merci ! Votre inscription à notre newsletter est validée."
+  }
+}
+

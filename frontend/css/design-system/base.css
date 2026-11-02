@@ -1,0 +1,161 @@
+/* ==============================================================================
+   ATLAS VOYAGE — STYLES DE BASE ET RESET (base.css)
+   ============================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--av-color-bg);
+  color: var(--av-color-text);
+  font-family: var(--av-font-sans);
+  font-size: var(--av-text-base);
+  line-height: var(--av-leading-normal);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--av-dur-normal) var(--av-ease-out),
+              color var(--av-dur-normal) var(--av-ease-out);
+}
+
+/* --- ACCESSIBILITÉ : RESPECT STRICT DE PREFERS-REDUCED-MOTION --- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- LIEN D'ÉVITEMENT ACCESSIBLE (SKIP LINK) --- */
+.av-skip-link {
+  position: absolute;
+  top: -100px;
+  left: var(--av-space-4);
+  z-index: var(--av-z-tooltip);
+  padding: var(--av-space-3) var(--av-space-5);
+  background-color: var(--av-color-brand);
+  color: var(--av-color-brand-contrast);
+  font-weight: var(--av-font-weight-bold);
+  font-size: var(--av-text-sm);
+  border-radius: var(--av-radius-md);
+  text-decoration: none;
+  box-shadow: var(--av-shadow-lg);
+  transition: top var(--av-dur-fast) var(--av-ease-out);
+}
+
+.av-skip-link:focus,
+.av-skip-link:focus-visible {
+  top: var(--av-space-4);
+  outline: 3px solid var(--av-color-focus);
+  outline-offset: 2px;
+}
+
+/* --- TYPOGRAPHIE GLOBALE --- */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: var(--av-space-3);
+  font-family: var(--av-font-display);
+  font-weight: var(--av-font-weight-bold);
+  line-height: var(--av-leading-tight);
+  color: var(--av-color-text);
+  letter-spacing: -0.015em;
+}
+
+h1 { font-size: var(--av-text-4xl); }
+h2 { font-size: var(--av-text-3xl); }
+h3 { font-size: var(--av-text-2xl); }
+h4 { font-size: var(--av-text-xl); }
+h5 { font-size: var(--av-text-lg); }
+h6 { font-size: var(--av-text-base); }
+
+p {
+  margin-top: 0;
+  margin-bottom: var(--av-space-4);
+}
+
+small {
+  font-size: var(--av-text-sm);
+}
+
+/* --- LIENS ET FOCUS VISIBLE WCAG 2.1 AA --- */
+a {
+  color: var(--av-color-brand);
+  text-decoration: none;
+  transition: color var(--av-dur-fast) var(--av-ease-out);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--av-color-focus) !important;
+  outline-offset: 2px !important;
+}
+
+/* --- IMAGES & MULTIMÉDIA --- */
+img, svg, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* --- FORMULAIRES DE BASE --- */
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* --- SÉLECTION TEXTE --- */
+::selection {
+  background-color: var(--av-brand-200);
+  color: var(--av-brand-900);
+}
+:root[data-theme="dark"] ::selection {
+  background-color: var(--av-brand-800);
+  color: var(--av-brand-100);
+}
+
+/* --- ATTRIBUT HIDDEN UNIVERSEL --- */
+[hidden] {
+  display: none !important;
+}
+
+

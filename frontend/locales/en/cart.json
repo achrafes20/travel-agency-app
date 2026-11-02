@@ -1,0 +1,29 @@
+{
+  "title": "My Travel Cart",
+  "empty": "Your cart is currently empty.",
+  "exploreCatalog": "Explore our travel offers",
+  "itemsCount": "{count} item(s) selected",
+  "item": {
+    "dates": "From {start} to {end}",
+    "travelers": "{count} traveller(s)",
+    "remove": "Remove this item",
+    "unitPrice": "Unit price: {price}",
+    "total": "Total: {price}"
+  },
+  "promo": {
+    "title": "Promo Code",
+    "placeholder": "Enter promo code...",
+    "apply": "Apply",
+    "applied": "Promo code applied ({code})",
+    "invalid": "Invalid or expired promo code"
+  },
+  "summary": {
+    "title": "Order Summary",
+    "subtotal": "Subtotal:",
+    "discount": "Discount:",
+    "total": "Total Amount:",
+    "legalNotice": "All prices are stated in Moroccan Dirhams (MAD) VAT included. Foreign currency conversions are strictly indicative.",
+    "proceedToCheckout": "Proceed to Booking"
+  }
+}
+

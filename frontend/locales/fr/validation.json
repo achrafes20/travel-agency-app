@@ -1,0 +1,12 @@
+{
+  "required": "Ce champ est obligatoire.",
+  "email": "Veuillez saisir une adresse email valide.",
+  "passwordLength": "Le mot de passe doit comporter au moins 12 caractères.",
+  "passwordMismatch": "Les deux mots de passe ne correspondent pas.",
+  "invalidDates": "La date de départ doit être antérieure à la date de retour.",
+  "pastDate": "La date sélectionnée ne peut pas être dans le passé.",
+  "positiveNumber": "Veuillez indiquer un nombre positif.",
+  "minTravelers": "Le nombre de voyageurs doit être d'au moins 1.",
+  "driverAge": "L'âge du conducteur doit être compris entre {min} et {max} ans."
+}
+

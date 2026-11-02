@@ -7,6 +7,7 @@ import com.agence.voyage.entity.Hotel;
 import com.agence.voyage.entity.Offer;
 import com.agence.voyage.entity.OfferType;
 import com.agence.voyage.entity.TaxiTransfer;
+import com.agence.voyage.entity.OfferAvailability;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,16 +26,56 @@ public class OfferResponse {
     private Double basePrice;
 
     private Integer stock;
+    private List<AvailabilityView> availabilities;
+    private Boolean availableNow;
+    private LocalDateTime nextAvailabilityStart;
+    private LocalDateTime nextAvailabilityEnd;
+    private Integer availableCapacity;
+
+    public static class AvailabilityView {
+        private LocalDateTime startAt; private LocalDateTime endAt; private Integer capacity;
+        public static AvailabilityView from(OfferAvailability a) { AvailabilityView v = new AvailabilityView(); v.startAt=a.getStartAt(); v.endAt=a.getEndAt(); v.capacity=a.getCapacity(); return v; }
+        public LocalDateTime getStartAt() { return startAt; }
+        public LocalDateTime getEndAt() { return endAt; }
+        public Integer getCapacity() { return capacity; }
+    }
 
     private Boolean allowsPayOnArrival;
 
     private Boolean active;
+
+    private Double averageRating;
+
+    private Integer reviewCount;
+
+    private String moderationReason;
+    private LocalDateTime moderatedAt;
+    private Long moderatedById;
+    private String moderatedByName;
 
     private List<String> images;
 
     private Long cityId;
 
     private String cityName;
+    private String cityCountry;
+    private String cityCountryCode;
+    private Boolean cityHasAirport;
+
+    private List<String> availableLanguages;
+    public List<String> getAvailableLanguages() { return availableLanguages; }
+    public void setAvailableLanguages(List<String> availableLanguages) { this.availableLanguages = availableLanguages; }
+
+    public void applyTranslation(com.agence.voyage.entity.OfferTranslation t) {
+        if (t != null) {
+            if (t.getTitle() != null && !t.getTitle().isBlank()) {
+                this.title = t.getTitle();
+            }
+            if (t.getDescription() != null && !t.getDescription().isBlank()) {
+                this.description = t.getDescription();
+            }
+        }
+    }
 
     private Long supplierId;
 
@@ -51,6 +92,10 @@ public class OfferResponse {
     private LocalDateTime departureDateTime;
 
     private LocalDateTime arrivalDateTime;
+    private Boolean roundTrip;
+    private LocalDateTime returnDepartureDateTime;
+    private LocalDateTime returnArrivalDateTime;
+    private String cabinClass;
 
     private Integer stars;
 
@@ -66,9 +111,17 @@ public class OfferResponse {
 
     private Integer seats;
 
+    private Boolean allowsDifferentDropoff;
+
+    private Integer minimumDriverAge;
+
+    private Integer maximumDriverAge;
+
     private String pickupLocation;
 
     private String dropoffLocation;
+
+    private List<String> dropoffLocations;
 
     private String vehicleType;
 
@@ -87,12 +140,29 @@ public class OfferResponse {
         r.description = offer.getDescription();
         r.basePrice = offer.getBasePrice();
         r.stock = offer.getStock();
+        r.availabilities = offer.getAvailabilities().stream().map(AvailabilityView::from).toList();
+        LocalDateTime now = LocalDateTime.now();
+        OfferAvailability current = offer.getAvailabilities().stream().filter(a -> !now.isBefore(a.getStartAt()) && now.isBefore(a.getEndAt()) && a.getCapacity() > 0).findFirst().orElse(null);
+        OfferAvailability next = offer.getAvailabilities().stream().filter(a -> a.getEndAt().isAfter(now) && a.getCapacity() > 0).min(java.util.Comparator.comparing(OfferAvailability::getStartAt)).orElse(null);
+        r.availableNow = Boolean.TRUE.equals(offer.getActive()) && current != null;
+        if (next != null) { r.nextAvailabilityStart=next.getStartAt(); r.nextAvailabilityEnd=next.getEndAt(); r.availableCapacity=next.getCapacity(); }
         r.allowsPayOnArrival = offer.getAllowsPayOnArrival();
         r.active = offer.getActive();
+        r.averageRating = offer.getAverageRating() != null ? offer.getAverageRating() : 0.0;
+        r.reviewCount = offer.getReviewCount() != null ? offer.getReviewCount() : 0;
+        r.moderationReason = offer.getModerationReason();
+        r.moderatedAt = offer.getModeratedAt();
+        if (offer.getModeratedBy() != null) {
+            r.moderatedById = offer.getModeratedBy().getId();
+            r.moderatedByName = offer.getModeratedBy().getFullName();
+        }
         r.images = new ArrayList<>(offer.getImages());
         if (offer.getCity() != null) {
             r.cityId = offer.getCity().getId();
             r.cityName = offer.getCity().getName();
+            r.cityCountry = offer.getCity().getCountry();
+            r.cityCountryCode = offer.getCity().getCountryCode();
+            r.cityHasAirport = offer.getCity().getHasAirport();
         }
         if (offer.getSupplier() != null) {
             r.supplierId = offer.getSupplier().getId();
@@ -106,6 +176,10 @@ public class OfferResponse {
             r.arrivalAirport = f.getArrivalAirport();
             r.departureDateTime = f.getDepartureDateTime();
             r.arrivalDateTime = f.getArrivalDateTime();
+            r.roundTrip = f.getRoundTrip();
+            r.returnDepartureDateTime = f.getReturnDepartureDateTime();
+            r.returnArrivalDateTime = f.getReturnArrivalDateTime();
+            r.cabinClass = f.getCabinClass();
         } else if (offer instanceof Hotel h) {
             r.type = OfferType.HOTEL;
             r.stars = h.getStars();
@@ -117,6 +191,12 @@ public class OfferResponse {
             r.model = c.getModel();
             r.transmission = c.getTransmission();
             r.seats = c.getSeats();
+            r.pickupLocation = c.getPickupLocation();
+            r.dropoffLocations = c.getDropoffLocations();
+            r.dropoffLocation = c.getDropoffLocations().stream().findFirst().orElse(c.getPickupLocation());
+            r.allowsDifferentDropoff = c.getAllowsDifferentDropoff();
+            r.minimumDriverAge = c.getMinimumDriverAge();
+            r.maximumDriverAge = c.getMaximumDriverAge();
         } else if (offer instanceof TaxiTransfer t) {
             r.type = OfferType.TAXI_TRANSFER;
             r.pickupLocation = t.getPickupLocation();
@@ -179,6 +259,11 @@ public class OfferResponse {
     public void setStock(Integer stock) {
         this.stock = stock;
     }
+    public List<AvailabilityView> getAvailabilities() { return availabilities; }
+    public Boolean getAvailableNow() { return availableNow; }
+    public LocalDateTime getNextAvailabilityStart() { return nextAvailabilityStart; }
+    public LocalDateTime getNextAvailabilityEnd() { return nextAvailabilityEnd; }
+    public Integer getAvailableCapacity() { return availableCapacity; }
 
     public Boolean getAllowsPayOnArrival() {
         return allowsPayOnArrival;
@@ -195,6 +280,15 @@ public class OfferResponse {
     public void setActive(Boolean active) {
         this.active = active;
     }
+
+    public String getModerationReason() { return moderationReason; }
+    public void setModerationReason(String moderationReason) { this.moderationReason = moderationReason; }
+    public LocalDateTime getModeratedAt() { return moderatedAt; }
+    public void setModeratedAt(LocalDateTime moderatedAt) { this.moderatedAt = moderatedAt; }
+    public Long getModeratedById() { return moderatedById; }
+    public void setModeratedById(Long moderatedById) { this.moderatedById = moderatedById; }
+    public String getModeratedByName() { return moderatedByName; }
+    public void setModeratedByName(String moderatedByName) { this.moderatedByName = moderatedByName; }
 
     public List<String> getImages() {
         return images;
@@ -218,6 +312,30 @@ public class OfferResponse {
 
     public void setCityName(String cityName) {
         this.cityName = cityName;
+    }
+
+    public String getCityCountry() {
+        return cityCountry;
+    }
+
+    public void setCityCountry(String cityCountry) {
+        this.cityCountry = cityCountry;
+    }
+
+    public String getCityCountryCode() {
+        return cityCountryCode;
+    }
+
+    public void setCityCountryCode(String cityCountryCode) {
+        this.cityCountryCode = cityCountryCode;
+    }
+
+    public Boolean getCityHasAirport() {
+        return cityHasAirport;
+    }
+
+    public void setCityHasAirport(Boolean cityHasAirport) {
+        this.cityHasAirport = cityHasAirport;
     }
 
     public Long getSupplierId() {
@@ -283,6 +401,10 @@ public class OfferResponse {
     public void setArrivalDateTime(LocalDateTime arrivalDateTime) {
         this.arrivalDateTime = arrivalDateTime;
     }
+    public Boolean getRoundTrip() { return roundTrip; }
+    public LocalDateTime getReturnDepartureDateTime() { return returnDepartureDateTime; }
+    public LocalDateTime getReturnArrivalDateTime() { return returnArrivalDateTime; }
+    public String getCabinClass() { return cabinClass; }
 
     public Integer getStars() {
         return stars;
@@ -340,6 +462,13 @@ public class OfferResponse {
         this.seats = seats;
     }
 
+    public Boolean getAllowsDifferentDropoff() { return allowsDifferentDropoff; }
+    public void setAllowsDifferentDropoff(Boolean allowsDifferentDropoff) { this.allowsDifferentDropoff = allowsDifferentDropoff; }
+    public Integer getMinimumDriverAge() { return minimumDriverAge; }
+    public void setMinimumDriverAge(Integer minimumDriverAge) { this.minimumDriverAge = minimumDriverAge; }
+    public Integer getMaximumDriverAge() { return maximumDriverAge; }
+    public void setMaximumDriverAge(Integer maximumDriverAge) { this.maximumDriverAge = maximumDriverAge; }
+
     public String getPickupLocation() {
         return pickupLocation;
     }
@@ -355,6 +484,9 @@ public class OfferResponse {
     public void setDropoffLocation(String dropoffLocation) {
         this.dropoffLocation = dropoffLocation;
     }
+
+    public List<String> getDropoffLocations() { return dropoffLocations; }
+    public void setDropoffLocations(List<String> dropoffLocations) { this.dropoffLocations = dropoffLocations; }
 
     public String getVehicleType() {
         return vehicleType;
@@ -394,5 +526,21 @@ public class OfferResponse {
 
     public void setItinerary(String itinerary) {
         this.itinerary = itinerary;
+    }
+
+    public Double getAverageRating() {
+        return averageRating != null ? averageRating : 0.0;
+    }
+
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public Integer getReviewCount() {
+        return reviewCount != null ? reviewCount : 0;
+    }
+
+    public void setReviewCount(Integer reviewCount) {
+        this.reviewCount = reviewCount;
     }
 }

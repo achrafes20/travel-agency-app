@@ -1,0 +1,33 @@
+{
+  "booking": {
+    "CONFIRMED": "Confirmé",
+    "PENDING": "En attente",
+    "CANCELLED": "Annulé",
+    "COMPLETED": "Terminé",
+    "EXPIRED": "Expiré"
+  },
+  "payment": {
+    "PENDING": "En attente de règlement",
+    "PAID": "Payé",
+    "REFUNDED": "Remboursé",
+    "FAILED": "Échec"
+  },
+  "review": {
+    "PENDING": "En modération",
+    "APPROVED": "Publié",
+    "REJECTED": "Refusé"
+  },
+  "ticket": {
+    "OPEN": "Ouvert",
+    "IN_PROGRESS": "En cours",
+    "RESOLVED": "Résolu",
+    "CLOSED": "Fermé"
+  },
+  "roles": {
+    "CLIENT": "Client voyageur",
+    "SUPPLIER": "Fournisseur",
+    "AGENT": "Agent",
+    "ADMIN": "Administrateur"
+  }
+}
+

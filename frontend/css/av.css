@@ -1,0 +1,14 @@
+/* ==============================================================================
+   ATLAS VOYAGE — POINT D'ENTRÉE CSS UNIFIÉ (av.css)
+   ============================================================================== */
+
+@layer reset, tokens, base, components, utilities, legacy;
+
+@import url("./design-system/tokens.css") layer(tokens);
+@import url("./design-system/themes.css") layer(tokens);
+@import url("./design-system/base.css") layer(base);
+@import url("./design-system/components.css") layer(components);
+@import url("./rtl.css") layer(components);
+@import url("./design-system/utilities.css") layer(utilities);
+@import url("./design-system/legacy.css") layer(legacy);
+

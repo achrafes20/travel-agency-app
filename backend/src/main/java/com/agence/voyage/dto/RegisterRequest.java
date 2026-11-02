@@ -1,5 +1,7 @@
 package com.agence.voyage.dto;
 
+import com.agence.voyage.validation.StrongPassword;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -16,8 +18,13 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank(message = "Le mot de passe est obligatoire")
-    @Size(min = 8, max = 100, message = "Le mot de passe doit contenir au moins 8 caractères")
+    @Size(max = 128, message = "Le champ mot de passe ne doit pas dépasser 128 caractères")
     private String password;
+
+    @AssertTrue(message = "Vous devez accepter les conditions d'utilisation et la politique de confidentialité")
+    private boolean consent = true;
+
+    private boolean marketingOptIn = false;
 
     public String getFullName() {
         return fullName;
@@ -41,5 +48,21 @@ public class RegisterRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isConsent() {
+        return consent;
+    }
+
+    public void setConsent(boolean consent) {
+        this.consent = consent;
+    }
+
+    public boolean isMarketingOptIn() {
+        return marketingOptIn;
+    }
+
+    public void setMarketingOptIn(boolean marketingOptIn) {
+        this.marketingOptIn = marketingOptIn;
     }
 }

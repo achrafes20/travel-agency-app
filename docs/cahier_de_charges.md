@@ -66,7 +66,7 @@ La plateforme gère **4 rôles** distincts :
 
 ### 3.4 Admin
 - Gère les utilisateurs (activation, désactivation, changement de rôle).
-- Gère les villes référencées.
+- Les villes sont créées ou réutilisées automatiquement lors de la saisie d'une offre fournisseur.
 - **Gère les codes promo et réductions** (création, modification, désactivation).
 - Supervise la configuration globale de la plateforme.
 
@@ -219,7 +219,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - ✅ Flux **Controller → Service → Repository** sur `CityController` / `CityService` / `CityRepository` avec injection par constructeur (beans Spring / IoC).
 - ✅ API REST CRUD `/api/cities` + DTOs `CityRequest` / `CityResponse` + validation + gestion d'erreurs (`GlobalExceptionHandler`).
 - ✅ Test unitaire `CityServiceTest` (règle d'unicité du nom).
-- ✅ Interface unifiée `admin/index.html?page=cities` : liste et modales d’ajout, modification et détail, connectées à l’API via `js/core/api.js`.
+- ✅ Le référentiel technique reste disponible par API, mais sa gestion manuelle a été retirée de l'administration. Le fournisseur utilise Open-Meteo et le backend crée ou réutilise automatiquement la ville.
 - ✅ `architecture.md` : schéma de séquence Séance 2 et structure Frontend.
 
 ### Module Admin — Gestion des utilisateurs
@@ -260,7 +260,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - ✅ **Fiche d'une offre** : galerie de photos, description, détails propres à chaque type (étoiles, vol, véhicule, durée…), fournisseur, disponibilité et paiement à l'arrivée ; rechargement direct par l'URL et message si l'offre n'existe pas.
 - ✅ Test unitaire `OfferSearchTest` (offres inactives ou épuisées masquées, filtres, tris, pagination, compteurs par type).
 - ✅ **Données de démonstration** : `scripts/seed_demo_data.py` crée villes, comptes, 26 offres (les 5 types, avec photos adaptées au type), 7 bundles, 5 codes promo et un panier prérempli (Lina) en passant par l'API ; relançable sans doublon (voir `README.md`).
-- ⚠️ Limites connues : le catalogue **public** (`catalogue.html`, `offre.html`, `accueil.html`) reste en données statiques ; pas de carte Leaflet ; les bundles n'apparaissent pas encore dans le catalogue ; le filtrage se fait en mémoire côté serveur (suffisant pour ce volume).
+- ⚠️ Limites connues : pas de carte Leaflet ; les bundles n'apparaissent pas encore dans le catalogue ; le filtrage serveur reste adapté au volume actuel.
 
 ### Panier et codes promo
 ✅ **Terminé** (client : `client/index.html?page=panier` ; admin : `admin/index.html?page=promos`), branchés sur l'API :
@@ -281,7 +281,7 @@ Transitions gérées automatiquement ou manuellement (par l'agent ou le client j
 - ✅ **CRUD complet (Repository, Service, Controller) pour 4 entités** : `User`, `City`, `Offer` (5 sous-types) et `Bundle`.
 - ✅ **Liste des endpoints** : [`api_endpoints.md`](api_endpoints.md) — 39 endpoints (dont panier et codes promo ajoutés ensuite), champs, règles, droits d'accès et codes de retour.
 - ✅ **Tests Postman** : `docs/postman/` — collection de 101 requêtes et 169 vérifications (utilisateurs, offres, bundles, authentification et droits, panier et codes promo) ; chaque dossier est autonome (il se connecte lui-même avec les comptes de test) et nettoie ses données.
-- ✅ **Interfaces CRUD** : Admin (utilisateurs, villes), Fournisseur (offres, stock), Agent (bundles).
+- ✅ **Interfaces CRUD** : Admin (utilisateurs), Fournisseur (offres, stock et villes automatiques), Agent (bundles).
 - ✅ **Harmonisation de l'interface** : menus latéraux repliables dans les quatre espaces ; retrait des mentions « Version 2 », des liens « Voir le site public » et des cartes « Besoin d'aide » des menus.
 - ✅ **Tests automatisés** : 42 tests à l'époque, 67 depuis le panier (`CityServiceTest`, `UserServiceTest`, `OfferServiceTest`, `OfferSearchTest`, `BundleServiceTest`, `AuthServiceTest`, `SecurityRulesTest` pour les règles d'accès par route, et `SchemaCreationTest` pour la création du schéma).
 - ✅ Suppression d'une ville refusée (`400`) si des offres l'utilisent.

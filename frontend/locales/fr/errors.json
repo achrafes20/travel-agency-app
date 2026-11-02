@@ -1,0 +1,21 @@
+{
+  "general": "Une erreur inattendue est survenue. Veuillez réessayer ultérieurement.",
+  "network": "Impossible de contacter le serveur Atlas Voyage. Vérifiez votre connexion internet.",
+  "unauthorized": "Vous devez être connecté pour accéder à cette ressource.",
+  "forbidden": "Vous n'avez pas les autorisations nécessaires pour effectuer cette action.",
+  "notFound": "La ressource demandée est introuvable.",
+  "rateLimited": "Trop de requêtes effectuées. Veuillez patienter {seconds} secondes avant de réessayer.",
+  "badRequest": "Requête invalide ou données manquantes.",
+  "serverError": "Erreur interne du serveur Atlas Voyage.",
+  "http404": {
+    "title": "Page introuvable",
+    "desc": "La page que vous recherchez semble s'être égarée dans les ruelles de la médina.",
+    "button": "Retourner à l'accueil"
+  },
+  "http500": {
+    "title": "Oups ! Un imprévu est survenu",
+    "desc": "Nos équipes techniques ont été alertées et rétablissent le service au plus vite.",
+    "button": "Vérifier la disponibilité"
+  }
+}
+

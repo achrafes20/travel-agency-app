@@ -1,0 +1,29 @@
+{
+  "title": "Partner Supplier Portal",
+  "tabs": {
+    "dashboard": "Dashboard",
+    "offers": "My Offers",
+    "newOffer": "Create an Offer",
+    "bookings": "Received Bookings",
+    "profile": "Company Profile"
+  },
+  "wizard": {
+    "step1": "1. General Information",
+    "step2": "2. Specific Details",
+    "step3": "3. Photo Gallery",
+    "step4": "4. Pricing & Availabilities",
+    "titleLabel": "Offer title",
+    "descLabel": "Full description",
+    "priceLabel": "Base price (MAD)",
+    "translations": {
+      "title": "Offer Translations (Optional)",
+      "badgeNotTranslated": "Not translated",
+      "badgeTranslated": "Translated",
+      "tabFr": "Français (Source)",
+      "tabEn": "English",
+      "tabAr": "العربية",
+      "saveTranslation": "Save translation"
+    }
+  }
+}
+

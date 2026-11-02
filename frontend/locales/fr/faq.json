@@ -1,0 +1,22 @@
+{
+  "title": "Foire Aux Questions (FAQ)",
+  "subtitle": "Trouvez rapidement des réponses claires à vos questions sur vos séjours et réservations au Maroc.",
+  "searchPlaceholder": "Rechercher une question (ex: devise, annulation, riad)...",
+  "q1": {
+    "question": "En quelle devise les réservations sont-elles facturées ?",
+    "answer": "Toutes les réservations et paiements chez Atlas Voyage sont obligatoirement traités en <strong>Dirhams Marocains (MAD)</strong>. Les montants affichés en Euros (€), Dollars ($) ou Livres (£) sont strictement indicatifs et calculés à partir de taux de change actualisés."
+  },
+  "q2": {
+    "question": "Comment fonctionne le paiement en espèces à l'arrivée ?",
+    "answer": "Pour les offres compatibles, vous ne payez rien lors de la réservation en ligne. Vous réglez directement le prestataire sur place à votre arrivée, en Dirhams Marocains ou par carte acceptée par l'établissement."
+  },
+  "q3": {
+    "question": "Puis-je annuler ou modifier ma réservation ?",
+    "answer": "Oui. Vous pouvez annuler votre réservation directement depuis votre espace client jusqu'à 48 heures avant le début de votre séjour selon les conditions spécifiques de l'offre."
+  },
+  "q4": {
+    "question": "Les prix incluent-ils les taxes touristiques locales ?",
+    "answer": "Oui, nos tarifs affichent le montant TTC incluant la taxe de séjour communale et la taxe de promotion touristique (TPT) en vigueur au Maroc."
+  }
+}
+

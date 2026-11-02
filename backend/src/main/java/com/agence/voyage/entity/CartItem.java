@@ -36,6 +36,9 @@ public class CartItem {
     @Column(nullable = false)
     private Integer quantity;
 
+    @Column(name = "travel_criteria", length = 4000)
+    private String travelCriteria;
+
     public Long getId() {
         return id;
     }
@@ -74,5 +77,13 @@ public class CartItem {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public String getTravelCriteria() {
+        return travelCriteria;
+    }
+
+    public void setTravelCriteria(String travelCriteria) {
+        this.travelCriteria = travelCriteria;
     }
 }

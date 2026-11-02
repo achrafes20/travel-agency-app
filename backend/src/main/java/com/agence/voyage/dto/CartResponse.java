@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
-/** Panier du client avec totaux recalculés à partir des prix et stocks actuels (aucun prix n'est figé dans le panier). */
+/** Panier avec prix recalculés et capacités résiduelles ; les snapshots définitifs appartiennent à Booking. */
 public class CartResponse {
 
     private Long id;
@@ -43,11 +43,13 @@ public class CartResponse {
         private boolean allowsPayOnArrival;
         private boolean available;
         private String unavailableReason;
+        private String travelCriteria;
 
         static Line from(CartItem item) {
             Line l = new Line();
             l.id = item.getId();
             l.quantity = item.getQuantity();
+            l.travelCriteria = item.getTravelCriteria();
             if (item.getOffer() != null) {
                 Offer offer = item.getOffer();
                 l.kind = "OFFER";
@@ -56,11 +58,13 @@ public class CartResponse {
                 l.title = offer.getTitle();
                 l.cityName = offer.getCity() != null ? offer.getCity().getName() : null;
                 l.image = offer.getImages().isEmpty() ? null : offer.getImages().get(0);
-                l.unitPrice = money(offer.getBasePrice());
-                l.stock = offer.getStock() == null ? 0 : offer.getStock();
+                l.unitPrice = com.agence.voyage.service.BookingPricing.offer(offer).doubleValue();
+                l.stock = remainingCapacity(offer, item.getTravelCriteria());
                 l.allowsPayOnArrival = Boolean.TRUE.equals(offer.getAllowsPayOnArrival());
                 l.available = Boolean.TRUE.equals(offer.getActive()) && l.stock >= l.quantity;
                 l.unavailableReason = reason(Boolean.TRUE.equals(offer.getActive()), l.stock, l.quantity);
+                if (offer.getAvailabilities().isEmpty() && l.unavailableReason != null && Boolean.TRUE.equals(offer.getActive()))
+                    l.unavailableReason = l.stock == 0 ? "Épuisé" : "Stock insuffisant : " + l.stock + " disponible(s)";
             } else {
                 Bundle bundle = item.getBundle();
                 BundleResponse view = BundleResponse.from(bundle);
@@ -72,9 +76,9 @@ public class CartResponse {
                 l.image = bundle.getOffers().stream()
                         .map(o -> o.getImages().isEmpty() ? null : o.getImages().get(0))
                         .filter(Objects::nonNull).findFirst().orElse(null);
-                l.unitPrice = view.getFinalPrice();
-                l.stock = view.getStock();
-                l.allowsPayOnArrival = false; // un bundle se paie toujours en ligne (cahier des charges 5.3)
+                l.unitPrice = com.agence.voyage.service.BookingPricing.bundle(bundle).doubleValue();
+                l.stock = bundle.getOffers().stream().mapToInt(o -> remainingCapacity(o, item.getTravelCriteria())).min().orElse(0);
+                l.allowsPayOnArrival = bundle.getOffers().stream().allMatch(o -> Boolean.TRUE.equals(o.getAllowsPayOnArrival()));
                 l.available = allActive && l.stock >= l.quantity;
                 l.unavailableReason = reason(allActive, l.stock, l.quantity);
             }
@@ -87,7 +91,7 @@ public class CartResponse {
                 return "Cette offre n'est plus disponible";
             }
             if (stock < quantity) {
-                return stock == 0 ? "Épuisé" : "Stock insuffisant : " + stock + " disponible(s)";
+                return stock == 0 ? "Indisponible aux dates demandées" : "Capacité insuffisante : " + stock + " disponible(s)";
             }
             return null;
         }
@@ -151,6 +155,23 @@ public class CartResponse {
         public String getUnavailableReason() {
             return unavailableReason;
         }
+
+        public String getTravelCriteria() {
+            return travelCriteria;
+        }
+    }
+
+    private static int remainingCapacity(Offer offer, String travel) {
+        // Compatibilité des anciennes offres sans calendrier ; Booking ne possède aucun repli sur stock.
+        if (offer.getAvailabilities().isEmpty()) return offer.getStock() == null ? 0 : offer.getStock();
+        var range = com.agence.voyage.service.CartService.requestedPeriod(travel);
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        return offer.getAvailabilities().stream().filter(a -> a.getEndAt().isAfter(now))
+            .filter(a -> range[0] == null || (offer instanceof com.agence.voyage.entity.Flight
+                || offer instanceof com.agence.voyage.entity.Excursion
+                ? !range[0].toLocalDate().isBefore(a.getStartAt().toLocalDate()) && !range[0].toLocalDate().isAfter(a.getEndAt().toLocalDate())
+                : !a.getStartAt().isAfter(range[0]) && (range[1] == null || !a.getEndAt().isBefore(range[1]))))
+            .mapToInt(com.agence.voyage.entity.OfferAvailability::getCapacity).max().orElse(0);
     }
 
     public static class Promo {
@@ -179,7 +200,7 @@ public class CartResponse {
         r.itemCount = r.items.stream().mapToInt(Line::getQuantity).sum();
         r.subtotal = money(r.items.stream().mapToDouble(Line::getLineTotal).sum());
         r.hasUnavailableItems = r.items.stream().anyMatch(l -> !l.isAvailable());
-        // paiement à l'arrivée : seulement si toutes les lignes l'acceptent (un bundle ne l'accepte jamais)
+        // Paiement à l'arrivée : chaque offre, y compris les composants des bundles, doit l'accepter.
         r.payOnArrivalAllowed = !r.items.isEmpty() && r.items.stream().allMatch(Line::isAllowsPayOnArrival);
 
         PromoCode code = cart.getPromoCode();
@@ -199,9 +220,7 @@ public class CartResponse {
 
     /** Réduction d'un code sur un montant : jamais supérieure au montant (le total ne devient pas négatif). */
     public static double discount(PromoCode code, double amount) {
-        double value = code.getValue().doubleValue();
-        double raw = code.getDiscountType() == DiscountType.PERCENTAGE ? amount * value / 100 : value;
-        return money(Math.min(raw, amount));
+        return com.agence.voyage.service.BookingPricing.discount(code, BigDecimal.valueOf(amount)).doubleValue();
     }
 
     private static double money(Double value) {

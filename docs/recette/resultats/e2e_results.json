@@ -1,0 +1,361 @@
+{
+  "executionDate": "2026-11-02T08:21:27.703Z",
+  "environment": "Local Chrome 128 / Spring Boot 3.3.4 / MySQL 8.0",
+  "total": 39,
+  "passed": 39,
+  "failed": 0,
+  "successRate": "100.0",
+  "cases": [
+    {
+      "id": "REC-INV-01",
+      "title": "Affichage de l accueil neutre et sélecteurs de langue/thème",
+      "role": "INVITE",
+      "status": "✅ Réussi",
+      "proof": "REC-INV-01-accueil.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:32.336Z"
+    },
+    {
+      "id": "REC-INV-02",
+      "title": "Recherche et filtrage du catalogue par catégorie",
+      "role": "INVITE",
+      "status": "✅ Réussi",
+      "proof": "REC-INV-02-catalogue-hotels.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:33.393Z"
+    },
+    {
+      "id": "REC-INV-03",
+      "title": "Fiche détaillée d une offre (galerie, carte, disponibilités)",
+      "role": "INVITE",
+      "status": "✅ Réussi",
+      "proof": "REC-INV-03-detail-offre.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:34.368Z"
+    },
+    {
+      "id": "REC-INV-04",
+      "title": "Panier d achats invité et calcul TTC en MAD",
+      "role": "INVITE",
+      "status": "✅ Réussi",
+      "proof": "REC-INV-04-panier.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:35.057Z"
+    },
+    {
+      "id": "REC-INV-05",
+      "title": "Support trilingue et affichage RTL natif en Arabe",
+      "role": "INVITE",
+      "status": "✅ Réussi",
+      "proof": "REC-INV-05-langue-arabe-rtl.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:35.906Z"
+    },
+    {
+      "id": "REC-INV-06",
+      "title": "Protection des espaces privés (redirection connexion.html)",
+      "role": "INVITE",
+      "status": "✅ Réussi",
+      "proof": "REC-INV-06-acces-interdit.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:37.271Z"
+    },
+    {
+      "id": "REC-INV-07",
+      "title": "Affichage des pages institutionnelles et légales (A propos, FAQ, CGU)",
+      "role": "INVITE",
+      "status": "✅ Réussi",
+      "proof": "REC-INV-07-pages-institutionnelles.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:38.024Z"
+    },
+    {
+      "id": "REC-INV-08",
+      "title": "Page d erreur 404 personnalisée et accessible",
+      "role": "INVITE",
+      "status": "✅ Réussi",
+      "proof": "REC-INV-08-erreur-404.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:38.622Z"
+    },
+    {
+      "id": "REC-AUT-01",
+      "title": "Formulaire d inscription avec indicateur de robustesse et consentement RGPD",
+      "role": "AUTH",
+      "status": "✅ Réussi",
+      "proof": "REC-AUT-01-inscription-form.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:39.367Z"
+    },
+    {
+      "id": "REC-AUT-02",
+      "title": "Connexion réussie du client avec cookies HttpOnly SameSite",
+      "role": "AUTH",
+      "status": "✅ Réussi",
+      "proof": "REC-AUT-02-login-client-succes.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:41.175Z"
+    },
+    {
+      "id": "REC-AUT-03",
+      "title": "Rejet sécurisé des identifiants invalides sans fuite d informations",
+      "role": "AUTH",
+      "status": "✅ Réussi",
+      "proof": "REC-AUT-03-login-echec.png",
+      "notes": "Accès refusé : droits insuffisants",
+      "timestamp": "2026-11-02T08:20:43.276Z"
+    },
+    {
+      "id": "REC-AUT-04",
+      "title": "Déconnexion et invalidation de la session locale et serveur",
+      "role": "AUTH",
+      "status": "✅ Réussi",
+      "proof": "REC-AUT-04-deconnexion.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:47.212Z"
+    },
+    {
+      "id": "REC-AUT-05",
+      "title": "Demande de réinitialisation de mot de passe sécurisée",
+      "role": "AUTH",
+      "status": "✅ Réussi",
+      "proof": "REC-AUT-05-mot-de-passe-oublie.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:47.785Z"
+    },
+    {
+      "id": "REC-CLI-01",
+      "title": "Affichage du tableau de bord Client connecté",
+      "role": "CLIENT",
+      "status": "✅ Réussi",
+      "proof": "REC-CLI-01-dashboard.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:51.697Z"
+    },
+    {
+      "id": "REC-CLI-02",
+      "title": "Historique des réservations réelles du client",
+      "role": "CLIENT",
+      "status": "✅ Réussi",
+      "proof": "REC-CLI-02-reservations.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:52.797Z"
+    },
+    {
+      "id": "REC-CLI-03",
+      "title": "Tunnel de commande en 4 étapes (av-stepper interactif)",
+      "role": "CLIENT",
+      "status": "✅ Réussi",
+      "proof": "REC-CLI-03-checkout.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:53.728Z"
+    },
+    {
+      "id": "REC-CLI-04",
+      "title": "Billetterie de support SAV avec fil de discussion",
+      "role": "CLIENT",
+      "status": "✅ Réussi",
+      "proof": "REC-CLI-04-tickets.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:54.875Z"
+    },
+    {
+      "id": "REC-CLI-05",
+      "title": "Gestion du profil, préférences et droits RGPD / Loi 09-08",
+      "role": "CLIENT",
+      "status": "✅ Réussi",
+      "proof": "REC-CLI-05-profil.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:55.947Z"
+    },
+    {
+      "id": "REC-CLI-06",
+      "title": "Gestion de la liste de favoris personnelle du client",
+      "role": "CLIENT",
+      "status": "✅ Réussi",
+      "proof": "REC-CLI-06-favoris.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:20:56.996Z"
+    },
+    {
+      "id": "REC-FOU-01",
+      "title": "Connexion et tableau de bord Fournisseur (Hôtels)",
+      "role": "FOURNISSEUR",
+      "status": "✅ Réussi",
+      "proof": "REC-FOU-01-dashboard.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:01.183Z"
+    },
+    {
+      "id": "REC-FOU-02",
+      "title": "Wizard de création d offre avec sélection de ville et traductions",
+      "role": "FOURNISSEUR",
+      "status": "✅ Réussi",
+      "proof": "REC-FOU-02-wizard-offre.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:02.262Z"
+    },
+    {
+      "id": "REC-FOU-03",
+      "title": "Gestion et statut des offres du fournisseur (actif/modéré)",
+      "role": "FOURNISSEUR",
+      "status": "✅ Réussi",
+      "proof": "REC-FOU-03-mes-offres.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:03.341Z"
+    },
+    {
+      "id": "REC-FOU-04",
+      "title": "Suivi du calendrier des disponibilités et alertes de stock faible",
+      "role": "FOURNISSEUR",
+      "status": "✅ Réussi",
+      "proof": "REC-FOU-04-disponibilites.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:04.454Z"
+    },
+    {
+      "id": "REC-FOU-05",
+      "title": "Suivi des réservations passées sur les prestations du fournisseur",
+      "role": "FOURNISSEUR",
+      "status": "✅ Réussi",
+      "proof": "REC-FOU-05-reservations-fournisseur.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:05.558Z"
+    },
+    {
+      "id": "REC-FOU-06",
+      "title": "Statistiques de vente et métriques de performance du fournisseur",
+      "role": "FOURNISSEUR",
+      "status": "✅ Réussi",
+      "proof": "REC-FOU-06-stats-fournisseur.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:06.650Z"
+    },
+    {
+      "id": "REC-AGE-01",
+      "title": "Connexion et tableau de bord Agent de voyage",
+      "role": "AGENT",
+      "status": "✅ Réussi",
+      "proof": "REC-AGE-01-dashboard.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:10.808Z"
+    },
+    {
+      "id": "REC-AGE-02",
+      "title": "Guichet d encaissement d espèces et émission de reçu",
+      "role": "AGENT",
+      "status": "✅ Réussi",
+      "proof": "REC-AGE-02-encaissement.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:11.867Z"
+    },
+    {
+      "id": "REC-AGE-03",
+      "title": "Composition et tarification remisée des bundles multi-offres",
+      "role": "AGENT",
+      "status": "✅ Réussi",
+      "proof": "REC-AGE-03-bundles.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:12.948Z"
+    },
+    {
+      "id": "REC-AGE-04",
+      "title": "Supervision des réservations clients au guichet agence",
+      "role": "AGENT",
+      "status": "✅ Réussi",
+      "proof": "REC-AGE-04-reservations-agence.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:14.026Z"
+    },
+    {
+      "id": "REC-AGE-05",
+      "title": "Prise en charge et traitement des tickets SAV par les agents",
+      "role": "AGENT",
+      "status": "✅ Réussi",
+      "proof": "REC-AGE-05-tickets-agent.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:15.135Z"
+    },
+    {
+      "id": "REC-ADM-01",
+      "title": "Connexion et tableau de bord global Administrateur",
+      "role": "ADMIN",
+      "status": "✅ Réussi",
+      "proof": "REC-ADM-01-dashboard.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:19.367Z"
+    },
+    {
+      "id": "REC-ADM-02",
+      "title": "Administration des comptes, rôles et déverrouillage lockout",
+      "role": "ADMIN",
+      "status": "✅ Réussi",
+      "proof": "REC-ADM-02-utilisateurs.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:20.500Z"
+    },
+    {
+      "id": "REC-ADM-03",
+      "title": "File de modération des offres soumises (motif obligatoire)",
+      "role": "ADMIN",
+      "status": "✅ Réussi",
+      "proof": "REC-ADM-03-moderation.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:21.585Z"
+    },
+    {
+      "id": "REC-ADM-04",
+      "title": "Journal d audit immuable (append-only) avec export CSV",
+      "role": "ADMIN",
+      "status": "✅ Réussi",
+      "proof": "REC-ADM-04-audit.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:22.651Z"
+    },
+    {
+      "id": "REC-ADM-05",
+      "title": "Configuration système dynamique et bascule mode maintenance",
+      "role": "ADMIN",
+      "status": "✅ Réussi",
+      "proof": "REC-ADM-05-parametres.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:23.722Z"
+    },
+    {
+      "id": "REC-ADM-06",
+      "title": "Supervision globale de toutes les réservations de la plateforme",
+      "role": "ADMIN",
+      "status": "✅ Réussi",
+      "proof": "REC-ADM-06-reservations-admin.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:24.808Z"
+    },
+    {
+      "id": "REC-ADM-07",
+      "title": "Supervision financière des flux de paiements Sandbox et Cash",
+      "role": "ADMIN",
+      "status": "✅ Réussi",
+      "proof": "REC-ADM-07-paiements-admin.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:25.890Z"
+    },
+    {
+      "id": "REC-TRA-03",
+      "title": "Sécurité OWASP, API sans état avec JWT et cookies HttpOnly",
+      "role": "TECH",
+      "status": "✅ Réussi",
+      "proof": "REC-TRA-03-headers-securite.png",
+      "notes": "Content-Type: application/json",
+      "timestamp": "2026-11-02T08:21:26.792Z"
+    },
+    {
+      "id": "REC-TRA-07",
+      "title": "Adaptabilité responsive mobile (375x667) sans débordement horizontal",
+      "role": "TECH",
+      "status": "✅ Réussi",
+      "proof": "REC-TRA-07-responsive-mobile.png",
+      "notes": "",
+      "timestamp": "2026-11-02T08:21:27.541Z"
+    }
+  ]
+}

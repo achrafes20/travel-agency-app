@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Une page de résultats du catalogue public, avec le nombre d'offres par type pour les filtres. */
-public class OfferSearchResponse {
+public class OfferSearchResponse extends PageResponse<OfferResponse> {
 
     private final List<OfferResponse> content;
     private final long totalElements;
@@ -18,6 +18,12 @@ public class OfferSearchResponse {
 
     public OfferSearchResponse(List<OfferResponse> content, long totalElements, int totalPages, int page, int size,
                                Map<OfferType, Long> typeCounts, double maxPrice) {
+        this(content, totalElements, totalPages, page, size, typeCounts, maxPrice, "id,desc");
+    }
+
+    public OfferSearchResponse(List<OfferResponse> content, long totalElements, int totalPages, int page, int size,
+                               Map<OfferType, Long> typeCounts, double maxPrice, String sort) {
+        super(content, page, size, totalElements, sort);
         this.content = content;
         this.totalElements = totalElements;
         this.totalPages = totalPages;

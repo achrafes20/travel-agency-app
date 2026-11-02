@@ -1,138 +1,119 @@
 package com.agence.voyage.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
-import org.hibernate.annotations.Check;
-
+import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.*;
 
 @Entity
-@Table(name = "bookings")
-@Check(constraints = "(offer_id is not null and bundle_id is null) or (offer_id is null and bundle_id is not null)")
+@org.hibernate.annotations.DynamicUpdate
+@Table(name = "bookings", indexes = {@Index(name="idx_booking_expiry", columnList="status,expiresAt"),
+ @Index(name="idx_booking_status_created",columnList="status,created_at"),@Index(name="idx_booking_client",columnList="client_id")})
 public class Booking {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "client_id", nullable = false)
+    @Column(nullable=false, unique=true, length=32)
+    private String reference;
+    @ManyToOne(fetch=FetchType.LAZY, optional=false) @JoinColumn(name="client_id", nullable=false)
     private User client;
-
-    @ManyToOne
-    @JoinColumn(name = "offer_id")
-    private Offer offer;
-
-    @ManyToOne
-    @JoinColumn(name = "bundle_id")
-    private Bundle bundle;
-
-    @Column(nullable = false)
-    private Integer quantity;
-
-    @Column(nullable = false)
-    private Double totalPrice;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING) @Column(nullable=false)
     private BookingStatus status = BookingStatus.PENDING;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING) @Column(nullable=false)
+    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
+    @Enumerated(EnumType.STRING) @Column(nullable=false)
     private PaymentMethod paymentMethod;
-
-    @ManyToOne
-    @JoinColumn(name = "promo_code_id")
+    @Column(nullable=false, precision=12, scale=2)
+    private BigDecimal subtotal = BigDecimal.ZERO;
+    @Column(nullable=false, precision=12, scale=2)
+    private BigDecimal discount = BigDecimal.ZERO;
+    @Column(nullable=false, precision=12, scale=2)
+    private BigDecimal total = BigDecimal.ZERO;
+    @Column(nullable=false, length=3)
+    private String currency = "MAD";
+    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="promo_code_id")
     private PromoCode promoCode;
+    
+    private String promoCodeSnapshot;
+    @Enumerated(EnumType.STRING)
+    private DiscountType promoTypeSnapshot;
+    @Column(precision=12, scale=2)
+    private BigDecimal promoValueSnapshot;
+    @Column(nullable=false)
+    private LocalDateTime createdAt;
+    
+    private LocalDateTime confirmedAt;
+    
+    private LocalDateTime cancelledAt;
+    
+    private LocalDateTime expiresAt;
+    
+    private LocalDateTime serviceStartAt;
+    
+    private LocalDateTime serviceEndAt;
+    @Column(length=1000)
+    private String cancellationReason;
+    
+    private Long cancelledBy;
+    @Column(length=40)
+    private String contactPhone;
+    @Column(length=2000)
+    private String notes;
+    @Version
+    private Long version;
+    @OneToMany(mappedBy="booking", cascade=CascadeType.ALL, orphanRemoval=true) @OrderBy("id")
+    private List<BookingItem> items = new ArrayList<>();
+    public Long getId() { return id; }
+    public void setId(Long value) { this.id = value; }
+    public String getReference() { return reference; }
+    public void setReference(String value) { this.reference = value; }
+    public User getClient() { return client; }
+    public void setClient(User value) { this.client = value; }
+    public BookingStatus getStatus() { return status; }
+    public void setStatus(BookingStatus value) { this.status = value; }
+    public PaymentStatus getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(PaymentStatus value) { this.paymentStatus = value; }
+    public PaymentMethod getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(PaymentMethod value) { this.paymentMethod = value; }
+    public BigDecimal getSubtotal() { return subtotal; }
+    public void setSubtotal(BigDecimal value) { this.subtotal = value; }
+    public BigDecimal getDiscount() { return discount; }
+    public void setDiscount(BigDecimal value) { this.discount = value; }
+    public BigDecimal getTotal() { return total; }
+    public void setTotal(BigDecimal value) { this.total = value; }
+    public String getCurrency() { return currency; }
+    public void setCurrency(String value) { this.currency = value; }
+    public PromoCode getPromoCode() { return promoCode; }
+    public void setPromoCode(PromoCode value) { this.promoCode = value; }
+    public String getPromoCodeSnapshot() { return promoCodeSnapshot; }
+    public void setPromoCodeSnapshot(String value) { this.promoCodeSnapshot = value; }
+    public DiscountType getPromoTypeSnapshot() { return promoTypeSnapshot; }
+    public void setPromoTypeSnapshot(DiscountType value) { this.promoTypeSnapshot = value; }
+    public BigDecimal getPromoValueSnapshot() { return promoValueSnapshot; }
+    public void setPromoValueSnapshot(BigDecimal value) { this.promoValueSnapshot = value; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime value) { this.createdAt = value; }
+    public LocalDateTime getConfirmedAt() { return confirmedAt; }
+    public void setConfirmedAt(LocalDateTime value) { this.confirmedAt = value; }
+    public LocalDateTime getCancelledAt() { return cancelledAt; }
+    public void setCancelledAt(LocalDateTime value) { this.cancelledAt = value; }
+    public LocalDateTime getExpiresAt() { return expiresAt; }
+    public void setExpiresAt(LocalDateTime value) { this.expiresAt = value; }
+    public LocalDateTime getServiceStartAt() { return serviceStartAt; }
+    public void setServiceStartAt(LocalDateTime value) { this.serviceStartAt = value; }
+    public LocalDateTime getServiceEndAt() { return serviceEndAt; }
+    public void setServiceEndAt(LocalDateTime value) { this.serviceEndAt = value; }
+    public String getCancellationReason() { return cancellationReason; }
+    public void setCancellationReason(String value) { this.cancellationReason = value; }
+    public Long getCancelledBy() { return cancelledBy; }
+    public void setCancelledBy(Long value) { this.cancelledBy = value; }
+    public String getContactPhone() { return contactPhone; }
+    public void setContactPhone(String value) { this.contactPhone = value; }
+    public String getNotes() { return notes; }
+    public void setNotes(String value) { this.notes = value; }
+    public Long getVersion() { return version; }
+    public void setVersion(Long value) { this.version = value; }
+    public List<BookingItem> getItems() { return items; }
+    public void setItems(List<BookingItem> value) { this.items = value; }
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getClient() {
-        return client;
-    }
-
-    public void setClient(User client) {
-        this.client = client;
-    }
-
-    public Offer getOffer() {
-        return offer;
-    }
-
-    public void setOffer(Offer offer) {
-        this.offer = offer;
-    }
-
-    public Bundle getBundle() {
-        return bundle;
-    }
-
-    public void setBundle(Bundle bundle) {
-        this.bundle = bundle;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Double getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(Double totalPrice) {
-        this.totalPrice = totalPrice;
-    }
-
-    public BookingStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(BookingStatus status) {
-        this.status = status;
-    }
-
-    public PaymentMethod getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
-    public PromoCode getPromoCode() {
-        return promoCode;
-    }
-
-    public void setPromoCode(PromoCode promoCode) {
-        this.promoCode = promoCode;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }
+
