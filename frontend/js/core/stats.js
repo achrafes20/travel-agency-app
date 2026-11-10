@@ -42,7 +42,7 @@ const StatsUI = (() => {
   if(subtitle)heading.append(el("p","st-muted",subtitle));card.append(heading);return card;
  }
  function empty(card,text){card.append(el("p","st-empty",text));}
- const lean=role=>role==="CLIENT"||role==="SUPPLIER";
+ const lean=role=>role==="CLIENT"||role==="SUPPLIER"||role==="AGENT";
  function kpi(parent,title,data,format=number){
   const card=el("article","st-kpi");card.append(el("span","st-kpi-label",title),el("strong","st-kpi-value",format(data.value)));
   if(data.previous===null||data.changePercent===null){
@@ -111,9 +111,6 @@ const StatsUI = (() => {
   kpi(blocks[0],"Réservations en attente · période",data.pendingBookings);
   metric(blocks[0],"Paiements à encaisser",data.cashPendingCount);metric(blocks[0],"Montant à encaisser",data.cashPendingAmount,money);
   kpi(blocks[0],"Réservations créées aujourd’hui",data.bookingsToday);
-  const tickets=panel("Tickets ouverts");
-  if(!data.tickets.available){tickets.append(el("strong","st-unavailable","Bientôt disponible"),el("p","st-muted","Le module de support sera relié lorsqu’il sera disponible."));}
-  else metric(tickets,"Tickets ouverts",data.tickets.count);blocks[1].append(tickets);
   const recent=panel("Réservations récentes");bookingTable(recent,data.recentBookings,"AGENT");blocks[2].append(recent);
   const payments=panel("Paiements à venir","Paiements à l’arrivée non encaissés, par date de service");
   table(payments,["Référence","Client","Date de service","Montant"],data.upcomingPayments,p=>[link("AGENT","payments",p.reference),p.clientName,time(p.serviceStartAt),money(p.amount)],"Aucun paiement à l’arrivée à encaisser.");

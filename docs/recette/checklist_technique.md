@@ -62,7 +62,7 @@ Cette checklist consigne l'ensemble des vérifications techniques menées par l'
 
 - [x] **Architecture Frontend** : HTML5 sémantique, CSS3 moderne et **JavaScript vanilla** natif sans aucun framework lourd (React/Angular/Vue).
 - [x] **Absence d'Étape de Build Obligatoire** : Les fichiers du dossier `frontend/` sont directement exécutables et interprétables par tout navigateur moderne.
-- [x] **Ressources Tiers & CDN** : Chargement fluide des icônes Lucide et de Leaflet (hébergé localement) pour la cartographie ; Tailwind CSS (CDN) n'est plus utilisé que par l'espace agent (retiré des espaces client le 9 novembre 2026 et fournisseur le 10 novembre 2026).
+- [x] **Ressources Tiers & CDN** : Chargement fluide des icônes Lucide et de Leaflet (hébergé localement) pour la cartographie ; Tailwind CSS (CDN) n'est plus chargé par aucune page (retiré des espaces client le 9 novembre 2026, fournisseur et agent le 10 novembre 2026).
 - [x] **Quatre Espaces Privés en SPA** :
   - Espace Client : `frontend/client/index.html?page=...`
   - Espace Fournisseur : `frontend/supplier/index.html?page=...`

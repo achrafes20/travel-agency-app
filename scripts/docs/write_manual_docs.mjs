@@ -283,7 +283,7 @@ Pour publier une nouvelle prestation, cliquez sur **« Déposer une offre »** :
 const agent = `# Manuel Utilisateur — Espace Agent de Voyage
 
 > **Statut :** ✅ Implémenté  
-> **Date de mise à jour :** 2026-11-01  
+> **Date de mise à jour :** 2026-11-10  
 > **Profil :** Conseiller Commercial & Gestionnaire Guichet (\`ROLE_AGENT\`)  
 > **Point d'entrée :** \`http://127.0.0.1:5500/frontend/agent/index.html\`
 
@@ -305,7 +305,7 @@ L'agent de voyage est le pivot opérationnel d'Atlas Voyage en agence physique o
 ![Guichet d'encaissement d'espèces](../assets/screenshots/agent/02-encaissement.png)
 
 Lorsqu'un voyageur se présente en agence avec une réservation en attente de paiement à l'arrivée :
-1. Ouvrez l'onglet **« Paiements Espèces »**.
+1. Ouvrez **« Paiements à l'arrivée »** dans le menu latéral (onglet **« À encaisser »**).
 2. Recherchez le dossier par **nom du client** ou **référence de réservation** (\`BK-AAAA-NNNNNN\`).
 3. Vérifiez le montant exact dû en Dirhams Marocains (MAD TTC).
 4. Cliquez sur **« Encaisser le règlement »** :
@@ -333,6 +333,15 @@ Pour composer une offre promotionnelle clé en main (ex. « Pack Escapade Marrak
 
 - Accédez à la file d'attente des tickets clients classés par priorité.
 - Répondez aux sollicitations, modifiez les dates de réservation si nécessaire ou escaladez le dossier à un administrateur en cas de litige financier.
+
+---
+
+## 5. Navigation & Compte
+
+- **Menu latéral « ESPACE AGENT »** : Tableau de bord, Bundles, Réservations, Paiements à l'arrivée, Tickets de support, Mon profil.
+- **En-tête** : sélecteur de devise, cloche des notifications (« Voir toutes les notifications » ouvre la page complète) et nom de l'agent. Un clic sur le nom ouvre un menu de raccourcis (Tableau de bord, Réservations, Paiements à l'arrivée, Tickets de support, Mon profil) qui se termine par **« Déconnexion »**.
+- **Réservations** : recherche par référence ou nom du client, filtres de statut, de dates et de paiement. La fiche (« Voir ») résume la réservation ; l'encaissement se fait depuis « Paiements à l'arrivée ».
+- **Tickets** : dans la file, une note interne est repérée par le libellé « Note interne » ; elle n'est jamais visible du demandeur.
 `;
 
 // 6. admin.md

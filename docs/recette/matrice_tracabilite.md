@@ -76,7 +76,7 @@ La présente matrice assure la traçabilité complète de chaque exigence foncti
 
 | ID Exigence | Description du Besoin | ID Cas de Test | Statut Réel | Type de Test | Preuve / Justification |
 | :--- | :--- | :--- | :---: | :---: | :--- |
-| **REQ-AGE-01** | Tableau de bord Agent avec flux des réservations agence et alertes d'activité. | `REC-AGE-01` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-AGE-01-dashboard.png` |
+| **REQ-AGE-01** | Tableau de bord Agent avec indicateurs d'encaissement, réservations récentes et paiements à venir. | `REC-AGE-01` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-AGE-01-dashboard.png` |
 | **REQ-AGE-02** | Guichet d'encaissement d'espèces avec émission de reçu numéroté immédiat. | `REC-AGE-02` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-AGE-02-encaissement.png` |
 | **REQ-AGE-03** | Composition et gestion des packages touristiques (Bundles) multi-offres. | `REC-AGE-03` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-AGE-03-bundles.png` |
 | **REQ-AGE-04** | Consultation et assistance à la réservation au comptoir de l'agence. | `REC-AGE-04` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-AGE-04-reservations-agence.png` |

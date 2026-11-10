@@ -81,7 +81,7 @@ Pour la séance de démonstration devant le jury (Phase 17), l'équipe projet ex
 
 ## 6. Addendum du 9 novembre 2026
 
-Ce procès-verbal et ses critères chiffrés (§2) décrivent la version évaluée le **2 novembre 2026** ; ils ne sont pas modifiés. Depuis, des évolutions de l'interface invité et de l'inscription ont eu lieu, avec douze anomalies détectées (`ANO-07` à `ANO-18`) : neuf corrigées et trois **ouvertes** (`ANO-10`, `ANO-15` pour l'espace fournisseur seulement, et `ANO-18`, périmètre de l'audit d'accessibilité). Le détail figure dans l'addendum de `rapport_final_recette.md`.
+Ce procès-verbal et ses critères chiffrés (§2) décrivent la version évaluée le **2 novembre 2026** ; ils ne sont pas modifiés. Depuis, des évolutions de l'interface invité et de l'inscription ont eu lieu, avec treize anomalies détectées (`ANO-07` à `ANO-19`) : onze corrigées et deux **ouvertes** (`ANO-10` et `ANO-18`, périmètre de l'audit d'accessibilité). Le détail figure dans l'addendum de `rapport_final_recette.md`.
 
 | Critère | Valeur au 2 novembre | Situation au 9 novembre |
 | :--- | :---: | :--- |

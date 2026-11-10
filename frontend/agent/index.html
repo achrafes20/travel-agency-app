@@ -11,31 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              atlas: {
-                navy: "#0A2A6B",
-                deep: "#071C48",
-                amber: "#FFB400",
-                canvas: "#F4F5F7",
-                ink: "#0F1B3D",
-                muted: "#6B7280",
-                pale: "#E8F0FE",
-              },
-            },
-            fontFamily: {
-              sans: ["Poppins", "sans-serif"],
-              display: ["Montserrat", "sans-serif"],
-            },
-          },
-        },
-      };
-    </script>
-    <link rel="stylesheet" href="../css/agent.css?v=3" />
+    <link rel="stylesheet" href="../css/agent.css?v=4" />
     <script src="../js/core/auth.js?v=60"></script>
     <script>Auth.requireRole("AGENT");</script>
     <link rel="stylesheet" href="../css/bookings.css?v=1">
@@ -45,41 +21,47 @@
     <link rel="stylesheet" href="../css/stats.css?v=50">
     <script id="atlas-chartjs" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js" defer></script>
     <link rel="stylesheet" href="../css/account.css?v=60">
-    <link rel="stylesheet" href="../css/tickets.css?v=1">
+    <link rel="stylesheet" href="../css/tickets.css?v=2">
+    <link rel="stylesheet" href="../css/agent-utilities.css?v=1">
   </head>
   <body class="bg-atlas-canvas text-atlas-ink antialiased">
     <a href="#main-content" class="av-skip-link">Aller au contenu principal</a>
     <div id="agent-app" class="app-shell">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="sidebar-toggle" class="icon-button" aria-label="Replier le menu"><span data-icon="menu"></span></button>
+          <button class="logo" data-page="dashboard" aria-label="Atlas Voyage — Tableau de bord">
+            <img src="../images/logo.png" alt="Atlas Voyage" class="app-logo" />
+          </button>
+        </div>
+        <div class="top-actions">
+          <div id="agent-i18n-container" class="flex items-center gap-2"></div>
+          <div class="notification-wrap">
+            <button id="notification-button" class="icon-button" aria-label="Notifications"><span data-icon="bell"></span></button>
+            <div id="notification-dropdown" class="notification-dropdown hidden"></div>
+          </div>
+          <span class="top-divider"></span>
+          <div class="account-wrap">
+            <button id="account-toggle" class="account-button" aria-haspopup="true" aria-expanded="false"><span class="avatar amber" id="account-initials">NE</span><span><strong id="account-name">Nadia El Fassi</strong><small>Agent</small></span><span data-icon="chevron-down"></span></button>
+            <div id="account-menu" class="account-menu hidden">
+              <button data-page="dashboard"><span data-icon="grid"></span>Tableau de bord</button>
+              <button data-page="bookings"><span data-icon="calendar"></span>Réservations</button>
+              <button data-page="payments"><span data-icon="wallet"></span>Paiements à l'arrivée</button>
+              <button data-page="tickets"><span data-icon="message"></span>Tickets de support</button>
+              <button data-page="profile"><span data-icon="user"></span>Mon profil</button>
+              <hr>
+              <button id="logout-button" class="logout"><span data-icon="logout"></span>Déconnexion</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
       <aside id="sidebar" class="sidebar">
-        <button class="logo" data-page="dashboard">
-          <img src="../images/logo.png" alt="Atlas Voyage" class="app-logo" />
-        </button>
+        <p class="sidebar-label">ESPACE AGENT</p>
         <nav id="main-nav"></nav>
-        <button class="user-panel" data-page="profile">
-          <span class="avatar amber" id="user-initials">NE</span>
-          <span><strong id="user-name">Nadia El Fassi</strong><small>Agent</small></span>
-          <span data-icon="more"></span>
-        </button>
       </aside>
 
       <div id="workspace" class="workspace">
-        <header class="topbar">
-          <div class="topbar-left">
-            <button id="sidebar-toggle" class="icon-button" aria-label="Replier le menu"><span data-icon="menu"></span></button>
-            <div class="breadcrumb"><span>Espace agent</span><span data-icon="chevron-right"></span><strong id="breadcrumb-label">Tableau de bord</strong></div>
-          </div>
-          <div class="top-actions">
-            <div id="agent-i18n-container" class="flex items-center gap-2"></div>
-            <label class="quick-search"><span data-icon="search"></span><input placeholder="Rechercher une référence BK-…" /></label>
-            <div class="notification-wrap">
-              <button id="notification-button" class="icon-button" aria-label="Notifications"><span data-icon="bell"></span></button>
-              <div id="notification-dropdown" class="notification-dropdown hidden"></div>
-            </div>
-            <button class="account-button" data-page="profile"><span class="avatar amber" id="account-initials">NE</span><span><strong id="account-name">Nadia E.</strong><small>Agent</small></span><span data-icon="chevron-down"></span></button>
-            <button id="logout-button" class="icon-button" aria-label="Déconnexion" title="Déconnexion"><span data-icon="logout"></span></button>
-          </div>
-        </header>
-
         <main id="main-content" class="main-body">
           <div id="page-content" class="page-content"></div>
         </main>
@@ -95,13 +77,13 @@
     <script src="../js/shared/i18n.js?v=14"></script>
     <script src="../js/shared/currency.js?v=14"></script>
     <script src="../js/shared/geocoding.js?v=90"></script>
-    <script src="../js/core/bookings.js?v=33"></script>
-    <script src="../js/core/payments.js?v=33"></script>
+    <script src="../js/core/bookings.js?v=35"></script>
+    <script src="../js/core/payments.js?v=34"></script>
     <script src="../js/core/notifications.js?v=40"></script>
-    <script src="../js/core/stats.js?v=50"></script>
+    <script src="../js/core/stats.js?v=52"></script>
     <script src="../js/core/uploader.js?v=61"></script>
     <script src="../js/core/account.js?v=60"></script>
-    <script src="../js/core/tickets.js?v=3"></script>
-    <script src="./js/app.js?v=60"></script>
+    <script src="../js/core/tickets.js?v=4"></script>
+    <script src="./js/app.js?v=61"></script>
   </body>
 </html>
