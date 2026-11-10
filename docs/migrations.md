@@ -67,10 +67,13 @@ Testcontainers MySQL est recommandé pour automatiser ces vérifications en CI.
 
 ## Archives
 
-Voir [legacy-migrations/README.md](legacy-migrations/README.md).
+Voir [archive/sql-historique/README.md](archive/sql-historique/README.md).
 Les scripts historiques ne doivent plus être exécutés sur une base gérée par Flyway.
-Les quatre scripts Phase 6, dans `backend/scripts/migrations`, sont distincts
-de ces archives et constituent l'exception manuelle demandée pour cette phase.
+Les quatre scripts Phase 6 constituent l'exception manuelle demandée pour cette phase :
+ils se trouvent désormais dans `scripts/migrations/` sous les noms `V3__user_profiles_security.sql`,
+`V4__supplier_profiles.sql`, `V5__password_reset_and_verify.sql` et `V6__file_assets.sql`
+(numérotation propre à ce dossier, sans lien avec Flyway). Le dossier `backend/scripts/migrations`,
+qui en contenait une copie au SQL équivalent, a été supprimé le 9 novembre 2026.
 
 ## Phase 6 — profils, comptes et images (scripts manuels)
 
@@ -82,6 +85,8 @@ décision. Prod reste `validate`, test H2 `create-drop` et Flyway désactivé.
 
 1. Arrêter l'application pour éviter des écritures concurrentes. Sauvegarder la
    base et le volume d'uploads, vérifier la restauration sur une copie.
+   (Les scripts ci-dessous sont à exécuter **avant** le premier démarrage Phase 6
+   sur une base existante ; ils ne modifient aucune migration Flyway V1 à V9.)
 2. Depuis la racine, exécuter avec le client MySQL/MariaDB, dans cet ordre :
 
 ```powershell
@@ -92,10 +97,10 @@ mysql -u root -p travel_agency_db
 Puis dans le client SQL :
 
 ```sql
-SOURCE backend/scripts/migrations/migration_user_profile_security.sql;
-SOURCE backend/scripts/migrations/migration_supplier_profile.sql;
-SOURCE backend/scripts/migrations/migration_file_assets.sql;
-SOURCE backend/scripts/migrations/migration_password_reset_email_verification.sql;
+SOURCE scripts/migrations/V3__user_profiles_security.sql;
+SOURCE scripts/migrations/V4__supplier_profiles.sql;
+SOURCE scripts/migrations/V6__file_assets.sql;
+SOURCE scripts/migrations/V5__password_reset_and_verify.sql;
 ```
 
 3. Le premier script ajoute les colonnes personnelles, marque **uniquement les
@@ -267,3 +272,27 @@ Rollback : restaurer la sauvegarde avec l'ancienne version de l'application,
 ou créer une migration corrective ultérieure. Ne pas effacer l'historique Flyway.
 
 V9 appliquée : toute correction ultérieure doit être une nouvelle migration V10.
+
+## Scripts manuels de production (`scripts/migrations/`)
+
+Depuis la Phase 6, aucune migration Flyway V10 ou supérieure n'a été créée : la chaîne Flyway (`db/migration` et `db.migration`) s'arrête à **V9**. Le schéma de production reste en `ddl-auto=validate` (ADR-0006) ; ses évolutions sont livrées sous forme de **scripts SQL manuels et idempotents**, rejouables sans erreur, exécutés dans l'ordre avant le déploiement de l'application. Leurs numéros sont propres au dossier `scripts/migrations/` et ne sont pas inscrits dans `flyway_schema_history`.
+
+En développement, `ddl-auto=update` applique automatiquement les changements d'entités mais **ne supprime jamais de colonne** : un retrait de champ exige donc aussi un script.
+
+| Script | Objet |
+| :--- | :--- |
+| V1 à V9 | Scripts historiques des phases 1 à 8 (numérotation propre à ce dossier, sans lien avec les migrations Flyway du même numéro). |
+| `V10__enrich_city_and_remove_stock.sql` | Phase 9 : villes enrichies, normalisation sans doublons, suppression du stock. |
+| `V11__security_refresh_tokens_and_lock.sql` | Phase 10 : table `refresh_tokens`, verrouillage de compte, colonnes `consent_at` et `consent_version` (retirées par V15), `marketing_opt_in`. |
+| `V12__reviews_ratings_and_contact.sql` | Avis et notations, messages de contact. |
+| `V14__i18n_user_preferences_offer_and_city_translations.sql` | Préférences de langue et devise, traductions d'offres et de villes. |
+| `V15__remember_me_and_drop_consent.sql` | Ajoute `refresh_tokens.remember_me` ; supprime `users.consent_at` et `users.consent_version`. |
+
+Il n'existe pas de V13.
+
+### V15 — « Se souvenir de moi » et retrait du consentement (9 novembre 2026)
+
+- **Pourquoi :** le choix « Se souvenir de moi » est conservé avec le refresh token à chaque rotation (`remember_me BOOLEAN NOT NULL DEFAULT TRUE`, donc les sessions déjà ouvertes restent persistantes) ; le consentement à l'inscription n'est plus recueilli, ses deux colonnes n'ont plus d'entité correspondante.
+- **Exécution :** sauvegarder la base (`mysqldump`), puis `mysql -u <utilisateur> -p <base> < scripts/migrations/V15__remember_me_and_drop_consent.sql`. Le script s'appuie sur `information_schema` et peut être rejoué ; il a été exécuté (deux fois de suite) sur MariaDB via XAMPP, avec une syntaxe standard également compatible MySQL 8.
+- **Ordre de déploiement :** exécuter V15 **avant** de démarrer la nouvelle version de l'application. En production (`validate`), la colonne `refresh_tokens.remember_me` doit exister, sans quoi le démarrage échoue. En développement, Hibernate crée seul `remember_me` ; seul V15 supprime les anciennes colonnes de consentement, qui restent sinon en base, inoffensives (nullables).
+- **Retour arrière :** `ALTER TABLE users ADD COLUMN consent_at DATETIME(6) NULL, ADD COLUMN consent_version VARCHAR(50) NULL; ALTER TABLE refresh_tokens DROP COLUMN remember_me;` ne restaure que la structure : les valeurs de consentement supprimées ne sont pas récupérables autrement que par la sauvegarde.

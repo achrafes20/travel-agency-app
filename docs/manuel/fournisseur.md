@@ -1,7 +1,7 @@
 # Manuel Utilisateur — Espace Fournisseur
 
 > **Statut :** ✅ Implémenté  
-> **Date de mise à jour :** 2026-11-01  
+> **Date de mise à jour :** 2026-11-10  
 > **Profil :** Prestataire Touristique Spécialisé (`ROLE_SUPPLIER`)  
 > **Point d'entrée :** `http://127.0.0.1:5500/frontend/supplier/index.html`
 
@@ -18,10 +18,13 @@ Chaque fournisseur est rattaché à une catégorie exclusive déterminée lors d
 
 ![Tableau de bord Fournisseur](../assets/screenshots/fournisseur/01-dashboard.png)
 
-Le tableau de bord présente en temps réel :
-- Le nombre total d'offres en ligne et en attente de modération.
-- Le taux d'occupation et les réservations récentes associées à vos prestations.
-- Les alertes de stock faible lorsque la capacité disponible passe sous le seuil critique.
+Le tableau de bord présente quatre indicateurs, recalculés selon la période choisie (7 jours, 30 jours ou 12 mois) :
+- **Revenu de mes prestations :** somme des prix de vos lignes confirmées ou terminées.
+- **Réservations de la période.**
+- **Panier moyen :** revenu divisé par le nombre de réservations.
+- **Offres actives :** par exemple « 2 sur 2 ».
+
+Dessous, le graphique « Vos revenus sur six mois » et la liste « Dernières réservations reçues » (référence, client, date de service, statut, montant).
 
 ---
 
@@ -46,12 +49,13 @@ Pour publier une nouvelle prestation, cliquez sur **« Déposer une offre »** :
 
 ---
 
-## 3. Gestion des Disponibilités & Calendrier
+## 3. Périodes de Disponibilité
 
-![Calendrier des Disponibilités](../assets/screenshots/fournisseur/04-disponibilites.png)
+![Périodes de disponibilité](../assets/screenshots/fournisseur/04-disponibilites.png)
 
-- Visualisez les périodes actives pour chacune de vos prestations.
-- Ajustez les capacités restantes ou bloquez exceptionnellement des dates en cas d'indisponibilité.
+- L'écran « Périodes de disponibilité » (menu « Disponibilités ») est en lecture seule : une ligne par offre, avec son état, son nombre de périodes et la période en cours ou la prochaine ; il se filtre par type, ville, statut et période.
+- La capacité d'une période est le stock restant à vendre (chambres, sièges, véhicules) : chaque réservation la diminue, une annulation la rend. Une réservation doit tenir entièrement dans une seule période.
+- Les périodes se définissent à l'étape 4 du formulaire d'offre.
 - Le système garantit l'absence totale de surréservation (overbooking) grâce à son verrouillage transactionnel strict.
 
 ---

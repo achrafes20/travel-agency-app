@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,7 +28,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -106,6 +109,39 @@ class SecurityPhase10Test {
         for (var token : familyTokens) {
             assertNotNull(token.getRevokedAt(), "Tous les jetons de la famille doivent être révoqués suite à une réutilisation détectée");
         }
+    }
+
+    @Test
+    void rememberMeChoiceSurvivesTokenRefresh() throws Exception {
+        String password = "Atlas!SecurePass2026";
+
+        // Sans « Se souvenir de moi » : cookie de session à la connexion ET après rotation
+        var sessionLogin = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + testClient.getEmail() + "\",\"password\":\"" + password + "\",\"rememberMe\":false}"))
+                .andExpect(status().isOk()).andReturn();
+        var sessionCookie = sessionLogin.getResponse().getCookie(CookieAuthHelper.REFRESH_COOKIE_NAME);
+        assertNotNull(sessionCookie);
+        assertEquals(-1, sessionCookie.getMaxAge(), "sans « Se souvenir de moi », le cookie doit être un cookie de session");
+
+        var sessionRefresh = mockMvc.perform(post("/api/auth/refresh").cookie(sessionCookie).with(csrf()))
+                .andExpect(status().isOk()).andReturn();
+        var rotatedSessionCookie = sessionRefresh.getResponse().getCookie(CookieAuthHelper.REFRESH_COOKIE_NAME);
+        assertNotNull(rotatedSessionCookie);
+        assertEquals(-1, rotatedSessionCookie.getMaxAge(), "la rotation ne doit pas transformer un cookie de session en cookie persistant");
+
+        // Avec « Se souvenir de moi » : cookie persistant à la connexion ET après rotation
+        var rememberedLogin = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + testClient.getEmail() + "\",\"password\":\"" + password + "\",\"rememberMe\":true}"))
+                .andExpect(status().isOk()).andReturn();
+        var rememberedCookie = rememberedLogin.getResponse().getCookie(CookieAuthHelper.REFRESH_COOKIE_NAME);
+        assertNotNull(rememberedCookie);
+        assertTrue(rememberedCookie.getMaxAge() > 0);
+
+        var rememberedRefresh = mockMvc.perform(post("/api/auth/refresh").cookie(rememberedCookie).with(csrf()))
+                .andExpect(status().isOk()).andReturn();
+        var rotatedRememberedCookie = rememberedRefresh.getResponse().getCookie(CookieAuthHelper.REFRESH_COOKIE_NAME);
+        assertNotNull(rotatedRememberedCookie);
+        assertTrue(rotatedRememberedCookie.getMaxAge() > 0);
     }
 
     @Test

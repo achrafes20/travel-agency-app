@@ -756,6 +756,7 @@ erDiagram
 | `createdAt` | `LocalDateTime` | Attribut de l'entité RefreshToken |
 | `ipAddress` | `String` | Attribut de l'entité RefreshToken |
 | `userAgent` | `String` | Attribut de l'entité RefreshToken |
+| `rememberMe` | `boolean` | Attribut de l'entité RefreshToken |
 
 ### Table `Review`
 
@@ -872,7 +873,6 @@ erDiagram
 | `tokenVersion` | `long` | Attribut de l'entité User |
 | `createdAtEstimated` | `boolean` | Attribut de l'entité User |
 | `failedLoginAttempts` | `int` | Attribut de l'entité User |
-| `consentVersion` | `String` | Attribut de l'entité User |
 | `preferredLanguage` | `String` | Attribut de l'entité User |
 | `preferredCurrency` | `String` | Attribut de l'entité User |
 | `marketingOptIn` | `boolean` | Attribut de l'entité User |

@@ -59,17 +59,6 @@
     "previous": "Previous",
     "next": "Next",
     "page": "Page {page} of {total}"
-  },
-  "footer": {
-    "slogan": "Your trusted partner to discover the authentic beauty of Morocco.",
-    "links": {
-      "about": "About us",
-      "contact": "Contact",
-      "faq": "FAQ",
-      "cgu": "Terms of Service",
-      "privacy": "Privacy & GDPR"
-    },
-    "copyright": "© {year} Atlas Voyage SARL. All rights reserved."
   }
 }
 

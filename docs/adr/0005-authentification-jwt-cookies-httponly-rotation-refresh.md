@@ -36,3 +36,7 @@ Inconvénients :
 
 1. Bearer token pur en localStorage : Rejeté pour vulnérabilité majeure XSS (OWASP A01/A03).
 2. Sessions HTTP d'état (HttpSession) : Rejeté pour préserver l'architecture stateless de l'API REST.
+
+## 5. Évolutions
+
+- **9 novembre 2026 — « Se souvenir de moi » :** le cookie `atlas_refresh_token` est persistant (7 jours par défaut) ou, si l'utilisateur décoche la case, un cookie de session. Le choix est transmis à `POST /api/auth/login` (`rememberMe`), enregistré avec le jeton (`refresh_tokens.remember_me`) et conservé à chaque rotation. Auparavant, la case n'était pas transmise au serveur et chaque rafraîchissement rendait le cookie persistant, quel que soit le choix de l'utilisateur.

@@ -16,6 +16,10 @@ import java.util.*;
 @Component
 public class PasswordPolicy {
 
+    /** Longueur minimale unique, appliquée partout (inscription, modification, reset, validation de formulaire). */
+    public static final int MIN_LENGTH = 12;
+    public static final int MAX_LENGTH = 128;
+
     private static final Set<String> COMMON_PASSWORDS = new HashSet<>();
 
     static {
@@ -40,7 +44,7 @@ public class PasswordPolicy {
     }
 
     public static List<String> violations(String password, String email) {
-        return violations(password, email, null, 10, 128);
+        return violations(password, email, null, MIN_LENGTH, MAX_LENGTH);
     }
 
     public static List<String> violations(String password, String email, String fullName, int minLength, int maxLength) {
@@ -102,7 +106,7 @@ public class PasswordPolicy {
     }
 
     public static void require(String password, String email, String fullName) {
-        var errors = violations(password, email, fullName, 12, 128);
+        var errors = violations(password, email, fullName, MIN_LENGTH, MAX_LENGTH);
         if (!errors.isEmpty()) {
             throw new PasswordPolicyException(errors);
         }

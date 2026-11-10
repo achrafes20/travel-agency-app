@@ -41,7 +41,7 @@ En profil de production (`SPRING_PROFILES_ACTIVE=prod`), la classe `ProductionEn
 | Variable | Description | Règle / Format | Exemple |
 | :--- | :--- | :--- | :--- |
 | `ADMIN_BOOTSTRAP_EMAIL` | Email de l'administrateur principal créé au premier boot | Format email valide de l'organisation | `admin@atlasvoyage.ma` |
-| `ADMIN_BOOTSTRAP_PASSWORD` | Mot de passe du premier compte admin | Conforme à la politique forte (min 12 chars, 3/4 catégories) | `Atlas!MasterAdmin2026#Secure` |
+| `ADMIN_BOOTSTRAP_PASSWORD` | Mot de passe du premier compte admin | Conforme à la politique forte (min 12 chars, 4 classes obligatoires) | `Atlas!MasterAdmin2026#Secure` |
 
 ---
 

@@ -2,7 +2,7 @@
  * Atlas Voyage - Composant d'Avis et Notations Accessible
  * Gère l'affichage des résumés, de la distribution des notes, de la liste paginée et du dépôt d'avis
  */
-import { Api } from '../core/api.js';
+// `api` est la constante globale définie par le script classique js/core/api.js (chargé avant ce module).
 
 export class AtlasReviews {
   constructor(containerId, offerId, currentUser = null) {
@@ -28,7 +28,7 @@ export class AtlasReviews {
 
   async loadSummary() {
     try {
-      this.summary = await Api.get(`/api/offers/${this.offerId}/reviews/summary`);
+      this.summary = await api.get(`/api/offers/${this.offerId}/reviews/summary`);
     } catch (err) {
       console.warn('Impossible de charger le résumé des avis :', err);
       this.summary = { averageRating: 0, reviewCount: 0, distribution: {}, distributionPercentages: {} };
@@ -38,7 +38,7 @@ export class AtlasReviews {
   async checkEligibility() {
     try {
       // Vérifie si le client a des réservations terminées contenant cette offre
-      const bookings = await Api.get('/api/bookings');
+      const bookings = await api.get('/api/bookings');
       if (Array.isArray(bookings)) {
         this.userEligibleBookings = bookings.filter(b =>
           b.status === 'COMPLETED' &&
@@ -54,7 +54,7 @@ export class AtlasReviews {
     this.currentPage = page;
     this.currentSort = sort;
     try {
-      const res = await Api.get(`/api/offers/${this.offerId}/reviews?page=${page}&size=5&sort=${sort}`);
+      const res = await api.get(`/api/offers/${this.offerId}/reviews?page=${page}&size=5&sort=${sort}`);
       this.reviews = res.content || [];
       this.totalPages = res.totalPages || 1;
     } catch (err) {
@@ -98,7 +98,7 @@ export class AtlasReviews {
             <div style="font-size: var(--av-text-5xl); font-weight: var(--av-font-weight-extrabold); color: var(--av-color-brand); line-height: 1;">
               ${avg}
             </div>
-            <div class="av-stars" style="color: var(--av-color-accent); margin: var(--av-space-2) 0;" aria-label="Note ${avg} sur 5">
+            <div class="av-stars" style="color: var(--av-color-accent); margin: var(--av-space-2) 0;" role="img" aria-label="Note ${avg} sur 5">
               ${this.renderStarsSvg(parseFloat(avg))}
             </div>
             <div style="font-size: var(--av-text-sm); color: var(--av-color-text-subtle); font-weight: var(--av-font-weight-medium);">
@@ -244,7 +244,7 @@ export class AtlasReviews {
         </div>
 
         <div style="display: flex; align-items: center; gap: var(--av-space-2); margin-bottom: var(--av-space-2);">
-          <div class="av-stars" style="color: var(--av-color-accent);" aria-label="Note ${r.rating} sur 5">
+          <div class="av-stars" style="color: var(--av-color-accent);" role="img" aria-label="Note ${r.rating} sur 5">
             ${this.renderStarsSvg(r.rating)}
           </div>
           <strong style="font-size: var(--av-text-base); color: var(--av-color-text);">${r.title || ''}</strong>
@@ -380,7 +380,7 @@ export class AtlasReviews {
         }
 
         try {
-          const res = await Api.post(`/api/offers/${this.offerId}/reviews`, {
+          const res = await api.post(`/api/offers/${this.offerId}/reviews`, {
             bookingId, rating, title, comment
           });
 
@@ -409,7 +409,7 @@ export class AtlasReviews {
         const rId = btn.dataset.reviewId;
         if (!confirm("Souhaitez-vous signaler cet avis à l'équipe de modération ?")) return;
         try {
-          await Api.post(`/api/reviews/${rId}/report`);
+          await api.post(`/api/reviews/${rId}/report`);
           btn.textContent = 'Signalé';
           btn.disabled = true;
         } catch (err) {

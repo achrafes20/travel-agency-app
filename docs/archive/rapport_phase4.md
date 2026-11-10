@@ -1,5 +1,7 @@
 # Livraison Phase 4 — Notifications
 
+> **Archive — document historique.** Ce document décrit l'état et le travail réalisés à une date donnée. Il est conservé tel quel (hors liens corrigés lors de son déplacement le 9 novembre 2026) et **n'est plus mis à jour**. Pour l'état courant : [README](../../README.md), [règles métier](../regles_metier.md), [architecture](../architecture.md), [CHANGELOG](../../CHANGELOG.md).
+
 31 octobre 2026. Point de départ Git : `3679431`.
 
 ## Constat initial
@@ -163,7 +165,7 @@ comme avant cette phase.
 TicketRepliedEvent après sauvegarde de la réponse, avec :
 eventId stable lié au message, ticketId, référence, requesterId, assignedId,
 authorId, sujet et aperçu. Le listener existant exclut l'auteur et choisit
-demandeur/assigné. Voir l'exemple exact dans [notifications.md](notifications.md#futur-module-ticket--branchement-exact).
+demandeur/assigné. Voir l'exemple exact dans [notifications.md](../notifications.md#futur-module-ticket--branchement-exact).
 
 Le traitement suit AFTER_COMMIT et une file asynchrone locale, conformément à la
 mission. Il ne fournit pas d'outbox durable après arrêt brutal du processus.
@@ -283,5 +285,5 @@ Comparaison avec `3679431`, rapports/artefacts de test et sauvegardes exclus.
 - `docs/rapport_phase4.md`
 
 
-Références : [notifications.md](notifications.md), [API](api_endpoints.md#notifications--phase-4-7-endpoints),
-[migrations](migrations.md#phase-4--v8-notifications), [Postman](postman/AtlasVoyage.postman_collection.json).
+Références : [notifications.md](../notifications.md), [API](../api_endpoints.md#notifications--phase-4-7-endpoints),
+[migrations](../migrations.md#phase-4--v8-notifications), [Postman](../postman/AtlasVoyage.postman_collection.json).

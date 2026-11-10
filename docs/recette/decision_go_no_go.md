@@ -77,3 +77,16 @@ Pour la séance de démonstration devant le jury (Phase 17), l'équipe projet ex
 | **Lead Développeur Frontend** | Équipe Frontend Vanilla | 02/11/2026 | **APPROUVÉ** |
 | **Responsable Sécurité Applicative** | Expert Sécurité OWASP | 02/11/2026 | **APPROUVÉ** |
 
+---
+
+## 6. Addendum du 9 novembre 2026
+
+Ce procès-verbal et ses critères chiffrés (§2) décrivent la version évaluée le **2 novembre 2026** ; ils ne sont pas modifiés. Depuis, des évolutions de l'interface invité et de l'inscription ont eu lieu, avec seize anomalies détectées (`ANO-07` à `ANO-22`) : treize corrigées et trois **ouvertes** (`ANO-10`, `ANO-18`, périmètre de l'audit d'accessibilité, et `ANO-22`, exports CSV sous Excel). Le détail figure dans l'addendum de `rapport_final_recette.md`.
+
+| Critère | Valeur au 2 novembre | Situation au 9 novembre |
+| :--- | :---: | :--- |
+| **CRIT-03** Tests E2E | 39 / 39 | 38 scénarios depuis le retrait de `REC-INV-07` ; **campagne complète non rejouée** |
+| **CRIT-04** Tests backend | 397 / 397 | **399 / 399** (2 tests ajoutés), vérifié le 9 novembre |
+
+Les conditions résolutoires n° 1 à 3 sont inchangées. La condition n° 4 (campagnes humaines et agrément) s'enrichit d'un point : le consentement à l'inscription n'étant plus recueilli, le dispositif d'information attendu par la CNDP est à définir (voir `humain_a_realiser.md`, §5).
+

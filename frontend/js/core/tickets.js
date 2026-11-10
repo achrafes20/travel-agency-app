@@ -7,6 +7,9 @@
 const TicketsUI = (() => {
   "use strict";
 
+  // Les classes utilitaires de css/tickets.css ne s'appliquent que sous .tk-ui.
+  const markUi = (container) => { container?.classList.add("tk-ui"); return container; };
+
   const CATEGORIES = {
     BOOKING: "Réservation",
     PAYMENT: "Paiement",
@@ -472,13 +475,13 @@ const TicketsUI = (() => {
   // =========================================================================
   async function openCreateTicketModal(onCreated) {
     const overlay = document.createElement("div");
-    overlay.className = "ticket-modal-overlay";
+    overlay.className = "ticket-modal-overlay tk-ui";
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
 
     let bookings = [];
     try {
-      const resp = await api.get("/api/bookings?size=50");
+      const resp = await api.get(Auth.getUser()?.role === "SUPPLIER" ? "/api/bookings/supplier?size=50" : "/api/bookings?size=50");
       bookings = resp.content || [];
     } catch {
       // Si non supporté ou pas de réservation, liste vide
@@ -615,51 +618,12 @@ const TicketsUI = (() => {
               ↻ Actualiser
             </button>
           </div>
-          <div id="agent-stats-root" class="ticket-stats-grid"></div>
           <div id="agent-tickets-root"></div>
         </div>
       `;
 
-      container.querySelector("#agent-btn-refresh").onclick = () => { loadStats(); loadTickets(); };
-      await loadStats();
+      container.querySelector("#agent-btn-refresh").onclick = () => loadTickets();
       await loadTickets();
-    }
-
-    async function loadStats() {
-      try {
-        state.stats = await api.get("/api/tickets/stats");
-        renderStats();
-      } catch (err) {
-        console.warn("Erreur chargement stats tickets :", err);
-      }
-    }
-
-    function renderStats() {
-      const statsRoot = container.querySelector("#agent-stats-root");
-      if (!statsRoot || !state.stats) return;
-      const s = state.stats;
-      statsRoot.innerHTML = `
-        <div class="ticket-stat-card border-l-4 border-l-blue-500">
-          <small>Ouverts</small>
-          <strong>${s.open}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-amber-500">
-          <small>En cours</small>
-          <strong>${s.inProgress}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-emerald-500">
-          <small>Résolus</small>
-          <strong>${s.resolved}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-red-500">
-          <small>Urgents</small>
-          <strong>${s.urgentPriority}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-slate-400">
-          <small>Total tickets</small>
-          <strong>${s.total}</strong>
-        </div>
-      `;
     }
 
     async function loadTickets() {
@@ -802,7 +766,7 @@ const TicketsUI = (() => {
               <span>•</span>
               <time>${relativeTime(m.createdAt)}</time>
             </div>
-            ${isInternal ? `<span class="internal-note-badge">🔒 Note interne — visible équipe uniquement</span>` : ""}
+            ${isInternal ? `<span class="internal-note-badge">Note interne</span>` : ""}
             <div class="message-bubble">${esc(m.content)}</div>
           </div>
         `;
@@ -927,7 +891,6 @@ const TicketsUI = (() => {
             await api.post(`/api/tickets/${t.id}/messages`, { content, internalNote });
             showToast(internalNote ? "Note interne enregistrée." : "Réponse envoyée au demandeur.");
             await selectTicket(t.id);
-            await loadStats();
           } catch (err) {
             showToast(err.message || "Erreur lors de l'envoi", true);
             submitBtn.disabled = false;
@@ -944,7 +907,6 @@ const TicketsUI = (() => {
             await api.patch(`/api/tickets/${t.id}/status`, { status: newStatus });
             showToast(`Statut mis à jour : ${STATUS_LABELS[newStatus] || newStatus}`);
             await selectTicket(t.id);
-            await loadStats();
           } catch (err) {
             showToast(err.message || "Transition de statut interdite", true);
             statusSelect.value = t.status;
@@ -961,7 +923,6 @@ const TicketsUI = (() => {
             await api.patch(`/api/tickets/${t.id}/priority`, { priority: newPriority });
             showToast(`Priorité mise à jour : ${PRIORITY_LABELS[newPriority] || newPriority}`);
             await selectTicket(t.id);
-            await loadStats();
           } catch (err) {
             showToast(err.message || "Erreur modification priorité", true);
             prioritySelect.value = t.priority;
@@ -1022,55 +983,13 @@ const TicketsUI = (() => {
               ↻ Actualiser
             </button>
           </div>
-          <div id="admin-stats-kpis" class="ticket-stats-grid"></div>
           <div id="admin-tickets-root"></div>
         </div>
       `;
 
-      container.querySelector("#admin-tickets-refresh").onclick = () => { loadStats(); loadUsers(); loadData(); };
-      await Promise.all([loadStats(), loadUsers()]);
+      container.querySelector("#admin-tickets-refresh").onclick = () => { loadUsers(); loadData(); };
+      await loadUsers();
       await loadData();
-    }
-
-    async function loadStats() {
-      try {
-        state.stats = await api.get("/api/tickets/stats");
-        renderStats();
-      } catch (err) {
-        console.warn("Erreur chargement stats tickets admin :", err);
-      }
-    }
-
-    function renderStats() {
-      const root = container.querySelector("#admin-stats-kpis");
-      if (!root || !state.stats) return;
-      const s = state.stats;
-      root.innerHTML = `
-        <div class="ticket-stat-card border-l-4 border-l-blue-500">
-          <small>Ouverts</small>
-          <strong>${s.open}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-amber-500">
-          <small>En cours</small>
-          <strong>${s.inProgress}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-emerald-500">
-          <small>Résolus</small>
-          <strong>${s.resolved}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-slate-400">
-          <small>Fermés</small>
-          <strong>${s.closed}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-red-500">
-          <small>Urgents</small>
-          <strong>${s.urgentPriority}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-indigo-600">
-          <small>Total tickets</small>
-          <strong>${s.total}</strong>
-        </div>
-      `;
     }
 
     async function loadUsers() {
@@ -1291,7 +1210,7 @@ const TicketsUI = (() => {
               <span>•</span>
               <time>${relativeTime(m.createdAt)}</time>
             </div>
-            ${isInternal ? `<span class="internal-note-badge">🔒 Note interne</span>` : ""}
+            ${isInternal ? `<span class="internal-note-badge">Note interne</span>` : ""}
             <div class="message-bubble">${esc(m.content)}</div>
           </div>
         `;
@@ -1401,7 +1320,6 @@ const TicketsUI = (() => {
           await api.patch(`/api/tickets/${t.id}/assignee`, { assigneeId: targetId });
           showToast("Assignation mise à jour.");
           openAdminDetail(t.id);
-          loadStats();
         } catch (err) {
           showToast(err.message || "Erreur lors de l'assignation", true);
         }
@@ -1414,7 +1332,6 @@ const TicketsUI = (() => {
           await api.patch(`/api/tickets/${t.id}/status`, { status: newStatus });
           showToast(`Statut mis à jour : ${STATUS_LABELS[newStatus] || newStatus}`);
           openAdminDetail(t.id);
-          loadStats();
         } catch (err) {
           showToast(err.message || "Transition interdite", true);
           e.target.value = t.status;
@@ -1428,7 +1345,6 @@ const TicketsUI = (() => {
           await api.patch(`/api/tickets/${t.id}/priority`, { priority: newPriority });
           showToast(`Priorité mise à jour : ${PRIORITY_LABELS[newPriority] || newPriority}`);
           openAdminDetail(t.id);
-          loadStats();
         } catch (err) {
           showToast(err.message || "Erreur modification priorité", true);
           e.target.value = t.priority;
@@ -1458,7 +1374,6 @@ const TicketsUI = (() => {
             await api.post(`/api/tickets/${t.id}/messages`, { content, internalNote });
             showToast(internalNote ? "Note interne enregistrée." : "Réponse envoyée au client.");
             openAdminDetail(t.id);
-            loadStats();
           } catch (err) {
             showToast(err.message || "Erreur lors de l'envoi", true);
             submitBtn.disabled = false;
@@ -1478,7 +1393,6 @@ const TicketsUI = (() => {
           onSuccess();
         } else {
           loadData();
-          loadStats();
         }
       } catch (err) {
         showToast(err.message || "Erreur lors de la suppression", true);
@@ -1492,10 +1406,10 @@ const TicketsUI = (() => {
   // API PUBLIQUE DU MODULE TICKETS
   // =========================================================================
   return {
-    client: (container) => renderClient(container, "CLIENT"),
-    supplier: (container) => renderClient(container, "SUPPLIER"),
-    agent: (container) => renderAgent(container),
-    admin: (container) => renderAdmin(container),
+    client: (container) => renderClient(markUi(container), "CLIENT"),
+    supplier: (container) => renderClient(markUi(container), "SUPPLIER"),
+    agent: (container) => renderAgent(markUi(container)),
+    admin: (container) => renderAdmin(markUi(container)),
     createModal: openCreateTicketModal
   };
 })();

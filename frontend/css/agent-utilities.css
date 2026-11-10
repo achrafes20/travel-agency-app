@@ -1,0 +1,57 @@
+/* ==========================================================================
+   Utilitaires de l'espace agent
+   Remplace le script cdn.tailwindcss.com : seules les classes utilitaires
+   réellement employées par agent/index.html (coque de l'application) sont
+   définies ici, avec les valeurs de Tailwind (couleurs « atlas » comprises).
+   Le module des tickets a ses propres utilitaires dans tickets.css.
+   Chargé en dernier, comme l'était la feuille injectée par le CDN.
+   ========================================================================== */
+:where(*, ::before, ::after) { box-sizing: border-box; }
+:where(html) { line-height: 1.5; -webkit-text-size-adjust: 100%; tab-size: 4; font-family: Poppins, sans-serif; }
+:where(body) { margin: 0; line-height: inherit; }
+:where(:disabled) { cursor: default; }
+
+/* ==========================================================================
+   Remise à zéro de l'espace agent
+   Reprend les règles de base que le CDN de Tailwind injectait auparavant dans
+   ces pages. Sélecteurs :where() (spécificité nulle) : toute règle de ce
+   fichier ou du design system plus spécifique l'emporte. Les composants du
+   design system (classes av-*) sont exclus : ils définissent leurs propres
+   styles, que ce reset ne doit pas écraser.
+   ========================================================================== */
+:where(*:not([class^="av-"], [class*=" av-"])) { border-width: 0; border-style: solid; border-color: #e5e7eb; }
+:where(blockquote, dd, dl, figure, h1, h2, h3, h4, h5, h6, hr, p, pre, fieldset) { margin: 0; }
+:where(h1, h2, h3, h4, h5, h6) { font-size: inherit; font-weight: inherit; }
+:where(hr) { height: 0; color: inherit; border-top-width: 1px; }
+:where(menu, ol, ul) { list-style: none; margin: 0; padding: 0; }
+:where(a:not([class^="av-"], [class*=" av-"])) { color: inherit; text-decoration: inherit; }
+:where(b, strong) { font-weight: bolder; }
+:where(small) { font-size: 80%; }
+:where(sub, sup) { font-size: 75%; line-height: 0; position: relative; vertical-align: baseline; }
+:where(sub) { bottom: -0.25em; }
+:where(sup) { top: -0.5em; }
+:where(table) { text-indent: 0; border-color: inherit; border-collapse: collapse; }
+:where(button:not([class^="av-"], [class*=" av-"]), input:not([class^="av-"], [class*=" av-"]), optgroup:not([class^="av-"], [class*=" av-"]), select:not([class^="av-"], [class*=" av-"]), textarea:not([class^="av-"], [class*=" av-"])) { font-family: inherit; font-size: 100%; font-weight: inherit; line-height: inherit; letter-spacing: inherit; color: inherit; margin: 0; padding: 0; }
+:where(button:not([class^="av-"], [class*=" av-"]), select:not([class^="av-"], [class*=" av-"])) { text-transform: none; }
+:where(button:not([class^="av-"], [class*=" av-"]), input[type="button"]:not([class^="av-"], [class*=" av-"]), input[type="reset"]:not([class^="av-"], [class*=" av-"]), input[type="submit"]:not([class^="av-"], [class*=" av-"])) { background-color: transparent; background-image: none; }
+:where(legend, dialog) { padding: 0; }
+:where(summary) { display: list-item; }
+:where(textarea) { resize: vertical; }
+:where(input, textarea)::placeholder { opacity: 1; color: #9ca3af; }
+:where(audio, canvas, embed, iframe, img, object, svg, video) { display: block; vertical-align: middle; }
+:where(img, video) { max-width: 100%; height: auto; }
+[hidden]:where(:not([hidden="until-found"])) { display: none; }
+
+:where(button:not([class^="av-"], [class*=" av-"]), [role="button"]) { cursor: pointer; }
+
+/* Sélecteur de devise : dans l'en-tête bleu, le bouton reste un simple texte blanc ; seul son menu déroulant est un composant du design system. */
+.topbar .av-cur-btn { background: transparent; border: 0; padding: 0; color: #fff; }
+
+/* Utilitaires */
+.flex { display: flex; }
+.hidden { display: none; }
+.items-center { align-items: center; }
+.gap-2 { gap: 0.5rem; }
+.antialiased { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.bg-atlas-canvas { background-color: #F4F5F7; }
+.text-atlas-ink { color: #0F1B3D; }

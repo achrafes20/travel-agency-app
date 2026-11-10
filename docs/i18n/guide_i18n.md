@@ -1,5 +1,8 @@
 # Guide d'Architecture et d'Utilisation de l'Internationalisation (i18n) — Atlas Voyage
 
+> [!WARNING]
+> **État actuel (9 novembre 2026, anomalie `ANO-10`, ouverte) :** le moteur d'i18n et les dictionnaires FR/EN/AR décrits ci-dessous sont présents et complets, mais l'interface est **forcée en français** : `detectInitialLang()` (`frontend/js/shared/i18n.js`) renvoie toujours `fr` et réécrit la préférence à chaque chargement de page, le paramètre `?lang=` n'est pas pris en charge et aucun sélecteur de langue n'est affiché sur les pages publiques. Le guide décrit la conception visée ; la bascule de langue n'est pas disponible dans l'interface tant que cette détection n'est pas rétablie. Le sélecteur de devise, lui, fonctionne.
+
 ## 1. Principes Fondamentaux et Vision Produit
 
 Atlas Voyage est une plateforme marocaine de réservation touristique conçue pour rayonner à l'international tout en conservant une identité locale forte.
@@ -14,7 +17,7 @@ Le système d'internationalisation (i18n) repose sur les piliers suivants :
    - Respect rigoureux des 6 formes grammaticales du pluriel arabe via l'API standard `Intl.PluralRules`.
 3. **Zéro régression et tolérance aux pannes** :
    - Architecture sans étape de compilation obligatoire (Vanilla JavaScript moderne).
-   - Chargement modulaire des dictionnaires par namespaces (19 namespaces).
+   - Chargement modulaire des dictionnaires par namespaces (16 namespaces).
    - Repli gracieux à 3 niveaux : Clé demandée dans la langue active -> Clé dans la langue source `fr` -> Code brut de la clé (`namespace.field`).
 4. **Pseudo-localisation (`en-XA`) intégrée** :
    - Activée à tout instant en ajoutant `?pseudo=1` dans l'URL. Permet aux développeurs de repérer immédiatement toute chaîne codée en dur dans le HTML ou le JS et de valider la tolérance aux débordements visuels (+30% de longueur).
@@ -30,7 +33,7 @@ Le module central réside dans `frontend/js/shared/i18n.js`. Il expose un objet 
 ```
 frontend/
 ├── locales/
-│   ├── fr/                 # Dictionnaires source (19 fichiers JSON)
+│   ├── fr/                 # Dictionnaires source (16 fichiers JSON)
 │   ├── en/                 # Dictionnaires anglais (parité 100%)
 │   └── ar/                 # Dictionnaires arabe (parité 100%, 6 pluriels)
 ├── js/
@@ -178,7 +181,7 @@ Contrainte d'unicité : `(city_id, locale)`.
    - Ajouter le code `'es'` dans `SUPPORTED_LANGS` dans `frontend/js/shared/i18n.js`.
    - Créer le dossier `frontend/locales/es/`.
    - Exécuter le script de synchronisation : `node scripts/i18n/sync.mjs`.
-   - Traduire les 19 fichiers JSON du dossier `frontend/locales/es/`.
+   - Traduire les 16 fichiers JSON du dossier `frontend/locales/es/`.
    - Valider la conformité via : `node scripts/i18n/check.mjs`.
 2. **Backend** :
    - Créer `backend/src/main/resources/messages_es.properties`.

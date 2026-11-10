@@ -41,31 +41,16 @@ h1, h2, h3, strong, b { font-family: "Montserrat", sans-serif; }
 
 /* Application shell */
 .app-shell { min-height: 100vh; }
-.sidebar { position: fixed; inset: 0 auto 0 0; width: 240px; z-index: 20; color: white; background: linear-gradient(180deg, var(--navy), var(--deep)); display: flex; flex-direction: column; }
-.logo { height: 76px; display: flex; align-items: center; gap: 10px; padding: 0 24px; border: 0; border-bottom: 1px solid rgba(255,255,255,.1); color: white; background: transparent; text-align: left; }
-#main-nav { padding: 22px 12px; }
-.nav-item { position: relative; width: 100%; height: 46px; display: flex; align-items: center; gap: 13px; border: 0; border-radius: 8px; margin-bottom: 3px; padding: 0 12px; background: transparent; color: #c9d5ee; font-size: 12px; text-align: left; }
 .nav-item > span:nth-child(2) { flex: 1; }
 .nav-item em { min-width: 19px; height: 19px; display: grid; place-items: center; border-radius: 10px; background: var(--amber); color: var(--navy); font-size: 9px; font-style: normal; font-weight: 700; }
 .nav-item:hover, .nav-item.active { background: rgba(255,255,255,.1); color: white; }
-.nav-item.active::before { content: ""; position: absolute; left: -12px; width: 4px; height: 28px; border-radius: 0 4px 4px 0; background: var(--amber); }
-.user-panel { margin-top: auto; height: 67px; display: flex; align-items: center; gap: 9px; border: 0; border-top: 1px solid rgba(255,255,255,.1); padding: 0 18px; color: white; background: transparent; text-align: left; }
-.user-panel > span:nth-child(2) { flex: 1; }
-.user-panel strong, .account-button strong { display: block; font-size: 10px; }
-.user-panel small, .account-button small { display: block; color: #aab9d8; font-size: 8px; margin-top: 2px; }
 .avatar { width: 33px; height: 33px; border-radius: 50%; display: inline-grid; place-items: center; flex: none; font: 700 10px "Montserrat"; }
 .avatar.amber { color: var(--navy); background: var(--amber); }
-.workspace { margin-left: 240px; min-height: 100vh; }
-.topbar { position: sticky; top: 0; z-index: 15; height: 76px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; border-bottom: 1px solid var(--line); background: white; }
-.breadcrumb { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 10px; }
-.breadcrumb [data-icon] svg { width: 13px; }
-.breadcrumb strong { color: var(--ink); }
 .top-actions { display: flex; align-items: center; gap: 10px; }
 .quick-search { width: 295px; height: 39px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 9px; padding: 0 11px; color: #9ca3af; background: #fafafa; }
 .quick-search input { width: 100%; border: 0; outline: 0; background: transparent; font-size: 10px; }
 .icon-button { position: relative; width: 39px; height: 39px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--navy); }
 .icon-button em { position: absolute; right: -5px; top: -5px; min-width: 17px; height: 17px; display: grid; place-items: center; border: 2px solid white; border-radius: 10px; background: var(--red); color: white; font-size: 8px; font-style: normal; }
-.account-button { display: flex; align-items: center; gap: 8px; border: 0; background: transparent; color: var(--ink); text-align: left; }
 .account-button > span:nth-child(2) { min-width: 63px; }
 .notification-wrap { position: relative; }
 .notification-dropdown { position: absolute; right: -92px; top: 49px; width: 360px; border: 1px solid var(--line); border-radius: 13px; overflow: hidden; background: white; box-shadow: 0 18px 50px rgba(10,42,107,.2); }
@@ -402,17 +387,41 @@ td small { display: block; color: var(--muted); font-size: 8px; margin-top: 2px;
 .toast.toast-error > span { color: var(--red); background: #fee2e2; }
 
 /* Menu latéral repliable (même principe que l'espace administrateur) */
-.topbar-left { display: flex; align-items: center; gap: 14px; }
-.topbar-left .icon-button { color: var(--navy); background: transparent; }
-.topbar-left .icon-button:hover { background: #eef2fa; }
-.sidebar { transition: width .2s; }
-.workspace { transition: margin .2s; }
-.sidebar.collapsed { width: 72px; }
+
+/* Coque de l'espace agent : même présentation que l'espace fournisseur (en-tête bleu pleine largeur, menu latéral sous l'en-tête) */
+.topbar { position: fixed; inset: 0 0 auto 0; z-index: 30; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; color: white; background: #0b3a8c; }
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar .icon-button { border: 0; color: white; background: rgb(255 255 255 / 0.1); }
+.topbar .icon-button:hover { background: rgb(255 255 255 / 0.2); }
+.topbar-left .icon-button { background: transparent; }
+.topbar-left .icon-button:hover { background: rgb(255 255 255 / 0.1); }
+.topbar .logo { height: auto; padding: 0; border: 0; color: white; background: transparent; }
+.topbar .logo .app-logo { height: 44px; max-width: 180px; }
+.top-divider { width: 1px; height: 28px; background: rgb(255 255 255 / 0.2); }
+.top-actions { gap: 16px; }
+.account-wrap { position: relative; }
+.account-button { display: flex; align-items: center; gap: 10px; border: 0; border-radius: 8px; padding: 4px; color: white; background: transparent; text-align: left; }
+.account-button:hover { background: rgb(255 255 255 / 0.1); }
+.account-button strong { display: block; font-size: 11px; }
+.account-button small { display: block; color: rgb(255 255 255 / 0.7); font-size: 10px; margin-top: 2px; }
+.account-button > [data-icon] { color: rgb(255 255 255 / 0.7); }
+.account-menu { position: absolute; right: 0; top: 52px; z-index: 40; width: 230px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; padding: 6px; background: white; color: var(--ink); box-shadow: 0 18px 50px rgb(7 32 79 / 0.16); }
+.account-menu button { width: 100%; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 7px; padding: 10px; color: var(--ink); background: transparent; font-size: 11px; text-align: left; }
+.account-menu button:hover { background: #f4f6fb; }
+.account-menu button [data-icon] svg { width: 16px; height: 16px; }
+.account-menu hr { height: 1px; margin: 6px 0; border: 0; background: var(--line); }
+.account-menu .logout { color: var(--red); }
+.account-menu .logout:hover { background: #fef2f2; }
+.sidebar { position: fixed; inset: 64px auto 0 0; width: 260px; z-index: 20; padding: 24px 16px; color: white; background: var(--navy); display: flex; flex-direction: column; transition: width .2s; }
+.sidebar-label { margin: 0; padding: 0 16px 16px; color: #93c5fd; font-size: 9px; font-weight: 700; letter-spacing: .18em; }
+#main-nav { padding: 0; }
+.nav-item { position: relative; width: 100%; height: 45px; display: flex; align-items: center; gap: 13px; border: 0; border-radius: 8px; margin-bottom: 4px; padding: 0 14px; background: transparent; color: #c4d0e5; font-size: 12px; font-weight: 500; text-align: left; }
+.nav-item.active { font-weight: 600; }
+.nav-item.active::before { content: ""; position: absolute; left: -16px; width: 4px; height: 29px; border-radius: 0 4px 4px 0; background: var(--amber); }
+.workspace { margin-left: 260px; min-height: 100vh; padding-top: 64px; transition: margin .2s; }
+.sidebar.collapsed { width: 72px; padding-left: 12px; padding-right: 12px; }
+.sidebar.collapsed .sidebar-label { display: none; }
+.sidebar.collapsed .nav-item.active::before { left: -12px; }
 .workspace.expanded { margin-left: 72px; }
-.sidebar.collapsed .logo { padding: 0; justify-content: center; }
-.sidebar.collapsed .logo > span:nth-child(2) { display: none; }
-.sidebar.collapsed .logo .app-logo { width: 54px; height: 34px; object-fit: contain; }
 .sidebar.collapsed .nav-item { justify-content: center; padding: 0; }
 .sidebar.collapsed .nav-item > span:nth-child(2), .sidebar.collapsed .nav-item em { display: none; }
-.sidebar.collapsed .user-panel { padding: 0; justify-content: center; }
-.sidebar.collapsed .user-panel > span:nth-child(2), .sidebar.collapsed .user-panel > span:nth-child(3) { display: none; }

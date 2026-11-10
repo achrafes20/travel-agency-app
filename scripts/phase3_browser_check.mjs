@@ -58,8 +58,8 @@ try{
  async function submit(){await page.locator('.pm-payment-form form [type="submit"]').click();}
  async function result(id){return page.evaluate(id=>api.get("/api/payments?bookingId="+id),id);}
  const firstId=await prepare("ONLINE",true);await fill("4242 4242 4242 4242");await submit();await page.waitForURL("**/client/index.html?page=confirmation&id=*&status=success");
- await page.locator(".pm-receipt .bk-PAID").waitFor();const paid=(await result(firstId)).at(-1);assert.equal(paid.status,"PAID");
- assert.ok(await page.getByText("MODE SANDBOX — aucun débit réel",{exact:true}).count());checks.push("Panier → réservation → carte sandbox → confirmation réelle");
+ await page.locator(".bk-payline .bk-PAID").waitFor();const paid=(await result(firstId)).at(-1);assert.equal(paid.status,"PAID");
+ assert.equal(await page.getByText("MODE SANDBOX — aucun débit réel",{exact:true}).count(),0);checks.push("Panier → réservation → carte sandbox → confirmation réelle");
  const download=page.waitForEvent("download");await page.locator('[data-bk-action="voucher"]').click();assert.match((await download).suggestedFilename(),/BK-[0-9]{4}-[0-9]{6}\.pdf/);checks.push("Voucher confirmé");
  const failedId=await prepare();await fill("4000 0000 0000 0002");await submit();await page.locator(".pm-recent .bk-FAILED").waitFor();
  assert.equal(await page.locator("[data-card-number]").inputValue(),"");assert.equal(await page.locator("[data-card-cvc]").inputValue(),"");

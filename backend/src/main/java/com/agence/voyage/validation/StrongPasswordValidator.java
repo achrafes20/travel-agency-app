@@ -7,8 +7,8 @@ import java.util.List;
 
 public class StrongPasswordValidator implements ConstraintValidator<StrongPassword, String> {
 
-    private int min = 12;
-    private int max = 128;
+    private int min = PasswordPolicy.MIN_LENGTH;
+    private int max = PasswordPolicy.MAX_LENGTH;
 
     @Override
     public void initialize(StrongPassword annotation) {

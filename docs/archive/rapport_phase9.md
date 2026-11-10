@@ -1,5 +1,7 @@
 # Rapport Phase 9 — Nettoyage des Incohérences Existantes
 
+> **Archive — document historique.** Ce document décrit l'état et le travail réalisés à une date donnée. Il est conservé tel quel (hors liens corrigés lors de son déplacement le 9 novembre 2026) et **n'est plus mis à jour**. Pour l'état courant : [README](../../README.md), [règles métier](../regles_metier.md), [architecture](../architecture.md), [CHANGELOG](../../CHANGELOG.md).
+
 **Date :** 1er novembre 2026  
 **Auteur :** Antigravity (Ingénieur Full-Stack Senior)  
 **Projet :** Atlas Voyage  

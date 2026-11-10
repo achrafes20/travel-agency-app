@@ -1,5 +1,7 @@
 # Rapport de livraison — Phase 3 Paiements
 
+> **Archive — document historique.** Ce document décrit l'état et le travail réalisés à une date donnée. Il est conservé tel quel (hors liens corrigés lors de son déplacement le 9 novembre 2026) et **n'est plus mis à jour**. Pour l'état courant : [README](../../README.md), [règles métier](../regles_metier.md), [architecture](../architecture.md), [CHANGELOG](../../CHANGELOG.md).
+
 Livraison du 31 octobre 2026. Référence Git avant Phase 3 : `6b5b65f`.
 La Phase 2 était déjà complète : réutilisation de Booking, allocations, prix figés,
 voucher et contrôles de propriété. Aucun second catalogue, aucune consommation de stock.
@@ -73,7 +75,7 @@ validation Hibernate puis démarrage réussi. Après ajout des exemples : 8 util
 Les quatre exemples Phase 2 présents ont été préservés.
 
 V7 a été appliquée et n'a plus été modifiée ensuite. Toute évolution suivante
-doit être une V8. Voir [migrations.md](migrations.md).
+doit être une V8. Voir [migrations.md](../migrations.md).
 
 ### Sécurité
 
@@ -306,9 +308,9 @@ Inventaire relatif à `6b5b65f` (les rapports de test, logs et sauvegardes reste
 
 ## Références
 
-- [Contrat API](api_endpoints.md#paiements--phase-3-11-endpoints)
-- [Règles métier](regles_metier.md)
-- [Migrations](migrations.md#phase-3--v7-paiements)
-- [Architecture et séquence](architecture.md)
-- [Collection Postman](postman/AtlasVoyage.postman_collection.json)
+- [Contrat API](../api_endpoints.md#paiements--phase-3-11-endpoints)
+- [Règles métier](../regles_metier.md)
+- [Migrations](../migrations.md#phase-3--v7-paiements)
+- [Architecture et séquence](../architecture.md)
+- [Collection Postman](../postman/AtlasVoyage.postman_collection.json)
 

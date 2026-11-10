@@ -1,9 +1,9 @@
 # Déclaration d'Accessibilité WCAG 2.1 AA — Atlas Voyage
 
-**Date de l'audit :** 1er novembre 2026  
+**Date de l'audit :** 1er novembre 2026 — **mis à jour le 9 novembre 2026** (réexécution complète, voir §2)  
 **Référentiel :** Web Content Accessibility Guidelines (WCAG) 2.1 niveau AA  
-**Outil d'audit automatisé :** axe-core 4.10.2 via Puppeteer / Headless Chrome  
-**Résultat global :** 100 % conforme (0 violation critique, 0 violation sérieuse sur les 14 pages)
+**Outil d'audit automatisé :** axe-core 4.14.0 via Puppeteer / Headless Chrome  
+**Résultat global :** 0 violation, tous niveaux d'impact confondus, sur les 11 URL auditées — pages publiques et page de connexion ; les quatre espaces connectés ne sont pas couverts par cet audit (voir `ANO-18`)
 
 ---
 
@@ -17,7 +17,7 @@ L'architecture front-end intègre nativement les normes du Web Accessibility Ini
 
 ## 2. Synthèse des résultats d'audit automatisé (axe-core)
 
-Chaque page a été auditée aux trois résolutions cibles (Mobile 360px, Tablette 768px, Desktop 1280px) en thèmes clair et sombre :
+Les résultats ci-dessous proviennent de `scripts/run_axe_audit.mjs` (règles `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa` ; Desktop 1280×800, thème clair, état initial de chaque page), exécuté le 9 novembre 2026 sur la version courante du frontend :
 
 | Page | URL | Violations critiques | Violations sérieuses | Statut |
 | :--- | :--- | :---: | :---: | :---: |
@@ -26,9 +26,6 @@ Chaque page a été auditée aux trois résolutions cibles (Mobile 360px, Tablet
 | **Détail Offre** | `/offre.html?id=1` | **0** | **0** | **Conforme** |
 | **Panier & Tunnel** | `/panier.html` | **0** | **0** | **Conforme** |
 | **Connexion / Inscription** | `/connexion.html` | **0** | **0** | **Conforme** |
-| **À propos** | `/a-propos.html` | **0** | **0** | **Conforme** |
-| **Contact** | `/contact.html` | **0** | **0** | **Conforme** |
-| **FAQ** | `/faq.html` | **0** | **0** | **Conforme** |
 | **Erreur 404** | `/404.html` | **0** | **0** | **Conforme** |
 | **Erreur 500** | `/500.html` | **0** | **0** | **Conforme** |
 | **Espace Client** | `/client/index.html` | **0** | **0** | **Conforme** |
@@ -36,7 +33,12 @@ Chaque page a été auditée aux trois résolutions cibles (Mobile 360px, Tablet
 | **Espace Agent** | `/agent/index.html` | **0** | **0** | **Conforme** |
 | **Espace Admin** | `/admin/index.html` | **0** | **0** | **Conforme** |
 
-Le rapport complet au format JSON est archivé dans [audit_axe_final.json](file:///C:/ENSA/3eme_annee/Frameworks%20Technologie%20Web/travel-agency-app/docs/design/audit_axe_final.json).
+Le rapport complet au format JSON est archivé dans [audit_axe_final.json](audit_axe_final.json).
+
+**Évolutions depuis l'audit du 1er novembre :**
+- Les pages `À propos`, `Contact` et `FAQ` ont été supprimées du site et ne sont plus auditées (14 → 11 pages). Les pages `cgu.html` et `confidentialite.html`, supprimées également, ne figuraient pas dans l'audit.
+- Le bouton du sélecteur de devise (`.av-cur-btn`), ajouté en Phase 14 après le premier audit, présentait une violation `label-content-name-mismatch` (critère 2.5.3 *Label in Name*) sur toutes les pages qui l'affichent : son nom accessible ne commençait pas par le texte visible. Corrigé dans `frontend/js/shared/currency.js` ; vérifié avec les quatre devises (MAD, EUR, USD, GBP).
+- L'audit du dépôt ne couvre que l'état initial de chaque page. Les états ajoutés le 9 novembre ont été audités séparément avec axe-core 4.14.0, avec le même jeu de règles, et ne présentent aucune violation : onglet « Créer un compte » (champ mot de passe vide, au focus, avec 11 caractères, avec une règle rare violée, avec les 5 règles respectées), onglet « Connexion » avec le lien « Mot de passe oublié ? », arrivée sur la connexion depuis une offre (message d'invitation), accueil et offre côté invité, pages 404 et 500.
 
 ---
 
@@ -64,13 +66,22 @@ Le rapport complet au format JSON est archivé dans [audit_axe_final.json](file:
 - Toutes les images d'offres et d'illustration possèdent un attribut `alt` descriptif et pertinent.
 - Les icônes décoratives (Lucide Icons) sont accompagnées de `aria-hidden="true"`.
 - Les boutons contenant uniquement une icône disposent systématiquement d'un `aria-label` explicite (ex: `aria-label="Fermer la boîte de dialogue"`, `aria-label="Basculer le thème clair / sombre"`).
+- Quand un bouton affiche aussi du texte, son nom accessible **commence par ce texte visible** (critère 2.5.3) : le sélecteur de devise expose par exemple « € EUR, sélectionner la devise d'affichage ».
 - Les régions majeures de page sont balisées avec `<header role="banner">`, `<main id="main-content">`, `<footer role="contentinfo">`, `<nav aria-label="...">`.
 - Le stepper de réservation utilise `<nav aria-label="Étapes de la réservation">` avec `<ol>` et `aria-current="step"`.
-- Les accordéons de la FAQ s'appuient sur les éléments HTML natifs `<details>` et `<summary>` garantissant l'accessibilité vocale native.
 
 ### 3.4 Respect des préférences utilisateur (Critère 2.3.3)
+> **État actuel (9 novembre 2026, anomalie `ANO-10`) :** le thème est **forcé en clair** (`frontend/js/shared/theme.js` ignore toute préférence et supprime le choix enregistré). La puce « Thème sombre / clair » ci-dessous décrit la conception prévue, non le comportement actuel ; la prise en compte de `prefers-reduced-motion` n'est pas concernée.
+
 - **Thème sombre / clair :** Détection automatique du choix système via `@media (prefers-color-scheme: dark)` et possibilité de forcer le choix utilisateur sauvegardé en `localStorage` sans aucun flash de contenu non stylisé (script bloquant d'initialisation en tête de `<head>`).
 - **Mouvements réduits :** Prise en compte de `@media (prefers-reduced-motion: reduce)` désactivant les animations décoratives et transitions pour les utilisateurs souffrant de troubles vestibulaires.
+
+### 3.5 Aide à la saisie du mot de passe (inscription, changement et réinitialisation)
+Composant `AccountUI.strength` (`frontend/js/core/account.js`), partagé par les trois écrans :
+- Le champ est relié à la liste des règles par `aria-describedby` : les règles sont annoncées au focus, même lorsque l'aide est masquée visuellement.
+- Chaque règle porte un texte réservé aux lecteurs d'écran (« Respectée : … » / « À respecter : … ») : l'état n'est jamais porté par la seule couleur ou par un pictogramme.
+- Les messages des règles rares (e-mail contenu dans le mot de passe, mot de passe trop long ou trop courant) sont dans une zone `aria-live="polite"` et n'apparaissent qu'en cas de violation.
+- Contrastes sur fond blanc : règle à respecter `#5F6E84` **5,19:1**, règle respectée `#08754A` **5,75:1**, message d'alerte `#A92137` **7,10:1**, lien « Mot de passe oublié ? » `#0B3C8F` **10,21:1** (seuil exigé : 4,5:1).
 
 ---
 

@@ -10,7 +10,7 @@ Interface **HTML / CSS / JavaScript vanilla** (sans framework), conforme au cahi
 | **Connexion** | `connexion.html` | **Écran unique** de connexion et de création de compte client |
 | Catalogue | `catalogue.html` | Liste d’offres (UI existante) |
 | Détail offre | `offre.html` | Fiche produit |
-| Panier | `panier.html` | Checkout existant |
+| Panier | `panier.html` | Checkout du client connecté ; un invité n'y voit qu'une invitation à se connecter (le lien « Panier » n'est affiché qu'aux clients) |
 
 ## Espace client (maquettes `atlas-voyage-client`)
 
@@ -56,8 +56,8 @@ Réservé au rôle `ADMIN` (comme les pages `pages/admin/`).
 
 | Fichier | Rôle |
 |---|---|
-| `connexion.html`, `css/connexion.css`, `js/pages/connexion.page.js` | Écran unique : onglets « Connexion » et « Créer un compte » ; redirige vers l’espace du rôle |
-| `js/core/auth.js` | `Auth` : jeton et utilisateur (`localStorage`, ou `sessionStorage` si « Se souvenir de moi » est décoché), `login`, `register`, `logout`, garde `requireRole()` |
+| `connexion.html`, `css/connexion.css`, `js/pages/connexion.page.js` | Écran unique : onglets « Connexion » et « Créer un compte » ; redirige vers l’espace du rôle, ou vers la page d'origine (paramètre `redirect`, nom de page du site uniquement) pour un client. Le lien « Mot de passe oublié ? » est dans `.login-options` ; l'aide du mot de passe vient de `AccountUI.strength` |
+| `js/core/auth.js` | `Auth` : jeton et utilisateur (`localStorage`, ou `sessionStorage` si « Se souvenir de moi » est décoché ; le choix est aussi envoyé à l'API sous `rememberMe`), `login`, `register`, `logout`, garde `requireRole()` |
 | `js/core/api.js` | Ajoute `Authorization: Bearer <jeton>` ; sur un `401`, efface la session et revient à la connexion |
 
 Chaque espace charge `js/core/auth.js` dans `<head>` puis appelle `Auth.requireRole("<RÔLE>")` : sans session, ou avec un autre rôle, la page redirige vers `connexion.html`. L’en-tête des pages publiques affiche « Se connecter », ou le lien vers l’espace du rôle et « Déconnexion ». Les droits sont toujours **contrôlés par le Backend** : le Frontend ne fait que rediriger.

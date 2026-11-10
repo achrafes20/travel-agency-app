@@ -324,3 +324,6 @@ button { cursor: pointer; }
 #sidebar.collapsed .nav-item.active::before { left: -12px; }
 #main-shell { transition: margin .2s; }
 #main-shell.expanded { margin-left: 72px !important; }
+
+/* Sélecteur de devise : dans l'en-tête bleu, le bouton reste un simple texte blanc ; seul son menu déroulant est un composant du design system. */
+#supplier-i18n-container .av-cur-btn { background: transparent; border: 0; padding: 0; color: #fff; }

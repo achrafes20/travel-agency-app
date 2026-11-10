@@ -85,8 +85,17 @@ DOM dynamique par textContent, graphiques adaptatifs, cartes empilées sur mobil
 tableaux défilants et variations avec flèche/texte. Squelettes de chargement,
 états vides explicites, erreurs avec Réessayer. Échec CDN : message local au
 graphique, cartes et listes conservées. Tickets : `available:false`, zéro,
-liste vide et **Bientôt disponible** car aucune entité Ticket n'existe.
+liste vide et **Bientôt disponible** car aucune entité Ticket n'existe (ce panneau n'est plus affiché depuis le 10 novembre 2026, voir ci-dessous).
 Notifications : `available:true`, vraies données du module Phase 4.
+
+Tableau de bord **client** (9 novembre 2026) : l'écran n'affiche que les quatre cartes
+d'indicateurs et la liste « Mes dernières réservations » en pleine largeur. La ligne
+« Du … au … · fuseau · actualisé le … » et les mentions « aucune base de variation » sont
+masquées pour ce rôle, de même que toutes les mentions « Période précédente : … » et le bouton
+« Actualiser » (les boutons 7 jours / 30 jours / 12 mois rechargent déjà les données) ; la
+ligne de variation (« En hausse de … % ») reste affichée. Les panneaux « Mon prochain voyage »
+et « Notifications non lues » sont retirés. L'API `GET /api/stats/client` renvoie toujours `nextTrip` et `notifications`
+(contrat inchangé) ; l'interface ne les lit plus. Les tableaux de bord **fournisseur** et **agent** (10 novembre 2026) reçoivent les mêmes masquages (ligne de période, « Période précédente », « Actualiser »). Le fournisseur n'affiche que quatre cartes (Revenu de mes prestations, Réservations de la période, Panier moyen, Offres actives) avec « Dernières réservations reçues » à côté des revenus. L'agent n'affiche plus le panneau « Tickets ouverts — Bientôt disponible » ; l'API `GET /api/stats/agent` renvoie toujours `tickets` (contrat inchangé). Le tableau de bord **administrateur** (10 novembre 2026) reçoit les mêmes masquages ; il n'affiche que trois cartes (Utilisateurs, Chiffre d'affaires TTC, Panier moyen confirmé), les répartitions des utilisateurs par rôle et des réservations par statut, les destinations et offres les plus réservées et le panneau « Exporter les données » ; le graphique « Chiffre d'affaires » et les panneaux « Codes promo à surveiller » et « Points d'attention » sont retirés et le titre de page « Tableau de bord » est masqué. L'API `GET /api/stats/admin` renvoie toujours `revenue.series`, `promoCodes`, `alerts`, etc. (contrat inchangé). Les quatre rôles affichent donc la version allégée.
 
 ## Migration et exemples
 
@@ -114,4 +123,4 @@ peuvent ensuite expirer l'exemple PENDING.
 StatsIntegrationTest couvre calculs, mutations, périodes, sécurité, isolation,
 cache, CSV et idempotence du seeder. Scripts Phase 5 : API et navigateur sur base
 MySQL/MariaDB isolée. Commandes, résultats et fichiers dans
-[rapport_phase5.md](rapport_phase5.md).
+[rapport_phase5.md](archive/rapport_phase5.md).

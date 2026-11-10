@@ -34,7 +34,7 @@ const StatsUI = (() => {
    const chart=new Chart(canvas,{...config,options:{responsive:true,maintainAspectRatio:false,animation:false,...config.options}});
    instances.set(canvas,chart);owner.charts.add(chart);
   }catch{
-   canvas.replaceWith(el("p","st-empty","Impossible d’afficher ce graphique. Réessayez avec le bouton Actualiser."));
+   canvas.replaceWith(el("p","st-empty","Impossible d’afficher ce graphique. Réessayez en changeant de période."));
   }
  }
  function panel(title,subtitle){
@@ -42,14 +42,16 @@ const StatsUI = (() => {
   if(subtitle)heading.append(el("p","st-muted",subtitle));card.append(heading);return card;
  }
  function empty(card,text){card.append(el("p","st-empty",text));}
+ const lean=role=>role==="CLIENT"||role==="SUPPLIER"||role==="AGENT"||role==="ADMIN";
  function kpi(parent,title,data,format=number){
   const card=el("article","st-kpi");card.append(el("span","st-kpi-label",title),el("strong","st-kpi-value",format(data.value)));
   if(data.previous===null||data.changePercent===null){
-   card.append(el("small","st-muted",data.previous===null?"Comparaison indisponible":"Période précédente : "+format(data.previous)+" · aucune base de variation"));
+   if(data.previous===null)card.append(el("small","st-muted","Comparaison indisponible"));
+   else if(!lean(state.role))card.append(el("small","st-muted","Période précédente : "+format(data.previous)+" · aucune base de variation"));
   }else{
    const direction=Number(data.changePercent),line=el("small",direction>0?"st-up":direction<0?"st-down":"st-muted");
    line.textContent=(direction>0?"↑ En hausse de ":direction<0?"↓ En baisse de ":"→ Stable : ")+new Intl.NumberFormat("fr-FR",{maximumFractionDigits:2}).format(Math.abs(direction))+" %";
-   card.append(line,el("small","st-muted","Période précédente : "+format(data.previous)));
+   card.append(line);if(!lean(state.role))card.append(el("small","st-muted","Période précédente : "+format(data.previous)));
   }
   parent.append(card);return card;
  }
@@ -81,44 +83,26 @@ const StatsUI = (() => {
  }
  function admin(data,blocks){
   const cards=blocks[0],charts=blocks[1],lists=blocks[2];
-  kpi(cards,"Utilisateurs",data.users.total);kpi(cards,"Nouvelles inscriptions",data.users.newUsers);
-  kpi(cards,"Réservations de la période",data.bookings.total);kpi(cards,"Chiffre d’affaires TTC",data.revenue.total,money);
-  kpi(cards,"CA en attente",data.revenue.pendingRevenue,money);kpi(cards,"Panier moyen confirmé",data.revenue.averageOrder,money);
+  kpi(cards,"Utilisateurs",data.users.total);kpi(cards,"Chiffre d’affaires TTC",data.revenue.total,money);kpi(cards,"Panier moyen confirmé",data.revenue.averageOrder,money);
   const users=panel("Utilisateurs par rôle",data.users.active+" actifs · "+data.users.archived+" archivés");
   chart(users,"doughnut",Object.keys(data.users.byRole).map(k=>labels[k]||k),Object.values(data.users.byRole),"Utilisateurs par rôle");charts.append(users);
   const statuses=panel("Réservations par statut");chart(statuses,"doughnut",Object.keys(data.bookings.byStatus).map(k=>labels[k]||k),Object.values(data.bookings.byStatus),"Réservations par statut");charts.append(statuses);
-  const revenue=panel("Chiffre d’affaires", "Réservations confirmées ou terminées, classées par date de création");revenue.classList.add("st-wide");
-  chart(revenue,"bar",data.revenue.series.map(p=>p.label),data.revenue.series.map(p=>p.revenue),"Chiffre d’affaires en MAD");charts.append(revenue);
   if(data.users.estimatedCreationDates){const note=panel("Historique des inscriptions");note.append(el("p","st-muted","La date de création de "+number(data.users.estimatedCreationDates)+" ancien(s) compte(s) est inconnue. Ils sont exclus des nouvelles inscriptions et de la comparaison de population."));lists.append(note);}
   const destinations=panel("Destinations les plus réservées");table(destinations,["Ville","Réservations","CA TTC"],data.topDestinations,d=>[d.name,number(d.bookings),money(d.revenue)],"Aucune destination réservée sur cette période.");lists.append(destinations);
   const offers=panel("Offres les plus réservées");table(offers,["Offre","Type","Ville","Réservations","CA TTC"],data.topOffers,o=>[o.title,labels[o.type]||o.type,o.city,number(o.bookings),money(o.revenue)],"Aucune offre confirmée sur cette période.");lists.append(offers);
-  const promos=panel("Codes promo à surveiller");const reasons={EXPIRING:"Expiration sous 7 jours",HEAVY_USAGE:"Usage fréquent",INACTIVE_USED:"Code inactif déjà utilisé"};
-  table(promos,["Code","Motif","Usages de la période","Expiration"],data.promoCodes,p=>[p.code,reasons[p.reason]||p.reason,number(p.uses),p.expiryDate||"Sans limite"],"Aucun code promo à surveiller.");promos.append(link("ADMIN","promos","Gérer les codes promo"));lists.append(promos);
-  const alerts=panel("Points d’attention");if(!data.alerts.length)empty(alerts,"Aucune alerte calculée.");
-  data.alerts.forEach(a=>{const row=el("p","st-alert",number(a.count)+" · "+a.message);alerts.append(row);});lists.append(alerts);
  }
  function supplier(data,blocks){
-  metric(blocks[0],"Offres actives",data.offers.active);metric(blocks[0],"Offres inactives",data.offers.inactive);
-  kpi(blocks[0],"Réservations de la période",data.bookings);kpi(blocks[0],"Réservations du mois",data.bookingsThisMonth);
-  kpi(blocks[0],"Revenu de mes prestations",data.revenue,money);metric(blocks[0],"Disponibilités à vérifier",data.availabilityChecks.count);
+  kpi(blocks[0],"Revenu de mes prestations",data.revenue,money);kpi(blocks[0],"Réservations de la période",data.bookings);
+  metric(blocks[0],"Panier moyen",data.bookings.value>0?data.revenue.value/data.bookings.value:null,v=>v===null?"—":money(v));
+  metric(blocks[0],"Offres actives",data.offers.active+" sur "+(data.offers.active+data.offers.inactive),String);
   const revenue=panel("Vos revenus sur six mois","Somme des prix de vos lignes confirmées ou terminées, avant la promotion globale du panier");
   chart(revenue,"bar",data.revenueSixMonths.map(p=>p.label),data.revenueSixMonths.map(p=>p.revenue),"Revenus fournisseur en MAD");blocks[1].append(revenue);
-  const availability=panel("Disponibilités à vérifier");
-  table(availability,["Offre","Ville","À vérifier"],data.availabilityChecks.items,a=>{
-   const causes=[a.noFuturePeriod?"Aucune période future":null,a.lowCapacity?"Capacité faible":null,a.endingSoon?"Fin de période proche":null].filter(Boolean).join(" · ");
-   const action=link("SUPPLIER","inventory",a.title);const url=new URL(action.href);url.searchParams.set("offerId",a.offerId);action.href=url.href;
-   return [action,a.city,causes];
-  },"Aucune disponibilité à vérifier.");blocks[2].append(availability);
-  const recent=panel("Dernières réservations reçues");bookingTable(recent,data.recentBookings,"SUPPLIER");blocks[2].append(recent);
-  const activity=panel("Activité récente","Vos dernières notifications d’activité");activities(activity,data.recentActivity);blocks[2].append(activity);
+  const recent=panel("Dernières réservations reçues");bookingTable(recent,data.recentBookings,"SUPPLIER");blocks[1].append(recent);blocks[1].classList.add("st-split");
  }
  function agent(data,blocks){
   kpi(blocks[0],"Réservations en attente · période",data.pendingBookings);
   metric(blocks[0],"Paiements à encaisser",data.cashPendingCount);metric(blocks[0],"Montant à encaisser",data.cashPendingAmount,money);
   kpi(blocks[0],"Réservations créées aujourd’hui",data.bookingsToday);
-  const tickets=panel("Tickets ouverts");
-  if(!data.tickets.available){tickets.append(el("strong","st-unavailable","Bientôt disponible"),el("p","st-muted","Le module de support sera relié lorsqu’il sera disponible."));}
-  else metric(tickets,"Tickets ouverts",data.tickets.count);blocks[1].append(tickets);
   const recent=panel("Réservations récentes");bookingTable(recent,data.recentBookings,"AGENT");blocks[2].append(recent);
   const payments=panel("Paiements à venir","Paiements à l’arrivée non encaissés, par date de service");
   table(payments,["Référence","Client","Date de service","Montant"],data.upcomingPayments,p=>[link("AGENT","payments",p.reference),p.clientName,time(p.serviceStartAt),money(p.amount)],"Aucun paiement à l’arrivée à encaisser.");
@@ -127,13 +111,7 @@ const StatsUI = (() => {
  function client(data,blocks){
   metric(blocks[0],"Mes réservations · total",data.totals.bookings);metric(blocks[0],"Montant net payé · total",data.totals.spent,money);
   kpi(blocks[0],"Réservations de la période",data.bookingsInPeriod);kpi(blocks[0],"Montant net payé · période",data.spentInPeriod,money);
-  const next=panel("Mon prochain voyage");
-  if(data.nextTrip){const trip=data.nextTrip;next.append(el("h3","",trip.reference),el("p","",time(trip.serviceStartAt)+" → "+time(trip.serviceEndAt)),el("strong","",money(trip.total)),link("CLIENT","reservation","Voir ma réservation",trip.id));}
-  else{empty(next,"Aucun voyage confirmé à venir. Préparez votre prochaine escapade.");const a=el("a","st-button","Découvrir les offres");a.href=new URL("accueil.html",rootUrl).href;next.append(a);}blocks[1].append(next);
-  const recent=panel("Mes dernières réservations");bookingTable(recent,data.recentBookings,"CLIENT");blocks[2].append(recent);
-  const notices=panel("Notifications non lues",number(data.notifications.count)+" notification(s) non lue(s)");
-  if(!data.notifications.available)notices.append(el("strong","st-unavailable","Bientôt disponible"));else activities(notices,data.notifications.items);
-  notices.append(link("CLIENT","notifications","Ouvrir mes notifications"));blocks[2].append(notices);
+  const recent=panel("Mes dernières réservations");recent.classList.add("st-wide");bookingTable(recent,data.recentBookings,"CLIENT");blocks[2].append(recent);
  }
  async function downloadCsv(path,signal){
   const response=await fetch(api.baseUrl()+path,{headers:{Authorization:"Bearer "+Auth.getToken()},signal});
@@ -153,8 +131,8 @@ const StatsUI = (() => {
    const select=button(label,"st-period");select.dataset.period=value;select.setAttribute("aria-pressed",String(current.period===value));
    select.onclick=()=>{current.period=value;const params=new URLSearchParams(location.search);params.set("period",value);history.replaceState({},"",location.pathname+"?"+params);reload();};periods.append(select);periodButtons.push(select);
   });
-  const refresh=button("Actualiser","st-button st-secondary");refresh.onclick=()=>reload();controls.append(periods,refresh);top.append(controls);root.append(top);
-  const meta=el("p","st-meta");root.append(meta);
+  const refresh=button("Actualiser","st-button st-secondary");refresh.onclick=()=>reload();controls.append(periods);if(!lean(role))controls.append(refresh);top.append(controls);root.append(top);
+  const meta=el("p","st-meta");if(!lean(role))root.append(meta);
   const blocks=[el("div","st-kpis"),el("div","st-charts"),el("div","st-lists")];blocks.forEach(block=>root.append(block));
   if(role==="ADMIN"){
    const exports=panel("Exporter les données"),row=el("div","st-export-controls"),from=el("input"),to=el("input"),status=el("select");

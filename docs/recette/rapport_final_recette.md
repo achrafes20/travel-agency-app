@@ -21,16 +21,18 @@ La mission de recette s'est attachée à vérifier avec une rigueur absolue la r
 ## 2. Bilan de la Couverture Fonctionnelle par Rôle
 
 ### 2.1 Espace Public & Invité (REC-INV) — 8 Cas Validés
-- Accueil responsive neutre avec bascule trilingue (Français, Anglais, Arabe) et thème sombre/clair.
-- Moteur de recherche et catalogue dynamique avec filtres multicritères (catégorie, ville, budget).
+> *Les puces marquées ⚠️ décrivent l'état constaté le 2 novembre 2026 et ne sont plus exactes : voir l'addendum du §6.*
+
+- ⚠️ Accueil responsive neutre avec bascule trilingue (Français, Anglais, Arabe) et thème sombre/clair.
+- ⚠️ Moteur de recherche et catalogue dynamique avec filtres multicritères (catégorie, ville, budget).
 - Fiche détaillée de prestation avec galerie photos, carte Leaflet interactive, avis clients et calendrier de réservation.
-- Panier d'achats localisé sans compte, calcul TTC en MAD et persistance dans `localStorage`.
-- Support natif de l'inversion Right-To-Left (`dir="rtl"`) pour la langue arabe.
+- ⚠️ Panier d'achats localisé sans compte, calcul TTC en MAD et persistance dans `localStorage`.
+- ⚠️ Support natif de l'inversion Right-To-Left (`dir="rtl"`) pour la langue arabe.
 - Cloisonnement étanche des espaces réservés (redirection automatique vers `connexion.html`).
-- Pages institutionnelles (À propos, FAQ, CGU, Confidentialité) et page d'erreur 404 personnalisée.
+- ⚠️ Pages institutionnelles (À propos, FAQ, CGU, Confidentialité) et page d'erreur 404 personnalisée.
 
 ### 2.2 Authentification & Sécurité (REC-AUT) — 6 Cas Validés
-- Inscription client avec jauge de complexité de mot de passe et consentement RGPD (Loi 09-08).
+- ⚠️ Inscription client avec jauge de complexité de mot de passe et consentement RGPD (Loi 09-08).
 - Connexion sécurisée avec émission de jeton JWT transmis par cookies `HttpOnly` / `SameSite=Lax`.
 - Rejet sécurisé des tentatives frauduleuses sans divulgation d'informations (réponse HTTP 401 générique).
 - Déconnexion complète invalidant la session locale et serveur.
@@ -119,4 +121,35 @@ L'équipe d'assurance qualité et release management prononce la décision suiva
 1. **Démonstration Jury (Phase 17)** : Dérouler le scénario de 10 minutes minute par minute sur l'environnement local validé (`http://localhost:5500/frontend`), en s'appuyant sur le jeu de données démo réaliste.
 2. **Levée des Conditions Résolutoires** : Livrer les workflows GitHub Actions et le stack Docker Compose sous 10 à 14 jours avant le déploiement grand public.
 3. **Campagnes Humaines** : Réaliser l'évaluation chronométrée avec un tiers externe et déposer le dossier déclaratif auprès de la CNDP.
+
+---
+
+## 6. Addendum du 9 novembre 2026 — évolutions postérieures à la campagne
+
+Les chiffres des §1 à §5 sont ceux de la campagne du **2 novembre 2026** et sont conservés tels quels. Depuis, l'interface a évolué à la suite de la revue visiteur (voir `CHANGELOG.md`, section « Non publié ») :
+
+| Sujet | Changement | Effet sur la recette |
+| :--- | :--- | :--- |
+| Accueil | Bandeau de preuves sociales, bandeau de réassurance, bandeau d'appel à l'action et séparateur décoratif retirés ; pied de page réduit au logo et au lien de connexion. | `REC-INV-01` : description mise à jour. |
+| Panier | Plus de panier invité : lien « Panier » réservé aux clients, redirection vers la connexion avec retour sur l'offre. | `REC-INV-04` réécrit (runner et cahier). |
+| Pages | `a-propos`, `contact`, `faq`, `cgu`, `confidentialite` supprimées. | `REC-INV-07` retiré ; **38 scénarios E2E** au lieu de 39. |
+| Inscription | Case de consentement supprimée ; colonnes `consent_at` / `consent_version` supprimées (script `V15`). | `REC-AUT-01` mis à jour ; exigence `REQ-TRA-17` retirée. |
+| Mot de passe | Minimum aligné sur 12 caractères dans l'interface ; aide à la saisie compacte. | `ANO-07` corrigée. |
+| Session | « Se souvenir de moi » réellement pris en compte côté serveur. | `ANO-08` corrigée. |
+| Accessibilité | Bouton du sélecteur de devise corrigé (WCAG 2.5.3) ; audit rejoué : 0 violation sur 11 pages. | `ANO-11` corrigée. |
+| Fiche d'offre | Module d'avis de nouveau chargé (import invalide retiré) ; images du marqueur de la carte Leaflet servies depuis `vendor/leaflet/images/`. | `ANO-12` et `ANO-13` corrigées. |
+| Espace client | Tableau de bord allégé (ligne de période, mentions « Période précédente », bouton « Actualiser », panneaux « Mon prochain voyage » et « Notifications non lues » retirés ; « Mes dernières réservations » en pleine largeur) ; « Mes réservations » sans surtitre ni filtre « Tri » ; menu latéral sans « Notifications », « Mes favoris » après « Mon panier » ; panier sans sous-titre ni compteur ; bouton du panier vide corrigé ; Tailwind (CDN) retiré de la page. | `REC-CLI-01` et `REC-CLI-02` : descriptions mises à jour ; `ANO-14`, `ANO-15` (client) et `ANO-16` corrigées. |
+| Espace fournisseur | Tailwind (CDN) retiré ; mêmes retraits que pour le client (tableau de bord, « Réservations reçues », fiche, menu) ; tableau de bord ramené à quatre indicateurs avec « Dernières réservations reçues » à côté des revenus ; carte « Besoin d'aide ? », encadré du formulaire d'offre et mention de la fiche retirés ; « Calendrier des disponibilités » renommé « Périodes de disponibilité ». | `REC-FOU-01`, `REC-FOU-04` et `REC-FOU-05` : descriptions mises à jour ; `ANO-15` et `ANO-19` corrigées. |
+| Espace agent | Tailwind (CDN) retiré ; mêmes retraits que pour le client (tableau de bord, « Réservations », fiche, menu) ; coque alignée sur l'espace fournisseur (en-tête bleu, menu « ESPACE AGENT ») et menu du compte avec déconnexion ; panneau « Tickets ouverts — Bientôt disponible » et filtre « Client » retirés ; bandeau sandbox et historique du détail de paiement retirés ; cartes de statistiques des tickets retirées, notes internes sans cadre orange. | `REC-AGE-01`, `REC-AGE-02`, `REC-AGE-04` et `REC-AGE-05` : étapes ajoutées ; `ANO-15` corrigée pour tous les espaces. |
+| Espace administrateur | Mêmes retraits que pour les autres espaces (tableau de bord, « Réservations », fiche, bloc de paiement de la fiche) ; tableau de bord ramené à trois cartes, sans graphique « Chiffre d'affaires » ni panneaux « Codes promo à surveiller » et « Points d'attention » ; coque alignée (recherche décorative retirée, « ESPACE ADMINISTRATEUR » dans le menu latéral, menu du compte) ; filtre « Client » retiré ; bandeau sandbox et historique du détail de paiement retirés ; cartes de statistiques des tickets retirées, notes internes sans cadre orange ; page « Paramètres globaux » réparée et débarrassée de son encadré. | `REC-ADM-01`, `REC-ADM-05`, `REC-ADM-06` et `REC-ADM-07` : étapes ajoutées ; `ANO-20` et `ANO-21` corrigées, `ANO-22` ouverte. |
+
+**Revérifié le 9 novembre 2026 :** suite backend **399 / 399** réussis (397 + 2 tests ajoutés), couverture JaCoCo conforme ; deux séries de contrôles dans Chrome (22 puis 23 vérifications : parcours invité → connexion → retour sur l'offre, ajout au panier d'un client, rôle non client, cookies de session et persistants avant et après rafraîchissement, aide du mot de passe, pages 404/500, inscription réelle) ; audit axe-core WCAG 2.1 A/AA.
+
+**Non rejoué :** la campagne E2E complète (`e2e/recette/runner.mjs`) n'a pas été relancée depuis ces changements. Le résultat « 39 / 39 » ne vaut donc que pour la version du 2 novembre, et les captures de `docs/recette/preuves/` ne reflètent pas encore les écrans modifiés.
+
+**Écart ouvert :** `ANO-10` — la langue est forcée en français et le thème en clair ; `REC-INV-05` (bascule trilingue / RTL) ne peut pas être satisfait en l'état.
+
+**Anomalie ouverte relevée dans l'espace client :** `ANO-15` (menu du sélecteur de devise illisible, texte blanc sur fond blanc), corrigée pour tous les espaces (Tailwind retiré le 9 novembre pour le client, le 10 pour le fournisseur et l'agent). `ANO-19` (liste des réservations du formulaire de ticket vide pour un fournisseur : 403 avalé) est corrigée le 10 novembre. `ANO-17` (accessibilité des étoiles du module d'avis, révélée par sa réparation) est corrigée. `ANO-18` reste ouverte : le résultat « 0 violation sur 11 pages » porte en réalité sur les pages publiques et la page de connexion ; les quatre espaces connectés sont audités sans session (donc via la page de connexion) et la fiche d'offre avec un identifiant inexistant.
+
+**Anomalies relevées dans l'espace administrateur (10 novembre) :** `ANO-20` (page « Paramètres globaux » vide et non enregistrable : champs et clés différents de ceux de l'API) et `ANO-21` (toutes les notifications de l'espace administrateur levaient une exception : conteneur absent) sont corrigées, vérifiées dans Chrome. `ANO-22` (exports CSV de réservations ouverts dans une seule colonne sous un Excel dont le séparateur est la virgule) reste ouverte, en attente d'arbitrage. Le script `scripts/phase5_browser_check.mjs` est adapté au nouveau tableau de bord mais n'a pas été rejoué ; la suite backend n'a pas été relancée (aucun changement côté serveur).
 

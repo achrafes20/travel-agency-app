@@ -11,9 +11,11 @@ Ce document détaille l'ensemble des scénarios de test exécutés pour le rôle
 - **Étapes** :
   1. Naviguer vers `http://localhost:5500/frontend/agent/index.html?page=dashboard`.
   2. Vérifier la disposition des tuiles d'activité et la barre de navigation latérale.
+  3. Vérifier l'en-tête bleu (menu, logo, devise, cloche, compte), le menu latéral titré « ESPACE AGENT » et l'absence de la ligne de période, des mentions « Période précédente », du bouton « Actualiser » et du panneau « Tickets ouverts — Bientôt disponible » ; cliquer sur le nom : le menu propose cinq raccourcis et « Déconnexion » (retirés ou ajoutés le 10 novembre 2026).
 - **Résultat Attendu** : L'espace s'affiche de manière fluide et présente les dossiers en cours.
 - **Statut d'Exécution** : `✅ Réussi`
 - **Preuve** : `docs/recette/preuves/REC-AGE-01-dashboard.png`
+- **Note (10 novembre 2026)** : étape 3 ajoutée ; scénario non rejoué.
 
 ---
 
@@ -25,9 +27,11 @@ Ce document détaille l'ensemble des scénarios de test exécutés pour le rôle
   1. Naviguer vers `http://localhost:5500/frontend/agent/index.html?page=payments`.
   2. Rechercher un dossier par sa référence ou le nom du client.
   3. Valider l'encaissement en espèces en MAD.
+  4. Vérifier l'absence du bandeau « MODE SANDBOX » sur la liste et dans le détail, et que le détail n'affiche pas « Historique immuable » (retirés le 10 novembre 2026).
 - **Résultat Attendu** : Le statut de paiement passe immédiatement à `PAID`, le statut de la réservation est confirmé, et un reçu de caisse avec référence unique est émis.
 - **Statut d'Exécution** : `✅ Réussi`
 - **Preuve** : `docs/recette/preuves/REC-AGE-02-encaissement.png`
+- **Note (10 novembre 2026)** : étape 4 ajoutée ; scénario non rejoué.
 
 ---
 
@@ -52,9 +56,11 @@ Ce document détaille l'ensemble des scénarios de test exécutés pour le rôle
 - **Étapes** :
   1. Naviguer vers `http://localhost:5500/frontend/agent/index.html?page=bookings`.
   2. Filtrer par statut ou date.
+  3. Vérifier l'absence des filtres « Client (nom ou email) » et « Tri » et du surtitre « VOS VOYAGES ATLAS VOYAGE », et que la fiche (« Voir ») ne contient ni e-mail du client, ni commentaire sur l'annulation, ni bloc de paiement (retirés le 10 novembre 2026).
 - **Résultat Attendu** : Le tableau récapitule les réservations avec détails complets des prestations et passagers.
 - **Statut d'Exécution** : `✅ Réussi`
 - **Preuve** : `docs/recette/preuves/REC-AGE-04-reservations-agence.png`
+- **Note (10 novembre 2026)** : étape 3 ajoutée ; scénario non rejoué.
 
 ---
 
@@ -65,7 +71,9 @@ Ce document détaille l'ensemble des scénarios de test exécutés pour le rôle
 - **Étapes** :
   1. Naviguer vers `http://localhost:5500/frontend/agent/index.html?page=tickets`.
   2. Ouvrir une réclamation et publier une réponse.
+  3. Vérifier l'absence de cartes de statistiques au-dessus de la file et qu'une note interne s'affiche avec le libellé « Note interne » sur fond neutre, sans bandeau ni cadre orange (modifié le 10 novembre 2026).
 - **Résultat Attendu** : Le message est enregistré, notifié au client et horodaté de manière indélébile.
 - **Statut d'Exécution** : `✅ Réussi`
 - **Preuve** : `docs/recette/preuves/REC-AGE-05-tickets-agent.png`
+- **Note (10 novembre 2026)** : étape 3 ajoutée ; scénario non rejoué.
 

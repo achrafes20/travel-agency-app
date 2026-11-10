@@ -11,10 +11,12 @@ Ce document détaille l'ensemble des scénarios de test exécutés pour le rôle
 - **Étapes** :
   1. Naviguer vers `http://localhost:5500/frontend/client/index.html?page=dashboard`.
   2. Vérifier l'en-tête de bienvenue personnalisé avec nom et initiales.
-  3. Vérifier les widgets de réservations récentes et d'offres recommandées.
+  3. Vérifier les quatre cartes d'indicateurs, le sélecteur de période (7 jours, 30 jours, 12 mois) et le tableau « Mes dernières réservations » en pleine largeur, sans défilement horizontal.
+  4. Vérifier l'absence de la ligne « Du … au … · fuseau · actualisé le … », des mentions « Période précédente : … », du bouton « Actualiser » et des panneaux « Mon prochain voyage » et « Notifications non lues » (retirés le 9 novembre 2026).
 - **Résultat Attendu** : L'interface s'affiche sans blocage ni message d'erreur d'API.
 - **Statut d'Exécution** : `✅ Réussi`
 - **Preuve** : `docs/recette/preuves/REC-CLI-01-dashboard.png`
+- **Note (9 novembre 2026)** : étapes 3 et 4 réécrites après la revue de l'espace client (le texte d'origine citait des « offres recommandées » qui n'ont jamais existé). Le résultat `✅` date de la campagne du 2 novembre et la capture de preuve n'a pas été refaite ; scénario non rejoué.
 
 ---
 
@@ -25,9 +27,13 @@ Ce document détaille l'ensemble des scénarios de test exécutés pour le rôle
 - **Étapes** :
   1. Naviguer vers `http://localhost:5500/frontend/client/index.html?page=reservations`.
   2. Vérifier les références uniques de dossiers, les dates de voyage, les badges de statuts.
+  3. Vérifier qu'aucun filtre « Tri » ni surtitre « VOS VOYAGES ATLAS VOYAGE » n'est affiché (retirés le 9 novembre 2026) : la liste reste ordonnée de la plus récente à la plus ancienne.
+  4. Ouvrir une réservation (« Voir ») : la fiche n'affiche ni bandeau « MODE SANDBOX », ni carte « PAIEMENT #… », ni bouton « Historique et opérations », ni commentaire sur le délai d'annulation ; le nom du client figure seul (sans e-mail) ; « Méthode » et « Paiement » sont bien séparés ; « Payer maintenant » n'apparaît que si la réservation est à régler et non expirée.
+  5. Cliquer sur l'onglet « Confirmées », puis sur « Réinitialiser » : la liste complète revient (onglet « Toutes », même nombre de réservations qu'au départ) — régression `ANO-16`.
 - **Résultat Attendu** : Les données affichées correspondent fidèlement aux lignes de réservation de la base de données (aucune fausse donnée).
 - **Statut d'Exécution** : `✅ Réussi`
 - **Preuve** : `docs/recette/preuves/REC-CLI-02-reservations.png`
+- **Note (9 novembre 2026)** : étapes 3 à 5 ajoutées. Le résultat `✅` date de la campagne du 2 novembre ; scénario non rejoué.
 
 ---
 
@@ -121,15 +127,8 @@ Ce document détaille l'ensemble des scénarios de test exécutés pour le rôle
 
 ---
 
-### REC-CLI-10 : Conservation du panier lors de la connexion
-- **Titre** : Synchronisation du panier invité avec le compte client.
-- **Objectif** : S'assurer qu'un visiteur qui remplit son panier avant de s'authentifier ne perd pas ses articles après connexion.
-- **Préconditions** : Panier invité rempli dans `localStorage`.
-- **Étapes** :
-  1. Remplir le panier en tant qu'invité.
-  2. Se connecter sur `connexion.html`.
-  3. Retourner sur `panier.html`.
-- **Résultat Attendu** : Le contenu du panier est intact et prêt pour le passage en caisse.
-- **Statut d'Exécution** : `✅ Réussi`
-- **Preuve** : Scénario automatisé de persistance validé.
+### REC-CLI-10 : Conservation du panier lors de la connexion — **retiré**
+- **Statut** : `⛔ Retiré le 9 novembre 2026`
+- **Motif** : il n'existe plus de panier invité. Le lien « Panier » est réservé aux clients ; un invité qui veut réserver est redirigé vers la connexion puis ramené sur l'offre (voir `REC-INV-04`).
+- **Remarque** : la synchronisation décrite par ce scénario n'était en réalité pas implémentée : l'article ajouté par un invité restait dans le `localStorage` du navigateur, jamais affiché et jamais transféré au compte (la fonction `CartService.mergeCart()` citée par la documentation n'existait pas). Le statut `✅ Réussi` précédent ne reposait sur aucun scénario du runner E2E. Voir l'anomalie `ANO-09`.
 

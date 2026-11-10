@@ -11,7 +11,7 @@ Cette checklist consigne l'ensemble des vérifications techniques menées par l'
 - [x] **Compilation Propre** : `mvnw.cmd clean compile` réussit sans avertissement bloquant (`BUILD SUCCESS`).
 - [x] **Temps de Compilation Mesuré** : **4,59 secondes** mesuré par `fresh_install_test.mjs` (seuil exigé < 600 secondes).
 - [x] **Suite de Tests Automatisés Backend** :
-  - **397 / 397 tests JUnit 5 au vert**.
+  - **397 / 397 tests JUnit 5 au vert** à la campagne du 2 novembre ; **399 / 399** au 9 novembre 2026 (2 tests ajoutés : mot de passe de 11 caractères refusé, choix « Se souvenir de moi » conservé au rafraîchissement).
   - **0 échec**, **0 erreur**, **0 test ignoré** (`Failures: 0, Errors: 0, Skipped: 0`).
   - Base H2 en mémoire isolée pour la suite de tests unitaires et d'intégration.
 - [x] **Gestion des Dépendances** :
@@ -62,7 +62,7 @@ Cette checklist consigne l'ensemble des vérifications techniques menées par l'
 
 - [x] **Architecture Frontend** : HTML5 sémantique, CSS3 moderne et **JavaScript vanilla** natif sans aucun framework lourd (React/Angular/Vue).
 - [x] **Absence d'Étape de Build Obligatoire** : Les fichiers du dossier `frontend/` sont directement exécutables et interprétables par tout navigateur moderne.
-- [x] **Ressources Tiers & CDN** : Chargement fluide de Tailwind CSS, des icônes Lucide et de Leaflet pour la cartographie.
+- [x] **Ressources Tiers & CDN** : Chargement fluide des icônes Lucide et de Leaflet (hébergé localement) pour la cartographie ; Tailwind CSS (CDN) n'est plus chargé par aucune page (retiré des espaces client le 9 novembre 2026, fournisseur et agent le 10 novembre 2026).
 - [x] **Quatre Espaces Privés en SPA** :
   - Espace Client : `frontend/client/index.html?page=...`
   - Espace Fournisseur : `frontend/supplier/index.html?page=...`
@@ -79,14 +79,14 @@ Cette checklist consigne l'ensemble des vérifications techniques menées par l'
 
 - [x] **Accessibilité WCAG 2.1 AA** :
   - Liens d'évitement (`.av-skip-link`) présents en en-tête de page pour la navigation au clavier.
-  - Ratios de contraste de couleurs validés (texte sombre sur fond clair / mode sombre adapté).
+  - Ratios de contraste de couleurs validés (texte sombre sur fond clair ; le mode sombre est désactivé, voir `ANO-10`). Audit axe-core rejoué le 9 novembre 2026 : 0 violation sur 11 URL (pages publiques et page de connexion ; espaces connectés non couverts, voir `ANO-18`).
   - Attributs ARIA sur les accordéons, menus déroulants et modales.
 - [x] **Responsive Design Mobile** :
   - Adaptabilité complète validée en résolution smartphone 375x667 (iPhone SE).
   - Absence de tout scroll horizontal indésirable.
-- [x] **Support Trilingue (i18n)** :
-  - Bascule instantanée entre Français (FR), Anglais (EN) et Arabe (AR).
-  - Inversion complète de l'interface en mode Right-To-Left (`dir="rtl"`) pour la langue arabe via CSS logique.
+- [ ] **Support Trilingue (i18n)** — ⚠️ décoché le 9 novembre 2026 (anomalie `ANO-10`, ouverte) : la langue est forcée en français et aucun sélecteur n'est affiché ; le thème sombre est de même désactivé.
+  - Moteur de traduction, dictionnaires FR/EN/AR (16 fichiers, parité vérifiée par `npm run i18n:check`) et CSS en miroir (`dir="rtl"`) présents dans le code.
+  - Bascule instantanée entre Français (FR), Anglais (EN) et Arabe (AR) : **non disponible dans l'interface actuelle**.
 - [x] **Affichage Multi-Devises Indicatif** :
   - Affichage des prix en Dirhams Marocains (MAD) par défaut avec conversion indicative en Euros (EUR) et Dollars (USD).
 
@@ -98,7 +98,7 @@ Cette checklist consigne l'ensemble des vérifications techniques menées par l'
 - [x] **Script de Détection des Mocks** : `scripts/recette/find_mock_data.mjs` (0 mock).
 - [x] **Script de Test de Performance** : `scripts/recette/fresh_install_test.mjs` (4,59s).
 - [x] **Script de Réinitialisation Démo** : `scripts/recette/reset_demo.mjs` (0,44s).
-- [x] **Suite de Tests E2E Automatisée** : `e2e/recette/runner.mjs` (39/39 tests réussis, 100%).
+- [x] **Suite de Tests E2E Automatisée** : `e2e/recette/runner.mjs` (39/39 tests réussis, 100% à la campagne du 2 novembre ; 38 scénarios depuis le retrait de `REC-INV-07`, campagne complète à rejouer).
 - [x] **Orchestrateur Global** : `npm run recette:all` (`scripts/recette/run_all.mjs`).
 
 ---

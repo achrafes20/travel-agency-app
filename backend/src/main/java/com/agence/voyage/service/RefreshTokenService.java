@@ -37,7 +37,7 @@ public class RefreshTokenService {
     @Value("${app.jwt.refresh-ttl-days:7}")
     private long refreshTtlDays;
 
-    public record RotationResult(String newRawToken, User user) {}
+    public record RotationResult(String newRawToken, User user, boolean rememberMe) {}
 
     public RefreshTokenService(RefreshTokenRepository refreshTokenRepository,
                                UserRepository userRepository,
@@ -65,6 +65,11 @@ public class RefreshTokenService {
 
     @Transactional
     public String createRefreshToken(User user, @Nullable HttpServletRequest request) {
+        return createRefreshToken(user, request, true);
+    }
+
+    @Transactional
+    public String createRefreshToken(User user, @Nullable HttpServletRequest request, boolean rememberMe) {
         String rawToken = generateSecureToken();
         String tokenHash = hashToken(rawToken);
         String familyId = UUID.randomUUID().toString();
@@ -74,6 +79,7 @@ public class RefreshTokenService {
         String ua = extractUserAgent(request);
 
         RefreshToken token = new RefreshToken(user.getId(), tokenHash, familyId, expiresAt, ip, ua);
+        token.setRememberMe(rememberMe);
         refreshTokenRepository.save(token);
 
         log.debug("refresh_token_created userId={} familyId={}", user.getId(), familyId);
@@ -147,10 +153,11 @@ public class RefreshTokenService {
 
         RefreshToken newToken = new RefreshToken(user.getId(), newHash, currentToken.getFamilyId(),
                 now.plusDays(refreshTtlDays), ip, ua);
+        newToken.setRememberMe(currentToken.isRememberMe());
         refreshTokenRepository.save(newToken);
 
         log.debug("refresh_token_rotated userId={} familyId={}", user.getId(), currentToken.getFamilyId());
-        return new RotationResult(newRawToken, user);
+        return new RotationResult(newRawToken, user, currentToken.isRememberMe());
     }
 
     @Transactional

@@ -2,7 +2,7 @@
 
 État livré le 31 octobre 2026. Java 21 / Spring Boot 3.3.4, JavaScript vanilla.
 Les contrats complets sont dans [api_endpoints.md](api_endpoints.md) et la collection
-Postman. Le rapport de vérification est [rapport_phase6.md](rapport_phase6.md).
+Postman. Le rapport de vérification est [rapport_phase6.md](archive/rapport_phase6.md).
 
 ## Profils personnels et fournisseurs
 
@@ -44,7 +44,7 @@ l'utilisateur a volontairement supprimé après la mise à niveau.
 
 ## Mot de passe et sessions
 
-`PasswordPolicy` est la source serveur unique : au moins 10 caractères Unicode,
+`PasswordPolicy` est la source serveur unique : au moins 12 caractères Unicode,
 une minuscule, une majuscule, un chiffre, un caractère spécial, au plus **72 octets
 UTF-8**, aucun caractère de contrôle, ni e-mail/partie locale de l'e-mail, ni mot
 de passe trivial. Inscription, création/modification administrative, changement

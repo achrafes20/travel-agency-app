@@ -29,13 +29,13 @@ const PaymentsUI = (() => {
   async function summary(root, bookingId, role) {
     try {
       const values = await api.get("/api/payments?bookingId=" + encodeURIComponent(bookingId)); if (!root.isConnected) return;
-      if (!values.length) { root.textContent = "Aucun paiement enregistré."; return; }
-      const current = values[values.length - 1];
-      root.innerHTML = banner + '<h3>Paiement de la réservation</h3>' + receipt(current) + '<div class="pm-history"></div>';
-      const history = root.querySelector(".pm-history");
-      const detail = document.createElement("button"); detail.className = "bk-button bk-secondary"; detail.textContent = "Historique et opérations"; detail.onclick = () => drawer(current.id,role,() => summary(root,bookingId,role)); history.append(detail);
-      if (role === "CLIENT" && current.bookingStatus === "PENDING" && utc(current.expiresAt) > Date.now()) {
-        const pay = document.createElement("a"); pay.className = "bk-button"; pay.textContent = "Payer maintenant"; pay.href = clientUrl("payment",bookingId); history.append(pay);
+      // Le statut du paiement figure déjà dans la fiche : seul le client garde « Payer maintenant », tant que la réservation est à régler. Les opérations (remboursement, encaissement) se font depuis la page Paiements.
+      const last = values[values.length - 1];
+      root.replaceChildren();
+      if (role === "CLIENT" && last && last.bookingStatus === "PENDING" && utc(last.expiresAt) > Date.now()) {
+        const actions = document.createElement("div"); actions.className = "pm-history";
+        const pay = document.createElement("a"); pay.className = "bk-button"; pay.textContent = "Payer maintenant"; pay.href = clientUrl("payment", bookingId);
+        actions.append(pay); root.append(actions);
       }
     } catch (err) { if (root.isConnected) error(root,err,() => summary(root,bookingId,role)); }
   }
@@ -144,8 +144,8 @@ const PaymentsUI = (() => {
     const root = dialog.querySelector("div"); load(root);
     async function refresh() {
       try {
-        const [p,events] = await Promise.all([api.get("/api/payments/"+id),api.get("/api/payments/"+id+"/events")]); if (!root.isConnected) return;
-        root.innerHTML = banner + receipt(p) + `<div class="bk-actions">${role === "ADMIN" && ["PAID","PARTIALLY_REFUNDED"].includes(p.status) && Number(p.refundableAmount) > 0 ? '<button class="bk-button pm-refund">Rembourser</button>' : ""}${["AGENT","ADMIN"].includes(role) && p.method === "CASH_ON_ARRIVAL" && p.status === "PENDING" && p.bookingStatus === "CONFIRMED" ? '<button class="bk-button pm-collect">Encaisser</button>' : ""}</div><h3>Historique immuable</h3><ol class="pm-events">${events.map(e => `<li><strong>${esc(e.eventType)}</strong> ${esc(e.fromStatus || "Création")} → ${esc(e.toStatus)}<small>${date(e.createdAt)} · ${esc(e.actorName || e.actorRole || "Système")}</small>${reason(e.details) ? `<p>${esc(reason(e.details))}</p>` : ""}</li>`).join("")}</ol>`;
+        const lean = role === "AGENT" || role === "ADMIN"; const [p,events] = await Promise.all([api.get("/api/payments/"+id),lean ? Promise.resolve([]) : api.get("/api/payments/"+id+"/events")]); if (!root.isConnected) return;
+        root.innerHTML = (lean ? "" : banner) + receipt(p) + `<div class="bk-actions">${role === "ADMIN" && ["PAID","PARTIALLY_REFUNDED"].includes(p.status) && Number(p.refundableAmount) > 0 ? '<button class="bk-button pm-refund">Rembourser</button>' : ""}${["AGENT","ADMIN"].includes(role) && p.method === "CASH_ON_ARRIVAL" && p.status === "PENDING" && p.bookingStatus === "CONFIRMED" ? '<button class="bk-button pm-collect">Encaisser</button>' : ""}</div>${lean ? "" : `<h3>Historique immuable</h3><ol class="pm-events">${events.map(e => `<li><strong>${esc(e.eventType)}</strong> ${esc(e.fromStatus || "Création")} → ${esc(e.toStatus)}<small>${date(e.createdAt)} · ${esc(e.actorName || e.actorRole || "Système")}</small>${reason(e.details) ? `<p>${esc(reason(e.details))}</p>` : ""}</li>`).join("")}</ol>`}`;
         const changed = () => { refresh(); reload(); };
         root.querySelector(".pm-refund")?.addEventListener("click",() => operationDialog(p,"refund",changed));
         root.querySelector(".pm-collect")?.addEventListener("click",() => operationDialog(p,"cash",changed));
@@ -155,7 +155,7 @@ const PaymentsUI = (() => {
   }
   function list(root, role = Auth.getUser()?.role, cash = false) {
     root.classList.add("bk-module"); let currentPage = 0, pageSize = 10, scope = cash ? "cash-pending" : role === "CLIENT" ? "mine" : "admin", generation = 0;
-    root.innerHTML = banner + `${cash ? '<div class="bk-tabs"><button data-scope="cash-pending" class="active">À encaisser</button><button data-scope="cash-history">Historique d’encaissement</button></div>' : ""}
+    root.innerHTML = (role === "AGENT" || role === "ADMIN" ? "" : banner) + `${cash ? '<div class="bk-tabs"><button data-scope="cash-pending" class="active">À encaisser</button><button data-scope="cash-history">Historique d’encaissement</button></div>' : ""}
       <form class="bk-filters"><label>Référence ou client<input name="search" placeholder="Rechercher…"></label><label>Statut<select name="status"><option value="">Tous</option>${Object.entries(labels).map(([key,label]) => `<option value="${key}">${label}</option>`).join("")}</select></label><label>Méthode<select name="method"><option value="">Toutes</option><option value="CARD">Carte</option><option value="CASH_ON_ARRIVAL">À l’arrivée</option></select></label><label>Du<input name="from" type="date"></label><label>Au<input name="to" type="date"></label><button class="bk-button">Rechercher</button><button class="bk-button bk-secondary" type="reset">Réinitialiser</button></form><div class="pm-results" aria-live="polite"></div>`;
     const form = root.querySelector("form"), box = root.querySelector(".pm-results");
     async function refresh() {

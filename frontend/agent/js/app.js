@@ -47,7 +47,6 @@ const navItems = [
   ["bookings", "Réservations", "calendar", ""],
   ["payments", "Paiements à l'arrivée", "wallet", ""],
   ["tickets", "Tickets de support", "message", ""],
-  ["notifications", "Notifications", "bell", ""],
   ["profile", "Mon profil", "user", ""],
 ];
 
@@ -398,7 +397,6 @@ function renderPage(page) {
   window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
   const renderer = pageRenderers[page] || dashboardPage;
   document.querySelector("#page-content").innerHTML = renderer();
-  document.querySelector("#breadcrumb-label").textContent = page === "booking" ? "Détail de la réservation" : page === "bundle-editor" ? (bundleState.editingId !== null ? "Modifier le bundle" : "Nouveau bundle") : navItems.find((item) => item[0] === page)?.[1] || "Tableau de bord";
   renderNav();
   hydrateIcons(document.querySelector("#page-content"));
   if (page === "bookings") BookingsUI.list(document.getElementById("booking-module"), "AGENT");
@@ -429,6 +427,7 @@ document.addEventListener("click", (event) => {
     if (pageButton.dataset.page === "bundle-editor") startNewBundle();
     renderPage(pageButton.dataset.page);
     NotificationsUI.close();
+    closeAccountMenu();
     return;
   }
   const toastButton = event.target.closest("[data-toast]");
@@ -456,13 +455,25 @@ document.querySelector("#sidebar-toggle").addEventListener("click", () => {
 });
 
 
+function closeAccountMenu() {
+  document.querySelector("#account-menu").classList.add("hidden");
+  document.querySelector("#account-toggle").setAttribute("aria-expanded", "false");
+}
+document.querySelector("#account-toggle").addEventListener("click", (event) => {
+  event.stopPropagation();
+  const open = document.querySelector("#account-menu").classList.toggle("hidden") === false;
+  document.querySelector("#account-toggle").setAttribute("aria-expanded", String(open));
+  if (open) NotificationsUI.close();
+});
+document.addEventListener("click", (event) => {
+  if (!event.target.closest("#account-menu")) closeAccountMenu();
+});
+document.querySelector("#notification-button").addEventListener("click", closeAccountMenu);
 document.querySelector("#logout-button").addEventListener("click", () => Auth.logout());
 
 const currentUser = Auth.getUser();
 if (currentUser) {
   const initials = currentUser.fullName.split(/\s+/).filter(Boolean).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
-  document.querySelector("#user-initials").textContent = initials;
-  document.querySelector("#user-name").textContent = currentUser.fullName;
   document.querySelector("#account-initials").textContent = initials;
   document.querySelector("#account-name").textContent = currentUser.fullName;
 }

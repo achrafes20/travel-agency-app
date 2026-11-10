@@ -7,11 +7,24 @@ const AccountUI=(()=>{
  function dispose(){if(!mounted)return;mounted.destroyed=true;mounted.uploaders.forEach(u=>u.destroy());mounted=null;}
  function rules(value,email){
   const lower=value.toLocaleLowerCase(),local=(email||"").trim().toLocaleLowerCase().split("@")[0];
-  return [[Array.from(value).length>=10,"Au moins 10 caractères"],[new TextEncoder().encode(value).length<=72,"Au maximum 72 octets UTF-8"],[/\p{Ll}/u.test(value),"Une minuscule"],[/\p{Lu}/u.test(value),"Une majuscule"],[/\p{Nd}/u.test(value),"Un chiffre"],[/[^\p{L}\p{N}\s\p{Cc}]/u.test(value),"Un caractère spécial"],[!local||!lower.includes(local),"Ne contient pas votre e-mail"],[!['password123','12345678','azerty','qwerty','password','1234567890','azerty12345','qwerty12345'].includes(lower)&&!/[\u0000-\u001f\u007f]/.test(value),"Ni mot de passe trivial ni caractère de contrôle"]];
+  // [respectée, libellé, règle « rare »] : les règles rares ne sont affichées que lorsqu'elles sont violées. Même minimum que le serveur (PasswordPolicy.MIN_LENGTH).
+  return [[Array.from(value).length>=12,"12 caractères minimum"],[/\p{Ll}/u.test(value),"Une minuscule"],[/\p{Lu}/u.test(value),"Une majuscule"],[/\p{Nd}/u.test(value),"Un chiffre"],[/[^\p{L}\p{N}\s\p{Cc}]/u.test(value),"Un caractère spécial"],[new TextEncoder().encode(value).length<=72,"Mot de passe trop long (72 octets maximum)",true],[!local||!lower.includes(local),"Ne doit pas contenir votre e-mail",true],[!['password123','12345678','azerty','qwerty','password','1234567890','azerty12345','qwerty12345'].includes(lower)&&!/[\u0000-\u001f\u007f]/.test(value),"Mot de passe trop courant ou caractère interdit",true]];
  }
  function strength(input,email){
-  const root=el("div"),meter=el("progress","account-strength"),list=el("ul","account-rules");meter.max=8;meter.setAttribute("aria-label","Force du mot de passe");root.append(meter,list);
-  const update=()=>{const values=rules(input.value,typeof email==="function"?email():email);meter.value=values.filter(v=>v[0]).length;list.replaceChildren(...values.map(([valid,label])=>el("li",valid?"valid":"",(valid?"✓ ":"○ ")+label)));};input.addEventListener("input",update);update();return root;
+  const root=el("div","account-password-help"),meter=el("progress","account-strength"),list=el("ul","account-rules"),alerts=el("ul","account-rule-alerts");
+  meter.max=rules("","").filter(r=>!r[2]).length;meter.value=0;meter.setAttribute("aria-label","Force du mot de passe");
+  alerts.setAttribute("aria-live","polite");list.id="pw-rules-"+Math.random().toString(36).slice(2,8);input.setAttribute("aria-describedby",list.id);
+  root.append(meter,list,alerts);
+  // Masqué tant que le champ est vide et sans focus ; un champ rempli garde l'aide visible.
+  const sync=()=>{root.hidden=!input.value&&document.activeElement!==input;};
+  const update=()=>{
+   const values=rules(input.value,typeof email==="function"?email():email),shown=values.filter(v=>!v[2]);
+   meter.value=shown.filter(v=>v[0]).length;
+   list.replaceChildren(...shown.map(([valid,label])=>{const li=el("li",valid?"valid":"");li.append(el("span","account-sr",valid?"Respectée : ":"À respecter : "),label);return li;}));
+   alerts.replaceChildren(...values.filter(v=>v[2]&&!v[0]).map(v=>el("li","",v[1])));
+   sync();
+  };
+  input.addEventListener("input",update);input.addEventListener("focus",sync);input.addEventListener("blur",sync);update();return root;
  }
  function field(label,name,value="",type="text"){
   const wrap=el("label","account-field"),control=el(type==="textarea"?"textarea":"input");if(type!=="textarea")control.type=type;control.name=name;control.value=value??"";wrap.append(el("span","",label),control);return{wrap,input:control};

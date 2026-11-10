@@ -47,7 +47,8 @@ flowchart TD
 
 ### 2.1 Prise en main et Référence Générale
 - **[`README.md`](../README.md)** : Point d'entrée principal du projet, présentation, installation pas à pas en moins de 10 minutes, prérequis, commandes essentielles et dépannage rapide.
-- **[`docs/ETAT_COMPLET_PROJET.md`](ETAT_COMPLET_PROJET.md)** : État réel constaté du projet, inventaire fonctionnel détaillé, historique chronologique des phases 1 à 14 et fonctionnalités prévues.
+- **[`CHANGELOG.md`](../CHANGELOG.md)** : Historique des évolutions, version par version : c'est le document à consulter pour l'état courant du projet.
+- **[`docs/archive/`](archive/README.md)** : Documents historiques **non maintenus** (état complet du projet à la fin de la Phase 17, rapports de réalisation des phases 1 à 10, anciens scripts SQL).
 - **[`docs/conventions_documentation.md`](conventions_documentation.md)** : Guide de contribution documentaire, en-têtes obligatoires, conventions Mermaid et Definition of Done.
 - **[`docs/decisions_a_prendre.md`](decisions_a_prendre.md)** : Liste des arbitrages légaux et métier réservés au propriétaire du produit (licence, contacts, délais).
 
@@ -87,7 +88,7 @@ flowchart TD
 
 ### 2.6 Manuels d'Utilisation par Rôle
 - **[`docs/manuel/`](manuel/)** :
-  - [`invite.md`](manuel/invite.md) : Visiteur non connecté (recherche, consultation, panier local, création de compte).
+  - [`invite.md`](manuel/invite.md) : Visiteur non connecté (catalogue, consultation d'une offre, devise, connexion et création de compte).
   - [`client.md`](manuel/client.md) : Voyageur client (réservation, paiement, suivi, avis, tickets, favoris, profil).
   - [`fournisseur.md`](manuel/fournisseur.md) : Prestataire partenaire (création d'offres en 4 étapes par spécialité, calendrier de capacité).
   - [`agent.md`](manuel/agent.md) : Agent d'agence (gestion des bundles, encaissement espèces, traitement des tickets).

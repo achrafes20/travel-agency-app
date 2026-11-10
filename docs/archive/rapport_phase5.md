@@ -1,5 +1,7 @@
 # Rapport de livraison — Phase 5 : dashboards réels
 
+> **Archive — document historique.** Ce document décrit l'état et le travail réalisés à une date donnée. Il est conservé tel quel (hors liens corrigés lors de son déplacement le 9 novembre 2026) et **n'est plus mis à jour**. Pour l'état courant : [README](../../README.md), [règles métier](../regles_metier.md), [architecture](../architecture.md), [CHANGELOG](../../CHANGELOG.md).
+
 31 octobre 2026. Référence avant travaux : commit `4b80555` (Phase 4).
 
 ## Résultat
@@ -37,9 +39,9 @@ Le travail ajoute les agrégats et graphiques, sans recréer ces modules.
 | Cache | Caffeine admin local, clé période, TTL 2 min, trois entrées ; autorisation avant cache ; autres rôles sans cache |
 | Seeder | Import DEMO dev indépendant, exécuté après DataSeeder, sans appel bancaire ou e-mail artificiel |
 
-Le [document statistiques](statistiques.md) détaille les contrats, seuils,
+Le [document statistiques](../statistiques.md) détaille les contrats, seuils,
 snapshots, comparaisons et limites. Les règles sont aussi dans
-[regles_metier.md](regles_metier.md#statistiques--phase-5).
+[regles_metier.md](../regles_metier.md#statistiques--phase-5).
 
 ## Sécurité et performance
 

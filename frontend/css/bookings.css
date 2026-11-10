@@ -2,3 +2,6 @@
 
 
 @media (min-width: 801px) { .bk-checkout aside { position: sticky; top: 90px; align-self: start; } }
+
+/* Méthode et statut de paiement de la fiche : deux éléments distincts, bien séparés. */
+.bk-payline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 32px; }
