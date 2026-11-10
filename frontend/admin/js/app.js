@@ -218,7 +218,7 @@ async function renderPage(page) {
   const breadcrumbEl = document.querySelector("#breadcrumb-page");
   if (breadcrumbEl) breadcrumbEl.textContent = pages[page];
   const pageHeader = document.querySelector("#page-header");
-  if (pageHeader) pageHeader.innerHTML = `<h1 class="page-title">${pages[page]}</h1>`;
+  if (pageHeader) pageHeader.innerHTML = page === "dashboard" ? "" : `<h1 class="page-title">${pages[page]}</h1>`;
   const container = document.querySelector("#page-content") || document.querySelector("#page-body");
   if (container) container.innerHTML = `<div class="card" style="padding:18px;color:var(--muted)">Chargement…</div>`;
   const renderer = renderers[page] || dashboardPage;
@@ -1408,7 +1408,7 @@ async function initSettings(container) {
   container.innerHTML = `<div class="card" style="padding:28px;text-align:center;color:var(--muted)">Chargement des paramètres globaux…</div>`;
 
   try {
-    settingsMetaList = await api.get("/api/settings");
+    settingsMetaList = (await api.get("/api/settings")).map((s) => ({ ...s, key: s.settingKey, value: s.settingValue }));
     settingsOriginalMap = {};
     settingsCurrentMap = {};
     settingsMetaList.forEach((s) => {
@@ -1452,12 +1452,10 @@ async function initSettings(container) {
     const sections = [
       {
         title: "Réservations",
-        description: "Délais d'annulation, alertes d'expiration et capacité du panier.",
+        description: "Délai d'annulation accordé aux clients.",
         iconName: "calendar",
         keys: [
-          { key: "booking.cancellation.deadline.hours", label: "Délai d'annulation client", icon: "clock-3", unit: "heures" },
-          { key: "availability.expiration.alert.days", label: "Alerte de fin de disponibilité", icon: "calendar-clock", unit: "jours" },
-          { key: "cart.items.max", label: "Nombre maximum de lignes au panier", icon: "shopping-cart", unit: "lignes" }
+          { key: "booking.cancellation.hours", label: "Délai d'annulation client", icon: "clock-3", unit: "heures" }
         ]
       },
       {
@@ -1466,7 +1464,7 @@ async function initSettings(container) {
         iconName: "wallet-cards",
         keys: [
           { key: "payment.cash.enabled", label: "Paiement à l'arrivée (Espèces)", icon: "banknote", type: "toggle" },
-          { key: "payment.currency.default", label: "Devise par défaut de la plateforme", icon: "coins", unit: "" }
+          { key: "currency.default", label: "Devise par défaut de la plateforme", icon: "coins", unit: "" }
         ]
       },
       {
@@ -1482,8 +1480,8 @@ async function initSettings(container) {
         description: "Mode maintenance et message affiché aux visiteurs.",
         iconName: "shield-alert",
         keys: [
-          { key: "platform.maintenance.enabled", label: "Mode maintenance global", icon: "alert-triangle", type: "maintenance-toggle" },
-          { key: "platform.maintenance.message", label: "Message de maintenance", icon: "message-square", type: "textarea" }
+          { key: "maintenance.enabled", label: "Mode maintenance global", icon: "alert-triangle", type: "maintenance-toggle" },
+          { key: "maintenance.message", label: "Message de maintenance", icon: "message-square", type: "textarea" }
         ]
       }
     ];
@@ -1499,15 +1497,6 @@ async function initSettings(container) {
       </div>
 
       <div class="settings-layout">
-        <aside class="settings-intro">
-          <h2>Règles de la plateforme</h2>
-          <p>Ces paramètres pilotent la logique métier globale du système Atlas Voyage.</p>
-          <div class="warning-note">
-            ${icon("triangle-alert")}
-            <span>Toute modification enregistrée est journalisée dans l'audit et prend effet immédiatement.</span>
-          </div>
-        </aside>
-
         <div style="display:flex;flex-direction:column;gap:20px">
     `;
 
@@ -1632,7 +1621,7 @@ async function initSettings(container) {
         const currentVal = String(settingsCurrentMap[key]).toLowerCase() === "true";
         const nextVal = !currentVal;
 
-        if (key === "platform.maintenance.enabled" && nextVal) {
+        if (key === "maintenance.enabled" && nextVal) {
           if (!confirm("Attention : Activer le mode maintenance bloquera l'accès à tous les utilisateurs (clients et fournisseurs). Seuls les administrateurs pourront continuer à naviguer. Confirmer l'activation ?")) {
             return;
           }
@@ -1649,7 +1638,7 @@ async function initSettings(container) {
         const key = btn.dataset.settingSave;
         const value = settingsCurrentMap[key];
 
-        if (key === "platform.maintenance.enabled" && String(value).toLowerCase() === "true" && settingsOriginalMap[key] !== "true") {
+        if (key === "maintenance.enabled" && String(value).toLowerCase() === "true" && settingsOriginalMap[key] !== "true") {
           if (!confirm("Confirmez-vous le passage immédiat de la plateforme en mode maintenance ?")) {
             return;
           }
@@ -1673,18 +1662,13 @@ async function initSettings(container) {
       const dirty = getDirtyKeys();
       if (dirty.length === 0) return;
 
-      if (dirty.includes("platform.maintenance.enabled") && settingsCurrentMap["platform.maintenance.enabled"] === "true" && settingsOriginalMap["platform.maintenance.enabled"] !== "true") {
+      if (dirty.includes("maintenance.enabled") && settingsCurrentMap["maintenance.enabled"] === "true" && settingsOriginalMap["maintenance.enabled"] !== "true") {
         if (!confirm("Attention : Vous êtes sur le point d'activer le mode maintenance pour toute la plateforme. Continuer ?")) {
           return;
         }
       }
 
-      const payload = {
-        settings: dirty.map((k) => ({
-          key: k,
-          value: String(settingsCurrentMap[k])
-        }))
-      };
+      const payload = { settings: Object.fromEntries(dirty.map((k) => [k, String(settingsCurrentMap[k])])) };
 
       try {
         container.querySelector("#btn-save-all-settings").disabled = true;

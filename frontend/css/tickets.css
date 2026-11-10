@@ -634,6 +634,8 @@
 :where(.tk-ui) .hover\:text-sky-800:hover { color: #075985; }
 :where(.tk-ui) .disabled\:opacity-50:disabled { opacity: 0.5; }
 
-/* Espace agent : les notes internes restent identifiables par leur libellé, sans bandeau ni cadre de couleur */
-#agent-tickets-root .message-bubble-wrapper.internal .message-bubble { background-color: #f1f5f9; color: #1e293b; border: 1px solid #e2e8f0; box-shadow: none; }
-#agent-tickets-root .internal-note-badge { padding: 0; margin-bottom: 4px; border-radius: 0; color: #64748b; background: transparent; font-size: 11px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+/* Espaces agent et administrateur : les notes internes restent identifiables par leur libellé, sans bandeau ni cadre de couleur */
+#agent-tickets-root .message-bubble-wrapper.internal .message-bubble,
+#admin-tickets-root .message-bubble-wrapper.internal .message-bubble { background-color: #f1f5f9; color: #1e293b; border: 1px solid #e2e8f0; box-shadow: none; }
+#agent-tickets-root .internal-note-badge,
+#admin-tickets-root .internal-note-badge { padding: 0; margin-bottom: 4px; border-radius: 0; color: #64748b; background: transparent; font-size: 11px; font-weight: 600; letter-spacing: 0; text-transform: none; }

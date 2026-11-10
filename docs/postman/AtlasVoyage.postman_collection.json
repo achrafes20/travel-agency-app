@@ -7090,7 +7090,7 @@
                 }
               }
             },
-            "url": "{{baseUrl}}/api/settings/booking.cancellation.deadline.hours"
+            "url": "{{baseUrl}}/api/settings/booking.cancellation.hours"
           }
         },
         {
@@ -7109,7 +7109,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"settings\": [\n    {\n      \"key\": \"booking.cancellation.deadline.hours\",\n      \"value\": \"48\"\n    },\n    {\n      \"key\": \"cart.items.max\",\n      \"value\": \"20\"\n    }\n  ]\n}",
+              "raw": "{\n  \"settings\": {\n    \"booking.cancellation.hours\": \"48\",\n    \"offers.images.max\": \"5\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"

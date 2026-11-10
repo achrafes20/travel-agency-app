@@ -983,55 +983,13 @@ const TicketsUI = (() => {
               ↻ Actualiser
             </button>
           </div>
-          <div id="admin-stats-kpis" class="ticket-stats-grid"></div>
           <div id="admin-tickets-root"></div>
         </div>
       `;
 
-      container.querySelector("#admin-tickets-refresh").onclick = () => { loadStats(); loadUsers(); loadData(); };
-      await Promise.all([loadStats(), loadUsers()]);
+      container.querySelector("#admin-tickets-refresh").onclick = () => { loadUsers(); loadData(); };
+      await loadUsers();
       await loadData();
-    }
-
-    async function loadStats() {
-      try {
-        state.stats = await api.get("/api/tickets/stats");
-        renderStats();
-      } catch (err) {
-        console.warn("Erreur chargement stats tickets admin :", err);
-      }
-    }
-
-    function renderStats() {
-      const root = container.querySelector("#admin-stats-kpis");
-      if (!root || !state.stats) return;
-      const s = state.stats;
-      root.innerHTML = `
-        <div class="ticket-stat-card border-l-4 border-l-blue-500">
-          <small>Ouverts</small>
-          <strong>${s.open}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-amber-500">
-          <small>En cours</small>
-          <strong>${s.inProgress}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-emerald-500">
-          <small>Résolus</small>
-          <strong>${s.resolved}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-slate-400">
-          <small>Fermés</small>
-          <strong>${s.closed}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-red-500">
-          <small>Urgents</small>
-          <strong>${s.urgentPriority}</strong>
-        </div>
-        <div class="ticket-stat-card border-l-4 border-l-indigo-600">
-          <small>Total tickets</small>
-          <strong>${s.total}</strong>
-        </div>
-      `;
     }
 
     async function loadUsers() {
@@ -1252,7 +1210,7 @@ const TicketsUI = (() => {
               <span>•</span>
               <time>${relativeTime(m.createdAt)}</time>
             </div>
-            ${isInternal ? `<span class="internal-note-badge">🔒 Note interne</span>` : ""}
+            ${isInternal ? `<span class="internal-note-badge">Note interne</span>` : ""}
             <div class="message-bubble">${esc(m.content)}</div>
           </div>
         `;
@@ -1362,7 +1320,6 @@ const TicketsUI = (() => {
           await api.patch(`/api/tickets/${t.id}/assignee`, { assigneeId: targetId });
           showToast("Assignation mise à jour.");
           openAdminDetail(t.id);
-          loadStats();
         } catch (err) {
           showToast(err.message || "Erreur lors de l'assignation", true);
         }
@@ -1375,7 +1332,6 @@ const TicketsUI = (() => {
           await api.patch(`/api/tickets/${t.id}/status`, { status: newStatus });
           showToast(`Statut mis à jour : ${STATUS_LABELS[newStatus] || newStatus}`);
           openAdminDetail(t.id);
-          loadStats();
         } catch (err) {
           showToast(err.message || "Transition interdite", true);
           e.target.value = t.status;
@@ -1389,7 +1345,6 @@ const TicketsUI = (() => {
           await api.patch(`/api/tickets/${t.id}/priority`, { priority: newPriority });
           showToast(`Priorité mise à jour : ${PRIORITY_LABELS[newPriority] || newPriority}`);
           openAdminDetail(t.id);
-          loadStats();
         } catch (err) {
           showToast(err.message || "Erreur modification priorité", true);
           e.target.value = t.priority;
@@ -1419,7 +1374,6 @@ const TicketsUI = (() => {
             await api.post(`/api/tickets/${t.id}/messages`, { content, internalNote });
             showToast(internalNote ? "Note interne enregistrée." : "Réponse envoyée au client.");
             openAdminDetail(t.id);
-            loadStats();
           } catch (err) {
             showToast(err.message || "Erreur lors de l'envoi", true);
             submitBtn.disabled = false;
@@ -1439,7 +1393,6 @@ const TicketsUI = (() => {
           onSuccess();
         } else {
           loadData();
-          loadStats();
         }
       } catch (err) {
         showToast(err.message || "Erreur lors de la suppression", true);

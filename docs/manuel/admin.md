@@ -1,7 +1,7 @@
 # Manuel Utilisateur — Espace Administrateur
 
 > **Statut :** ✅ Implémenté  
-> **Date de mise à jour :** 2026-11-01  
+> **Date de mise à jour :** 2026-11-10  
 > **Profil :** Superviseur & Administrateur Global (`ROLE_ADMIN`)  
 > **Point d'entrée :** `http://127.0.0.1:5500/frontend/admin/index.html`
 
@@ -9,14 +9,16 @@
 
 ## 1. Vue d'Ensemble & Supervision Globale
 
-Le tableau de bord administrateur consolide l'activité de l'ensemble de la plateforme :
+Le tableau de bord administrateur consolide l'activité de l'ensemble de la plateforme sur une période au choix (7 jours, 30 jours ou 12 mois) :
 
 ![Tableau de bord Administrateur](../assets/screenshots/admin/01-dashboard.png)
 
-- Volume d'utilisateurs actifs par rôle (`CLIENT`, `SUPPLIER`, `AGENT`, `ADMIN`).
-- File des offres touristiques soumises en attente d'approbation.
-- Chiffre d'affaires global de la plateforme, commissions prélevées et volume d'annulations.
-- Accès direct au journal des alertes de sécurité.
+- Trois indicateurs : **Utilisateurs**, **Chiffre d'affaires TTC** et **Panier moyen confirmé**, avec leur variation.
+- Répartition des utilisateurs par rôle (`CLIENT`, `SUPPLIER`, `AGENT`, `ADMIN`) et des réservations par statut.
+- Destinations et offres les plus réservées sur la période.
+- Panneau **« Exporter les données »** : export CSV des réservations (période et statut au choix).
+
+**Navigation :** l'en-tête bleu regroupe le menu, le logo, la devise, la cloche des notifications et le compte ; le menu latéral, titré « ESPACE ADMINISTRATEUR », est organisé en Pilotage, Gestion, Activité et Système. Un clic sur votre nom ouvre un menu de raccourcis (Tableau de bord, Réservations, Paiements, Tickets de support, Mon profil) avec **Déconnexion**.
 
 ---
 
@@ -53,10 +55,21 @@ Le journal d'audit enregistre de façon irréversible (*append-only*) toute acti
 
 ---
 
-## 5. Paramètres Système & Mode Maintenance
+## 5. Réservations, Paiements & Tickets
+
+- **Réservations :** filtrez par statut, par « Référence ou client », par dates, par statut de paiement et par fournisseur ; « Voir » ouvre la fiche (chronologie, prestations, totaux, annulation ou confirmation). Les remboursements ne se font pas depuis la fiche.
+- **Paiements :** le détail d'un paiement payé propose **« Rembourser »** (total ou partiel, avec motif) ; un paiement à l'arrivée en attente propose **« Encaisser »**.
+- **Tickets :** vue d'ensemble de toutes les demandes, assignation à un agent et changement de statut ; une note interne est repérée par le libellé « Note interne » et n'est jamais visible du demandeur.
+
+---
+
+## 6. Paramètres Système & Mode Maintenance
 
 ![Paramètres Globaux du Système](../assets/screenshots/admin/05-parametres.png)
 
-- **Taux de commission plateforme :** Définissez le pourcentage prélevé sur les ventes des fournisseurs partenaires.
-- **Coordonnées officielles :** Email de contact, téléphone du support et mentions légales affichées sur le site public.
-- **Mode Maintenance :** En cas d'intervention technique programmée, activez le mode maintenance en 1 clic : les utilisateurs reçoivent poliment un écran explicatif tout en conservant l'accès d'administration.
+La page **« Paramètres globaux »** regroupe six règles ; chacune s'enregistre avec « Sauvegarder », ou toutes ensemble avec « Enregistrer tout » (« Annuler » restaure les valeurs enregistrées). Chaque modification est journalisée dans l'audit et prend effet immédiatement :
+- **Délai d'annulation client** (en heures, de 0 à 720) ;
+- **Paiement à l'arrivée (Espèces)** : autorise ou non ce mode de règlement ;
+- **Devise par défaut de la plateforme** ;
+- **Nombre maximum d'images par offre** (de 1 à 10) ;
+- **Mode maintenance global** et **message de maintenance** : en cas d'intervention technique programmée, activez le mode maintenance en 1 clic ; les utilisateurs reçoivent un écran explicatif tout en conservant l'accès d'administration.

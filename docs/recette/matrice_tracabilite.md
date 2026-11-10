@@ -92,7 +92,7 @@ La présente matrice assure la traçabilité complète de chaque exigence foncti
 | **REQ-ADM-02** | Gestion complète des comptes utilisateurs, attribution de rôles et déverrouillage. | `REC-ADM-02` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-ADM-02-utilisateurs.png` |
 | **REQ-ADM-03** | File de modération des offres en attente avec motif obligatoire en cas de refus. | `REC-ADM-03` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-ADM-03-moderation.png` |
 | **REQ-ADM-04** | Journal d'audit immuable (append-only) traçant les actions sensibles avec export CSV. | `REC-ADM-04` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-ADM-04-audit.png` |
-| **REQ-ADM-05** | Paramètres globaux (frais de service) et bascule en mode maintenance dynamique. | `REC-ADM-05` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-ADM-05-parametres.png` |
+| **REQ-ADM-05** | Paramètres globaux (délai d'annulation, paiement à l'arrivée, devise par défaut, images par offre) et bascule en mode maintenance dynamique. | `REC-ADM-05` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-ADM-05-parametres.png` |
 | **REQ-ADM-06** | Supervision centralisée de toutes les réservations de la plateforme. | `REC-ADM-06` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-ADM-06-reservations-admin.png` |
 | **REQ-ADM-07** | Supervision financière des transactions et ventilation des règlements. | `REC-ADM-07` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-ADM-07-paiements-admin.png` |
 | **REQ-ADM-08** | Gestion référentielle des villes marocaines (nom normalisé, aéroport, coordonnées). | `REC-ADM-08` | `✅ Réussi` | Intégration BDD | `DataSeeder.java` / `CityRepositoryTest.java`. |

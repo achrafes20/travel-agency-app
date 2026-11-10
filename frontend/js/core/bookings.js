@@ -36,7 +36,7 @@ const AtlasTablePagination = (() => {
 
 const BookingsUI = (() => {
   const labels = { PENDING: "En attente", CONFIRMED: "Confirmée", COMPLETED: "Terminée", CANCELLED: "Annulée", EXPIRED: "Expirée", PROCESSING: "En cours", PARTIALLY_REFUNDED: "Partiellement remboursé", PAID: "Payé", FAILED: "Échec", REFUNDED: "Remboursé" };
-  const lean = role => role === "CLIENT" || role === "SUPPLIER" || role === "AGENT";
+  const lean = role => role === "CLIENT" || role === "SUPPLIER" || role === "AGENT" || role === "ADMIN";
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const money = value => new Intl.NumberFormat("fr-MA", { style: "currency", currency: "MAD" }).format(Number(value || 0));
   const date = value => value ? new Date(value).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" }) : "—";
@@ -71,7 +71,7 @@ const BookingsUI = (() => {
       <div class="bk-items">${b.items.map(i => `<section class="bk-item ${i.parentItemId ? "bk-child" : ""}"><div><h3>${esc(i.title)}</h3><p>${date(i.serviceStartAt)} → ${date(i.serviceEndAt)}</p><small>Quantité : ${i.quantity}${i.parentItemId ? " · Prestation incluse dans le bundle" : ""}</small></div><strong>${money(i.lineTotal)}</strong></section>`).join("")}</div>
       <div class="bk-totals"><p><span>Sous-total TTC</span><strong>${money(b.subtotal)}</strong></p><p><span>Remise ${esc(b.promoCode || "")}</span><strong>− ${money(b.discount)}</strong></p><p class="bk-total"><span>Total TTC</span><strong>${money(b.total)}</strong></p></div>
       <p class="bk-payline"><span>Méthode : ${b.paymentMethod === "PAY_ON_ARRIVAL" ? "Paiement à l’arrivée" : "Paiement en ligne"}</span><span>Paiement : ${badge(b.paymentStatus)}</span></p>
-      ${b.status === "PENDING" && b.expiresAt ? `<p class="bk-info">À confirmer avant le ${clockDate(b.expiresAt)}. La capacité sera libérée après ce délai. Finalisez votre paiement sandbox avant cette échéance.</p>` : ""}
+      ${b.status === "PENDING" && b.expiresAt ? `<p class="bk-info">À confirmer avant le ${clockDate(b.expiresAt)}. La capacité sera libérée après ce délai.${role === "CLIENT" ? " Finalisez votre paiement sandbox avant cette échéance." : ""}</p>` : ""}
       ${b.cancellationReason ? `<p>Motif d’annulation : ${esc(b.cancellationReason)}</p>` : ""}
       ${lean(role) ? "" : '<p class="bk-note">L’annulation client dépend du délai applicable avant le premier service ; les actions disponibles sont vérifiées par le serveur. Prix TTC en MAD.</p>'}
       <div class="bk-actions">${actions(b, role)}</div><p class="bk-feedback" role="status"></p></article>`;
@@ -129,7 +129,7 @@ const BookingsUI = (() => {
       <div class="bk-tabs" role="group" aria-label="Filtrer par statut">${[["", "Toutes"], ["PENDING", "En attente"], ["CONFIRMED", "Confirmées"], ["COMPLETED", "Terminées"], ["CANCELLED", "Annulées"], ["EXPIRED", "Expirées"]].map(([s, label]) => `<button type="button" data-bk-status="${s}" class="${s ? "" : "active"}">${label}</button>`).join("")}</div>
       <form class="bk-filters"><input type="hidden" name="status"><label>Référence ou client<input name="search" placeholder="Rechercher…"></label>
       <label>Du<input type="date" name="from"></label><label>Au<input type="date" name="to"></label>
-      ${staff ? '<label>Paiement<select name="paymentStatus"><option value="">Tous</option><option value="PENDING">En attente</option><option value="PAID">Payé</option><option value="FAILED">Échec</option><option value="PROCESSING">En cours</option><option value="CANCELLED">Paiement annulé</option><option value="PARTIALLY_REFUNDED">Partiellement remboursé</option><option value="REFUNDED">Remboursé</option></select></label>' + (role === "AGENT" ? "" : '<label>Client (nom ou email)<input name="client"></label>') + '<label>Fournisseur<select name="supplierId"><option value="">Tous</option></select></label>' : ""}
+      ${staff ? '<label>Paiement<select name="paymentStatus"><option value="">Tous</option><option value="PENDING">En attente</option><option value="PAID">Payé</option><option value="FAILED">Échec</option><option value="PROCESSING">En cours</option><option value="CANCELLED">Paiement annulé</option><option value="PARTIALLY_REFUNDED">Partiellement remboursé</option><option value="REFUNDED">Remboursé</option></select></label>' + (role === "AGENT" || role === "ADMIN" ? "" : '<label>Client (nom ou email)<input name="client"></label>') + '<label>Fournisseur<select name="supplierId"><option value="">Tous</option></select></label>' : ""}
       ${lean(role) ? "" : '<label>Tri<select name="sort"><option value="createdAt,desc">Plus récentes</option><option value="createdAt,asc">Plus anciennes</option><option value="serviceStartAt,asc">Date du service</option><option value="reference,asc">Référence</option></select></label>'}<button class="bk-button">Rechercher</button><button type="reset" class="bk-button bk-secondary">Réinitialiser</button></form>
       <div class="bk-results" aria-live="polite"></div>`;
     const form = root.querySelector("form"), results = root.querySelector(".bk-results");
