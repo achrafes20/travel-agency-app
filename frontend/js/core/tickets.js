@@ -7,6 +7,9 @@
 const TicketsUI = (() => {
   "use strict";
 
+  // Les classes utilitaires de css/tickets.css ne s'appliquent que sous .tk-ui.
+  const markUi = (container) => { container?.classList.add("tk-ui"); return container; };
+
   const CATEGORIES = {
     BOOKING: "Réservation",
     PAYMENT: "Paiement",
@@ -472,7 +475,7 @@ const TicketsUI = (() => {
   // =========================================================================
   async function openCreateTicketModal(onCreated) {
     const overlay = document.createElement("div");
-    overlay.className = "ticket-modal-overlay";
+    overlay.className = "ticket-modal-overlay tk-ui";
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
 
@@ -1492,10 +1495,10 @@ const TicketsUI = (() => {
   // API PUBLIQUE DU MODULE TICKETS
   // =========================================================================
   return {
-    client: (container) => renderClient(container, "CLIENT"),
-    supplier: (container) => renderClient(container, "SUPPLIER"),
-    agent: (container) => renderAgent(container),
-    admin: (container) => renderAdmin(container),
+    client: (container) => renderClient(markUi(container), "CLIENT"),
+    supplier: (container) => renderClient(markUi(container), "SUPPLIER"),
+    agent: (container) => renderAgent(markUi(container)),
+    admin: (container) => renderAdmin(markUi(container)),
     createModal: openCreateTicketModal
   };
 })();

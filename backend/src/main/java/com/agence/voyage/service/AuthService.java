@@ -67,8 +67,6 @@ public class AuthService {
 
         User created = userService.create(userRequest);
         created.setEmailVerified(false);
-        created.setConsentAt(LocalDateTime.now());
-        created.setConsentVersion("2026-v1.0");
         created.setMarketingOptIn(request.isMarketingOptIn());
         userRepository.save(created);
 

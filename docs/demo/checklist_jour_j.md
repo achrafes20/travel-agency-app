@@ -12,7 +12,7 @@ Cette checklist accompagne l'équipe technique et le présentateur depuis la vei
   npm run recette:all
   ```
   Vérifier que les 5 étapes (compilation backend, reset démo, intégrité SQL, mock check, suite E2E) affichent **✅ SUCCÈS**.
-- [ ] **Mise en Cache des Ressources Externes** : Ouvrir Google Chrome, naviguer sur toutes les pages publiques et espaces privés pour mettre en cache les polices Montserrat, le CDN Tailwind, Lucide et Leaflet.
+- [ ] **Mise en Cache des Ressources Externes** : Ouvrir Google Chrome, naviguer sur toutes les pages publiques et espaces privés pour mettre en cache les polices Montserrat, le CDN Tailwind (espaces fournisseur et agent seulement : l'espace client n'en dépend plus) et Lucide. Leaflet est hébergé localement.
 - [ ] **Préparation de la Machine de Secours (Plan B3)** : Cloner le dépôt sur le second ordinateur portable, tester la compilation et vérifier le bon fonctionnement.
 - [ ] **Sauvegarde sur Clé USB** : Copier le dossier `docs/` et les 39 captures d'écran de preuves sur une clé USB prête à l'emploi.
 

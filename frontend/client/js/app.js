@@ -99,10 +99,9 @@ function sidebar(active) {
   const items = [
     ["home","Vue d'ensemble","dashboard"],
     ["calendar","Mes réservations","reservations"],
-    ["heart","Mes favoris","favorites"],
     ["cart","Mon panier","panier"],
+    ["heart","Mes favoris","favorites"],
     ["ticket","Mes tickets","tickets"],
-    ["bell","Notifications","notifications"],
     ["user","Mon profil","profil"]
   ];
   return `<aside class="sidebar">
@@ -445,7 +444,7 @@ function paintCart() {
       : '<div class="empty-state"><h2>Chargement du panier…</h2></div>';
     return;
   }
-  const title = `<div class="page-title"><div><span class="eyebrow">VOTRE SÉLECTION</span><h1>Mon panier <small>${c.itemCount} article${c.itemCount > 1 ? "s" : ""}</small></h1><p>Vérifiez les détails avant de poursuivre votre réservation.</p></div>${c.itemCount ? `<button class="text-danger" data-action="clear-cart">${icon("trash")}Vider le panier</button>` : ""}</div>`;
+  const title = `<div class="page-title"><div><span class="eyebrow">VOTRE SÉLECTION</span><h1>Mon panier</h1></div>${c.itemCount ? `<button class="text-danger" data-action="clear-cart">${icon("trash")}Vider le panier</button>` : ""}</div>`;
   if (!c.items.length) {
     box.innerHTML = `${title}<div class="empty-state card"><h2>Votre panier est vide</h2><p>Parcourez le catalogue pour trouver votre prochaine escapade.</p>${button("Découvrir les offres", { iconName: "search", page: "catalogue" })}</div>`;
     return;
@@ -629,7 +628,7 @@ const views = { notifications: notificationsPage, dashboard, favorites: favorite
  */
 const externalPages = {
   accueil: "../accueil.html",
-  catalogue: "../accueil.html",
+  catalogue: "../catalogue.html",
   offre: "../accueil.html",
 };
 

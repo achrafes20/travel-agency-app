@@ -45,11 +45,12 @@ const StatsUI = (() => {
  function kpi(parent,title,data,format=number){
   const card=el("article","st-kpi");card.append(el("span","st-kpi-label",title),el("strong","st-kpi-value",format(data.value)));
   if(data.previous===null||data.changePercent===null){
-   card.append(el("small","st-muted",data.previous===null?"Comparaison indisponible":"Période précédente : "+format(data.previous)+" · aucune base de variation"));
+   if(data.previous===null)card.append(el("small","st-muted","Comparaison indisponible"));
+   else if(state.role!=="CLIENT")card.append(el("small","st-muted","Période précédente : "+format(data.previous)+" · aucune base de variation"));
   }else{
    const direction=Number(data.changePercent),line=el("small",direction>0?"st-up":direction<0?"st-down":"st-muted");
    line.textContent=(direction>0?"↑ En hausse de ":direction<0?"↓ En baisse de ":"→ Stable : ")+new Intl.NumberFormat("fr-FR",{maximumFractionDigits:2}).format(Math.abs(direction))+" %";
-   card.append(line,el("small","st-muted","Période précédente : "+format(data.previous)));
+   card.append(line);if(state.role!=="CLIENT")card.append(el("small","st-muted","Période précédente : "+format(data.previous)));
   }
   parent.append(card);return card;
  }
@@ -127,13 +128,7 @@ const StatsUI = (() => {
  function client(data,blocks){
   metric(blocks[0],"Mes réservations · total",data.totals.bookings);metric(blocks[0],"Montant net payé · total",data.totals.spent,money);
   kpi(blocks[0],"Réservations de la période",data.bookingsInPeriod);kpi(blocks[0],"Montant net payé · période",data.spentInPeriod,money);
-  const next=panel("Mon prochain voyage");
-  if(data.nextTrip){const trip=data.nextTrip;next.append(el("h3","",trip.reference),el("p","",time(trip.serviceStartAt)+" → "+time(trip.serviceEndAt)),el("strong","",money(trip.total)),link("CLIENT","reservation","Voir ma réservation",trip.id));}
-  else{empty(next,"Aucun voyage confirmé à venir. Préparez votre prochaine escapade.");const a=el("a","st-button","Découvrir les offres");a.href=new URL("accueil.html",rootUrl).href;next.append(a);}blocks[1].append(next);
-  const recent=panel("Mes dernières réservations");bookingTable(recent,data.recentBookings,"CLIENT");blocks[2].append(recent);
-  const notices=panel("Notifications non lues",number(data.notifications.count)+" notification(s) non lue(s)");
-  if(!data.notifications.available)notices.append(el("strong","st-unavailable","Bientôt disponible"));else activities(notices,data.notifications.items);
-  notices.append(link("CLIENT","notifications","Ouvrir mes notifications"));blocks[2].append(notices);
+  const recent=panel("Mes dernières réservations");recent.classList.add("st-wide");bookingTable(recent,data.recentBookings,"CLIENT");blocks[2].append(recent);
  }
  async function downloadCsv(path,signal){
   const response=await fetch(api.baseUrl()+path,{headers:{Authorization:"Bearer "+Auth.getToken()},signal});
@@ -153,8 +148,8 @@ const StatsUI = (() => {
    const select=button(label,"st-period");select.dataset.period=value;select.setAttribute("aria-pressed",String(current.period===value));
    select.onclick=()=>{current.period=value;const params=new URLSearchParams(location.search);params.set("period",value);history.replaceState({},"",location.pathname+"?"+params);reload();};periods.append(select);periodButtons.push(select);
   });
-  const refresh=button("Actualiser","st-button st-secondary");refresh.onclick=()=>reload();controls.append(periods,refresh);top.append(controls);root.append(top);
-  const meta=el("p","st-meta");root.append(meta);
+  const refresh=button("Actualiser","st-button st-secondary");refresh.onclick=()=>reload();controls.append(periods);if(role!=="CLIENT")controls.append(refresh);top.append(controls);root.append(top);
+  const meta=el("p","st-meta");if(role!=="CLIENT")root.append(meta);
   const blocks=[el("div","st-kpis"),el("div","st-charts"),el("div","st-lists")];blocks.forEach(block=>root.append(block));
   if(role==="ADMIN"){
    const exports=panel("Exporter les données"),row=el("div","st-export-controls"),from=el("input"),to=el("input"),status=el("select");

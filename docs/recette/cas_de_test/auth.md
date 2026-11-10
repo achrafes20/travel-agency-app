@@ -5,14 +5,15 @@ Ce document détaille l'ensemble des scénarios de test exécutés pour le sous-
 ---
 
 ### REC-AUT-01 : Formulaire d'inscription client
-- **Titre** : Inscription d'un nouveau client avec contrôle de mot de passe et consentement RGPD.
+- **Titre** : Inscription d'un nouveau client avec aide à la saisie du mot de passe (12 caractères minimum).
 - **Objectif** : Valider le fonctionnement ergonomique et sécurisé du formulaire de création de compte.
 - **Préconditions** : Page `connexion.html` ouverte.
 - **Étapes** :
   1. Cliquer sur l'onglet « Créer un compte ».
-  2. Vérifier la présence de l'indicateur de robustesse de mot de passe (règles de complexité).
-  3. Vérifier la case à cocher obligatoire de consentement aux CGU et à la politique de confidentialité (Loi marocaine 09-08).
-- **Résultat Attendu** : Le formulaire bloque la soumission si le mot de passe est trop faible ou si le consentement n'est pas coché.
+  2. Cliquer dans le champ « Mot de passe » : l'aide apparaît avec 5 règles (12 caractères minimum, minuscule, majuscule, chiffre, caractère spécial) et une barre à 0/5. Le runner E2E vérifie ces 5 règles.
+  3. Saisir 11 caractères respectant les autres règles : la barre indique 4/5 et « 12 caractères minimum » reste à respecter. Saisir un mot de passe contenant l'e-mail : un message rouge apparaît sous la liste.
+  4. Vérifier qu'aucune case de consentement n'est présentée.
+- **Résultat Attendu** : Le formulaire bloque la soumission tant qu'une des règles n'est pas respectée ; avec 12 caractères et les 4 classes, le compte est créé et le client arrive dans son espace (ou sur l'offre qu'il consultait).
 - **Statut d'Exécution** : `✅ Réussi`
 - **Preuve** : `docs/recette/preuves/REC-AUT-01-inscription-form.png`
 
@@ -28,6 +29,10 @@ Ce document détaille l'ensemble des scénarios de test exécutés pour le sous-
 - **Résultat Attendu** : L'API répond avec HTTP 200, le cookie JWT est positionné, le client est automatiquement redirigé vers `client/index.html`.
 - **Statut d'Exécution** : `✅ Réussi`
 - **Preuve** : `docs/recette/preuves/REC-AUT-02-login-client-succes.png`
+- **Compléments vérifiés le 9 novembre 2026 (hors runner E2E)** :
+  - « Se souvenir de moi » décochée : le cookie `atlas_refresh_token` est un cookie de session, avant et après `POST /api/auth/refresh`. Cochée : cookie persistant d'environ 7 jours, avant et après rafraîchissement (Chrome, via Puppeteer ; test d'intégration `SecurityPhase10Test.rememberMeChoiceSurvivesTokenRefresh`).
+  - Le lien « Mot de passe oublié ? » est affiché à droite de « Se souvenir de moi » et mène à `mot-de-passe-oublie.html`.
+  - Un paramètre `redirect` pointant vers une URL externe est ignoré : le client est envoyé dans son espace.
 
 ---
 

@@ -67,7 +67,7 @@ public class AuthController {
                               HttpServletResponse httpResponse) {
         AuthResponse response = authService.login(request);
         User user = userService.findById(response.getUser().getId());
-        String rawRefreshToken = refreshTokenService.createRefreshToken(user, httpRequest);
+        String rawRefreshToken = refreshTokenService.createRefreshToken(user, httpRequest, request.getRememberMe());
         cookieAuthHelper.setAuthCookies(httpResponse, response.getToken(), rawRefreshToken, request.getRememberMe());
         return response;
     }
@@ -79,7 +79,7 @@ public class AuthController {
         String rawToken = cookieAuthHelper.extractRefreshToken(httpRequest);
         RefreshTokenService.RotationResult result = refreshTokenService.rotateRefreshToken(rawToken, httpRequest);
         String newAccessToken = jwtService.generateToken(result.user());
-        cookieAuthHelper.setAuthCookies(httpResponse, newAccessToken, result.newRawToken(), true);
+        cookieAuthHelper.setAuthCookies(httpResponse, newAccessToken, result.newRawToken(), result.rememberMe());
         return new AuthResponse(newAccessToken, UserResponse.from(result.user()));
     }
 

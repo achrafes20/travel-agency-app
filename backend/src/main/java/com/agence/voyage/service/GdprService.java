@@ -72,8 +72,6 @@ public class GdprService {
         profile.put("phone", user.getPhone());
         profile.put("country", user.getCountry());
         profile.put("createdAt", user.getCreatedAt());
-        profile.put("consentAt", user.getConsentAt());
-        profile.put("consentVersion", user.getConsentVersion());
         profile.put("marketingOptIn", user.isMarketingOptIn());
         export.put("profile", profile);
 

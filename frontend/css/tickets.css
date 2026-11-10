@@ -513,3 +513,123 @@
   color: #0f172a;
 }
 
+/* ==========================================================================
+   Utilitaires locaux de tickets.js
+   Remplacent les classes utilitaires de Tailwind (auparavant chargé depuis
+   cdn.tailwindcss.com). Valeurs identiques à celles que Tailwind générait.
+   ========================================================================== */
+:where(.tk-ui) .block { display: block; }
+:where(.tk-ui) .flex { display: flex; }
+:where(.tk-ui) .grid { display: grid; }
+:where(.tk-ui) .fixed { position: fixed; }
+:where(.tk-ui) .invisible { visibility: hidden; }
+:where(.tk-ui) .flex-col { flex-direction: column; }
+:where(.tk-ui) .flex-wrap { flex-wrap: wrap; }
+:where(.tk-ui) .flex-1 { flex: 1 1 0%; }
+:where(.tk-ui) .items-center { align-items: center; }
+:where(.tk-ui) .justify-between { justify-content: space-between; }
+:where(.tk-ui) .overflow-y-auto { overflow-y: auto; }
+:where(.tk-ui) .w-full { width: 100%; }
+:where(.tk-ui) .cursor-pointer { cursor: pointer; }
+:where(.tk-ui) .whitespace-nowrap { white-space: nowrap; }
+:where(.tk-ui) .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+:where(.tk-ui) .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+:where(.tk-ui) .gap-1 { gap: 0.25rem; }
+:where(.tk-ui) .gap-2 { gap: 0.5rem; }
+:where(.tk-ui) .gap-3 { gap: 0.75rem; }
+:where(.tk-ui) .gap-4 { gap: 1rem; }
+:where(.tk-ui) .gap-6 { gap: 1.5rem; }
+:where(.tk-ui) .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.25rem; margin-bottom: 0; }
+:where(.tk-ui) .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; margin-bottom: 0; }
+
+:where(.tk-ui) .m-4 { margin: 1rem; }
+:where(.tk-ui) .mt-1 { margin-top: 0.25rem; }
+:where(.tk-ui) .mt-2 { margin-top: 0.5rem; }
+:where(.tk-ui) .mt-3 { margin-top: 0.75rem; }
+:where(.tk-ui) .mb-1 { margin-bottom: 0.25rem; }
+:where(.tk-ui) .mb-2 { margin-bottom: 0.5rem; }
+:where(.tk-ui) .mb-3 { margin-bottom: 0.75rem; }
+:where(.tk-ui) .mb-4 { margin-bottom: 1rem; }
+:where(.tk-ui) .mb-6 { margin-bottom: 1.5rem; }
+:where(.tk-ui) .ml-1 { margin-left: 0.25rem; }
+:where(.tk-ui) .p-4 { padding: 1rem; }
+:where(.tk-ui) .p-5 { padding: 1.25rem; }
+:where(.tk-ui) .p-6 { padding: 1.5rem; }
+:where(.tk-ui) .p-12 { padding: 3rem; }
+:where(.tk-ui) .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+:where(.tk-ui) .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+:where(.tk-ui) .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+:where(.tk-ui) .px-4 { padding-left: 1rem; padding-right: 1rem; }
+:where(.tk-ui) .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+:where(.tk-ui) .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+:where(.tk-ui) .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+:where(.tk-ui) .pb-2 { padding-bottom: 0.5rem; }
+:where(.tk-ui) .pb-3 { padding-bottom: 0.75rem; }
+:where(.tk-ui) .pb-4 { padding-bottom: 1rem; }
+
+:where(.tk-ui) .text-\[11px\] { font-size: 11px; }
+:where(.tk-ui) .text-xs { font-size: 0.75rem; line-height: 1rem; }
+:where(.tk-ui) .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+:where(.tk-ui) .text-base { font-size: 1rem; line-height: 1.5rem; }
+:where(.tk-ui) .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+:where(.tk-ui) .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+:where(.tk-ui) .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+:where(.tk-ui) .font-medium { font-weight: 500; }
+:where(.tk-ui) .font-semibold { font-weight: 600; }
+:where(.tk-ui) .font-bold { font-weight: 700; }
+:where(.tk-ui) .uppercase { text-transform: uppercase; }
+:where(.tk-ui) .tracking-wider { letter-spacing: 0.05em; }
+:where(.tk-ui) .text-center { text-align: center; }
+:where(.tk-ui) .text-right { text-align: right; }
+
+:where(.tk-ui) .text-white { color: #fff; }
+:where(.tk-ui) .text-slate-400 { color: #94a3b8; }
+:where(.tk-ui) .text-slate-500 { color: #64748b; }
+:where(.tk-ui) .text-slate-600 { color: #475569; }
+:where(.tk-ui) .text-slate-700 { color: #334155; }
+:where(.tk-ui) .text-slate-800 { color: #1e293b; }
+:where(.tk-ui) .text-sky-600 { color: #0284c7; }
+:where(.tk-ui) .text-sky-700 { color: #0369a1; }
+:where(.tk-ui) .text-emerald-700 { color: #047857; }
+:where(.tk-ui) .text-red-600 { color: #dc2626; }
+:where(.tk-ui) .bg-white { background-color: #fff; }
+:where(.tk-ui) .bg-slate-100 { background-color: #f1f5f9; }
+:where(.tk-ui) .bg-sky-50 { background-color: #f0f9ff; }
+:where(.tk-ui) .bg-sky-600 { background-color: #0284c7; }
+:where(.tk-ui) .bg-emerald-50 { background-color: #ecfdf5; }
+:where(.tk-ui) .bg-red-600 { background-color: #dc2626; }
+
+:where(.tk-ui) *, :where(.tk-ui) ::before, :where(.tk-ui) ::after { box-sizing: border-box; border-width: 0; border-style: solid; border-color: #e5e7eb; }
+:where(.tk-ui) .border { border-width: 1px; }
+:where(.tk-ui) .border-t { border-top-width: 1px; }
+:where(.tk-ui) .border-b { border-bottom-width: 1px; }
+:where(.tk-ui) .border-l-4 { border-left-width: 4px; }
+:where(.tk-ui) .border-slate-100 { border-color: #f1f5f9; }
+:where(.tk-ui) .border-slate-200 { border-color: #e2e8f0; }
+:where(.tk-ui) .border-slate-300 { border-color: #cbd5e1; }
+:where(.tk-ui) .border-emerald-300 { border-color: #6ee7b7; }
+:where(.tk-ui) .border-red-300 { border-color: #fca5a5; }
+:where(.tk-ui) .border-l-blue-500 { border-left-color: #3b82f6; }
+:where(.tk-ui) .border-l-amber-500 { border-left-color: #f59e0b; }
+:where(.tk-ui) .border-l-emerald-500 { border-left-color: #10b981; }
+:where(.tk-ui) .border-l-red-500 { border-left-color: #ef4444; }
+:where(.tk-ui) .border-l-slate-400 { border-left-color: #94a3b8; }
+:where(.tk-ui) .border-l-indigo-600 { border-left-color: #4f46e5; }
+:where(.tk-ui) .rounded { border-radius: 0.25rem; }
+:where(.tk-ui) .rounded-lg { border-radius: 0.5rem; }
+:where(.tk-ui) .rounded-xl { border-radius: 0.75rem; }
+:where(.tk-ui) .shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+
+:where(.tk-ui) .transition {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+:where(.tk-ui) .hover\:bg-sky-700:hover { background-color: #0369a1; }
+:where(.tk-ui) .hover\:bg-slate-50:hover { background-color: #f8fafc; }
+:where(.tk-ui) .hover\:bg-slate-200:hover { background-color: #e2e8f0; }
+:where(.tk-ui) .hover\:bg-emerald-100:hover { background-color: #d1fae5; }
+:where(.tk-ui) .hover\:bg-red-50:hover { background-color: #fef2f2; }
+:where(.tk-ui) .hover\:text-sky-800:hover { color: #075985; }
+:where(.tk-ui) .disabled\:opacity-50:disabled { opacity: 0.5; }

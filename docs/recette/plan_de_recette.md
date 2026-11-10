@@ -16,8 +16,8 @@ La mission de recette ne consiste pas à développer de nouvelles fonctionnalit�
 ## 2. Périmètre de Recette
 
 ### 2.1 Périmètre Couvert (In-Scope)
-- **Site Public & Invité** : Accueil, navigation, catalogue dynamique, filtres combinés, fiche détail de l'offre (Single Table Inheritance), panier d'achats localisé, support trilingue (FR, EN, AR) avec RTL natif, sélecteur de devises, pages d'erreurs (404, 500).
-- **Authentification & Gestion des Rôles** : Inscription avec contrôle de robustesse (zxcvbn/regex) et consentement RGPD (Loi 09-08), connexion JWT avec cookies HttpOnly / SameSite=Lax, réinitialisation de mot de passe, déconnexion, contrôle d'accès strict par rôle (`CLIENT`, `SUPPLIER`, `AGENT`, `ADMIN`), rate-limiting Bucket4j sur `/api/auth/*`.
+- **Site Public & Invité** : Accueil, navigation, catalogue dynamique, filtres combinés, fiche détail de l'offre (Single Table Inheritance), redirection vers la connexion lors d'une tentative de réservation (pas de panier invité), sélecteur de devises, pages d'erreurs (404, 500). *Support trilingue (FR, EN, AR) avec RTL natif : désactivé dans l'interface depuis ce périmètre initial, voir `ANO-10`.*
+- **Authentification & Gestion des Rôles** : Inscription avec contrôle de robustesse du mot de passe (12 caractères minimum, 4 classes ; le consentement RGPD n'est plus recueilli depuis le 9 novembre 2026), connexion JWT avec option « Se souvenir de moi » avec cookies HttpOnly / SameSite=Lax, réinitialisation de mot de passe, déconnexion, contrôle d'accès strict par rôle (`CLIENT`, `SUPPLIER`, `AGENT`, `ADMIN`), rate-limiting Bucket4j sur `/api/auth/*`.
 - **Espace Client** : Tableau de bord, consultation et annulation des réservations, tunnel de commande en 4 étapes (`av-stepper`), billetterie de support SAV, gestion des favoris, notations et avis par étoiles, export RGPD du profil.
 - **Espace Fournisseur** : Métriques d'activité, wizard de création d'offres en 4 étapes avec support multilingue et coordonnées géographiques, gestion du cycle de vie des offres (modération), calendrier des disponibilités et alertes de stock faible, suivi des commandes, statistiques de ventes.
 - **Espace Agent** : Guichet d'encaissement d'espèces avec génération de reçu unique, composition de packages touristiques (Bundles) multi-offres remisés, supervision des réservations au comptoir, traitement des tickets SAV.
@@ -50,7 +50,7 @@ La mission de recette ne consiste pas à développer de nouvelles fonctionnalit�
 | **Base de Données** | MySQL 8.0 / MariaDB 10.4.32 | Port 3306 (`travel_agency_db`), utilisateur `root` |
 | **Serveur Frontend** | Serveur HTTP Node.js | Port 5500 (`http://localhost:5500/frontend`) |
 | **Navigateur E2E** | Google Chrome 128+ | Moteur Chromium piloté via `puppeteer-core` |
-| **Suite de Tests Backend** | JUnit 5 + Spring Boot Test | 397 tests d'intégration et unitaires |
+| **Suite de Tests Backend** | JUnit 5 + Spring Boot Test | 399 tests d'intégration et unitaires (397 à la campagne du 2 novembre 2026, +2 le 9 novembre) |
 
 ### 3.2 Outillage de Recette
 - **Script de contrôle d'intégrité SQL** : `scripts/recette/check_integrity.mjs`
@@ -66,7 +66,7 @@ La mission de recette ne consiste pas à développer de nouvelles fonctionnalit�
 
 ### 4.1 Critères d'Entrée en Recette (Entry Criteria)
 1. **Compilation Backend sans erreur** : `mvnw.cmd clean compile` s'exécute avec succès sous JDK 21.
-2. **Suite de tests automatisés au vert** : 100% des 397 tests JUnit 5 passent avec succès.
+2. **Suite de tests automatisés au vert** : 100% des tests JUnit 5 (399 au 9 novembre 2026) passent avec succès.
 3. **Schéma de base de données à jour** : Les tables MySQL sont créées et cohérentes sans erreur de migration.
 4. **Contrat OpenAPI et Documentation synchronisés** : L'outil `npm run docs:check` valide à 100% la parité des 126 endpoints et les liens.
 

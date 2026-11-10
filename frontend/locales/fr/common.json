@@ -59,17 +59,6 @@
     "previous": "Précédent",
     "next": "Suivant",
     "page": "Page {page} sur {total}"
-  },
-  "footer": {
-    "slogan": "Votre partenaire de confiance pour découvrir l'authenticité et la beauté du Maroc.",
-    "links": {
-      "about": "À propos",
-      "contact": "Contact",
-      "faq": "FAQ",
-      "cgu": "Conditions d'utilisation",
-      "privacy": "Confidentialité & RGPD"
-    },
-    "copyright": "© {year} Atlas Voyage SARL. Tous droits réservés."
   }
 }
 

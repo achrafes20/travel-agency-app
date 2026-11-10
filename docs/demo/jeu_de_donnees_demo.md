@@ -52,7 +52,7 @@ Le catalogue s'appuie sur le patrimoine touristique marocain avec des coordonné
 ## 3. Licences Graphiques et Photographies
 
 Toutes les photographies intégrées dans l'interface proviennent de photographes de la communauté **Unsplash** sous licence libre de droits (**Unsplash License**) autorisant l'utilisation commerciale et non-commerciale sans redevance :
-- Photographie d'accueil (Porte de Médina) : **Alex Azabache** sur Unsplash.
+- Photographie d'accueil (Porte de Médina) : **Alex Azabache** sur Unsplash. *(Le crédit n'est plus affiché sur la page de connexion depuis le 9 novembre 2026 ; la licence Unsplash n'impose pas la mention du photographe, qui reste consignée ici.)*
 - Photographie Riad & Architecture zellige : **Annie Spratt** sur Unsplash.
 - Photographie Désert & Dunes : **Toa Heftiba** sur Unsplash.
 - Photographies de Chefchaouen : **Heidi Kaden** sur Unsplash.

@@ -792,7 +792,7 @@ function confirmModal({ title, message, label, icon: iconName = "triangle-alert"
 function userFormBody(user = null) {
   const roles = [["CLIENT", "Client"], ["SUPPLIER", "Fournisseur"], ["AGENT", "Agent"], ["ADMIN", "Administrateur"]];
   const options = roles.map(([value, label]) => `<option value="${value}" ${user?.role === value ? "selected" : ""}>${label}</option>`).join("");
-  const passwordHint = user ? "Laissez vide pour conserver le mot de passe actuel." : "10 caractères minimum, majuscule, minuscule, chiffre et symbole ; 72 octets maximum, sans l’e-mail.";
+  const passwordHint = user ? "Laissez vide pour conserver le mot de passe actuel." : "12 caractères minimum, majuscule, minuscule, chiffre et symbole ; 72 octets maximum, sans l’e-mail.";
   const categories = Object.entries(offerTypes).map(([value,[label]])=>`<option value="${value}" ${user?.supplierCategory===value?"selected":""}>${label}</option>`).join("");
   return `<div class="form-grid"><label class="field full">Nom complet<input id="user-fullname" placeholder="Prénom Nom" maxlength="120" value="${user ? escapeHtml(user.fullName) : ""}"></label><label class="field full">Email<input id="user-email" type="email" placeholder="nom@exemple.ma" maxlength="180" value="${user ? escapeHtml(user.email) : ""}"></label><label class="field">Rôle<select id="user-role">${options}</select></label><label class="field">Mot de passe<input id="user-password" type="password" autocomplete="new-password" maxlength="100" placeholder="${user ? "Inchangé" : "Mot de passe"}"><small>${passwordHint}</small></label><label class="field full" id="supplier-category-wrap" style="display:${user?.role==="SUPPLIER"?"flex":"none"}">Spécialité du fournisseur<select id="user-supplier-category"><option value="">Sélectionner une activité</option>${categories}</select><small>Ce compte pourra créer uniquement ce type d’offre.</small></label></div>`;
 }
@@ -913,7 +913,7 @@ function openModal(type, extra = null) {
         return;
       }
       if ((type === "create-user" && !password) || (password && AccountUI.rules(password,email).some(rule=>!rule[0]))) {
-        showToast("Mot de passe invalide", "Utilisez au moins 10 caractères, une minuscule, une majuscule, un chiffre et un symbole, sans l’e-mail (72 octets maximum).");
+        showToast("Mot de passe invalide", "Utilisez au moins 12 caractères, une minuscule, une majuscule, un chiffre et un symbole, sans l’e-mail (72 octets maximum).");
         return;
       }
       if (role === "SUPPLIER" && !supplierCategory) { showToast("Spécialité requise", "Choisissez l’activité autorisée pour ce fournisseur."); return; }

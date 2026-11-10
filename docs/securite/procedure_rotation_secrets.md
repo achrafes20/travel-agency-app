@@ -103,7 +103,7 @@ Les webhooks de notification de paiement (CMI / Stripe) valident la signature HM
      "newPassword": "NouveauMotDePasseComplexe#2026"
    }
    ```
-2. La validation forte `PasswordPolicy` (min 12 caractères, 3/4 catégories, exclusion d'identifiants, liste noire) valide le nouveau mot de passe.
+2. La validation forte `PasswordPolicy` (min 12 caractères, 4 classes obligatoires, exclusion d'identifiants, liste noire) valide le nouveau mot de passe.
 3. Le mot de passe est haché avec BCrypt (facteur 12).
 4. Le service révoque l'ensemble des sessions actives de cet administrateur pour forcer la ré-authentification avec le nouveau secret.
 

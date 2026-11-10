@@ -47,7 +47,7 @@ sequenceDiagram
     participant API as Atlas Voyage Backend
     participant DB as Base de Données
 
-    Client->>API: POST /api/auth/login { email, password }
+    Client->>API: POST /api/auth/login { email, password, rememberMe }
     API->>DB: Vérification credentials + BCrypt (cost=12)
     API-->>Client: 200 OK + Set-Cookie (atlas_access_token, atlas_refresh_token, XSRF-TOKEN) + Body { user, token }
     
@@ -141,9 +141,12 @@ curl -s -X POST "http://localhost:8080/api/auth/login" \
   -H "Content-Type: application/json" \
   -d '{
     "email": "sarah.benali@example.com",
-    "password": "password123"
+    "password": "password123",
+    "rememberMe": true
   }'
 ```
+
+`rememberMe` est facultatif (`true` par défaut) : à `true`, le cookie de rafraîchissement dure 7 jours ; à `false`, c'est un cookie de session. Le choix est conservé à chaque appel de `POST /api/auth/refresh`.
 *Réponse attendue (200 OK) :*
 ```json
 {

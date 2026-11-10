@@ -1,16 +1,18 @@
 # Atlas Voyage — état complet du projet
 
-> **Phase 17 livrée, Novembre 2026 : 126 endpoints REST, 40 entités JPA, 397 tests d'intégration JUnit 5 verts (100% succès), suite E2E de recette 100% passante (39/39), 0 violation d'intégrité BDD, décision GO SOUS CONDITIONS pour la release v1.0.0-rc1.**
+> **Archive — document historique.** Ce document décrit l'état et le travail réalisés à une date donnée. Il est conservé tel quel (hors liens corrigés lors de son déplacement le 9 novembre 2026) et **n'est plus mis à jour**. Pour l'état courant : [README](../../README.md), [règles métier](../regles_metier.md), [architecture](../architecture.md), [CHANGELOG](../../CHANGELOG.md).
+
+> **Phase 17 livrée, Novembre 2026 (mise à jour du 9 novembre) : 126 endpoints REST, 40 entités JPA, 399 tests d'intégration JUnit 5 verts (100% succès), suite E2E de recette de 38 scénarios (39/39 réussis à la campagne du 2 novembre, à rejouer depuis les évolutions du 9 novembre : voir §43), 0 violation d'intégrité BDD, décision GO SOUS CONDITIONS pour la release v1.0.0-rc1.**
 > **Chantiers majeurs intégrés :**
 > - **Phase 17 (Recette Finale & Démonstration) :** Plan de recette complet (`docs/recette/plan_de_recette.md`), matrice de traçabilité des exigences (`matrice_tracabilite.md`), 52 cas de test qualifiés par rôle (`docs/recette/cas_de_test/`), registre exhaustif des anomalies et dérogations (`registre_anomalies.md`), checklist technique exhaustive (`checklist_technique.md`), cahier des vérifications humaines obligatoires (`humain_a_realiser.md`), procès-verbal formel Go / No-Go (`decision_go_no_go.md`), rapport final de recette (`rapport_final_recette.md`), scénario de démo minuté de 10 minutes (`docs/demo/scenario_10_min.md`), 4 plans B testés (`plan_b.md`), checklist du Jour J (`checklist_jour_j.md`), FAQ jury de 18 questions techniques (`questions_reponses.md`), suite de tests E2E Chromium avec 39 captures de preuves graphiques (`e2e/recette/runner.mjs`), scripts d'intégrité SQL (`check_integrity.mjs`), scan de mock data (`find_mock_data.mjs`), test de vitesse d'installation (`fresh_install_test.mjs`), réinitialisation démo express en 0,44s (`reset_demo.mjs`), et commande globale `npm run recette:all`.
 > - **Phase 15 (Documentation & Docs-as-Code) :** Portail centralisé `docs/README.md`, contrat OpenAPI 3.0.3 complet (`docs/api/openapi.yaml`), collection Postman synchronisée (18 dossiers, 181 requêtes), 10 ADRs au format MADR, diagramme entité-relation Mermaid et dictionnaire des données (40 entités), manuel d'exploitation exhaustif et runbooks opérationnels (`docs/exploitation/`), manuels d'utilisation par rôle (`docs/manuel/`), fichiers communautaires (`CONTRIBUTING.md`, `CHANGELOG.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`), et outillage d'automatisation et de validation CI (`npm run docs:check`).
-> - **Phase 14 (Internationalisation & Devises) :** Trilingue FR / EN / AR avec support RTL complet, 19 namespaces JSON (parité 100%), formats régionaux stricts, conversion de devises indicatives (EUR, USD, GBP) et règle d'or financière MAD stricte.
-> - **Phase 12 (Design, UX, Accessibilité & Composants) :** Design system `av-*` avec CSS `@layer`, palette marocaine, Dark mode sans FOUT, conformité certifiée 100% WCAG 2.1 AA (0 violation sur 14 pages), carte Leaflet 1.9.4 auto-hébergée, Lightbox tactile, module complet d'avis clients vérifiés et modérés, formulaire de contact sécurisé.
+> - **Phase 14 (Internationalisation & Devises) :** Moteur trilingue FR / EN / AR avec support RTL complet (langue actuellement forcée en français dans l'interface, voir `ANO-10`), 16 namespaces JSON (parité 100%, 19 avant le retrait des pages FAQ, Contact et légales), formats régionaux stricts, conversion de devises indicatives (EUR, USD, GBP) et règle d'or financière MAD stricte.
+> - **Phase 12 (Design, UX, Accessibilité & Composants) :** Design system `av-*` avec CSS `@layer`, palette marocaine, Dark mode sans FOUT (désactivé depuis : thème clair forcé, `ANO-10`), conformité certifiée 100% WCAG 2.1 AA (0 violation sur 11 pages au 9 novembre ; 14 pages au 1er novembre), carte Leaflet 1.9.4 auto-hébergée, Lightbox tactile, module complet d'avis clients vérifiés et modérés, formulaire de contact sécurisé (page retirée le 9 novembre 2026, endpoint `/api/contact` conservé).
 > - **Phase 10 (Sécurité & Robustesse OWASP Top 10) :** Cookies `HttpOnly`/`Secure`/`SameSite=Lax`, rotation des refresh tokens avec détection de rejeu, double-submit CSRF, Bucket4j rate limiting (HTTP 429), lockout compte 5 échecs, politique de mot de passe forte, module RGPD / Loi 09-08 complet.
 > - **Phases 1 à 9 :** Offres datées en Single Table Inheritance (`OfferAvailability`), catalogue unique, panier connecté, bundles, réservations transactionnelles, paiements sandbox et espèces, notifications in-app/mail, statistiques réelles et exports CSV, tickets de support, favoris, journal d'audit append-only et paramètres globaux.
 > 
 > **Source de vérité :** Le code source exécutable (Spring Boot 3.3.4, Vanilla JS ES2022) et les tests automatisés font autorité.
-> Règles actuelles : [regles_metier.md](regles_metier.md) — Architecture : [architecture.md](architecture.md).
+> Règles actuelles : [regles_metier.md](../regles_metier.md) — Architecture : [architecture.md](../architecture.md).
 
 ## 1. Présentation générale
 
@@ -489,7 +491,7 @@ Seules les offres actives avec une disponibilité suffisante sont proposées.
 
 ### Panier
 
-- invité : panier local dans le navigateur ;
+- invité : aucun panier (depuis le 9 novembre 2026 : redirection vers la connexion, puis retour sur l’offre) ;
 - client connecté : panier persistant via `/api/cart` ;
 - ajout d’une offre ou d’un bundle ;
 - modification de quantité ;
@@ -719,7 +721,7 @@ Il sert au jeu de démonstration étendu. Il faut éviter de confondre ses donn�
 
 Depuis la Phase 1, Flyway gère les migrations et Hibernate valide le schéma.
 Les scripts historiques ci-dessus sont archivés dans `docs/legacy-migrations/`.
-Les procédures applicables sont décrites dans [migrations.md](migrations.md).
+Les procédures applicables sont décrites dans [migrations.md](../migrations.md).
 
 ---
 
@@ -865,10 +867,10 @@ Les interfaces correspondantes peuvent exister visuellement, mais certaines util
 
 ## 23. Fichiers de référence
 
-- [Règles métier définitives — Phase 1](regles_metier.md).
-- [Migrations Flyway](migrations.md).
-- [Rapport Phase 1](rapport_phase1.md).
-- [Rapport Phase 2 et fichiers modifiés](rapport_phase2.md).
+- [Règles métier définitives — Phase 1](../regles_metier.md).
+- [Migrations Flyway](../migrations.md).
+- [Rapport Phase 1](./rapport_phase1.md).
+- [Rapport Phase 2 et fichiers modifiés](./rapport_phase2.md).
 
 - `README.md` : démarrage rapide et comptes ;
 - `docs/ETAT_COMPLET_PROJET.md` : présent document ;
@@ -950,7 +952,7 @@ La réduction du menu latéral est seulement un comportement Frontend. La protec
 
 - logo Atlas Voyage ;
 - sélecteur de devise ;
-- panier avec compteur ;
+- panier avec compteur (réservé aux clients connectés, invisible pour les invités) ;
 - connexion ou raccourci vers l’espace de l’utilisateur connecté ;
 - barre des catégories centrée ;
 - icônes par catégorie.
@@ -972,11 +974,10 @@ Contenu visuel :
 - grande image marocaine avec voile bleu ;
 - slogan « Le Maroc vous attend. Vivez-le pleinement. » ;
 - texte d’introduction ;
-- éléments de confiance ;
 - catégories de services ;
 - offres disponibles séparées par catégorie ;
 - destinations et visuels marocains ;
-- pied de page.
+- pied de page (logo et lien de connexion uniquement).
 
 L’accueil reste volontairement neutre : aucune catégorie n’est sélectionnée automatiquement.
 
@@ -1013,7 +1014,7 @@ Source : **API** pour les offres, puis filtrage spécialisé Frontend.
 - caractéristiques du type ;
 - disponibilité ;
 - quantité ;
-- ajout au panier ;
+- ajout au panier et réservation (comptes clients ; un invité est redirigé vers la connexion) ;
 - indicateur de paiement à l’arrivée ;
 - favoris visuels ;
 - retour vers le catalogue.
@@ -1022,13 +1023,7 @@ Source : **API** pour l’offre et le panier. Le favori reste visuel et n’est 
 
 ### 26.5 Panier public
 
-Pour un invité :
-
-- contenu sauvegardé localement ;
-- quantités ;
-- suppression ;
-- total ;
-- bouton de poursuite.
+Il n'existe plus de panier pour un invité (modifié le 9 novembre 2026) : le lien « Panier » est masqué et les actions de réservation renvoient vers la connexion, puis vers la même offre.
 
 Pour un client connecté :
 
@@ -1046,7 +1041,9 @@ Pour un client connecté :
 - email ;
 - mot de passe ;
 - nom complet à l’inscription ;
-- option « Se souvenir de moi » ;
+- option « Se souvenir de moi » (transmise à l'API : session de 7 jours, ou cookie de session si décochée) ;
+- lien « Mot de passe oublié ? » ;
+- aide à la saisie du mot de passe (12 caractères minimum) ;
 - messages d’erreur ;
 - redirection selon le rôle.
 
@@ -1454,10 +1451,10 @@ second client, avec paiements et allocations cohérents, sans doubler les compte
 ou exemples existants. Les tickets restent explicitement available=false dans
 les statistiques. Les notifications et vouchers sont opérationnels.
 
-- [Calculs, contrats, démonstration et limites](statistiques.md)
-- [Rapport, fichiers et vérifications](rapport_phase5.md)
-- [Règles statistiques](regles_metier.md#statistiques--phase-5)
-- [Migration V9](migrations.md#phase-5--v9-statistiques)
+- [Calculs, contrats, démonstration et limites](../statistiques.md)
+- [Rapport, fichiers et vérifications](./rapport_phase5.md)
+- [Règles statistiques](../regles_metier.md#statistiques--phase-5)
+- [Migration V9](../migrations.md#phase-5--v9-statistiques)
 
 ---
 
@@ -1499,10 +1496,10 @@ Un callback pré-V4 évite l’ambiguïté des noms de contraintes CHECK histori
 MariaDB ; V6 rétablit la contrainte de dates. VOUCHER_SECRET est obligatoire en production ; aucun secret réel ajouté au dépôt.
 
 Les 8 routes Booking, critères, DTO et codes stables sont détaillés dans
-[api_endpoints.md](api_endpoints.md#réservations--phase-2-8-endpoints).
+[api_endpoints.md](../api_endpoints.md#réservations--phase-2-8-endpoints).
 Les 35 nouveaux tests couvrent succès, rollback, concurrence, référence annuelle,
 spécialisations, accès, PDF, seeder et pagination ; les 104 tests antérieurs
-restent inchangés. [Rapport complet](rapport_phase2.md).
+restent inchangés. [Rapport complet](./rapport_phase2.md).
 
 Livrés en Phase 3 : gateway sandbox, webhook, capture, encaissement, remboursement
 et audit des paiements. Restent : prestataire bancaire réel,
@@ -1562,8 +1559,8 @@ Contrôles navigateur réels : catalogue/panier/checkout/carte/confirmation/vouc
 refus et reprise, réponse réseau perdue, cash agent, remboursement admin et
 vue fournisseur. Contrôles HTTP concurrents également exécutés sur MariaDB.
 Base vide migrée puis base existante V6 adoptée en V7 avec sauvegarde préalable.
-Voir [rapport Phase 3](rapport_phase3.md), [règles](regles_metier.md) et
-[contrat des 11 routes](api_endpoints.md#paiements--phase-3-11-endpoints).
+Voir [rapport Phase 3](./rapport_phase3.md), [règles](../regles_metier.md) et
+[contrat des 11 routes](../api_endpoints.md#paiements--phase-3-11-endpoints).
 
 ## 35. Module Notifications livré — Phase 4
 
@@ -1626,8 +1623,8 @@ paiement/annulation lors du contrôle API isolé. Les tests navigateur vérifien
 polling après modération, lecture au clic, Échap/focus, les quatre pages et préférences.
 Le smoke test couvre désormais21pages ; les parcours de paiement Phase3 restent verts.
 
-Références : [Notifications](notifications.md), [API](api_endpoints.md#notifications--phase-4-7-endpoints),
-[rapport Phase4](rapport_phase4.md).
+Références : [Notifications](../notifications.md), [API](../api_endpoints.md#notifications--phase-4-7-endpoints),
+[rapport Phase4](./rapport_phase4.md).
 
 ## 36. Phase 6 — profils, sécurité et images livrés
 
@@ -1661,7 +1658,7 @@ aperçu immédiat, progression, annulation/réessai, ordre souris/clavier, cinq 
 blocage pendant upload. Auth : force en direct, oubli, reset, vérification, bandeau
 et renvoi ; token retiré des URLs de sécurité. Les assets sont publics, sous UUID.
 
-13 nouvelles routes détaillées dans [api_endpoints.md](api_endpoints.md) et Postman.
+13 nouvelles routes détaillées dans [api_endpoints.md](../api_endpoints.md) et Postman.
 Nouveaux codes d'erreur dans le format commun ; 413/429 lisibles, Retry-After
 exposé à CORS, JWT obsolète 401 avec retour connexion. Les anciennes routes sont
 conservées ; les fixtures de création utilisent désormais des mots de passe forts.
@@ -1680,8 +1677,8 @@ sur offre publique, SMTP Mailpit HTML/texte, bases vide/existante et répétitio
 32 pages smoke et 19 fichiers JS syntaxiquement valides. Les contrôles de paiement,
 notifications et statistiques restent verts.
 
-Références : [Profils/sécurité/images](profils_securite_images.md),
-[rapport complet et inventaire](rapport_phase6.md), [migrations](migrations.md).
+Références : [Profils/sécurité/images](../profils_securite_images.md),
+[rapport complet et inventaire](./rapport_phase6.md), [migrations](../migrations.md).
 
 ## 37. Phase 9 — Nettoyage des incohérences existantes
 
@@ -1712,7 +1709,7 @@ Références : [Profils/sécurité/images](profils_securite_images.md),
 - Client `geocoding.js` avec debounce (300 ms), timeout (5 s), retry automatique, cache mémoire + sessionStorage et fallback `/api/cities`.
 - Isolation des jeux de données de démonstration dans `frontend/js/mock/demo-data.js`.
 
-Références : [Rapport Phase 9](rapport_phase9.md).
+Références : [Rapport Phase 9](./rapport_phase9.md).
 
 ---
 
@@ -1738,12 +1735,12 @@ Références : [Rapport Phase 9](rapport_phase9.md).
 - Endpoint d'administration pour lever le verrouillage : `POST /api/users/{id}/unlock`.
 
 ### 38.4 Politique de Mots de Passe Forte
-- Service `PasswordPolicy` et validateur Jakarta `@StrongPassword` : min 12, max 128 caractères, 3 des 4 catégories (minuscules, majuscules, chiffres, caractères spéciaux).
-- Dictionnaire de mots de passe triviaux interdits (`common-passwords.txt`) et exclusion stricte des segments d'email et noms complets.
+- Service `PasswordPolicy` et validateur Jakarta `@StrongPassword` : min 12, max 128 caractères (72 octets UTF-8), les 4 catégories obligatoires (minuscules, majuscules, chiffres, caractères spéciaux).
+- Dictionnaire de mots de passe triviaux interdits (`common-passwords.txt`) et exclusion des segments d'e-mail.
 
 ### 38.5 Module RGPD / CNDP (Loi 09-08)
-- Consentement explicite aux CGU et à la Politique de Confidentialité lors de l'inscription (`consentAt`, `consentVersion`).
-- Pages légales dédiées : `frontend/cgu.html` et `frontend/confidentialite.html`.
+- ~~Consentement explicite aux CGU et à la Politique de Confidentialité lors de l'inscription (`consentAt`, `consentVersion`).~~ **Retiré le 9 novembre 2026** (voir §43).
+- ~~Pages légales dédiées : `frontend/cgu.html` et `frontend/confidentialite.html`.~~ **Supprimées le 9 novembre 2026.**
 - Portabilité des données : `GET /api/users/me/export` (export JSON complet de l'historique sans données secrètes).
 - Droit à l'oubli : `DELETE /api/users/me` avec confirmation par mot de passe, anonymisation irréversible et purge automatique des comptes inactifs > 36 mois.
 
@@ -1770,7 +1767,7 @@ Références : [Rapport Phase 9](rapport_phase9.md).
 - **Tunnel de réservation en 4 étapes :** `av-stepper` interactif dans `panier.html` (Panier → Coordonnées → Options → Paiement) avec panneau récapitulatif sticky sur grand écran.
 - **Visionneuse plein écran accessible :** `frontend/js/shared/lightbox.js` avec piège de focus, navigation clavier (Flèches, +, -, Échap) et swipe tactile sur mobile.
 - **Carte interactive auto-hébergée :** `frontend/js/shared/map.js` avec Leaflet 1.9.4 localisé (`frontend/vendor/leaflet/`) sans dépendance CDN externe et alternative textuelle WAI-ARIA.
-- **Pages institutionnelles & utilitaires :** `a-propos.html`, `contact.html`, `faq.html` (accordéons filtrables en direct), `404.html`, `500.html`.
+- **Pages utilitaires :** `404.html`, `500.html`. Les pages institutionnelles `a-propos.html`, `contact.html` et `faq.html` ont été supprimées le 9 novembre 2026.
 - **Harmonisation des espaces privés :** En-têtes, thèmes, navigation et contrastes unifiés sur `client/`, `supplier/`, `agent/` et `admin/`.
 
 ### 39.3 Module Avis & Notations (Reviews)
@@ -1816,8 +1813,8 @@ Références : [Rapport Phase 9](rapport_phase9.md).
   - Mode pseudo-localisation dev `en-XA` activable par `?pseudo=1` pour traquer les chaînes en dur et tester l'expansion visuelle (+30%).
   - Attributs déclaratifs HTML (`data-i18n`, `data-i18n-attr`, `data-i18n-html`) et méthode `applyTranslations(root)`.
   - Composant sélecteur de langue accessible WCAG 2.1 AA (`I18n.renderLanguageSwitcher()`).
-- **19 Namespaces JSON (`frontend/locales/{fr,en,ar}/`) :**
-  - `common.json`, `nav.json`, `home.json`, `catalog.json`, `offer.json`, `cart.json`, `checkout.json`, `auth.json`, `client.json`, `supplier.json`, `agent.json`, `admin.json`, `status.json`, `errors.json`, `validation.json`, `seo.json`, `legal.json`, `faq.json`, `contact.json`.
+- **16 Namespaces JSON (`frontend/locales/{fr,en,ar}/`) :** *(19 avant le 9 novembre 2026 ; `legal`, `faq` et `contact` supprimés avec leurs pages)*
+  - `common.json`, `nav.json`, `home.json`, `catalog.json`, `offer.json`, `cart.json`, `checkout.json`, `auth.json`, `client.json`, `supplier.json`, `agent.json`, `admin.json`, `status.json`, `errors.json`, `validation.json`, `seo.json`.
   - **Parité stricte à 100% validée** par le script d'automatisation `scripts/i18n/check.mjs`.
 
 ### 40.3 Backend Multilingue, Messages & Données Dynamiques (Java 21 / Spring Boot 3.3.4)
@@ -1854,8 +1851,8 @@ Références : [Rapport Phase 9](rapport_phase9.md).
 
 ### 40.5 Expérience Utilisateur Multilingue Transversale
 - **Site public & Pages d'erreur :**
-  - Navigation, en-têtes et pieds de page équipés des sélecteurs de langue et de devises.
-  - Pages légales (`cgu.html`, `confidentialite.html`) avec encadré explicite de projet technique non certifié et clause d'intégrité de paiement en MAD.
+  - Navigation et en-têtes équipés du sélecteur de devises ; le sélecteur de langue n'est pas affiché dans l'interface actuelle (`ANO-10`) et le pied de page est réduit au logo et au lien de connexion (9 novembre 2026).
+  - ~~Pages légales (`cgu.html`, `confidentialite.html`) avec encadré explicite de projet technique non certifié et clause d'intégrité de paiement en MAD.~~ Supprimées le 9 novembre 2026.
   - Pages d'erreur `404.html` et `500.html` complètement traduites.
 - **Espaces privés (`client/`, `supplier/`, `agent/`, `admin/`) :**
   - En-têtes intégrant les sélecteurs de langue et de devise.
@@ -1865,7 +1862,7 @@ Références : [Rapport Phase 9](rapport_phase9.md).
 ### 40.6 Documentation Maîtresse dans `docs/i18n/`
 - `audit_initial.md` : Cartographie initiale des chaînes en dur, propriétés physiques CSS et messages d'erreur.
 - `glossaire.md` : Terminologie officielle trilingue (FR / EN / AR) pour les concepts touristiques marocains.
-- `etat_traductions.md` : Inventaire exhaustif des 19 namespaces et statut de relecture.
+- `etat_traductions.md` : Inventaire exhaustif des 16 namespaces et statut de relecture.
 - `guide_i18n.md` : Guide d'architecture et manuel pour les développeurs (`I18n.t`, `I18n.plural`, ajout d'une langue).
 - `rtl_guide.md` : Règles de conception RTL, propriétés CSS logiques et typographie arabe.
 - `devises.md` : Architecture financière, règle d'or MAD, cache Caffeine et disclaimers légaux.
@@ -1880,29 +1877,29 @@ L'objectif de la Phase 15 est d'établir un référentiel documentaire complet, 
 
 ### 41.1 Livrables Documentaires Réalisés
 1. **Portail documentaire & Conventions :**
-   - [`docs/README.md`](README.md) : Index central organisé par persona (Développeur, Contributeur, Exploitant/Ops, Utilisateur par rôle, Auditeur sécurité).
-   - [`docs/conventions_documentation.md`](conventions_documentation.md) : Règles rédactionnelles, statuts explicites (`✅ Implémenté`, `🟡 Partiel`, `🔲 Prévu`), syntaxe Mermaid stricte et définition du "Prêt pour livraison" (Definition of Done).
-   - [`docs/decisions_a_prendre.md`](decisions_a_prendre.md) : Registre exhaustif des choix métier, juridiques et techniques ouverts (licence, contact sécurité, dérogations de remboursement, domaines de production).
+   - [`docs/README.md`](../README.md) : Index central organisé par persona (Développeur, Contributeur, Exploitant/Ops, Utilisateur par rôle, Auditeur sécurité).
+   - [`docs/conventions_documentation.md`](../conventions_documentation.md) : Règles rédactionnelles, statuts explicites (`✅ Implémenté`, `🟡 Partiel`, `🔲 Prévu`), syntaxe Mermaid stricte et définition du "Prêt pour livraison" (Definition of Done).
+   - [`docs/decisions_a_prendre.md`](../decisions_a_prendre.md) : Registre exhaustif des choix métier, juridiques et techniques ouverts (licence, contact sécurité, dérogations de remboursement, domaines de production).
 2. **Contrat d'API & Spécifications :**
-   - [`docs/api/openapi.yaml`](api/openapi.yaml) : Spécification OpenAPI 3.0.3 intégrale (126 endpoints réels extraits du code, 22 domaines, schémas de requêtes et de réponses).
-   - [`docs/api_endpoints.md`](api_endpoints.md) : Tableau synoptique complet des 126 endpoints avec méthodes, chemins, descriptions et rôles RBAC exigés.
-   - [`docs/api/guide_api.md`](api/guide_api.md) : Guide d'intégration HTTP (URLs, en-têtes de corrélation, conventions ISO-8601, rate limiting 429 et exemples curl).
-   - [`docs/api/codes_erreur.md`](api/codes_erreur.md) : Répertoire exhaustif des 58 codes d'erreur applicatifs stables (`ErrorCode.java`).
+   - [`docs/api/openapi.yaml`](../api/openapi.yaml) : Spécification OpenAPI 3.0.3 intégrale (126 endpoints réels extraits du code, 22 domaines, schémas de requêtes et de réponses).
+   - [`docs/api_endpoints.md`](../api_endpoints.md) : Tableau synoptique complet des 126 endpoints avec méthodes, chemins, descriptions et rôles RBAC exigés.
+   - [`docs/api/guide_api.md`](../api/guide_api.md) : Guide d'intégration HTTP (URLs, en-têtes de corrélation, conventions ISO-8601, rate limiting 429 et exemples curl).
+   - [`docs/api/codes_erreur.md`](../api/codes_erreur.md) : Répertoire exhaustif des 58 codes d'erreur applicatifs stables (`ErrorCode.java`).
 3. **Suite Postman & Exécution Newman :**
-   - [`docs/postman/AtlasVoyage.postman_collection.json`](postman/AtlasVoyage.postman_collection.json) : 18 dossiers, 181 requêtes avec assertions automatiques de statuts et de payloads.
-   - [`docs/postman/env.dev.json`](postman/env.dev.json) & [`docs/postman/env.prod.json`](postman/env.prod.json) : Environnements local et production (garantie Zéro Secret).
-   - [`docs/postman/README.md`](postman/README.md) : Manuel d'exécution en CLI via Newman et génération de rapports HTML.
+   - [`docs/postman/AtlasVoyage.postman_collection.json`](../postman/AtlasVoyage.postman_collection.json) : 18 dossiers, 181 requêtes avec assertions automatiques de statuts et de payloads.
+   - [`docs/postman/env.dev.json`](../postman/env.dev.json) & [`docs/postman/env.prod.json`](../postman/env.prod.json) : Environnements local et production (garantie Zéro Secret).
+   - [`docs/postman/README.md`](../postman/README.md) : Manuel d'exécution en CLI via Newman et génération de rapports HTML.
 4. **Architecture Globale & ADRs :**
-   - [`docs/architecture.md`](architecture.md) : Architecture logicielle complète avec diagrammes C4 (Contexte, Conteneurs, Composants), diagramme Entité-Relation Mermaid exhaustif (40 entités JPA), dictionnaire de données complet, 4 diagrammes de séquence (Auth refresh rotation, Réservation atomique, Paiement idempotent, Annulation/Restitution) et 4 machines à états.
-   - [`docs/adr/`](adr/) : 10 Décisions d'Architecture (MADR) documentant les choix structurants (STI, disponibilités temporelles, fournisseurs spécialisés, MAD référence, JWT en cookies HttpOnly, Flyway, géocodage Open-Meteo, catalogue unique, i18n runtime vanilla, cache Caffeine).
+   - [`docs/architecture.md`](../architecture.md) : Architecture logicielle complète avec diagrammes C4 (Contexte, Conteneurs, Composants), diagramme Entité-Relation Mermaid exhaustif (40 entités JPA), dictionnaire de données complet, 4 diagrammes de séquence (Auth refresh rotation, Réservation atomique, Paiement idempotent, Annulation/Restitution) et 4 machines à états.
+   - [`docs/adr/`](../adr) : 10 Décisions d'Architecture (MADR) documentant les choix structurants (STI, disponibilités temporelles, fournisseurs spécialisés, MAD référence, JWT en cookies HttpOnly, Flyway, géocodage Open-Meteo, catalogue unique, i18n runtime vanilla, cache Caffeine).
 5. **Règles Métier Exhaustives :**
-   - [`docs/regles_metier.md`](regles_metier.md) : Référentiel des règles applicatives (RBAC, Single Table, disponibilités, réservations, barème d'annulation 48h/24h, paiements sandbox et espèces, audit immuable, RGPD).
+   - [`docs/regles_metier.md`](../regles_metier.md) : Référentiel des règles applicatives (RBAC, Single Table, disponibilités, réservations, barème d'annulation 48h/24h, paiements sandbox et espèces, audit immuable, RGPD).
 6. **Exploitation, Runbooks & Supervision :**
-   - [`docs/exploitation/`](exploitation/) : Guide de configuration, procédures de déploiement et rollback, stratégie de sauvegarde/restauration MySQL, métriques Actuator, runbooks d'incidents opérationnels et calendrier de maintenance.
+   - [`docs/exploitation/`](../exploitation) : Guide de configuration, procédures de déploiement et rollback, stratégie de sauvegarde/restauration MySQL, métriques Actuator, runbooks d'incidents opérationnels et calendrier de maintenance.
 7. **Manuels Utilisateurs par Rôle :**
-   - [`docs/manuel/`](manuel/) : Manuels illustrés pas-à-pas pour les 5 profils (Invité, Client, Fournisseur, Agent, Administrateur).
+   - [`docs/manuel/`](../manuel) : Manuels illustrés pas-à-pas pour les 5 profils (Invité, Client, Fournisseur, Agent, Administrateur).
 8. **Standards Communautaires & Contribution :**
-   - [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`CHANGELOG.md`](../CHANGELOG.md), [`SECURITY.md`](../SECURITY.md), [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md) et gabarits d'issues/PR GitHub.
+   - [`CONTRIBUTING.md`](../../CONTRIBUTING.md), [`CHANGELOG.md`](../../CHANGELOG.md), [`SECURITY.md`](../../SECURITY.md), [`CODE_OF_CONDUCT.md`](../../CODE_OF_CONDUCT.md) et gabarits d'issues/PR GitHub.
 9. **Outillage d'Automatisation & Validation (Docs-as-Code) :**
    - `scripts/docs/gen_openapi.mjs` : Extraction et synchronisation automatique du contrat OpenAPI depuis les contrôleurs Spring.
    - `scripts/docs/gen_er.mjs` : Extraction automatique du modèle ER et du dictionnaire depuis les entités JPA.
@@ -1923,3 +1920,33 @@ Les phases suivantes font partie de la feuille de route globale d'Atlas Voyage e
 
 
 
+
+---
+
+## 43. Évolutions post-recette (9 novembre 2026)
+
+Revue de l'interface invité menée après la décision de sortie de recette du 2 novembre. Le détail figure dans `CHANGELOG.md` (section « Non publié »), `docs/recette/rapport_final_recette.md` (addendum) et `docs/recette/registre_anomalies.md` (`ANO-07` à `ANO-11`).
+
+### 43.1 Interface invité
+- Accueil : bandeau d'avis et de médias, bandeau de réassurance, bandeau d'appel à l'action et séparateur décoratif retirés.
+- Pied de page : logo et lien de connexion (ou d'espace) uniquement, sur toutes les pages ; pages 404 et 500 sans pied de page.
+- Pages supprimées : `a-propos.html`, `contact.html`, `faq.html`, `cgu.html`, `confidentialite.html`.
+- Connexion : bandeau « Connexion sécurisée », ligne d'introduction et crédit photo retirés ; « Mot de passe oublié ? » placé sur la ligne de « Se souvenir de moi ».
+
+### 43.2 Réservation et panier
+- Pas de panier invité : le lien « Panier » est réservé aux clients ; un invité est redirigé vers `connexion.html?redirect=…` puis ramené sur l'offre, avec ses dates et son nombre de voyageurs.
+
+### 43.3 Comptes et sécurité
+- Consentement à l'inscription retiré : case, champ `consent`, `consentAt` / `consentVersion` et colonnes (script `V15`). L'option `marketingOptIn` subsiste, sans écran.
+- « Se souvenir de moi » : choix transmis à l'API, enregistré avec le refresh token (`refresh_tokens.remember_me`) et conservé à chaque rotation.
+- Mot de passe : minimum de 12 caractères appliqué partout (`PasswordPolicy.MIN_LENGTH`) ; aide à la saisie compacte (5 règles visibles).
+
+### 43.4 Qualité
+- 399 tests backend au vert ; audit axe-core rejoué : 0 violation sur 11 pages ; sélecteur de devise corrigé (WCAG 2.5.3).
+- 16 namespaces i18n (`legal`, `faq`, `contact` supprimés).
+- Campagne E2E complète non rejouée : 38 scénarios depuis le retrait de `REC-INV-07`.
+
+### 43.5 Points ouverts
+- `ANO-10` : langue forcée en français et thème clair forcé ; aucun sélecteur de langue ni bouton de thème dans l'interface.
+- Règles de consentement et d'information à définir avant toute ouverture commerciale (`docs/recette/humain_a_realiser.md`, §5).
+- Rapports de recette et captures à regénérer à la prochaine campagne.

@@ -66,11 +66,6 @@ public class User {
 
     private java.time.LocalDateTime lockedUntil;
 
-    private java.time.LocalDateTime consentAt;
-
-    @Column(length = 50)
-    private String consentVersion;
-
     @Column(length = 5)
     private String preferredLanguage = "fr";
 
@@ -89,10 +84,6 @@ public class User {
     public void setFailedLoginAttempts(int failedLoginAttempts) { this.failedLoginAttempts = failedLoginAttempts; }
     public java.time.LocalDateTime getLockedUntil() { return lockedUntil; }
     public void setLockedUntil(java.time.LocalDateTime lockedUntil) { this.lockedUntil = lockedUntil; }
-    public java.time.LocalDateTime getConsentAt() { return consentAt; }
-    public void setConsentAt(java.time.LocalDateTime consentAt) { this.consentAt = consentAt; }
-    public String getConsentVersion() { return consentVersion; }
-    public void setConsentVersion(String consentVersion) { this.consentVersion = consentVersion; }
     public boolean isMarketingOptIn() { return marketingOptIn; }
     public void setMarketingOptIn(boolean marketingOptIn) { this.marketingOptIn = marketingOptIn; }
 

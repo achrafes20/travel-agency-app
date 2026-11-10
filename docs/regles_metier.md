@@ -15,7 +15,7 @@ Atlas Voyage gère 4 rôles d'utilisateurs distincts. L'accès est contrôlé pa
 | Domaine / Action | Public / Invité | CLIENT | SUPPLIER | AGENT | ADMIN | Source Code |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
 | Consultation catalogue & recherche | ✅ | ✅ | ✅ | ✅ | ✅ | `OfferController.list()`, `search()` |
-| Panier local / distant | ✅ (local) | ✅ (API) | ❌ | ❌ | ❌ | `CartController` |
+| Panier | ❌ (redirigé vers la connexion) | ✅ (API) | ❌ | ❌ | ❌ | `CartController` (`/api/cart/**` : `hasRole("CLIENT")`) |
 | Passer une réservation | ❌ | ✅ | ❌ | ❌ | ❌ | `BookingController.create()` |
 | Consulter une réservation | ❌ | ✅ (propriétaire) | ✅ (lignes propres) | ✅ (toutes) | ✅ (toutes) | `BookingController.get()` |
 | Annuler une réservation | ❌ | ✅ (>= 48 h) | ❌ | ✅ (avec motif) | ✅ (avec motif) | `BookingController.cancel()` |
@@ -85,7 +85,7 @@ Atlas Voyage gère 4 rôles d'utilisateurs distincts. L'accès est contrôlé pa
 ## 3. Panier, Codes Promotionnels & Bundles
 
 ### 3.1 Panier d'Achats (`Cart.java` & `CartItem.java`)
-- **Invité vs Client :** Un visiteur anonyme manipule un panier local (session client). Dès sa connexion, les articles sont migrés vers son panier persistant en base (*Source : `CartService.mergeCart()`*).
+- **Panier réservé aux clients :** Il n'existe pas de panier invité. L'API `/api/cart/**` n'est accessible qu'au rôle `CLIENT` (*Source : `SecurityConfig`*), et le lien « Panier » n'est affiché qu'aux clients connectés. Un invité qui clique sur « Ajouter au panier » ou « Réserver maintenant » est envoyé vers `connexion.html?redirect=…` ; après connexion ou inscription, il est ramené sur la même offre, avec les dates et le nombre de voyageurs saisis (paramètres `start`, `end`, `travelers`). Les rôles `SUPPLIER`, `AGENT` et `ADMIN` reçoivent un message d'information. Le paramètre `redirect` n'accepte qu'un nom de page du site (`^[\w-]+\.html(\?…)?$`), jamais une URL externe (*Source : `frontend/js/pages/connexion.page.js`*).
 - **Vérification de disponibilité :** L'ajout au panier vérifie que les dates demandées sont intégralement couvertes par une `OfferAvailability` active et que la quantité ne dépasse pas la capacité (*Source : `CartService.addItem()`*).
 - **Paiement à l'arrivée :** Si un article du panier interdit le paiement à l'arrivée (`allowsPayOnArrival = false`), le mode de paiement à l'arrivée est automatiquement désactivé pour la commande entière (*Source : `CartService.getCartSummary()`*).
 
@@ -154,9 +154,10 @@ Atlas Voyage gère 4 rôles d'utilisateurs distincts. L'accès est contrôlé pa
 ## 6. Sécurité des Comptes, Mots de Passe & RGPD
 
 ### 6.1 Politique de Mots de Passe (`PasswordPolicy.java`)
-- Longueur : Minimum **12 caractères**, maximum **128 caractères** (*Source : `@StrongPassword`*).
-- Complexité : Au moins 3 des 4 classes suivantes (majuscule, minuscule, chiffre, caractère spécial).
-- Exclusion : Rejet des 10 000 mots de passe les plus fréquents (`common-passwords.txt`) et des séquences contenant le nom ou l'e-mail de l'utilisateur.
+- Longueur : Minimum **12 caractères**, maximum **128 caractères** et **72 octets UTF-8** (limite de BCrypt). Le minimum est une constante unique (`PasswordPolicy.MIN_LENGTH`) appliquée à l'inscription, au changement, à la réinitialisation, à la création par un administrateur et à la validation des formulaires (*Source : `PasswordPolicy`, `@StrongPassword`*).
+- Complexité : Les **4 classes sont obligatoires** : au moins une minuscule, une majuscule, un chiffre et un caractère spécial.
+- Exclusion : Rejet des mots de passe courants (`common-passwords.txt` et liste intégrée à `PasswordPolicy`), de ceux qui contiennent l'adresse e-mail de l'utilisateur (ou sa partie avant `@`) et des caractères de contrôle.
+- Interface : l'aide à la saisie (`AccountUI.strength`) applique les mêmes règles et le même minimum de 12 caractères. Elle affiche en permanence les 5 règles à remplir ; les règles rares (e-mail contenu, mot de passe trop courant ou trop long) n'apparaissent qu'en cas de violation.
 - Hachage : **BCrypt avec coût 12** en production, coût 10 en dev (*Source : `app.security.password.bcrypt-cost`*).
 
 ### 6.2 Protection Anti-Brute-Force & Verrouillage
@@ -168,6 +169,13 @@ Atlas Voyage gère 4 rôles d'utilisateurs distincts. L'accès est contrôlé pa
 - **Droit d'accès et de portabilité :** `GET /api/users/me/export` renvoie l'intégralité des données personnelles en JSON téléchargeable.
 - **Droit à l'oubli :** `DELETE /api/users/me` avec confirmation par mot de passe. Les données nominatives sont irréversiblement pseudonymisées et le compte est anonymisé.
 - **Purge automatique :** Les comptes inactifs supprimés sont définitivement purgés de la base de données après un délai de **36 mois** (*Source : `AccountJobs.java`*).
+- **Consentement à l'inscription :** non demandé depuis le 9 novembre 2026. La case à cocher, les pages « Conditions Générales » et « Politique de Confidentialité » et les colonnes `users.consent_at` / `users.consent_version` ont été supprimées (script `scripts/migrations/V15__remember_me_and_drop_consent.sql`). L'inscription n'enregistre donc aucune preuve de consentement. L'option `marketingOptIn` subsiste en base mais n'est renseignée par aucun écran (toujours `false`). Ce choix devra être réexaminé avant toute ouverture commerciale (voir `recette/humain_a_realiser.md`, §5).
+
+### 6.4 Sessions & « Se souvenir de moi »
+- **Jetons :** le jeton d'accès (cookie `HttpOnly`) dure **15 minutes** (`app.jwt.access-ttl-seconds`) ; le jeton de rafraîchissement (cookie `HttpOnly`, chemin `/api/auth`) est tourné à chaque utilisation, avec détection de rejeu qui révoque toute la famille de jetons.
+- **Case « Se souvenir de moi » (cochée par défaut) :** le formulaire de connexion envoie `rememberMe` à `POST /api/auth/login` (valeur par défaut `true` côté API). Cochée, le cookie de rafraîchissement est **persistant** et dure `app.jwt.refresh-ttl-days` jours (**7** par défaut). Décochée, c'est un **cookie de session**, supprimé à la fermeture du navigateur.
+- **Conservation du choix :** il est enregistré avec le jeton (`refresh_tokens.remember_me`) et repris à chaque rotation ; un cookie de session ne devient donc jamais persistant lors d'un rafraîchissement (*Source : `RefreshTokenService.rotateRefreshToken()`, test `SecurityPhase10Test.rememberMeChoiceSurvivesTokenRefresh`*). L'inscription ouvre toujours une session persistante.
+- **Côté navigateur :** le profil de l'utilisateur est conservé dans `localStorage` si la case est cochée, dans `sessionStorage` sinon (donc perdu à la fermeture de l'onglet).
 
 ---
 

@@ -62,7 +62,7 @@ try{
   await context.addInitScript(({api,session})=>{window.APP_CONFIG={apiBase:api};sessionStorage.setItem("atlas-token",session.token);sessionStorage.setItem("atlas-user",JSON.stringify(session.user));},{api:apiBase,session:fresh});
   const empty=await context.newPage();await empty.goto(base+"/client/index.html?page=dashboard",{waitUntil:"networkidle"});
   await empty.getByText("Aucune réservation sur cette période.",{exact:true}).waitFor();
-  await empty.getByRole("link",{name:"Découvrir les offres",exact:true}).waitFor();checks.push("Vrai compte vide : zéro réservation, prochain voyage vide et lien catalogue public");
+  await empty.getByText("Mon prochain voyage",{exact:true}).waitFor({state:"detached"});checks.push("Vrai compte vide : zéro réservation et aucun panneau « prochain voyage »");
  }
  const fallback=await session("omar.tazi@atlasvoyage.ma","admin",{blockChart:true});
  await fallback.page.locator(".st-charts").getByText("Le graphique est indisponible.",{exact:false}).first().waitFor();assert.equal(await fallback.page.locator(".st-kpi-value").count(),6);

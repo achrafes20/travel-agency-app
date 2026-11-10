@@ -19,7 +19,7 @@ Ce dossier rassemble les guides opératoires complets, illustrés par des captur
 
 | Manuel | Rôle Cible | Accès URL | Fonctionnalités Clés |
 |---|---|---|---|
-| [**Guide Visiteur & Invité**](invite.md) | Grand public non authentifié | [`/frontend/accueil.html`](http://127.0.0.1:5500/frontend/accueil.html) | Découverte du catalogue, recherche multi-critères, consultation détaillée, sélection de dates, devises et langues. |
+| [**Guide Visiteur & Invité**](invite.md) | Grand public non authentifié | [`/frontend/accueil.html`](http://127.0.0.1:5500/frontend/accueil.html) | Découverte du catalogue, filtres, consultation détaillée, devise d'affichage, connexion et création de compte. |
 | [**Manuel Client**](client.md) | Voyageur particulier (`CLIENT`) | [`/frontend/client/index.html`](http://127.0.0.1:5500/frontend/client/index.html) | Panier connecté, tunnel de commande en 4 étapes, téléchargement des vouchers PDF avec QR code, billetterie support SAV, avis après séjour, gestion du profil et RGPD. |
 | [**Manuel Fournisseur**](fournisseur.md) | Partenaire hôtelier, aérien, loueur, transporteur, guide (`SUPPLIER`) | [`/frontend/supplier/index.html`](http://127.0.0.1:5500/frontend/supplier/index.html) | Wizard de création d'offres en 4 étapes, gestion fine du calendrier des disponibilités datées, réponse aux avis clients, tableau de bord des ventes et export CSV. |
 | [**Manuel Agent**](agent.md) | Conseiller commercial en agence (`AGENT`) | [`/frontend/agent/index.html`](http://127.0.0.1:5500/frontend/agent/index.html) | Encaissement d'espèces en agence (avec reçu comptable), création et gestion des packages touristiques (bundles), assistance client et traitement des tickets SAV. |
@@ -32,7 +32,7 @@ Ce dossier rassemble les guides opératoires complets, illustrés par des captur
 | Écran / Page | Invité | Client | Fournisseur | Agent | Admin |
 |---|:---:|:---:|:---:|:---:|:---:|
 | Consultation Catalogue & Détail Offre | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Panier & Finalisation Réservation | ✅ (invite) | ✅ | ❌ | ❌ | ❌ |
+| Panier & Finalisation Réservation | ❌ (redirigé vers la connexion) | ✅ | ❌ | ❌ | ❌ |
 | Téléchargement Voucher PDF & QR | ❌ | ✅ (ses commandes) | ❌ | ✅ | ✅ |
 | Création & Modification d'Offres | ❌ | ❌ | ✅ (sa catégorie) | ❌ | ✅ (modération) |
 | Encaissement Espèces en Agence | ❌ | ❌ | ❌ | ✅ | ✅ |

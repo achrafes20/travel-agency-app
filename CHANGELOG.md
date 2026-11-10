@@ -5,6 +5,69 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ---
 
+## [Non publié] - 2026-11-09 (Revue de l'interface invité)
+
+### Ajouté
+- **Lien « Toutes les offres »** dans la barre de navigation de toutes les pages publiques (premier élément, icône grille) : il ouvre `catalogue.html` sans filtre de type, alors que les cinq entrées de catégories ouvraient chacune un catalogue filtré et que rien ne menait au catalogue complet. Mis en surbrillance sur le catalogue non filtré ; la barre défile déjà horizontalement sur mobile.
+- **Retour sur l'offre après connexion :** un invité qui clique sur « Ajouter au panier » ou « Réserver maintenant » est envoyé vers `connexion.html?redirect=…` avec un message d'invitation ; après connexion ou inscription, il retrouve la même offre avec ses dates et son nombre de voyageurs. Le paramètre `redirect` n'accepte qu'un nom de page du site.
+- **Aide à la saisie du mot de passe compacte** (inscription, changement et réinitialisation) : 5 règles visibles, barre à 0/5 au départ, règles rares affichées seulement en cas de violation, texte pour lecteurs d'écran et `aria-describedby`.
+- **Script `scripts/migrations/V15__remember_me_and_drop_consent.sql`** (idempotent) : ajoute `refresh_tokens.remember_me`, supprime `users.consent_at` et `users.consent_version`. Voir `docs/migrations.md`.
+- **Tests :** `PasswordPolicyTest` (11 caractères refusés partout) et `SecurityPhase10Test.rememberMeChoiceSurvivesTokenRefresh` (cookies de session et persistants, avant et après rafraîchissement) : suite backend à **399 tests**.
+- Registre des anomalies : `ANO-07` à `ANO-18` ; exigence `REQ-TRA-17` (consentement) retirée et tracée.
+
+### Modifié
+- **Accueil :** bandeau d'avis et de médias, bandeau de réassurance, bandeau d'appel à l'action et séparateur décoratif retirés.
+- **Pied de page :** réduit au logo et au lien de connexion (ou d'espace), aligné verticalement, sur toutes les pages ; slogan et mention « © 2026 … Conforme WCAG 2.1 AA » retirés ; pied de page des pages 404 et 500 retiré.
+- **Page de connexion :** bandeau « Connexion sécurisée et chiffrée », ligne « Connectez-vous pour accéder à votre espace » et crédit photo retirés ; « Mot de passe oublié ? » placé sur la ligne de « Se souvenir de moi » ; champ mot de passe de l'inscription : placeholder simplifié.
+- **Panier :** réservé aux clients ; le lien n'apparaît plus pour les invités ni pour les autres rôles.
+- **Mot de passe :** minimum de 12 caractères appliqué dans l'interface (auparavant 10) et centralisé côté serveur dans `PasswordPolicy.MIN_LENGTH`.
+- **Espace client (revue du 9 novembre) :**
+  - Fiche de réservation (fenêtre « Voir ») : bloc « Paiement de la réservation » (bandeau jaune « MODE SANDBOX — aucun débit réel », carte « PAIEMENT #… », bouton « Historique et opérations »), commentaire « L’annulation client dépend du délai applicable… » et adresse e-mail à côté du nom retirés pour le client ; il ne reste que le statut de paiement déjà affiché dans la fiche et, tant que la réservation est à régler, le bouton « Payer maintenant ». Le bandeau sandbox reste sur la page de paiement. Les espaces fournisseur, agent et administrateur conservent le bloc complet (l'historique y donne accès aux opérations et remboursements).
+  - Fiche de réservation, tous espaces : « Méthode » et « Paiement » sont deux éléments séparés (espace de 32 px) au lieu d'une ligne séparée par un point.
+  - Tableau de bord : ligne « Du … au … · fuseau · actualisé le … », toutes les mentions « Période précédente : … » (avec ou sans « aucune base de variation »), bouton « Actualiser » (les boutons 7 jours, 30 jours et 12 mois rechargent déjà les données), panneaux « Mon prochain voyage » et « Notifications non lues » retirés ; la ligne de variation (« En hausse de … % ») est conservée ; « Mes dernières réservations » occupe toute la largeur (cinq colonnes visibles sans défilement ni retour à la ligne des statuts).
+  - « Mes réservations » : surtitre « VOS VOYAGES ATLAS VOYAGE » et filtre « Tri » retirés (ordre inchangé : plus récentes d'abord, valeur par défaut du serveur).
+  - Menu latéral : entrée « Notifications » retirée (la page reste accessible par la cloche, « Voir toutes les notifications ») ; « Mes favoris » placé après « Mon panier ».
+  - Panier : sous-titre « Vérifiez les détails avant de poursuivre votre réservation. » et compteur d'articles (« 0 article ») retirés ; le bouton « Découvrir les offres » du panier vide, les boutons « Retour au catalogue » et l'ancienne route `?page=catalogue` ouvrent désormais le catalogue (`catalogue.html`) au lieu de l'accueil.
+  - Ces retraits sont limités au rôle client : les tableaux de bord et la liste des réservations des autres rôles partagent le même code (`stats.js`, `bookings.js`) et sont inchangés. L'API `/api/stats/client` renvoie toujours `nextTrip` et `notifications`.
+  - **Tailwind retiré de l'espace client** : le script `cdn.tailwindcss.com` n'est plus chargé par `client/index.html` (plus de dépendance à un CDN, et la page fonctionne hors ligne). Les classes utilitaires encore utilisées sont définies localement : `css/tickets.css` (module des tickets, limité à `.tk-ui`, valeurs identiques à celles de Tailwind) et `css/client.css` (`relative`, `hidden`, `p-8`, `text-center`, `text-slate-500`), avec une remise à zéro équivalente à celle de Tailwind (sélecteurs `:where()`, composants `av-*` exclus). Vérifié par comparaison de 23 états de l'espace client (tableau de bord, réservations et leur fiche, panier, favoris, tickets, profil, notifications, menus, version mobile) avant et après : aucun élément déplacé ni redimensionné ; seules différences, voulues : menu des devises lisible, texte blanc du lien d'évitement.
+  - Captures `docs/assets/screenshots/client/01-dashboard.png` et `02-reservations.png` refaites avec une vraie session (l'ancienne capture du tableau de bord affichait « Statistiques indisponibles »).
+- **Documentation :** manuel Visiteur réécrit avec de nouvelles captures, règles métier (§3.1, §6), matrice de traçabilité, cahiers de recette, registre des anomalies, rapport et décision de recette (addendums), état des traductions, accessibilité, README, data dictionary (régénéré). Les corrections d'erreurs antérieures de la documentation figurent ci-dessous.
+
+### Supprimé
+- Pages `a-propos.html`, `contact.html`, `faq.html`, `cgu.html`, `confidentialite.html`, leurs liens et leurs dictionnaires i18n (`faq`, `contact`, `legal` ; 19 → 16 namespaces), ainsi que les clés devenues inutiles (`common.footer`, `home.socialProof`).
+- **Consentement à l'inscription :** case à cocher, champ `consent` (et son `@AssertTrue`), `consentAt` / `consentVersion` (entité, inscription, export RGPD) et leurs colonnes. L'endpoint `/api/contact` est conservé mais n'a plus d'écran.
+- Panier invité stocké dans `localStorage` (`atlas-cart`).
+- Règles CSS mortes des sections retirées de l'accueil (`.trust*`, `.feature-banner*`, `.social-proof`, `.sp-*`, `.zellige-divider`) : 26 règles de `frontend/css/style.css`. Les gabarits et images zellige, utilisés ailleurs, sont conservés. Vérifié par empreinte de mise en page : accueil, catalogue, offre, panier, 404 et 500 identiques avant et après, à 1280 et 390 px.
+- **Nettoyage du dépôt (9 novembre 2026) :**
+  - Fichiers inutilisés supprimés : `frontend/images/zellige-vrai.webp` (250 Ko), `docs/design/screenshots/before/test.png` (1 Mo, capture parasite), `CartItemRepository` (aucun usage), `frontend/js/mock/demo-data.js` (exposait `AtlasMockData`, que rien ne lisait ; ses 4 balises `<script>` retirées) et la page de démonstration `frontend/design-system/index.html` (non liée).
+  - Doublons de migrations supprimés : `docs/legacy-migrations/` (9 scripts strictement identiques à ceux de `legacy-sql`) et `backend/scripts/migrations/` (4 scripts dont le SQL est équivalent à `scripts/migrations/V3` à `V6`). L'archive `docs/legacy-sql/` devient `docs/archive/sql-historique/`, avec un README corrigé (l'ancien annonçait à tort des migrations Flyway V1 à V10). `docs/migrations.md` pointe désormais vers `scripts/migrations/`.
+  - **Documents archivés** dans `docs/archive/`, avec bannière « non maintenu » et liens corrigés : `ETAT_COMPLET_PROJET.md` et les rapports des phases 1 à 6, 9 et 10. L'état courant se lit dans ce CHANGELOG, le README et les documents de référence de `docs/`.
+- Scénario E2E `REC-INV-07` : **38 scénarios** au lieu de 39. `REC-INV-04` et `REC-AUT-01` sont réécrits pour contrôler le nouveau comportement.
+
+### Corrigé
+- **« Se souvenir de moi » sans effet côté serveur** (`ANO-08`) : la case est envoyée à l'API et le choix est conservé à chaque rotation du refresh token.
+- **Minimum du mot de passe incohérent** (`ANO-07`) : l'interface acceptait 10 et 11 caractères, que l'API refusait.
+- **Panier invité perdu silencieusement** (`ANO-09`).
+- **Titre « Le Maroc vous attend. » de la page de connexion illisible** (texte foncé sur la photo sombre : le design system impose une couleur aux titres) : forcé en blanc.
+- **Avis des voyageurs absents de la fiche d'offre** (`ANO-12`) : `frontend/js/shared/reviews.js` importait `{ Api }` depuis `js/core/api.js`, qui n'a aucun export (script classique définissant la constante `api`) ; le module échouait à son chargement et la section d'avis restait vide. L'import est retiré, le module utilise la constante globale `api`.
+- **Marqueur de la carte Leaflet en 404** (`ANO-13`) : `marker-icon.png` et `marker-shadow.png` sont déplacés de `frontend/vendor/leaflet/` vers `frontend/vendor/leaflet/images/`, où Leaflet les cherche. Les deux corrections sont vérifiées dans Chrome (invité et client connecté) : aucune erreur JS, aucune réponse 404.
+- **Bouton du panier vide déformé** (`ANO-14`) : la règle `.empty-state span` de `client.css` transformait le libellé de tout bouton d'un état vide en pastille de 64 px ; elle est limitée à `.empty-state > span`. Corrige aussi « Réessayer », « Retour au catalogue » et « Réinitialiser les filtres ».
+- **Menu du sélecteur de devise illisible dans l'espace client** (`ANO-15`, texte blanc sur fond blanc) : cause levée en retirant Tailwind de cette page (son reset, hors de toute couche CSS, écrasait les styles du design system). **Reste ouvert pour l'espace fournisseur**, où Tailwind est encore chargé et où le même défaut est constaté ; l'espace agent et l'espace administrateur ne sont pas touchés.
+- **« Réinitialiser » de la liste des réservations laissait le filtre de statut actif** (`ANO-16`) : le champ caché `status` est vidé. Code partagé : corrigé aussi pour les espaces fournisseur, agent et administrateur.
+- **Écran des tickets de l'espace administrateur** : l'administrateur ne chargeant pas Tailwind, ses classes utilitaires n'avaient aucun effet (en-tête non aligné, couleurs d'introduction manquantes) ; les nouveaux utilitaires locaux de `tickets.css` lui donnent la mise en page prévue, identique à celle des espaces client et agent. Le tableau reste plus large que l'écran (défilement horizontal), comme avant.
+- **Étoiles du module d'avis sans rôle** (`ANO-17`) : `role="img"` ajouté aux conteneurs d'étoiles (note moyenne et avis) de `js/shared/reviews.js` ; axe : 0 violation sur la fiche d'offre, avec et sans avis.
+- **Accessibilité** (`ANO-11`) : nom accessible du sélecteur de devise (WCAG 2.5.3) ; audit axe-core rejoué, 0 violation sur 11 pages.
+- Affichage de la clé brute `footer.slogan` dans le pied de page (clé i18n sans namespace) ; le pied de page n'utilise plus de traduction.
+- Erreurs de la documentation : politique de mot de passe (4 classes obligatoires, et non « 3 sur 4 » ; liste noire de quelques dizaines d'entrées, et non 10 000), fonction `CartService.mergeCart()` citée mais inexistante, lien d'audit pointant vers un disque local, compteurs de traductions.
+
+### Connu / ouvert
+- `ANO-10` : la langue est forcée en français et le thème en clair ; aucun sélecteur n'est affiché. Les fonctionnalités trilingue (FR/EN/AR, RTL) et thème sombre annoncées par la documentation ne sont donc pas accessibles dans l'interface (annotées dans le README et les guides).
+- `ANO-18` : le script d'audit axe-core n'ouvre pas de session et utilise un identifiant d'offre inexistant : son « 0 violation sur 11 pages » ne couvre ni les espaces connectés (redirigés vers la page de connexion) ni la vraie fiche d'offre. Un balayage de l'espace client y trouve des défauts de contraste sur toutes les pages et deux listes sans nom accessible (tickets). README, `accessibilite.md` et la checklist technique précisent le périmètre ; en attente de décision.
+- `ANO-15` : menu du sélecteur de devise illisible dans l'espace **fournisseur** (corrigé pour l'espace client). Tailwind est encore chargé par les espaces fournisseur (une centaine de classes utilitaires par écran : réécriture importante) et agent (7 classes de mise en page, plus le module des tickets) ; à traiter lors de la revue de ces espaces.
+- La campagne E2E complète n'a pas été rejouée depuis ces changements ; les captures de `docs/recette/preuves/` datent du 2 novembre.
+
+---
+
 ## [1.17.0-rc1] - 2026-11-02 (Phase 17 : Recette Finale & Démonstration)
 
 ### Ajouté

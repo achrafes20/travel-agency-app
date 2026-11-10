@@ -1,9 +1,13 @@
 # Rapport de Réalisation — Phase 10 : Sécurité et Robustesse (OWASP Top 10)
 
+> **Archive — document historique.** Ce document décrit l'état et le travail réalisés à une date donnée. Il est conservé tel quel (hors liens corrigés lors de son déplacement le 9 novembre 2026) et **n'est plus mis à jour**. Pour l'état courant : [README](../../README.md), [règles métier](../regles_metier.md), [architecture](../architecture.md), [CHANGELOG](../../CHANGELOG.md).
+
 Date : Novembre 2026  
 Projet : **Atlas Voyage** (Plateforme de voyage marocaine)  
 Auteur : Ingénieur Sécurité / Full-Stack Senior  
 Périmètre : Backend Java 21 / Spring Boot 3.3.4 & Frontend Vanilla JS  
+
+> **Note du 9 novembre 2026 :** ce rapport décrit la livraison de la Phase 10 et n'est pas réécrit. Quatre points ne sont plus d'actualité : le consentement à l'inscription, les pages `cgu.html` / `confidentialite.html` et les champs `consentAt` / `consentVersion` ont été retirés ; la politique de mot de passe exige les **4 classes** de caractères (et non 3 sur 4) avec une liste noire courte (et non 10 000 mots de passe) ; la case « Se souvenir de moi » est désormais prise en compte côté serveur (ADR-0005, §5). Les règles en vigueur sont dans `docs/regles_metier.md`, §6.
 
 ---
 

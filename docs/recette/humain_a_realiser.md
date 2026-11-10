@@ -92,6 +92,6 @@ Assurer la stricte conformité légale de la plateforme Atlas Voyage avec la **L
 ### Actions Règlementaires Requises
 - [ ] **Dépôt du Dossier de Déclaration** : Remplir et déposer auprès de la **CNDP (Commission Nationale de contrôle de la protection des Données à caractère Personnel)** la déclaration préalable de traitement automatisé de données pour la gestion de la clientèle et des réservations de voyage.
 - [ ] **Mention Légale CNDP** : Intégrer sur le site public et sur le formulaire d'inscription le numéro de récépissé délivré par la CNDP.
-- [ ] **Registre des Consentements** : Vérifier que la base de données archive la preuve horodatée de l'acceptation expresse des CGU par chaque utilisateur lors de son inscription.
+- [ ] **Consentement et information à l'inscription (dispositif retiré le 9 novembre 2026)** : la case à cocher, les pages « Conditions Générales » et « Politique de Confidentialité » et les colonnes `users.consent_at` / `users.consent_version` ont été supprimées ; l'inscription n'archive plus aucune preuve de consentement. Avant l'ouverture commerciale, déterminer avec le conseiller juridique le dispositif d'information et de consentement attendu par la CNDP, puis le rétablir (page d'information, case à cocher, preuve horodatée archivée). Voir l'exigence `REQ-TRA-17` de la matrice de traçabilité.
 - [ ] **Procédure de Droit à l'Oubli** : Formaliser la procédure interne permettant à un client d'exiger la suppression ou l'anonymisation de son compte conformément aux directives de la CNDP.
 

@@ -28,7 +28,7 @@ Ce dossier rassemble les guides opératoires complets, illustrés par des captur
 
 | Manuel | Rôle Cible | Accès URL | Fonctionnalités Clés |
 |---|---|---|---|
-| [**Guide Visiteur & Invité**](invite.md) | Grand public non authentifié | [\`/frontend/accueil.html\`](http://127.0.0.1:5500/frontend/accueil.html) | Découverte du catalogue, recherche multi-critères, consultation détaillée, sélection de dates, devises et langues. |
+| [**Guide Visiteur & Invité**](invite.md) | Grand public non authentifié | [\`/frontend/accueil.html\`](http://127.0.0.1:5500/frontend/accueil.html) | Découverte du catalogue, filtres, consultation détaillée, devise d'affichage, connexion et création de compte. |
 | [**Manuel Client**](client.md) | Voyageur particulier (\`CLIENT\`) | [\`/frontend/client/index.html\`](http://127.0.0.1:5500/frontend/client/index.html) | Panier connecté, tunnel de commande en 4 étapes, téléchargement des vouchers PDF avec QR code, billetterie support SAV, avis après séjour, gestion du profil et RGPD. |
 | [**Manuel Fournisseur**](fournisseur.md) | Partenaire hôtelier, aérien, loueur, transporteur, guide (\`SUPPLIER\`) | [\`/frontend/supplier/index.html\`](http://127.0.0.1:5500/frontend/supplier/index.html) | Wizard de création d'offres en 4 étapes, gestion fine du calendrier des disponibilités datées, réponse aux avis clients, tableau de bord des ventes et export CSV. |
 | [**Manuel Agent**](agent.md) | Conseiller commercial en agence (\`AGENT\`) | [\`/frontend/agent/index.html\`](http://127.0.0.1:5500/frontend/agent/index.html) | Encaissement d'espèces en agence (avec reçu comptable), création et gestion des packages touristiques (bundles), assistance client et traitement des tickets SAV. |
@@ -41,7 +41,7 @@ Ce dossier rassemble les guides opératoires complets, illustrés par des captur
 | Écran / Page | Invité | Client | Fournisseur | Agent | Admin |
 |---|:---:|:---:|:---:|:---:|:---:|
 | Consultation Catalogue & Détail Offre | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Panier & Finalisation Réservation | ✅ (invite) | ✅ | ❌ | ❌ | ❌ |
+| Panier & Finalisation Réservation | ❌ (redirigé vers la connexion) | ✅ | ❌ | ❌ | ❌ |
 | Téléchargement Voucher PDF & QR | ❌ | ✅ (ses commandes) | ❌ | ✅ | ✅ |
 | Création & Modification d'Offres | ❌ | ❌ | ✅ (sa catégorie) | ❌ | ✅ (modération) |
 | Encaissement Espèces en Agence | ❌ | ❌ | ❌ | ✅ | ✅ |
@@ -53,7 +53,7 @@ Ce dossier rassemble les guides opératoires complets, illustrés par des captur
 const invite = `# Guide Utilisateur — Visiteur & Invité
 
 > **Statut :** ✅ Implémenté  
-> **Date de mise à jour :** 2026-11-01  
+> **Date de mise à jour :** 2026-11-09  
 > **Profil :** Visiteur non authentifié (Grand Public)  
 > **Point d'entrée :** \`http://127.0.0.1:5500/frontend/accueil.html\`
 
@@ -61,14 +61,20 @@ const invite = `# Guide Utilisateur — Visiteur & Invité
 
 ## 1. Parcours de Découverte
 
-En tant que visiteur d'Atlas Voyage, vous pouvez explorer librement l'intégralité du catalogue touristique marocain sans obligation de créer un compte préalable.
+En tant que visiteur d'Atlas Voyage, vous pouvez explorer librement l'intégralité du catalogue touristique marocain sans créer de compte. Un compte client n'est nécessaire qu'au moment de réserver (voir §4).
 
 ![Page d'accueil Atlas Voyage](../assets/screenshots/invite/01-accueil.png)
 
-### Actions Principales depuis l'Accueil :
-1. **Recherche rapide :** Sélectionnez votre destination (Marrakech, Agadir, Fès, Tanger, Casablanca...), votre type de séjour et vos dates de voyage.
-2. **Sélecteur de langue & devise :** En haut à droite, basculez entre Français (\`FR\`), Anglais (\`EN\`) ou Arabe (\`AR\` avec affichage RTL) et choisissez votre devise indicative de consultation (MAD, EUR, USD, GBP).
-3. **Thème d'affichage :** Activez le mode sombre (icône Lune) ou clair selon votre confort visuel.
+### Ce que propose l'accueil :
+1. **Barre de navigation :** « Toutes les offres » ouvre le catalogue complet (toutes les offres, avec les filtres de prix, de type, d'étoiles et de ville) ; Hôtels & Riads, Vols, Location de voiture, Taxi/Transferts et Excursions ouvrent le catalogue filtré sur la catégorie choisie.
+2. **Cartes de catégories :** les mêmes catégories sous forme de grandes cartes, juste sous l'image d'accueil.
+3. **Offres disponibles :** un aperçu des offres actives pour les hôtels et riads, les vols, les locations de voiture et les taxis/transferts, avec un lien « Voir toutes les offres » vers le catalogue.
+4. **Sélecteur de devise :** en haut à droite, choisissez la devise d'affichage indicative (MAD, EUR, USD ou GBP). Le paiement reste toujours en dirhams (MAD).
+5. **Connexion :** le bouton « Se connecter » donne accès à votre compte ; une fois connecté, il devient le raccourci vers votre espace.
+
+Le pied de page se limite au logo et au lien de connexion.
+
+> **À savoir :** l'interface est actuellement affichée en **français** et en **thème clair** uniquement. Le moteur de traduction (FR / EN / AR avec affichage de droite à gauche) et le thème sombre existent dans le code mais sont désactivés (\`detectInitialLang\` dans \`frontend/js/shared/i18n.js\`, \`frontend/js/shared/theme.js\`) : aucun sélecteur de langue ni bouton de thème n'est affiché aux visiteurs.
 
 ---
 
@@ -90,25 +96,51 @@ Le catalogue regroupe l'ensemble des offres publiées et validées par les modé
 Sur la fiche détaillée de la prestation :
 1. **Galerie photos & Lightbox :** Cliquez sur les images pour ouvrir la visionneuse plein écran avec zoom et défilement clavier/tactile.
 2. **Carte interactive (Leaflet) :** Localisez précisément l'hôtel ou le point de départ de l'excursion.
-3. **Sélection de période :** Le calendrier interactif affiche uniquement les dates disposant d'une capacité disponible.
-4. **Ajout au panier :** Choisissez le nombre de personnes et cliquez sur **« Ajouter au panier »**.
+3. **Disponibilités :** La fiche indique la prochaine période disponible ; seules les dates disposant d'une capacité sont réservables.
+4. **Réserver :** Choisissez vos dates et le nombre de voyageurs, puis cliquez sur **« Ajouter au panier »** ou **« Réserver maintenant »**. Ces deux actions sont **réservées aux comptes clients** : en tant que visiteur, vous êtes dirigé vers la page de connexion (voir §4).
 
 ---
 
-## 4. Panier & Connexion
+## 4. Réserver : se connecter ou créer un compte
 
-![Panier d'achats](../assets/screenshots/invite/04-panier.png)
+Il n'existe **pas de panier pour les visiteurs** : le lien « Panier » n'apparaît dans l'en-tête qu'une fois connecté avec un compte client.
 
-Le panier conserve vos articles sélectionnés. Pour valider votre commande et procéder au paiement ou à la réservation avec paiement sur place, la plateforme vous invite à vous connecter ou à créer votre compte en 1 minute.
+Lorsque vous cliquez sur « Ajouter au panier » ou « Réserver maintenant » sans être connecté, la plateforme vous envoie vers la page de connexion avec le message « Connectez-vous ou créez un compte pour réserver cette offre ».
 
-![Écran de connexion et inscription](../assets/screenshots/invite/05-connexion.png)
+![Connexion depuis une offre](../assets/screenshots/invite/04-connexion-reservation.png)
+
+Une fois connecté (ou votre compte créé), vous êtes **ramené sur la même offre**, avec les dates et le nombre de voyageurs que vous aviez saisis, et vous pouvez alors l'ajouter à votre panier.
+
+### Page de connexion
+
+![Écran de connexion](../assets/screenshots/invite/05-connexion.png)
+
+- **Se souvenir de moi** (cochée par défaut) : votre session est conservée **7 jours** (durée par défaut, paramétrable côté serveur), y compris après la fermeture du navigateur. Décochée, la session n'est pas conservée : elle prend fin à la fermeture du navigateur, et l'interface vous déconnecte dès la fermeture de l'onglet. À décocher sur un ordinateur partagé.
+- **Mot de passe oublié ?** : ce lien, placé à droite de « Se souvenir de moi », mène à la demande de réinitialisation du mot de passe, envoyée par e-mail.
+- Après cinq échecs de connexion consécutifs, le compte est verrouillé temporairement.
+
+---
+
+## 5. Créer un compte
+
+![Création de compte avec l'aide à la saisie du mot de passe](../assets/screenshots/invite/06-inscription.png)
+
+L'onglet **« Créer un compte »** demande votre nom complet, votre adresse e-mail et un mot de passe. Aucune case à cocher n'est demandée à l'inscription.
+
+Le mot de passe doit respecter les règles suivantes :
+- **12 caractères minimum** ;
+- au moins **une minuscule**, **une majuscule**, **un chiffre** et **un caractère spécial**.
+
+Une aide apparaît dès que vous cliquez dans le champ : la barre se remplit et chaque règle passe au vert (✓) quand elle est respectée. Trois autres règles ne s'affichent que si elles sont enfreintes, en rouge sous la liste : le mot de passe ne doit pas contenir votre adresse e-mail, ne doit pas être un mot de passe courant, et ne doit pas dépasser 72 octets.
+
+Le bouton « Créer mon compte » vous connecte immédiatement : vous arrivez dans votre espace client, ou sur l'offre que vous consultiez si vous veniez de la page d'une offre.
 `;
 
 // 3. client.md
 const client = `# Manuel Utilisateur — Espace Client
 
 > **Statut :** ✅ Implémenté  
-> **Date de mise à jour :** 2026-11-01  
+> **Date de mise à jour :** 2026-11-09  
 > **Profil :** Voyageur particulier (\`ROLE_CLIENT\`)  
 > **Point d'entrée :** \`http://127.0.0.1:5500/frontend/client/index.html\`
 
@@ -116,13 +148,13 @@ const client = `# Manuel Utilisateur — Espace Client
 
 ## 1. Tableau de Bord Client
 
-Dès votre connexion, votre espace client vous présente une vue synthétique de vos projets de voyage :
+Dès votre connexion, votre espace client vous présente une vue synthétique de votre activité :
 
 ![Tableau de bord Client](../assets/screenshots/client/01-dashboard.png)
 
-- **Indicateurs clés :** Nombre de réservations à venir, séjours terminés, solde des devis et points d'attention.
-- **Raccourcis rapides :** Accès direct au catalogue, à vos vouchers PDF et à vos tickets de support.
-- **Cloche de notifications :** Alertes de confirmation de commande, rappels de séjour à J-3 et réponses du support client.
+- **Indicateurs clés :** nombre total de réservations et montant net payé, puis, pour la période choisie (**7 jours**, **30 jours** ou **12 mois**), nombre de réservations et montant net payé, avec la variation par rapport à la période précédente lorsqu'elle existe.
+- **Mes dernières réservations :** les cinq plus récentes (référence, date de service, statut, montant TTC) ; la référence ouvre le détail de la réservation.
+- **Cloche de notifications :** alertes de confirmation de commande, rappels de séjour à J-3 et réponses du support client. **« Voir toutes les notifications »** ouvre la page complète, qui contient aussi vos préférences d'e-mail (le menu latéral n'a pas d'entrée « Notifications »).
 
 ---
 
@@ -130,8 +162,8 @@ Dès votre connexion, votre espace client vous présente une vue synthétique de
 
 ![Mes Réservations](../assets/screenshots/client/02-reservations.png)
 
-Dans l'onglet **« Mes Réservations »** :
-1. **Détail de la commande :** Référence unique (\`BK-AAAA-NNNNNN\`), liste des prestations, dates exactes et statut financier.
+Dans l'onglet **« Mes Réservations »**, la liste est triée de la plus récente à la plus ancienne ; vous pouvez la filtrer par statut (onglets), par référence et par plage de dates :
+1. **Détail de la commande :** Référence unique (\`BK-AAAA-NNNNNN\`), liste des prestations, dates exactes, méthode et statut de paiement. Tant que la réservation est à régler, le bouton **« Payer maintenant »** apparaît sous la fiche.
 2. **Téléchargement du Voucher PDF :** Cliquez sur l'icône Document pour générer votre bon d'échange officiel avec QR code signé cryptographiquement. À présenter au fournisseur lors de votre arrivée.
 3. **Annulation en ligne :**
    - **> 48 heures avant le début :** Annulation gratuite avec remboursement intégral automatique.
@@ -169,7 +201,7 @@ En cas de question ou de demande de modification sur un voyage :
 
 Dans l'onglet **« Mon Compte »** :
 - **Préférences régionales :** Choisissez votre langue préférée (FR, EN, AR) et devise par défaut.
-- **Sécurité :** Changement de mot de passe renforcé (12 caractères minimum, 3 classes).
+- **Sécurité :** Changement de mot de passe renforcé (12 caractères minimum, 4 classes obligatoires : minuscule, majuscule, chiffre, caractère spécial).
 - **Protection des données (Loi 09-08 / RGPD) :**
   - **Exportation des données :** Téléchargez une copie intégrale au format JSON de toutes vos informations enregistrées.
   - **Suppression du compte :** Demandez l'anonymisation irréversible et la suppression de votre compte conformément à la loi.

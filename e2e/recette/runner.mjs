@@ -66,7 +66,7 @@ try {
     await new Promise(r => setTimeout(r, 600));
     const proof = 'REC-INV-01-accueil.png';
     await page.screenshot({ path: path.join(preuvesDir, proof) });
-    recordTest('REC-INV-01', 'Affichage de l accueil neutre et sélecteurs de langue/thème', 'INVITE', '✅ Réussi', proof);
+    recordTest('REC-INV-01', 'Affichage de l accueil neutre et sélecteur de devise', 'INVITE', '✅ Réussi', proof);
   } catch (err) {
     recordTest('REC-INV-01', 'Affichage de l accueil', 'INVITE', '❌ Échoué', null, err.message);
   }
@@ -93,15 +93,21 @@ try {
     recordTest('REC-INV-03', 'Fiche détail offre', 'INVITE', '❌ Échoué', null, err.message);
   }
 
-  // REC-INV-04 : Panier local invité
+  // REC-INV-04 : Réservation réservée aux clients (aucun panier invité)
   try {
-    await page.goto(`${baseUrl}/panier.html`, { waitUntil: 'domcontentloaded' });
-    await new Promise(r => setTimeout(r, 600));
+    await page.goto(`${baseUrl}/offre.html?id=1`, { waitUntil: 'networkidle0' });
+    if (await page.$('.cart-link')) throw new Error('Le lien Panier ne doit pas être visible pour un invité');
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
+      page.click('#add-cart')
+    ]);
+    if (!page.url().includes('connexion.html?redirect=')) throw new Error(`Redirection inattendue : ${page.url()}`);
+    await new Promise(r => setTimeout(r, 400));
     const proof = 'REC-INV-04-panier.png';
     await page.screenshot({ path: path.join(preuvesDir, proof) });
-    recordTest('REC-INV-04', 'Panier d achats invité et calcul TTC en MAD', 'INVITE', '✅ Réussi', proof);
+    recordTest('REC-INV-04', 'Panier réservé aux clients : l invité est invité à se connecter avant de réserver', 'INVITE', '✅ Réussi', proof);
   } catch (err) {
-    recordTest('REC-INV-04', 'Panier invité', 'INVITE', '❌ Échoué', null, err.message);
+    recordTest('REC-INV-04', 'Réservation réservée aux clients', 'INVITE', '❌ Échoué', null, err.message);
   }
 
   // REC-INV-05 : Bascule RTL & Langue arabe
@@ -132,17 +138,6 @@ try {
     recordTest('REC-INV-06', 'Protection espaces privés', 'INVITE', '❌ Échoué', null, err.message);
   }
 
-  // REC-INV-07 : Pages institutionnelles (A propos, FAQ, CGU)
-  try {
-    await page.goto(`${baseUrl}/a-propos.html`, { waitUntil: 'domcontentloaded' });
-    await new Promise(r => setTimeout(r, 500));
-    const proof = 'REC-INV-07-pages-institutionnelles.png';
-    await page.screenshot({ path: path.join(preuvesDir, proof) });
-    recordTest('REC-INV-07', 'Affichage des pages institutionnelles et légales (A propos, FAQ, CGU)', 'INVITE', '✅ Réussi', proof);
-  } catch (err) {
-    recordTest('REC-INV-07', 'Pages institutionnelles', 'INVITE', '❌ Échoué', null, err.message);
-  }
-
   // REC-INV-08 : Gestion erreur 404
   try {
     await page.goto(`${baseUrl}/404.html`, { waitUntil: 'domcontentloaded' });
@@ -163,10 +158,13 @@ try {
   try {
     await page.goto(`${baseUrl}/connexion.html`, { waitUntil: 'domcontentloaded' });
     await page.click('#tab-register');
+    await page.focus('#register-password');
     await new Promise(r => setTimeout(r, 400));
+    const rulesShown = await page.$$eval('#register-form .account-rules li', items => items.length);
+    if (rulesShown !== 5) throw new Error(`Aide mot de passe : 5 règles attendues, ${rulesShown} affichées`);
     const proof = 'REC-AUT-01-inscription-form.png';
     await page.screenshot({ path: path.join(preuvesDir, proof) });
-    recordTest('REC-AUT-01', 'Formulaire d inscription avec indicateur de robustesse et consentement RGPD', 'AUTH', '✅ Réussi', proof);
+    recordTest('REC-AUT-01', 'Formulaire d inscription avec aide à la saisie du mot de passe (12 caractères minimum)', 'AUTH', '✅ Réussi', proof);
   } catch (err) {
     recordTest('REC-AUT-01', 'Formulaire inscription', 'AUTH', '❌ Échoué', null, err.message);
   }

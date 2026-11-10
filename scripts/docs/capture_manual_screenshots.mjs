@@ -10,8 +10,19 @@ const targets = [
   { role: 'invite', file: '01-accueil.png', url: `${baseUrl}/accueil.html` },
   { role: 'invite', file: '02-catalogue.png', url: `${baseUrl}/catalogue.html?type=HOTEL` },
   { role: 'invite', file: '03-detail-offre.png', url: `${baseUrl}/offre.html?id=1` },
-  { role: 'invite', file: '04-panier.png', url: `${baseUrl}/panier.html` },
+  { role: 'invite', file: '04-connexion-reservation.png', url: `${baseUrl}/connexion.html?redirect=offre.html%3Fid%3D1` },
   { role: 'invite', file: '05-connexion.png', url: `${baseUrl}/connexion.html` },
+  {
+    role: 'invite', file: '06-inscription.png', url: `${baseUrl}/connexion.html`,
+    // Onglet « Créer un compte » avec l'aide à la saisie du mot de passe ouverte (11 caractères : une règle reste à respecter)
+    before: async (page) => {
+      await page.click('#tab-register');
+      await page.type('#register-name', 'Sarah Benali');
+      await page.type('#register-email', 'sarah.benali@example.com');
+      await page.focus('#register-password');
+      await page.type('#register-password', 'Qv7!mT2#kLp');
+    }
+  },
 
   // Client
   { role: 'client', file: '01-dashboard.png', url: `${baseUrl}/client/index.html?page=dashboard`, authRole: 'CLIENT', name: 'Sarah Benali', email: 'sarah.benali@example.com' },
@@ -52,7 +63,9 @@ try {
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 800 });
 
-  for (const t of targets) {
+  // Usage : node scripts/docs/capture_manual_screenshots.mjs [role]  (sans argument : tous les rôles)
+  const onlyRole = process.argv[2];
+  for (const t of targets.filter((target) => !onlyRole || target.role === onlyRole)) {
     const roleDir = path.resolve(process.cwd(), 'docs/assets/screenshots', t.role);
     await fs.mkdir(roleDir, { recursive: true });
     const dest = path.join(roleDir, t.file);
@@ -68,6 +81,10 @@ try {
       await page.goto(t.url, { waitUntil: 'domcontentloaded', timeout: 5000 });
       // Attente brève de rendu
       await new Promise(r => setTimeout(r, 600));
+      if (t.before) {
+        await t.before(page);
+        await new Promise(r => setTimeout(r, 300));
+      }
       await page.screenshot({ path: dest, fullPage: false });
       console.log(`[OK] ${t.role}/${t.file}`);
     } catch (err) {

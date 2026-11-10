@@ -88,6 +88,15 @@ graphique, cartes et listes conservées. Tickets : `available:false`, zéro,
 liste vide et **Bientôt disponible** car aucune entité Ticket n'existe.
 Notifications : `available:true`, vraies données du module Phase 4.
 
+Tableau de bord **client** (9 novembre 2026) : l'écran n'affiche que les quatre cartes
+d'indicateurs et la liste « Mes dernières réservations » en pleine largeur. La ligne
+« Du … au … · fuseau · actualisé le … » et les mentions « aucune base de variation » sont
+masquées pour ce rôle, de même que toutes les mentions « Période précédente : … » et le bouton
+« Actualiser » (les boutons 7 jours / 30 jours / 12 mois rechargent déjà les données) ; la
+ligne de variation (« En hausse de … % ») reste affichée. Les panneaux « Mon prochain voyage »
+et « Notifications non lues » sont retirés. L'API `GET /api/stats/client` renvoie toujours `nextTrip` et `notifications`
+(contrat inchangé) ; l'interface ne les lit plus. Les trois autres rôles gardent leur affichage.
+
 ## Migration et exemples
 
 V9 ajoute dates utilisateur et index ; [procédure Flyway](migrations.md).
@@ -114,4 +123,4 @@ peuvent ensuite expirer l'exemple PENDING.
 StatsIntegrationTest couvre calculs, mutations, périodes, sécurité, isolation,
 cache, CSV et idempotence du seeder. Scripts Phase 5 : API et navigateur sur base
 MySQL/MariaDB isolée. Commandes, résultats et fichiers dans
-[rapport_phase5.md](rapport_phase5.md).
+[rapport_phase5.md](archive/rapport_phase5.md).

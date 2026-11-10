@@ -84,11 +84,12 @@ L'entité `AuditLog` est architecturée selon le paradigme *Append-Only* :
 
 ### Q11 : Comment la plateforme respecte-t-elle la Loi marocaine 09-08 sur la protection des données personnelles ?
 **Réponse** :  
-Notre conformité repose sur quatre piliers techniques :
-1. **Consentement explicite** : Case à cocher obligatoire et non pré-cochée lors de l'inscription pour l'acceptation des CGU et de la politique de traitement des données.
-2. **Minimisation des données** : Seules les données indispensables à la réservation touristique sont collectées (nom, email, téléphone).
-3. **Droit d'accès et de portabilité** : Présence dans l'espace client d'un bouton d'export des données personnelles au format structuré JSON/CSV.
-4. **Droit à l'oubli** : Procédure documentée de désactivation et d'anonymisation du compte sur demande.
+Notre conformité repose sur trois piliers techniques, et sur une limite que nous assumons :
+1. **Minimisation des données** : Seules les données indispensables à la réservation touristique sont collectées (nom, email, téléphone).
+2. **Droit d'accès et de portabilité** : Présence dans l'espace client d'un bouton d'export des données personnelles au format structuré JSON/CSV.
+3. **Droit à l'oubli** : Procédure documentée de désactivation et d'anonymisation du compte sur demande.
+
+**Limite assumée :** depuis le 9 novembre 2026, l'inscription ne recueille plus de consentement explicite. La case à cocher et les pages « Conditions Générales » et « Politique de Confidentialité » ont été retirées, et aucune preuve de consentement n'est enregistrée en base. Avant une ouverture commerciale au Maroc, il faudrait rétablir une information claire des personnes (finalités du traitement, mentions légales) et effectuer la déclaration préalable auprès de la CNDP (voir `docs/recette/humain_a_realiser.md`, §5).
 
 ---
 

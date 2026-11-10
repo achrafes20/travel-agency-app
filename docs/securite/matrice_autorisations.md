@@ -27,9 +27,9 @@
 | `GET` | `/actuator/health` | ANONYMOUS, TOUS | Public, détails masqués (`show-details: never`). | Non |
 | `GET` | `/actuator/info` | ANONYMOUS, TOUS | Public (version et nom d'application). | Non |
 | `GET` | `/actuator/**` | `ADMIN` | Réservé aux administrateurs. | Non |
-| `POST` | `/api/auth/login` | ANONYMOUS | Validation identifiants, verrouillage après 5 échecs, cookie HttpOnly. | Non |
-| `POST` | `/api/auth/register` | ANONYMOUS | Rôle forcé à `CLIENT`, vérification politique mot de passe, consentement. | Non |
-| `POST` | `/api/auth/refresh` | ANONYMOUS | Rotation de refresh token, détection de réutilisation (invalidation famille). | Oui |
+| `POST` | `/api/auth/login` | ANONYMOUS | Validation identifiants, verrouillage après 5 échecs, cookie HttpOnly ; `rememberMe` choisit un cookie de rafraîchissement persistant (7 jours) ou de session. | Non |
+| `POST` | `/api/auth/register` | ANONYMOUS | Rôle forcé à `CLIENT`, vérification politique mot de passe (12 caractères minimum, 4 classes). Aucun consentement n'est demandé ni enregistré. | Non |
+| `POST` | `/api/auth/refresh` | ANONYMOUS | Rotation de refresh token, détection de réutilisation (invalidation famille) ; le choix « Se souvenir de moi » du login est conservé à chaque rotation. | Oui |
 | `POST` | `/api/auth/logout` | ANONYMOUS, TOUS | Révocation du refresh token courant, purge des cookies. | Oui |
 | `POST` | `/api/auth/logout-all` | Authentifié (`ANY`) | Incrémentation de `tokenVersion`, révocation de toute la famille de sessions. | Oui |
 | `POST` | `/api/auth/forgot-password` | ANONYMOUS | Génération de jeton à usage unique, réponse générique sans énumération. | Non |

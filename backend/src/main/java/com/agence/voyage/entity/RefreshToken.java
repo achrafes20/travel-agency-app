@@ -42,6 +42,10 @@ public class RefreshToken {
     @Column(name = "user_agent", length = 255)
     private String userAgent;
 
+    /** Choix « Se souvenir de moi » : conservé à chaque rotation pour que le cookie reste persistant ou de session. */
+    @Column(name = "remember_me", nullable = false, columnDefinition = "boolean default true")
+    private boolean rememberMe = true;
+
     public RefreshToken() {
     }
 
@@ -134,6 +138,14 @@ public class RefreshToken {
 
     public void setUserAgent(String userAgent) {
         this.userAgent = userAgent;
+    }
+
+    public boolean isRememberMe() {
+        return rememberMe;
+    }
+
+    public void setRememberMe(boolean rememberMe) {
+        this.rememberMe = rememberMe;
     }
 
     public boolean isExpired() {

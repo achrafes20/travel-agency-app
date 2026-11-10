@@ -14,7 +14,7 @@
 .static-toast.success{background:#166534}.static-toast.error{background:#B91C1C}
 .logo-static{display:flex;align-items:center;color:#fff;background:none;border:0;text-align:left}.logo-static .app-logo{display:block;width:auto;height:48px;max-width:190px;object-fit:contain}.svg-icon{width:20px;height:20px;display:inline-block;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nav-user-menu{display:none}.nav-user-menu.open{display:block}.static-page{animation:pageIn .22s ease}@keyframes pageIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.offer-card img{width:100%;height:185px;object-fit:cover}.offer-image-static{height:185px;position:relative;overflow:hidden}.offer-image-static>span{position:absolute;left:13px;top:13px}.offer-image-static>button{position:absolute;right:13px;top:13px;border:0;background:#fff;width:30px;height:30px;border-radius:50%}.empty-state{padding:60px 20px;text-align:center}.empty-state span{width:64px;height:64px;background:#EEF3FC;color:#0B2A6B;border-radius:50%;display:grid;place-items:center;margin:0 auto 16px}.empty-state h2{color:#081B45;font-size:20px}.empty-state p{color:#64748B;font-size:11px}.field-error{font-size:8px;color:#DC2626;margin-top:5px}.promo-success{font-size:8px;color:#16A34A;margin:8px 0}.html-modal{position:fixed;inset:0;background:rgba(8,27,69,.55);z-index:80;display:grid;place-items:center;padding:24px}.html-modal>div{width:min(460px,100%);background:#fff;border-radius:14px;padding:26px;box-shadow:0 24px 60px rgba(8,27,69,.28)}.html-modal h2{font-size:18px;color:#081B45}.html-modal p{font-size:10px;color:#64748B;line-height:1.6}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:22px}
+.offer-card img{width:100%;height:185px;object-fit:cover}.offer-image-static{height:185px;position:relative;overflow:hidden}.offer-image-static>span{position:absolute;left:13px;top:13px}.offer-image-static>button{position:absolute;right:13px;top:13px;border:0;background:#fff;width:30px;height:30px;border-radius:50%}.empty-state{padding:60px 20px;text-align:center}.empty-state > span{width:64px;height:64px;background:#EEF3FC;color:#0B2A6B;border-radius:50%;display:grid;place-items:center;margin:0 auto 16px}.empty-state h2{color:#081B45;font-size:20px}.empty-state p{color:#64748B;font-size:11px}.field-error{font-size:8px;color:#DC2626;margin-top:5px}.promo-success{font-size:8px;color:#16A34A;margin:8px 0}.html-modal{position:fixed;inset:0;background:rgba(8,27,69,.55);z-index:80;display:grid;place-items:center;padding:24px}.html-modal>div{width:min(460px,100%);background:#fff;border-radius:14px;padding:26px;box-shadow:0 24px 60px rgba(8,27,69,.28)}.html-modal h2{font-size:18px;color:#081B45}.html-modal p{font-size:10px;color:#64748B;line-height:1.6}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:22px}
 
 /* Menu latéral repliable (même principe que l'espace administrateur) */
 .client-layout { transition: grid-template-columns .2s; }
@@ -90,3 +90,44 @@
 .empty-state.card .btn { margin-top: 14px; }
 .promo input { flex: 1; }
 .promo button { flex-shrink: 0; padding: 0 14px; cursor: pointer; }
+
+/* Anciennes classes utilitaires de Tailwind encore utilisées par l'espace client (cloche, géocodage, chargement des favoris). */
+.relative{position:relative}
+.hidden{display:none}
+.p-8{padding:2rem}
+.text-center{text-align:center}
+.text-slate-500{color:#64748b}
+
+/* ==========================================================================
+   Remise à zéro de l'espace client
+   Reprend les règles de base que le CDN de Tailwind injectait auparavant dans
+   cette page. Sélecteurs :where() (spécificité nulle) : toute règle de ce
+   fichier ou du design system plus spécifique l'emporte. Les composants du
+   design system (classes av-*) sont exclus : ils définissent leurs propres
+   styles, que ce reset ne doit pas écraser.
+   ========================================================================== */
+:where(*:not([class^="av-"], [class*=" av-"])) { border-width: 0; border-style: solid; border-color: #e5e7eb; }
+:where(blockquote, dd, dl, figure, h1, h2, h3, h4, h5, h6, hr, p, pre, fieldset) { margin: 0; }
+:where(h1, h2, h3, h4, h5, h6) { font-size: inherit; font-weight: inherit; }
+:where(hr) { height: 0; color: inherit; border-top-width: 1px; }
+:where(menu, ol, ul) { list-style: none; margin: 0; padding: 0; }
+:where(a:not([class^="av-"], [class*=" av-"])) { color: inherit; text-decoration: inherit; }
+:where(b, strong) { font-weight: bolder; }
+:where(small) { font-size: 80%; }
+:where(sub, sup) { font-size: 75%; line-height: 0; position: relative; vertical-align: baseline; }
+:where(sub) { bottom: -0.25em; }
+:where(sup) { top: -0.5em; }
+:where(table) { text-indent: 0; border-color: inherit; border-collapse: collapse; }
+:where(button:not([class^="av-"], [class*=" av-"]), input:not([class^="av-"], [class*=" av-"]), optgroup:not([class^="av-"], [class*=" av-"]), select:not([class^="av-"], [class*=" av-"]), textarea:not([class^="av-"], [class*=" av-"])) { font-family: inherit; font-size: 100%; font-weight: inherit; line-height: inherit; letter-spacing: inherit; color: inherit; margin: 0; padding: 0; }
+:where(button:not([class^="av-"], [class*=" av-"]), select:not([class^="av-"], [class*=" av-"])) { text-transform: none; }
+:where(button:not([class^="av-"], [class*=" av-"]), input[type="button"]:not([class^="av-"], [class*=" av-"]), input[type="reset"]:not([class^="av-"], [class*=" av-"]), input[type="submit"]:not([class^="av-"], [class*=" av-"])) { background-color: transparent; background-image: none; }
+:where(legend, dialog) { padding: 0; }
+:where(summary) { display: list-item; }
+:where(textarea) { resize: vertical; }
+:where(input, textarea)::placeholder { opacity: 1; color: #9ca3af; }
+:where(audio, canvas, embed, iframe, img, object, svg, video) { display: block; vertical-align: middle; }
+:where(img, video) { max-width: 100%; height: auto; }
+[hidden]:where(:not([hidden="until-found"])) { display: none; }
+
+/* Sélecteur de devise : dans l'en-tête bleu, le bouton reste un simple texte blanc ; seul son menu déroulant est un composant du design system. */
+.topbar .av-cur-btn { background: transparent; border: 0; padding: 0; color: #fff; }

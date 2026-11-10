@@ -127,10 +127,13 @@
       ? `<span class="av-cur-code">${curObj.code}</span>`
       : `<span class="av-cur-symbol">${curObj.symbol}</span> <span class="av-cur-code">${curObj.code}</span>`;
 
+    // WCAG 2.5.3 : le nom accessible doit commencer par le texte visible du bouton (ex. « € EUR »).
+    const visibleLabel = curObj.symbol === curObj.code ? curObj.code : `${curObj.symbol} ${curObj.code}`;
+
     return `
       <div class="av-currency-switcher" id="av-currency-switcher">
-        <button type="button" class="av-cur-btn" aria-haspopup="true" aria-expanded="false" 
-                aria-label="Sélectionner la devise d'affichage (actuelle : ${curObj.code})">
+        <button type="button" class="av-cur-btn" aria-haspopup="true" aria-expanded="false"
+                aria-label="${visibleLabel}, sélectionner la devise d'affichage">
           ${labelHtml}
           <svg class="av-icon-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
             <path d="m6 9 6 6 6-6"/>

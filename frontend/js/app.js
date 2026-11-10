@@ -287,6 +287,7 @@ const icon = (name) => {
   const paths = {
     plane: '<path d="M22 2 9.5 14.5M22 2l-7 20-4-9-9-4 20-7Z"/>',
     bed: '<path d="M3 18V5M3 13h18v5M21 18V9a3 3 0 0 0-3-3H7a4 4 0 0 0-4 4v3M3 18v2m18-2v2"/>',
+    grid: '<path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/>',
     car: '<path d="m5 17-1 2H2v-5l2-6h16l2 6v5h-2l-1-2H5ZM4 14h18M7 17h.01M17 17h.01M6 8l1-3h10l1 3"/>',
     taxi: '<path d="M3 17h18M5 17l1-7h12l1 7M8 10V7h8v3M7 17v2m10-2v2M3 12h2m14 0h2"/>',
     compass:
@@ -314,11 +315,12 @@ const icon = (name) => {
 };
 const nav = AtlasCatalog.NAV;
 const navUrl = (text) => `${root}catalogue.html?type=${encodeURIComponent(text)}`;
+// Lien vers le catalogue complet (sans filtre de type) ; actif sur la page catalogue quand aucun type n'est choisi.
+const allOffersLink = (active) => `<a class="${!active && document.body.dataset.page === "catalogue" ? "active" : ""}" href="${root}catalogue.html">${icon("grid")}Toutes les offres</a>`;
 
 const ROLE_LABELS = { CLIENT: "Mon espace", SUPPLIER: "Espace fournisseur", AGENT: "Espace agent", ADMIN: "Administration" };
 const loggedUser = () => (typeof Auth !== "undefined" && Auth.isLoggedIn() ? Auth.getUser() : null);
-const cartUrl = () =>
-  loggedUser()?.role === "CLIENT" ? `${root}client/index.html?page=panier` : `${root}panier.html`;
+const cartUrl = () => `${root}client/index.html?page=panier`;
 
 function accountLinks() {
   const user = loggedUser();
@@ -339,11 +341,14 @@ function footerAccountLink() {
 function header(active = "") {
   const i18nControls = `<div class="av-i18n-controls">${typeof AtlasCurrency !== "undefined" ? AtlasCurrency.renderCurrencySwitcher() : ""}</div>`;
   const cartLabel = typeof I18n !== "undefined" ? I18n.t("nav.user.cart") : "Panier";
-  return `<header><div class="topbar"><div class="container"><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><div class="top-actions">${i18nControls}<a class="cart-link" href="${cartUrl()}">${icon("cart")} ${cartLabel} <span class="cart-count" id="cart-count">0</span></a>${accountLinks()}</div></div></div><nav class="main-nav"><div class="container">${nav.map(([text, i]) => `<a class="${active === text ? "active" : ""}" href="${navUrl(text)}">${icon(i)}${text}</a>`).join("")}</div></nav></header>`;
+  // Le panier est réservé aux comptes CLIENT (l'API /api/cart l'impose) : invisible pour les invités et les autres rôles.
+  const cartLink = loggedUser()?.role === "CLIENT"
+    ? `<a class="cart-link" href="${cartUrl()}">${icon("cart")} ${cartLabel} <span class="cart-count" id="cart-count">0</span></a>`
+    : "";
+  return `<header><div class="topbar"><div class="container"><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><div class="top-actions">${i18nControls}${cartLink}${accountLinks()}</div></div></div><nav class="main-nav"><div class="container">${allOffersLink(active)}${nav.map(([text, i]) => `<a class="${active === text ? "active" : ""}" href="${navUrl(text)}">${icon(i)}${text}</a>`).join("")}</div></nav></header>`;
 }
 function footer() {
-  const t = (k, def) => (typeof I18n !== "undefined" ? I18n.t(k) : def);
-  return `<footer><div class="container"><div class="footer-row"><div><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a><p>${t("footer.slogan", "Le Maroc, à votre manière. Des voyages soigneusement imaginés et un accueil qui vient du cœur.")}</p></div><div class="foot-links"><a href="${root}catalogue.html">${t("catalog.title", "Découvrir les offres")}</a><a href="${root}a-propos.html">${t("footer.links.about", "À propos")}</a><a href="${root}faq.html">${t("footer.links.faq", "Foire aux questions")}</a><a href="${root}contact.html">${t("footer.links.contact", "Contact")}</a><a href="${root}panier.html">${t("nav.user.cart", "Mon panier")}</a><a href="${root}cgu.html">${t("footer.links.cgu", "Conditions Générales")}</a><a href="${root}confidentialite.html">${t("footer.links.privacy", "Confidentialité")}</a>${footerAccountLink()}</div></div><div class="copyright">© 2026 Atlas Voyage · Conforme WCAG 2.1 AA</div></div></footer>`;
+  return `<footer><div class="container"><div class="footer-row"><div><a class="brand" href="${root}accueil.html"><img src="${root}images/logo.png" alt="Atlas Voyage" class="brand-logo"></a></div><div class="foot-links">${footerAccountLink()}</div></div></div></footer>`;
 }
 function searchBar() {
   const p = new URLSearchParams(location.search);
@@ -393,7 +398,7 @@ function homeOffersByCategory() {
 function home() {
   document.getElementById("app").innerHTML =
     header("") +
-    `<main id="main-content"><section class="hero"><div class="container"><div class="eyebrow">L’ÉVASION COMMENCE ICI</div><h1>Le Maroc vous attend.<br>Vivez-le pleinement.</h1><p>Des ruelles bleues aux dunes dorées, trouvez le voyage qui vous ressemble avec Atlas Voyage.</p></div></section><div class="container search-wrap">${searchBar()}</div><div class="container"><div class="social-proof"><span class="sp-stars" style="color:#feba02">★★★★★</span> <strong>4.6/5</strong> <span style="color:#666">· 12 000 avis voyageurs</span><span class="sp-sep"></span><span class="sp-seen">Vu dans</span><span class="sp-logo">Le Matin</span><span class="sp-logo">TelQuel</span><span class="sp-logo">Hespress</span><span class="sp-logo">Qualité Tourisme</span></div><div class="quick-row">${nav.map(([t, i]) => `<a class="quick" href="${navUrl(t)}"><span class="quick-ico">${icon(i)}</span><span>${t}</span></a>`).join("")}</div></div><section class="section"><div class="container"><div class="section-head"><div><h2>Offres disponibles</h2><p>Des offres réelles, actives et disponibles.</p></div><a class="text-link" href="${root}catalogue.html">Explorer toutes les offres →</a></div><div class="dest-grid">${data.length ? data.slice(0, 4).map(card).join("") : `<div class="empty-state"><h3>Aucune offre disponible</h3><p>${esc(offersLoadError || "De nouvelles offres seront bientôt publiées.")}</p></div>`}</div></div></section><div class="zellige-divider" aria-hidden="true"></div><section class="trust-band"><div class="container trust-grid"><div class="trust">${icon("wallet")}<div><strong>Paiement à l’arrivée disponible</strong><span>Réservez l’esprit tranquille</span></div></div><div class="trust">${icon("shield")}<div><strong>Annulation gratuite</strong><span>Sur une sélection d’offres</span></div></div><div class="trust">${icon("headset")}<div><strong>Support client local</strong><span>Une équipe qui connaît le Maroc</span></div></div></div></section><section class="feature-banner"><div class="container"><div><h2>Votre prochain souvenir commence ici.</h2><p>Riads, excursions et découvertes : à vous de choisir.</p></div><a class="btn btn-ghost" href="${root}catalogue.html">Découvrir les offres ${icon("arrow")}</a></div></section></main>` +
+    `<main id="main-content"><section class="hero"><div class="container"><div class="eyebrow">L’ÉVASION COMMENCE ICI</div><h1>Le Maroc vous attend.<br>Vivez-le pleinement.</h1><p>Des ruelles bleues aux dunes dorées, trouvez le voyage qui vous ressemble avec Atlas Voyage.</p></div></section><div class="container search-wrap">${searchBar()}</div><div class="container"><div class="quick-row">${nav.map(([t, i]) => `<a class="quick" href="${navUrl(t)}"><span class="quick-ico">${icon(i)}</span><span>${t}</span></a>`).join("")}</div></div><section class="section"><div class="container"><div class="section-head"><div><h2>Offres disponibles</h2><p>Des offres réelles, actives et disponibles.</p></div><a class="text-link" href="${root}catalogue.html">Explorer toutes les offres →</a></div><div class="dest-grid">${data.length ? data.slice(0, 4).map(card).join("") : `<div class="empty-state"><h3>Aucune offre disponible</h3><p>${esc(offersLoadError || "De nouvelles offres seront bientôt publiées.")}</p></div>`}</div></div></section></main>` +
     footer();
     const homeMain = document.querySelector("main");
     const searchWrap = homeMain.querySelector(".search-wrap");
@@ -915,19 +920,8 @@ function catalogue() {
   };
   render();
 }
-function getCart() {
-  try {
-    return JSON.parse(localStorage.getItem("atlas-cart") || "[]");
-  } catch {
-    return [];
-  }
-}
-function saveCart(v) {
-  localStorage.setItem("atlas-cart", JSON.stringify(v));
-  refreshCart();
-}
 async function refreshCart() {
-  let count = getCart().length;
+  let count = 0;
   const user = loggedUser();
   if (user?.role === "CLIENT") {
     try {
@@ -936,7 +930,7 @@ async function refreshCart() {
       });
       if (response.ok) count = Number((await response.json()).itemCount) || 0;
     } catch {
-      // Le panier local reste affiché si l'API est momentanément indisponible.
+      // Le compteur reste à 0 si l'API est momentanément indisponible.
     }
   }
   document.querySelectorAll("#cart-count").forEach((el) => (el.textContent = count));
@@ -979,10 +973,7 @@ async function addItem(d, dates) {
     toast("Offre ajoutée à votre panier client");
     return;
   }
-  let items = getCart();
-  items.push({ id: d.id, dates, entry: Date.now() });
-  saveCart(items);
-  toast("Offre ajoutée au panier");
+  throw new Error("Connectez-vous avec un compte client pour réserver.");
 }
 function detail() {
   const detailParams = new URLSearchParams(location.search);
@@ -1000,15 +991,34 @@ function detail() {
     header(d.type) +
     `<main id="main-content"><div class="container"><div class="page-intro"><div class="breadcrumb"><a href="${root}accueil.html">Accueil</a> / <a href="${root}catalogue.html">Offres</a> / ${esc(d.city)}</div><h1>${esc(d.title)}</h1><p>${icon("pin")} ${esc(d.city)}${d.district ? `, ${esc(d.district)}` : ""}${d.stars ? ` · ${"★".repeat(d.stars)}` : ""}</p>${detailFavButton(d.id)}</div><div class="detail-grid"><div><div class="gallery" id="offer-gallery"><img src="${esc(d.img)}" alt="${esc(d.title)}" class="gallery-thumb"><img src="images/fes.jpg" alt="Architecture marocaine" class="gallery-thumb"><img src="images/chefchaouen.jpg" alt="Paysage marocain" class="gallery-thumb"></div><div class="detail-copy"><h2>Votre séjour, notre attention</h2><p>${esc(d.desc)}</p><div class="amenities"><span>✓ Disponibilités vérifiées selon vos dates</span><span>✓ Assistance locale</span>${d.allowsPayOnArrival ? "<span>✓ Paiement à l’arrivée</span>" : ""}<span>✓ Fournisseur : ${esc(d.supplierName)}</span></div><h2>Localisation</h2><p>${d.district ? `${esc(d.district)}, ` : ""}${esc(d.city)}, Maroc.</p><div id="offer-map-container" class="av-map-container" style="margin-top:16px;"><div id="offer-map" class="av-map"></div></div></div></div><aside class="panel booking-box">${d.allowsPayOnArrival ? '<span class="badge">✓ Paiement à l’arrivée disponible</span>' : ""}<p style="margin:21px 0 4px;color:var(--muted)">À partir de</p><div class="result-price">${money(d.price)}</div><p class="price-note">${d.nextAvailabilityStart ? `Prochaine disponibilité : ${new Date(d.nextAvailabilityStart).toLocaleDateString("fr-MA")} au ${new Date(d.nextAvailabilityEnd).toLocaleDateString("fr-MA")}` : "Aucune période disponible"}</p><label for="start-date">Date de début</label><input id="start-date" type="date"><label for="end-date">Date de fin</label><input id="end-date" type="date"><label for="booking-travelers">Voyageurs / participants</label><input id="booking-travelers" type="number" min="1" max="100" value="1">${d.type === "Location de voiture" ? `<label for="booking-driver-age">Âge du conducteur</label><input id="booking-driver-age" type="number" min="${d.minimumDriverAge}" max="${d.maximumDriverAge}" value="35"><label>Prise en charge<input id="booking-pickup" value="${esc(d.pickupLocation)}" readonly></label><label>Restitution<select id="booking-dropoff"><option value="">Même lieu</option>${d.allowsDifferentDropoff ? d.dropoffLocations.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("") : ""}</select></label>` : ""}<button class="btn btn-outline" id="add-cart">${icon("cart")} Ajouter au panier</button><button class="btn btn-yellow" id="book-now">Réserver maintenant ${icon("arrow")}</button></aside></div><div id="offer-reviews-section" style="margin-top:48px;"></div></div></main>` +
     footer();
-  const suggestedStart = detailParams.get("hotelArrival") || detailParams.get("flightDepart") ||
+  const suggestedStart = detailParams.get("start") || detailParams.get("hotelArrival") || detailParams.get("flightDepart") ||
     detailParams.get("pickupDate") || detailParams.get("taxiDeparture")?.slice(0, 10) ||
     detailParams.get("excursionDate") || "";
-  const suggestedEnd = detailParams.get("hotelDeparture") || detailParams.get("flightReturn") ||
+  const suggestedEnd = detailParams.get("end") || detailParams.get("hotelDeparture") || detailParams.get("flightReturn") ||
     detailParams.get("returnDate") || detailParams.get("taxiReturn")?.slice(0, 10) || "";
   document.getElementById("start-date").value = suggestedStart || d.departureDateTime?.slice(0,10) || "";
-  document.getElementById("booking-travelers").value = Number(detailParams.get("passengers") || detailParams.get("hotelAdults") || detailParams.get("taxiPassengers") || detailParams.get("excursionGuests")) || 1;
+  document.getElementById("booking-travelers").value = Number(detailParams.get("travelers") || detailParams.get("passengers") || detailParams.get("hotelAdults") || detailParams.get("taxiPassengers") || detailParams.get("excursionGuests")) || 1;
   document.getElementById("end-date").value = suggestedEnd || d.returnDepartureDateTime?.slice(0,10) || "";
+  // Un invité est envoyé se connecter puis ramené sur cette offre, avec les dates et le nombre de voyageurs saisis.
+  function redirectToLogin() {
+    const params = new URLSearchParams(location.search);
+    [["start", "start-date"], ["end", "end-date"], ["travelers", "booking-travelers"]].forEach(([param, inputId]) => {
+      const value = document.getElementById(inputId).value;
+      if (value) params.set(param, value);
+    });
+    const target = `${location.pathname.split("/").pop()}?${params}`;
+    location.href = `${root}connexion.html?redirect=${encodeURIComponent(target)}`;
+  }
   async function add(go) {
+    const user = loggedUser();
+    if (!user) {
+      redirectToLogin();
+      return;
+    }
+    if (user.role !== "CLIENT") {
+      toast("Seuls les comptes clients peuvent réserver. Connectez-vous avec un compte client.");
+      return;
+    }
     let start = document.getElementById("start-date").value,
       end = document.getElementById("end-date").value;
     if (start && end && end < start) {
@@ -1035,10 +1045,7 @@ function detail() {
       const travelers = Number(document.getElementById("booking-travelers").value);
       if (!Number.isInteger(travelers) || travelers < 1) { toast("Indiquez un nombre de voyageurs positif."); return; }
       await addItem(d, { ...criteria, travelers, startDate, endDate, start, end });
-      if (go) {
-        const user = loggedUser();
-        location.href = user?.role === "CLIENT" ? `${root}client/index.html?page=panier` : `${root}panier.html`;
-      }
+      if (go) location.href = cartUrl();
     } catch (error) {
       toast(error.message);
     }

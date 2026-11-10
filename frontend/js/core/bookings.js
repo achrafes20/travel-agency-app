@@ -65,15 +65,15 @@ const BookingsUI = (() => {
       ${role === "SUPPLIER" ? '<button class="bk-button bk-secondary" data-bk-action="print">Imprimer ma fiche</button>' : ""}`;
   }
   function detailHtml(b, role) {
-    return `<article class="bk-detail"><header><div><small>RÉSERVATION</small><h2>${esc(b.reference)}</h2><p>${esc(b.clientName)}${b.clientEmail ? " · " + esc(b.clientEmail) : ""}</p></div>${badge(b.status)}</header>
+    return `<article class="bk-detail"><header><div><small>RÉSERVATION</small><h2>${esc(b.reference)}</h2><p>${esc(b.clientName)}${b.clientEmail && role !== "CLIENT" ? " · " + esc(b.clientEmail) : ""}</p></div>${badge(b.status)}</header>
       ${b.supplierView ? '<p class="bk-info">Cette fiche contient uniquement vos prestations et les montants qui vous concernent.</p>' : ""}
       <ol class="bk-timeline"><li>Créée<small>${clockDate(b.createdAt)}</small></li>${b.confirmedAt ? `<li>Confirmée<small>${clockDate(b.confirmedAt)}</small></li>` : ""}${["CANCELLED", "EXPIRED", "COMPLETED"].includes(b.status) ? `<li>${esc(labels[b.status])}<small>${b.cancelledAt ? clockDate(b.cancelledAt) : b.status === "EXPIRED" ? clockDate(b.expiresAt) : date(b.serviceEndAt)}</small></li>` : ""}</ol>
       <div class="bk-items">${b.items.map(i => `<section class="bk-item ${i.parentItemId ? "bk-child" : ""}"><div><h3>${esc(i.title)}</h3><p>${date(i.serviceStartAt)} → ${date(i.serviceEndAt)}</p><small>Quantité : ${i.quantity}${i.parentItemId ? " · Prestation incluse dans le bundle" : ""}</small></div><strong>${money(i.lineTotal)}</strong></section>`).join("")}</div>
       <div class="bk-totals"><p><span>Sous-total TTC</span><strong>${money(b.subtotal)}</strong></p><p><span>Remise ${esc(b.promoCode || "")}</span><strong>− ${money(b.discount)}</strong></p><p class="bk-total"><span>Total TTC</span><strong>${money(b.total)}</strong></p></div>
-      <p>Méthode : ${b.paymentMethod === "PAY_ON_ARRIVAL" ? "Paiement à l’arrivée" : "Paiement en ligne"} · Paiement : ${badge(b.paymentStatus)}</p>
+      <p class="bk-payline"><span>Méthode : ${b.paymentMethod === "PAY_ON_ARRIVAL" ? "Paiement à l’arrivée" : "Paiement en ligne"}</span><span>Paiement : ${badge(b.paymentStatus)}</span></p>
       ${b.status === "PENDING" && b.expiresAt ? `<p class="bk-info">À confirmer avant le ${clockDate(b.expiresAt)}. La capacité sera libérée après ce délai. Finalisez votre paiement sandbox avant cette échéance.</p>` : ""}
       ${b.cancellationReason ? `<p>Motif d’annulation : ${esc(b.cancellationReason)}</p>` : ""}
-      <p class="bk-note">L’annulation client dépend du délai applicable avant le premier service ; les actions disponibles sont vérifiées par le serveur. Prix TTC en MAD.</p>
+      ${role === "CLIENT" ? "" : '<p class="bk-note">L’annulation client dépend du délai applicable avant le premier service ; les actions disponibles sont vérifiées par le serveur. Prix TTC en MAD.</p>'}
       <div class="bk-actions">${actions(b, role)}</div><p class="bk-feedback" role="status"></p></article>`;
   }
   function cancelDialog(booking, role, onSuccess) {
@@ -125,12 +125,12 @@ const BookingsUI = (() => {
     const staff = ["ADMIN", "AGENT"].includes(role), scope = staff ? "/admin" : role === "SUPPLIER" ? "/supplier" : "";
     let currentPage = 0, pageSize = 10, revision = 0;
     root.classList.add("bk-module");
-    root.innerHTML = `<header class="bk-heading"><div><small>VOS VOYAGES ATLAS VOYAGE</small>${staff ? "" : `<h1>${role === "SUPPLIER" ? "Réservations reçues" : "Mes réservations"}</h1>`}</div></header>
+    root.innerHTML = `<header class="bk-heading"><div>${role === "CLIENT" ? "" : "<small>VOS VOYAGES ATLAS VOYAGE</small>"}${staff ? "" : `<h1>${role === "SUPPLIER" ? "Réservations reçues" : "Mes réservations"}</h1>`}</div></header>
       <div class="bk-tabs" role="group" aria-label="Filtrer par statut">${[["", "Toutes"], ["PENDING", "En attente"], ["CONFIRMED", "Confirmées"], ["COMPLETED", "Terminées"], ["CANCELLED", "Annulées"], ["EXPIRED", "Expirées"]].map(([s, label]) => `<button type="button" data-bk-status="${s}" class="${s ? "" : "active"}">${label}</button>`).join("")}</div>
       <form class="bk-filters"><input type="hidden" name="status"><label>Référence ou client<input name="search" placeholder="Rechercher…"></label>
       <label>Du<input type="date" name="from"></label><label>Au<input type="date" name="to"></label>
       ${staff ? '<label>Paiement<select name="paymentStatus"><option value="">Tous</option><option value="PENDING">En attente</option><option value="PAID">Payé</option><option value="FAILED">Échec</option><option value="PROCESSING">En cours</option><option value="CANCELLED">Paiement annulé</option><option value="PARTIALLY_REFUNDED">Partiellement remboursé</option><option value="REFUNDED">Remboursé</option></select></label><label>Client (nom ou email)<input name="client"></label><label>Fournisseur<select name="supplierId"><option value="">Tous</option></select></label>' : ""}
-      <label>Tri<select name="sort"><option value="createdAt,desc">Plus récentes</option><option value="createdAt,asc">Plus anciennes</option><option value="serviceStartAt,asc">Date du service</option><option value="reference,asc">Référence</option></select></label><button class="bk-button">Rechercher</button><button type="reset" class="bk-button bk-secondary">Réinitialiser</button></form>
+      ${role === "CLIENT" ? "" : '<label>Tri<select name="sort"><option value="createdAt,desc">Plus récentes</option><option value="createdAt,asc">Plus anciennes</option><option value="serviceStartAt,asc">Date du service</option><option value="reference,asc">Référence</option></select></label>'}<button class="bk-button">Rechercher</button><button type="reset" class="bk-button bk-secondary">Réinitialiser</button></form>
       <div class="bk-results" aria-live="polite"></div>`;
     const form = root.querySelector("form"), results = root.querySelector(".bk-results");
     async function load() {
@@ -150,7 +150,7 @@ const BookingsUI = (() => {
       } catch (err) { if (root.isConnected && requestRevision === revision) error(results, err, load); }
     }
     form.onsubmit = event => { event.preventDefault(); currentPage = 0; load(); };
-    form.onreset = () => setTimeout(() => { currentPage = 0; root.querySelectorAll("[data-bk-status]").forEach(b => b.classList.toggle("active", !b.dataset.bkStatus)); load(); }, 0);
+    form.onreset = () => setTimeout(() => { currentPage = 0; form.elements.status.value = ""; root.querySelectorAll("[data-bk-status]").forEach(b => b.classList.toggle("active", !b.dataset.bkStatus)); load(); }, 0);
     root.querySelectorAll("[data-bk-status]").forEach(button => button.onclick = () => {
       form.elements.status.value = button.dataset.bkStatus; currentPage = 0;
       root.querySelectorAll("[data-bk-status]").forEach(b => b.classList.toggle("active", b === button)); load();

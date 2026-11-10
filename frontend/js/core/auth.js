@@ -79,18 +79,17 @@ const Auth = (() => {
 
     async login(email, password, remember = true) {
       clear();
-      const session = await api.post("/api/auth/login", { email, password });
+      const session = await api.post("/api/auth/login", { email, password, rememberMe: remember });
       this.save(session, remember);
       return session.user;
     },
 
-    async register(fullName, email, password, consent = true) {
+    async register(fullName, email, password) {
       clear();
       const session = await api.post("/api/auth/register", {
         fullName,
         email,
-        password,
-        consent: Boolean(consent)
+        password
       });
       this.save(session, true);
       return session.user;

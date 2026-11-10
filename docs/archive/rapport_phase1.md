@@ -1,5 +1,7 @@
 # Rapport de livraison — Phase 1 Atlas Voyage
 
+> **Archive — document historique.** Ce document décrit l'état et le travail réalisés à une date donnée. Il est conservé tel quel (hors liens corrigés lors de son déplacement le 9 novembre 2026) et **n'est plus mis à jour**. Pour l'état courant : [README](../../README.md), [règles métier](../regles_metier.md), [architecture](../architecture.md), [CHANGELOG](../../CHANGELOG.md).
+
 Date : 30 octobre 2026. Périmètre : décisions métier et fondations techniques.
 Les réservations, encaissements, expirations planifiées, remboursements et
 notifications des phases suivantes n'ont pas été implémentés.
@@ -12,7 +14,7 @@ Les contrôles navigateur et HTTP sont également réussis.
 
 ## 1. Décisions métier
 
-Création de [regles_metier.md](regles_metier.md) :
+Création de [regles_metier.md](../regles_metier.md) :
 glossaire, tableau de décisions justifiées, MAD TTC, cycles de réservation et
 paiement, trois diagrammes Mermaid, matrice des rôles, capacité des bundles,
 restitution atomique, ordre de verrouillage, annulation avec exemples de
@@ -48,7 +50,7 @@ Les paramètres configurables sont explicités et les liens ajoutés à la docum
 - Base existante : baseline automatique version 1 en dev, explicite en prod.
 - Anciens scripts SQL déplacés, sans suppression de leur contenu, dans
   docs/legacy-migrations.
-- Procédure documentée dans [migrations.md](migrations.md).
+- Procédure documentée dans [migrations.md](../migrations.md).
 - H2 test : create-drop et Flyway désactivé ; limites documentées.
 
 V1 n'a pas été modifiée après sa première application. V2 et V3 ont été ajoutées

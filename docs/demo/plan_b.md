@@ -32,13 +32,13 @@ Le backend refuse de démarrer avec l'erreur `Port 8080 was already in use` ou l
 ## Plan B2 : Coupure Totale d'Accès Internet (Mode Hors Ligne / Offline)
 
 ### Symptôme
-Le réseau Wi-Fi de la salle de présentation est indisponible ou instable, provoquant des lenteurs sur les CDN externes (Tailwind, Lucide, Leaflet, Google Fonts).
+Le réseau Wi-Fi de la salle de présentation est indisponible ou instable, provoquant des lenteurs sur les CDN externes (Tailwind pour les espaces fournisseur et agent seulement, Lucide, Google Fonts ; Leaflet est hébergé localement).
 
 ### Procédure d'Atténuation Express (< 5 secondes)
 1. **Architecture Locale Autonome** :
    - Le backend et la base MySQL tournent en pur local (`localhost:8080` et `localhost:3306`), sans aucune dépendance vers des APIs externes.
 2. **Cache Agressif du Navigateur** :
-   - Les bibliothèques CDN (Tailwind CDN, Lucide 0.468, Leaflet 1.9.4) et polices Montserrat ont été préalablement mises en cache par Chrome lors des répétitions.
+   - Les bibliothèques CDN (Tailwind CDN pour les espaces fournisseur et agent, Lucide 0.468) et polices Montserrat ont été préalablement mises en cache par Chrome lors des répétitions.
    - Ne pas ouvrir la console de développement avec l'option « Disable cache » cochée.
 3. **Cartographie Offline** :
    - Si les tuiles OpenStreetMap distantes ne se chargent pas, la carte Leaflet reste fonctionnelle avec les marqueurs GPS d'origine et la vue vectorielle de repli.

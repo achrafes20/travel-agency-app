@@ -7,6 +7,9 @@ La présente matrice assure la traçabilité complète de chaque exigence foncti
 - `❌ Échoué` : Anomalie bloquante constatée à l'exécution.
 - `🔲 Non implémenté` : Fonctionnalité absente du code ou phase non livrée (tracée au registre des anomalies).
 - `⚠️ À réaliser par un humain` : Test nécessitant une validation physique, un tiers externe, une certification bancaire ou un équipement spécifique (tracé dans `humain_a_realiser.md`).
+- `⛔ Retiré` : Exigence abandonnée par décision de l'équipe ; son cas de test est retiré de la recette (identifiant conservé pour la traçabilité).
+
+> **Mise à jour du 9 novembre 2026 :** les statuts `✅ Réussi` proviennent de la campagne du 2 novembre 2026. Depuis, l'interface invité et l'inscription ont changé (voir `rapport_final_recette.md`, addendum) : les exigences modifiées sont signalées ci-dessous et leurs preuves graphiques devront être regénérées à la prochaine exécution du runner E2E.
 
 ---
 
@@ -14,13 +17,13 @@ La présente matrice assure la traçabilité complète de chaque exigence foncti
 
 | ID Exigence | Description du Besoin | ID Cas de Test | Statut Réel | Type de Test | Preuve / Justification |
 | :--- | :--- | :--- | :---: | :---: | :--- |
-| **REQ-INV-01** | Page d'accueil neutre, sélecteurs de langue, devise et thème clair/sombre. | `REC-INV-01` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-INV-01-accueil.png` |
+| **REQ-INV-01** | Page d'accueil neutre avec navigation par catégories et sélecteur de devise (langue et thème : voir `REQ-INV-05` et `ANO-10`). | `REC-INV-01` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-INV-01-accueil.png` (campagne du 2 novembre ; l'accueil a été simplifié depuis). |
 | **REQ-INV-02** | Catalogue complet avec recherche textuelle et filtres (type, ville, prix). | `REC-INV-02` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-INV-02-catalogue-hotels.png` |
 | **REQ-INV-03** | Fiche détaillée d'une offre avec galerie, avis clients, carte et disponibilités. | `REC-INV-03` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-INV-03-detail-offre.png` |
-| **REQ-INV-04** | Panier d'achats localisé sans compte, persistance et calcul TTC en MAD. | `REC-INV-04` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-INV-04-panier.png` |
-| **REQ-INV-05** | Support trilingue complet (Français, Anglais, Arabe) avec inversion RTL native. | `REC-INV-05` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-INV-05-langue-arabe-rtl.png` |
+| **REQ-INV-04** | Panier réservé aux clients : l'invité est redirigé vers la connexion puis ramené sur l'offre (aucun panier invité). | `REC-INV-04` | `✅ Réussi` | E2E Automatisé | Scénario réécrit le 9 novembre 2026 (`runner.mjs`), corps vérifié dans Chrome ; la preuve `docs/recette/preuves/REC-INV-04-panier.png` date de l'ancien panier invité et sera regénérée à la prochaine campagne. |
+| **REQ-INV-05** | Support trilingue complet (Français, Anglais, Arabe) avec inversion RTL native. | `REC-INV-05` | `🔲 Non implémenté` | E2E Automatisé (capture seule) | Langue forcée en français et aucun sélecteur affiché : tracé en anomalie `ANO-10` (ouverte). Résultat `✅` de la campagne du 2 novembre non confirmé, la capture ne contrôlait pas l'attribut `dir`. Ancienne preuve : `docs/recette/preuves/REC-INV-05-langue-arabe-rtl.png` |
 | **REQ-INV-06** | Cloisonnement des espaces privés (redirection immédiate vers connexion.html). | `REC-INV-06` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-INV-06-acces-interdit.png` |
-| **REQ-INV-07** | Pages institutionnelles et légales complètes (À propos, Contact, FAQ, CGU). | `REC-INV-07` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-INV-07-pages-institutionnelles.png` |
+| **REQ-INV-07** | ~~Pages institutionnelles et légales complètes (À propos, Contact, FAQ, CGU).~~ | `REC-INV-07` | `⛔ Retiré` | — | Pages supprimées le 9 novembre 2026 ; scénario retiré du runner. Ancienne capture archivée : `docs/recette/preuves/REC-INV-07-pages-institutionnelles.png`. |
 | **REQ-INV-08** | Page d'erreur 404 personnalisée, accessible et offrant un retour à l'accueil. | `REC-INV-08` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-INV-08-erreur-404.png` |
 
 ---
@@ -29,7 +32,7 @@ La présente matrice assure la traçabilité complète de chaque exigence foncti
 
 | ID Exigence | Description du Besoin | ID Cas de Test | Statut Réel | Type de Test | Preuve / Justification |
 | :--- | :--- | :--- | :---: | :---: | :--- |
-| **REQ-AUT-01** | Formulaire d'inscription client avec jauge de mot de passe et consentement Loi 09-08. | `REC-AUT-01` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-AUT-01-inscription-form.png` |
+| **REQ-AUT-01** | Formulaire d'inscription client avec aide à la saisie du mot de passe (12 caractères minimum, 4 classes). Le consentement Loi 09-08 n'est plus recueilli : voir `REQ-TRA-17`. | `REC-AUT-01` | `✅ Réussi` | E2E Automatisé | Scénario mis à jour le 9 novembre 2026 (contrôle des 5 règles affichées) et vérifié dans Chrome, avec une inscription réelle ; la preuve `docs/recette/preuves/REC-AUT-01-inscription-form.png` sera regénérée à la prochaine campagne. |
 | **REQ-AUT-02** | Connexion sécurisée avec génération de JWT et pose de cookies HttpOnly SameSite. | `REC-AUT-02` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-AUT-02-login-client-succes.png` |
 | **REQ-AUT-03** | Rejet net des mauvais identifiants sans divulgation d'informations sensibles. | `REC-AUT-03` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-AUT-03-login-echec.png` |
 | **REQ-AUT-04** | Déconnexion avec révocation locale et suppression des jetons d'accès. | `REC-AUT-04` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-AUT-04-deconnexion.png` |
@@ -42,7 +45,7 @@ La présente matrice assure la traçabilité complète de chaque exigence foncti
 
 | ID Exigence | Description du Besoin | ID Cas de Test | Statut Réel | Type de Test | Preuve / Justification |
 | :--- | :--- | :--- | :---: | :---: | :--- |
-| **REQ-CLI-01** | Tableau de bord personnel du client avec indicateurs et prochaines réservations. | `REC-CLI-01` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-CLI-01-dashboard.png` |
+| **REQ-CLI-01** | Tableau de bord personnel du client avec indicateurs et dernières réservations. | `REC-CLI-01` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-CLI-01-dashboard.png` (campagne du 2 novembre ; le tableau de bord a été simplifié depuis). |
 | **REQ-CLI-02** | Historique des réservations réelles avec statuts et références réelles. | `REC-CLI-02` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-CLI-02-reservations.png` |
 | **REQ-CLI-03** | Tunnel de commande complet en 4 étapes (`av-stepper`) avec choix de paiement. | `REC-CLI-03` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-CLI-03-checkout.png` |
 | **REQ-CLI-04** | Billetterie de support SAV avec fil de messages et horodatage. | `REC-CLI-04` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-CLI-04-tickets.png` |
@@ -51,7 +54,7 @@ La présente matrice assure la traçabilité complète de chaque exigence foncti
 | **REQ-CLI-07** | Dépôt d'un avis client et note par étoiles après exécution de la prestation. | `REC-CLI-07` | `✅ Réussi` | Intégration API | Validé via `ReviewControllerTest.java` (JUnit). |
 | **REQ-CLI-08** | Annulation d'une réservation avec libération automatique des disponibilités BDD. | `REC-CLI-08` | `✅ Réussi` | Intégration API | Validé via `BookingServiceTest.java` (verrous pessimistes). |
 | **REQ-CLI-09** | Émission et affichage du reçu de paiement / confirmation de réservation. | `REC-CLI-09` | `✅ Réussi` | E2E Automatisé | Module `payments.js` / reçu électronique. |
-| **REQ-CLI-10** | Préservation du panier d'achat invité lors de la connexion du client. | `REC-CLI-10` | `✅ Réussi` | E2E Automatisé | Synchronisation `localStorage` validée dans `panier.html`. |
+| **REQ-CLI-10** | ~~Préservation du panier d'achat invité lors de la connexion du client.~~ | `REC-CLI-10` | `⛔ Retiré` | — | Retiré le 9 novembre 2026 : plus de panier invité (voir `REQ-INV-04`). La synchronisation annoncée n'avait jamais été implémentée (`ANO-09`) ; le scénario ne figurait pas dans le runner E2E. |
 
 ---
 
@@ -123,4 +126,5 @@ La présente matrice assure la traçabilité complète de chaque exigence foncti
 | **REQ-TRA-14** | Test avec lecteurs d'écran physiques (NVDA Windows, VoiceOver iOS/macOS). | Accessibilité | `⚠️ À réaliser par un humain` | Grille de validation dans `humain_a_realiser.md`. |
 | **REQ-TRA-15** | Obtention du contrat commerçant et homologation bancaire CMI réelle. | FinTech / Légal | `⚠️ À réaliser par un humain` | Démarche administrative détaillée dans `humain_a_realiser.md`. |
 | **REQ-TRA-16** | Dépôt de dossier de déclaration de traitement de données auprès de la CNDP. | Juridique | `⚠️ À réaliser par un humain` | Procédure Loi 09-08 détaillée dans `humain_a_realiser.md`. |
+| **REQ-TRA-17** | Recueil et archivage du consentement à l'inscription (CGU et politique de confidentialité, Loi 09-08). | Juridique | `⛔ Retiré` | Retiré le 9 novembre 2026 : case à cocher, pages légales et colonnes `consent_at` / `consent_version` supprimées. À réexaminer avant toute ouverture commerciale (`humain_a_realiser.md`, §5). |
 

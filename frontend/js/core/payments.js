@@ -29,6 +29,17 @@ const PaymentsUI = (() => {
   async function summary(root, bookingId, role) {
     try {
       const values = await api.get("/api/payments?bookingId=" + encodeURIComponent(bookingId)); if (!root.isConnected) return;
+      if (role === "CLIENT") {
+        // Le statut du paiement figure déjà dans la fiche : le client ne garde que « Payer maintenant », tant que la réservation est à régler.
+        const last = values[values.length - 1];
+        root.replaceChildren();
+        if (last && last.bookingStatus === "PENDING" && utc(last.expiresAt) > Date.now()) {
+          const actions = document.createElement("div"); actions.className = "pm-history";
+          const pay = document.createElement("a"); pay.className = "bk-button"; pay.textContent = "Payer maintenant"; pay.href = clientUrl("payment", bookingId);
+          actions.append(pay); root.append(actions);
+        }
+        return;
+      }
       if (!values.length) { root.textContent = "Aucun paiement enregistré."; return; }
       const current = values[values.length - 1];
       root.innerHTML = banner + '<h3>Paiement de la réservation</h3>' + receipt(current) + '<div class="pm-history"></div>';

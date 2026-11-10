@@ -1,7 +1,7 @@
 # Manuel Utilisateur — Espace Client
 
 > **Statut :** ✅ Implémenté  
-> **Date de mise à jour :** 2026-11-01  
+> **Date de mise à jour :** 2026-11-09  
 > **Profil :** Voyageur particulier (`ROLE_CLIENT`)  
 > **Point d'entrée :** `http://127.0.0.1:5500/frontend/client/index.html`
 
@@ -9,13 +9,13 @@
 
 ## 1. Tableau de Bord Client
 
-Dès votre connexion, votre espace client vous présente une vue synthétique de vos projets de voyage :
+Dès votre connexion, votre espace client vous présente une vue synthétique de votre activité :
 
 ![Tableau de bord Client](../assets/screenshots/client/01-dashboard.png)
 
-- **Indicateurs clés :** Nombre de réservations à venir, séjours terminés, solde des devis et points d'attention.
-- **Raccourcis rapides :** Accès direct au catalogue, à vos vouchers PDF et à vos tickets de support.
-- **Cloche de notifications :** Alertes de confirmation de commande, rappels de séjour à J-3 et réponses du support client.
+- **Indicateurs clés :** nombre total de réservations et montant net payé, puis, pour la période choisie (**7 jours**, **30 jours** ou **12 mois**), nombre de réservations et montant net payé, avec la variation par rapport à la période précédente lorsqu'elle existe.
+- **Mes dernières réservations :** les cinq plus récentes (référence, date de service, statut, montant TTC) ; la référence ouvre le détail de la réservation.
+- **Cloche de notifications :** alertes de confirmation de commande, rappels de séjour à J-3 et réponses du support client. **« Voir toutes les notifications »** ouvre la page complète, qui contient aussi vos préférences d'e-mail (le menu latéral n'a pas d'entrée « Notifications »).
 
 ---
 
@@ -23,8 +23,8 @@ Dès votre connexion, votre espace client vous présente une vue synthétique de
 
 ![Mes Réservations](../assets/screenshots/client/02-reservations.png)
 
-Dans l'onglet **« Mes Réservations »** :
-1. **Détail de la commande :** Référence unique (`BK-AAAA-NNNNNN`), liste des prestations, dates exactes et statut financier.
+Dans l'onglet **« Mes Réservations »**, la liste est triée de la plus récente à la plus ancienne ; vous pouvez la filtrer par statut (onglets), par référence et par plage de dates :
+1. **Détail de la commande :** Référence unique (`BK-AAAA-NNNNNN`), liste des prestations, dates exactes, méthode et statut de paiement. Tant que la réservation est à régler, le bouton **« Payer maintenant »** apparaît sous la fiche.
 2. **Téléchargement du Voucher PDF :** Cliquez sur l'icône Document pour générer votre bon d'échange officiel avec QR code signé cryptographiquement. À présenter au fournisseur lors de votre arrivée.
 3. **Annulation en ligne :**
    - **> 48 heures avant le début :** Annulation gratuite avec remboursement intégral automatique.
@@ -62,7 +62,7 @@ En cas de question ou de demande de modification sur un voyage :
 
 Dans l'onglet **« Mon Compte »** :
 - **Préférences régionales :** Choisissez votre langue préférée (FR, EN, AR) et devise par défaut.
-- **Sécurité :** Changement de mot de passe renforcé (12 caractères minimum, 3 classes).
+- **Sécurité :** Changement de mot de passe renforcé (12 caractères minimum, 4 classes obligatoires : minuscule, majuscule, chiffre, caractère spécial).
 - **Protection des données (Loi 09-08 / RGPD) :**
   - **Exportation des données :** Téléchargez une copie intégrale au format JSON de toutes vos informations enregistrées.
   - **Suppression du compte :** Demandez l'anonymisation irréversible et la suppression de votre compte conformément à la loi.

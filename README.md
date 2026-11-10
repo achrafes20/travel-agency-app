@@ -11,10 +11,10 @@
 
 Atlas Voyage est une plateforme de voyage et d'e-tourisme marocaine de référence, permettant la réservation en ligne et l'encaissement d'offres touristiques complètes : **hôtels & riads, vols nationaux et internationaux, locations de voitures, taxis & transferts aéroportuaires, et excursions guidées**.
 
-L'application intègre une architecture découplée **Spring Boot 3.3.4 (Java 21) REST API** et un **Frontend modulaire en Vanilla JavaScript (zéro framework, zéro étape de build obligatoire)**, avec support trilingue natif (**Français, Anglais, Arabe avec RTL complet**), conformité d'accessibilité **WCAG 2.1 AA**, sécurité bancaire simulée (Sandbox + Espèces en agence) et protection **OWASP Top 10**.
+L'application intègre une architecture découplée **Spring Boot 3.3.4 (Java 21) REST API** et un **Frontend modulaire en Vanilla JavaScript (zéro framework, zéro étape de build obligatoire)**, avec un moteur de traduction trilingue (**Français, Anglais, Arabe avec RTL complet**, actuellement désactivé dans l'interface : voir `ANO-10`), conformité d'accessibilité **WCAG 2.1 AA**, sécurité bancaire simulée (Sandbox + Espèces en agence) et protection **OWASP Top 10**.
 
 > **English Summary:**  
-> Atlas Voyage is a full-featured Moroccan travel booking platform built with **Java 21 / Spring Boot 3.3.4** and **Vanilla JavaScript**. It features multi-role portals (Client, Supplier, Agent, Admin), dated availability management, dynamic multi-item bundling, cart with coupon engine, 2-step atomic booking with cancellation policies, simulated payment gateways (Card sandbox & Cash on arrival), in-app notifications, WCAG 2.1 AA responsive UI with dark mode, full trilingual i18n (FR, EN, AR with native RTL), and OWASP Top 10 hardened security (HttpOnly SameSite cookies, family refresh token rotation, double-submit CSRF, Bucket4j rate limiting, and GDPR compliance).
+> Atlas Voyage is a full-featured Moroccan travel booking platform built with **Java 21 / Spring Boot 3.3.4** and **Vanilla JavaScript**. It features multi-role portals (Client, Supplier, Agent, Admin), dated availability management, dynamic multi-item bundling, cart with coupon engine, 2-step atomic booking with cancellation policies, simulated payment gateways (Card sandbox & Cash on arrival), in-app notifications, WCAG 2.1 AA responsive UI, a full trilingual i18n engine (FR, EN, AR with native RTL, and a dark theme; currently disabled in the UI, see ANO-10), and OWASP Top 10 hardened security (HttpOnly SameSite cookies, family refresh token rotation, double-submit CSRF, Bucket4j rate limiting, and GDPR compliance).
 
 ---
 
@@ -63,14 +63,14 @@ Atlas Voyage propose une interface moderne aux couleurs marocaines (Bleu Majorel
 
 | Domaine / Module | Fonctionnalité Clé | Statut | Documentation associée |
 |---|---|:---:|---|
-| **Authentification & Sécurité** | JWT via cookies HttpOnly, rotation refresh token, détection de rejeu | `✅ Implémenté` | [`docs/architecture.md`](docs/architecture.md), [`ADR-0005`](docs/adr/0005-authentification-jwt-cookies-httponly-rotation-refresh.md) |
+| **Authentification & Sécurité** | JWT via cookies HttpOnly, rotation refresh token, détection de rejeu, option « Se souvenir de moi » (cookie persistant ou de session) | `✅ Implémenté` | [`docs/architecture.md`](docs/architecture.md), [`ADR-0005`](docs/adr/0005-authentification-jwt-cookies-httponly-rotation-refresh.md) |
 | **Protection OWASP** | Rate limiting Bucket4j (429), CSRF double-submit, anti-bruteforce (lockout 5 échecs) | `✅ Implémenté` | [`docs/securite/matrice_autorisations.md`](docs/securite/matrice_autorisations.md) |
-| **RGPD / Loi marocaine 09-08** | Export de données personnelles JSON, droit à l'oubli et anonymisation | `✅ Implémenté` | [`docs/regles_metier.md#11-protection-des-données-personnelles`](docs/regles_metier.md) |
+| **RGPD / Loi marocaine 09-08** | Export de données personnelles JSON, droit à l'oubli et anonymisation. Aucun consentement n'est recueilli à l'inscription depuis le 9 novembre 2026 (case et pages légales retirées) : à réexaminer avant ouverture commerciale | `🟡 Partiel` | [`docs/regles_metier.md`, §6](docs/regles_metier.md#6-sécurité-des-comptes-mots-de-passe--rgpd), [`humain_a_realiser.md`](docs/recette/humain_a_realiser.md) |
 | **Offres & Hébergement** | Single Table Inheritance (5 types d'offres), géocodage Open-Meteo résilient | `✅ Implémenté` | [`ADR-0001`](docs/adr/0001-single-table-inheritance-offres.md), [`ADR-0007`](docs/adr/0007-geocodage-resilient-open-meteo.md) |
 | **Disponibilités & Stock** | Périodes datées exclusives (`OfferAvailability`), aucun stock global statique | `✅ Implémenté` | [`ADR-0002`](docs/adr/0002-disponibilites-par-periodes-vs-stock.md) |
 | **Fournisseurs Spécialisés** | Validation stricte par catégorie (`HOTEL`, `FLIGHT`, `CAR`, `TAXI`, `ACTIVITY`) | `✅ Implémenté` | [`ADR-0003`](docs/adr/0003-fournisseurs-specialises-par-categorie.md) |
 | **Catalogue & Recherche** | Recherche multi-critères, filtres à facettes, tri dynamique, pagination | `✅ Implémenté` | [`ADR-0008`](docs/adr/0008-catalogue-public-unique.md) |
-| **Panier & Promotions** | Panier connecté, fusion d'items, calculs TTC en MAD, codes promotionnels | `✅ Implémenté` | [`docs/regles_metier.md#5-panier-et-codes-promotionnels`](docs/regles_metier.md) |
+| **Panier & Promotions** | Panier réservé aux clients connectés (un invité est redirigé vers la connexion puis ramené sur l'offre), fusion d'items, calculs TTC en MAD, codes promotionnels | `✅ Implémenté` | [`docs/regles_metier.md#5-panier-et-codes-promotionnels`](docs/regles_metier.md) |
 | **Packages / Bundles** | Composition de packs dynamiques multi-offres par les agents, prix remisé | `✅ Implémenté` | [`docs/regles_metier.md#4-packages-touristiques-bundles`](docs/regles_metier.md) |
 | **Réservations** | Réservation transactionnelle atomique, verrouillage, voucher PDF avec QR code | `✅ Implémenté` | [`docs/regles_metier.md#6-cycle-de-vie-dune-réservation`](docs/regles_metier.md) |
 | **Annulation & Indemnités** | Barème automatisé : gratuit >48h, 50% entre 24h et 48h, 0% <24h | `✅ Implémenté` | [`docs/regles_metier.md#7-politique-dannulation-et-restitution`](docs/regles_metier.md) |
@@ -79,11 +79,11 @@ Atlas Voyage propose une interface moderne aux couleurs marocaines (Bleu Majorel
 | **Statistiques & Reporting** | Dashboard Chart.js 4.4.8, KPI chiffre d'affaires/occupation, exports CSV | `✅ Implémenté` | [`docs/statistiques.md`](docs/statistiques.md) |
 | **Support Client (Tickets)** | Billetterie SAV avec fil de discussion persistant client/agent/admin | `✅ Implémenté` | [`docs/api_endpoints.md#14-tickets-de-support`](docs/api_endpoints.md) |
 | **Favoris, Audit & Paramètres** | Favoris client, journal d'audit append-only (Admin), maintenance globale | `✅ Implémenté` | [`docs/regles_metier.md#13-journal-daudit-et-traçabilité`](docs/regles_metier.md) |
-| **Design System & UX** | Architecture CSS `@layer`, tokens `av-*`, Dark mode sans scintillement (FOUT) | `✅ Implémenté` | [`docs/design/guide_composants.md`](docs/design/guide_composants.md) |
-| **Accessibilité (A11y)** | 100% conforme WCAG 2.1 AA (audité par axe-core), navigation clavier, aria | `✅ Implémenté` | [`docs/design/accessibilite.md`](docs/design/accessibilite.md) |
+| **Design System & UX** | Architecture CSS `@layer`, tokens `av-*`. Thème sombre présent dans le code mais désactivé (thème clair forcé, `ANO-10`) | `🟡 Partiel` | [`docs/design/guide_composants.md`](docs/design/guide_composants.md) |
+| **Accessibilité (A11y)** | WCAG 2.1 AA vérifié par axe-core sur les pages publiques et la page de connexion (0 violation sur les 11 URL auditées le 9 novembre 2026 ; les espaces connectés ne sont pas couverts, voir `ANO-18`), navigation clavier, aria | `✅ Implémenté` | [`docs/design/accessibilite.md`](docs/design/accessibilite.md) |
 | **Composants Riches** | Carte interactive Leaflet 1.9.4 auto-hébergée, Lightbox plein écran tactile | `✅ Implémenté` | [`docs/design/guide_composants.md`](docs/design/guide_composants.md) |
 | **Avis & Modération** | Avis clients vérifiés post-séjour, modération admin, réponse fournisseur | `✅ Implémenté` | [`docs/regles_metier.md#12-avis-et-notations-clients`](docs/regles_metier.md) |
-| **Internationalisation (i18n)** | Trilingue FR / EN / AR, support RTL complet, 6 formes de pluriel arabes | `✅ Implémenté` | [`docs/i18n/guide_i18n.md`](docs/i18n/guide_i18n.md), [`ADR-0009`](docs/adr/0009-i18n-runtime-vanilla-vs-build-time.md) |
+| **Internationalisation (i18n)** | Moteur et dictionnaires FR / EN / AR complets (16 namespaces), RTL et 6 formes de pluriel arabes. **Langue forcée en français et aucun sélecteur affiché** dans l'interface actuelle (`ANO-10`) | `🟡 Partiel` | [`docs/i18n/guide_i18n.md`](docs/i18n/guide_i18n.md), [`ADR-0009`](docs/adr/0009-i18n-runtime-vanilla-vs-build-time.md) |
 | **Multi-Devises Indicatives** | Taux de change en direct (EUR, USD, GBP), règle d'or financière MAD stricte | `✅ Implémenté` | [`docs/i18n/devises.md`](docs/i18n/devises.md), [`ADR-0004`](docs/adr/0004-dirham-marocain-reference-devises-indicatives.md) |
 | **CI / CD Pipeline** | GitHub Actions automatisé (compilation, tests Maven, audit docs, linter JS) | `🔲 Prévu` (Phase 11) | [`docs/decisions_a_prendre.md`](docs/decisions_a_prendre.md) |
 | **Build & Minification Prod** | Bundling/minification optionnel des assets JS/CSS pour CDN haute performance | `🔲 Prévu` (Phase 13) | [`docs/decisions_a_prendre.md`](docs/decisions_a_prendre.md) |
@@ -288,7 +288,7 @@ travel-agency-app/
 │   ├── securite/                  # Matrice des autorisations, modèle de menaces STRIDE
 │   ├── architecture.md            # Document d'architecture globale (C4 model, ER, flux)
 │   ├── regles_metier.md           # Référentiel exhaustif des règles métier
-│   └── ETAT_COMPLET_PROJET.md     # État d'avancement détaillé et exhaustif du projet
+│   └── archive/                   # Documents historiques non maintenus (état complet Phase 17, rapports de phase, anciens SQL)
 ├── scripts/                       # Scripts utilitaires d'automatisation et de documentation
 │   ├── docs/                      # Générateurs et validateurs de documentation
 │   └── serve_frontend.mjs         # Serveur HTTP local pour le développement frontend
@@ -330,7 +330,7 @@ Le portail central de documentation est situé dans [`docs/README.md`](docs/READ
 - **Catalogue des Codes d'Erreur API :** [`docs/api/codes_erreur.md`](docs/api/codes_erreur.md)
 - **Guides d'Exploitation & Runbooks :** [`docs/exploitation/README.md`](docs/exploitation/README.md)
 - **Guides Utilisateurs par Rôle :** [`docs/manuel/README.md`](docs/manuel/README.md)
-- **État d'Avancement Global :** [`docs/ETAT_COMPLET_PROJET.md`](docs/ETAT_COMPLET_PROJET.md)
+- **État d'Avancement :** [`CHANGELOG.md`](CHANGELOG.md) et [rapport de recette](docs/recette/rapport_final_recette.md) ; l'ancien état complet est archivé dans [`docs/archive/`](docs/archive/README.md)
 - **Décisions Ouvertes à Prendre :** [`docs/decisions_a_prendre.md`](docs/decisions_a_prendre.md)
 
 ---

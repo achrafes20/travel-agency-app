@@ -12,7 +12,7 @@ public @interface StrongPassword {
     String message() default "Le mot de passe ne respecte pas les critères de sécurité";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
-    int min() default 12;
-    int max() default 128;
+    int min() default com.agence.voyage.security.PasswordPolicy.MIN_LENGTH;
+    int max() default com.agence.voyage.security.PasswordPolicy.MAX_LENGTH;
 }
 
