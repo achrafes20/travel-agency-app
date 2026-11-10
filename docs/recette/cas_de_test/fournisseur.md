@@ -10,10 +10,12 @@ Ce document détaille l'ensemble des scénarios de test exécutés pour le rôle
 - **Préconditions** : Authentifié avec `karim.idrissi@atlasvoyage.ma` / `password123`.
 - **Étapes** :
   1. Naviguer vers `http://localhost:5500/frontend/supplier/index.html?page=dashboard`.
-  2. Vérifier les blocs de statistiques et le bandeau d'en-tête de l'espace fournisseur.
+  2. Vérifier les quatre indicateurs (Revenu de mes prestations, Réservations de la période, Panier moyen, Offres actives), le graphique « Vos revenus sur six mois » et, à sa droite, « Dernières réservations reçues ».
+  3. Vérifier l'absence de la ligne de période, des mentions « Période précédente », du bouton « Actualiser » et des panneaux « Disponibilités à vérifier » et « Activité récente » (retirés le 10 novembre 2026).
 - **Résultat Attendu** : La page charge les indicateurs de performance du fournisseur sans erreur d'API.
 - **Statut d'Exécution** : `✅ Réussi`
 - **Preuve** : `docs/recette/preuves/REC-FOU-01-dashboard.png`
+- **Note (10 novembre 2026)** : étapes 1 à 3 réécrites après la revue de l'espace fournisseur. Le résultat `✅` date de la campagne du 2 novembre ; scénario non rejoué.
 
 ---
 
@@ -43,16 +45,17 @@ Ce document détaille l'ensemble des scénarios de test exécutés pour le rôle
 
 ---
 
-### REC-FOU-04 : Calendrier des disponibilités et alertes de stock
+### REC-FOU-04 : Périodes de disponibilité et alertes de stock
 - **Titre** : Suivi des créneaux datés et alerte de capacité faible.
 - **Objectif** : Contrôler le planning des disponibilités par offre et l'affichage des alertes visuelles lorsque la capacité restante passe sous le seuil critique.
 - **Préconditions** : Offre avec disponibilités configurées.
 - **Étapes** :
-  1. Naviguer vers `http://localhost:5500/frontend/supplier/index.html?page=availabilities`.
-  2. Examiner les lignes de périodes (`available_from`, `available_until`, capacité restante).
+  1. Naviguer vers `http://localhost:5500/frontend/supplier/index.html?page=inventory`.
+  2. Vérifier le titre « Périodes de disponibilité » (ancien « Calendrier des disponibilités », renommé le 10 novembre 2026), puis examiner les lignes : une par offre, avec son état, son nombre de périodes et la période en cours ou la prochaine.
 - **Résultat Attendu** : Les créneaux épuisés (capacité = 0) ou en stock faible sont clairement mis en évidence.
 - **Statut d'Exécution** : `✅ Réussi`
 - **Preuve** : `docs/recette/preuves/REC-FOU-04-disponibilites.png`
+- **Note (10 novembre 2026)** : URL corrigée (`?page=inventory`, l'ancienne `?page=availabilities` n'existe pas), titre et étape 2 réécrits ; scénario non rejoué.
 
 ---
 
@@ -63,9 +66,11 @@ Ce document détaille l'ensemble des scénarios de test exécutés pour le rôle
 - **Étapes** :
   1. Naviguer vers `http://localhost:5500/frontend/supplier/index.html?page=bookings`.
   2. Consulter les détails d'un dossier.
+  3. Vérifier qu'aucun filtre « Tri » ni surtitre « VOS VOYAGES ATLAS VOYAGE » n'est affiché, et que la fiche ne contient ni e-mail du client, ni commentaire sur l'annulation, ni bloc de paiement, ni la mention « Cette fiche contient uniquement vos prestations… » (retirés le 10 novembre 2026).
 - **Résultat Attendu** : Le fournisseur voit les dates de séjour, le nombre de passagers, et le statut de la prestation.
 - **Statut d'Exécution** : `✅ Réussi`
 - **Preuve** : `docs/recette/preuves/REC-FOU-05-reservations-fournisseur.png`
+- **Note (10 novembre 2026)** : étape 3 ajoutée ; scénario non rejoué.
 
 ---
 

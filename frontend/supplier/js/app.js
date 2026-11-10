@@ -498,7 +498,6 @@ function renderOfferForm() {
       <aside class="sticky top-20">
         <span class="eyebrow mb-2 block">APERÇU EN DIRECT</span>
         <div class="card overflow-hidden" id="offer-preview">${offerPreview()}</div>
-        <div class="mt-3 flex gap-2 rounded-lg bg-blue-100 p-3 text-[8px] leading-4 text-blue-800">${icon("info")}<p>Un changement de prix n’affectera jamais les réservations existantes.</p></div>
       </aside>
     </div>`;
   ensureSupplier().catch(err => toast("Fournisseur introuvable", err.message, "error"));
@@ -670,7 +669,7 @@ function inventoryRows(list) {
 function renderInventory() {
   const cities = [...new Set(state.offers.map(o => o.cityName).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"fr"));
   pageContent.innerHTML = `
-    ${pageHeader("Gestion", "Calendrier des disponibilités", "Suivez les périodes réservables de toutes vos offres.")}
+    ${pageHeader("Gestion", "Périodes de disponibilité", "Suivez les périodes réservables de toutes vos offres.")}
     <div class="card inventory-filters mb-4"><label class="search-field">${icon("search")}<input id="inventory-search" placeholder="Titre, ville ou type…"></label><select id="inventory-type" class="control"><option value="">Tous les types</option>${Object.entries(OFFER_TYPES).map(([key,t])=>`<option value="${key}">${t.label}</option>`).join("")}</select><select id="inventory-city" class="control"><option value="">Toutes les villes</option>${cities.map(c=>`<option>${esc(c)}</option>`).join("")}</select><select id="inventory-status" class="control"><option value="">Tous les statuts</option><option value="current">Disponible maintenant</option><option value="upcoming">À venir</option><option value="none">Sans disponibilité</option><option value="inactive">Offres inactives</option></select><select id="inventory-period" class="control"><option value="0">Toutes les périodes</option><option value="7">Dans les 7 jours</option><option value="30">Dans les 30 jours</option><option value="90">Dans les 90 jours</option></select><select id="inventory-sort" class="control"><option value="title">Tri : titre</option><option value="date">Tri : prochaine date</option><option value="capacity">Tri : capacité</option><option value="city">Tri : ville</option></select><button type="button" class="btn btn-ghost" id="inventory-reset">${icon("rotate-ccw")} Réinitialiser</button></div>
     <div class="inventory-summary"><span id="inventory-count">0 offre</span><small>Les filtres s’appliquent aux périodes futures et en cours.</small></div>
     <div class="card overflow-hidden"><table class="data-table"><thead><tr><th>Offre</th><th>Statut</th><th>Période actuelle ou prochaine</th></tr></thead><tbody id="inventory-body"><tr><td colspan="3" class="py-10 text-center text-[10px] text-atlas-muted">Chargement…</td></tr></tbody></table></div>`;

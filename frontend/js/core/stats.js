@@ -34,7 +34,7 @@ const StatsUI = (() => {
    const chart=new Chart(canvas,{...config,options:{responsive:true,maintainAspectRatio:false,animation:false,...config.options}});
    instances.set(canvas,chart);owner.charts.add(chart);
   }catch{
-   canvas.replaceWith(el("p","st-empty","Impossible d’afficher ce graphique. Réessayez avec le bouton Actualiser."));
+   canvas.replaceWith(el("p","st-empty","Impossible d’afficher ce graphique. Réessayez en changeant de période."));
   }
  }
  function panel(title,subtitle){
@@ -42,15 +42,16 @@ const StatsUI = (() => {
   if(subtitle)heading.append(el("p","st-muted",subtitle));card.append(heading);return card;
  }
  function empty(card,text){card.append(el("p","st-empty",text));}
+ const lean=role=>role==="CLIENT"||role==="SUPPLIER";
  function kpi(parent,title,data,format=number){
   const card=el("article","st-kpi");card.append(el("span","st-kpi-label",title),el("strong","st-kpi-value",format(data.value)));
   if(data.previous===null||data.changePercent===null){
    if(data.previous===null)card.append(el("small","st-muted","Comparaison indisponible"));
-   else if(state.role!=="CLIENT")card.append(el("small","st-muted","Période précédente : "+format(data.previous)+" · aucune base de variation"));
+   else if(!lean(state.role))card.append(el("small","st-muted","Période précédente : "+format(data.previous)+" · aucune base de variation"));
   }else{
    const direction=Number(data.changePercent),line=el("small",direction>0?"st-up":direction<0?"st-down":"st-muted");
    line.textContent=(direction>0?"↑ En hausse de ":direction<0?"↓ En baisse de ":"→ Stable : ")+new Intl.NumberFormat("fr-FR",{maximumFractionDigits:2}).format(Math.abs(direction))+" %";
-   card.append(line);if(state.role!=="CLIENT")card.append(el("small","st-muted","Période précédente : "+format(data.previous)));
+   card.append(line);if(!lean(state.role))card.append(el("small","st-muted","Période précédente : "+format(data.previous)));
   }
   parent.append(card);return card;
  }
@@ -99,19 +100,12 @@ const StatsUI = (() => {
   data.alerts.forEach(a=>{const row=el("p","st-alert",number(a.count)+" · "+a.message);alerts.append(row);});lists.append(alerts);
  }
  function supplier(data,blocks){
-  metric(blocks[0],"Offres actives",data.offers.active);metric(blocks[0],"Offres inactives",data.offers.inactive);
-  kpi(blocks[0],"Réservations de la période",data.bookings);kpi(blocks[0],"Réservations du mois",data.bookingsThisMonth);
-  kpi(blocks[0],"Revenu de mes prestations",data.revenue,money);metric(blocks[0],"Disponibilités à vérifier",data.availabilityChecks.count);
+  kpi(blocks[0],"Revenu de mes prestations",data.revenue,money);kpi(blocks[0],"Réservations de la période",data.bookings);
+  metric(blocks[0],"Panier moyen",data.bookings.value>0?data.revenue.value/data.bookings.value:null,v=>v===null?"—":money(v));
+  metric(blocks[0],"Offres actives",data.offers.active+" sur "+(data.offers.active+data.offers.inactive),String);
   const revenue=panel("Vos revenus sur six mois","Somme des prix de vos lignes confirmées ou terminées, avant la promotion globale du panier");
   chart(revenue,"bar",data.revenueSixMonths.map(p=>p.label),data.revenueSixMonths.map(p=>p.revenue),"Revenus fournisseur en MAD");blocks[1].append(revenue);
-  const availability=panel("Disponibilités à vérifier");
-  table(availability,["Offre","Ville","À vérifier"],data.availabilityChecks.items,a=>{
-   const causes=[a.noFuturePeriod?"Aucune période future":null,a.lowCapacity?"Capacité faible":null,a.endingSoon?"Fin de période proche":null].filter(Boolean).join(" · ");
-   const action=link("SUPPLIER","inventory",a.title);const url=new URL(action.href);url.searchParams.set("offerId",a.offerId);action.href=url.href;
-   return [action,a.city,causes];
-  },"Aucune disponibilité à vérifier.");blocks[2].append(availability);
-  const recent=panel("Dernières réservations reçues");bookingTable(recent,data.recentBookings,"SUPPLIER");blocks[2].append(recent);
-  const activity=panel("Activité récente","Vos dernières notifications d’activité");activities(activity,data.recentActivity);blocks[2].append(activity);
+  const recent=panel("Dernières réservations reçues");bookingTable(recent,data.recentBookings,"SUPPLIER");blocks[1].append(recent);blocks[1].classList.add("st-split");
  }
  function agent(data,blocks){
   kpi(blocks[0],"Réservations en attente · période",data.pendingBookings);
@@ -148,8 +142,8 @@ const StatsUI = (() => {
    const select=button(label,"st-period");select.dataset.period=value;select.setAttribute("aria-pressed",String(current.period===value));
    select.onclick=()=>{current.period=value;const params=new URLSearchParams(location.search);params.set("period",value);history.replaceState({},"",location.pathname+"?"+params);reload();};periods.append(select);periodButtons.push(select);
   });
-  const refresh=button("Actualiser","st-button st-secondary");refresh.onclick=()=>reload();controls.append(periods);if(role!=="CLIENT")controls.append(refresh);top.append(controls);root.append(top);
-  const meta=el("p","st-meta");if(role!=="CLIENT")root.append(meta);
+  const refresh=button("Actualiser","st-button st-secondary");refresh.onclick=()=>reload();controls.append(periods);if(!lean(role))controls.append(refresh);top.append(controls);root.append(top);
+  const meta=el("p","st-meta");if(!lean(role))root.append(meta);
   const blocks=[el("div","st-kpis"),el("div","st-charts"),el("div","st-lists")];blocks.forEach(block=>root.append(block));
   if(role==="ADMIN"){
    const exports=panel("Exporter les données"),row=el("div","st-export-controls"),from=el("input"),to=el("input"),status=el("select");

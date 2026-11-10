@@ -62,10 +62,10 @@ La présente matrice assure la traçabilité complète de chaque exigence foncti
 
 | ID Exigence | Description du Besoin | ID Cas de Test | Statut Réel | Type de Test | Preuve / Justification |
 | :--- | :--- | :--- | :---: | :---: | :--- |
-| **REQ-FOU-01** | Tableau de bord avec statistiques du fournisseur (offres actives, CA, réservations). | `REC-FOU-01` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-FOU-01-dashboard.png` |
+| **REQ-FOU-01** | Tableau de bord avec statistiques du fournisseur (CA, réservations, panier moyen, offres actives). | `REC-FOU-01` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-FOU-01-dashboard.png` |
 | **REQ-FOU-02** | Wizard de création d'offre en 4 étapes (catégorie, ville, tarifs, stock). | `REC-FOU-02` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-FOU-02-wizard-offre.png` |
 | **REQ-FOU-03** | Liste des offres avec état de modération (Actif, En attente, Rejeté). | `REC-FOU-03` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-FOU-03-mes-offres.png` |
-| **REQ-FOU-04** | Calendrier des disponibilités par période et alertes de stock faible. | `REC-FOU-04` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-FOU-04-disponibilites.png` |
+| **REQ-FOU-04** | Périodes de disponibilité par offre (écran en lecture seule, renommé le 10 novembre) et alertes de stock faible. | `REC-FOU-04` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-FOU-04-disponibilites.png` |
 | **REQ-FOU-05** | Liste et suivi des réservations passées sur les prestations du fournisseur. | `REC-FOU-05` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-FOU-05-reservations-fournisseur.png` |
 | **REQ-FOU-06** | Statistiques de ventes et export des données du fournisseur au format CSV. | `REC-FOU-06` | `✅ Réussi` | E2E Automatisé | `docs/recette/preuves/REC-FOU-06-stats-fournisseur.png` |
 | **REQ-FOU-07** | Cloisonnement strict multi-tenant : impossibilité de voir les données d'autrui. | `REC-FOU-07` | `✅ Réussi` | Intégration Backend | `SupplierOfferSecurityTest.java` (contrôle au niveau Service). |
